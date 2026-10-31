@@ -4,8 +4,8 @@
 
 ## Sessão
 - **Atual:** S3 — Biblioteca: cadastrar, buscar e editar (`docs/sessions/S03-biblioteca.md`)
-- **Última concluída:** S2 — Persistência SQLite + Drizzle
-- **Próxima:** S3 — formulário e detalhe do livro lendo/escrevendo no banco
+- **Última concluída:** S2 — Persistência SQLite + Drizzle (`0209f04`, validada no Android pelo dono)
+- **Próxima:** S3 — começar corrigindo o corte de descendentes na tipografia `display`
 
 ## Pronto
 - SQLite real no aparelho: `expo-sqlite` 58.0.15 + `drizzle-orm` 0.45.4,
@@ -32,18 +32,28 @@
   versionado. O commit `9e650d8` falhava só nisso.
 - Docs: `docs/data-model.md`, `docs/testing.md`, `docs/architecture.md`,
   `docs/INDEX.md`, ADR 0007 e 0008.
+- Conferido no Android pelo dono: seed mostra 5 livros e eles continuam após
+  fechar/reabrir o app (aceite da S2 fechado).
+
+## Bug conhecido (corrigir no início da S3)
+- `AppText variant="display"` corta descendentes (`p`, `g`, `J`) no Android:
+  "18 páginas", "Hoje" e "Ajustes" aparecem com a base cortada e o texto
+  seguinte ("cerca de 15 minutos de leitura") sobrepõe a linha.
+- Causa provável: `lineHeight.display = 56` para `fontSize.display = 52`
+  (Fredoka 700) — a caixa de linha é menor que as métricas da fonte.
+  Conferir também `xxl` (36/42). Ver tarefas 1–2 da spec S3.
 
 ## Próximo passo
-Executar a S3: migração 0001 (`isbn`, `cover_uri`), tela de cadastro/edição,
-detalhe do livro, busca local e capa escolhida da galeria.
+Executar a S3 na ordem: corrigir tipografia `display` e validar no Android,
+depois migração 0001 (`isbn`, `cover_uri`), formulário/detalhe, busca e capa.
 
 ## Pendências manuais (dono)
 - ~~Fechar os 7 PRs antigos do Dependabot~~ feito.
 - ~~Ligar Dependabot alerts/security updates, secret scanning e push
   protection~~ feito.
 - ~~Ruleset na `main` (restrict deletions + block force pushes)~~ feito.
-- Rodar no Android e confirmar que o seed aparece e sobrevive ao fechar o app
-  (o agente só validou `expo export`, não device).
+- ~~Rodar no Android e confirmar que o seed aparece e sobrevive ao fechar o
+  app~~ feito: permanecem 5 livros após reabrir.
 
 ## Decisões abertas
 - NativeWind v4 não declara suporte oficial à SDK 58 (ADR 0006): bundle passou;
@@ -75,6 +85,9 @@ detalhe do livro, busca local e capa escolhida da galeria.
 - `update` valida o livro completo — patch sozinho não passa validação.
 - RTL 14 é assíncrono: `await render(...)` e `await fireEvent.press(...)`.
 - Fontes: use a família com peso (`Fredoka_700Bold`), nunca `fontWeight`.
+- Texto grande no Android corta descendentes quando `lineHeight` fica próximo
+  do `fontSize`: variante `display` (52/56) já apresentou o bug. Dê folga de
+  ~15–20% e valide no device.
 - Node local 26 vs CI 22: rode `npm run test` antes de culpar o código.
 - `npx expo install <pkg>` sempre; nunca `npm install` direto para libs nativas.
 - Repo é público: nada de dados pessoais em seeds, screenshots ou docs.

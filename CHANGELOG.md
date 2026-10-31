@@ -61,7 +61,9 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   Ajustes passam a ler do SQLite e Hoje lê a meta diária.
 - `docs/data-model.md`, `docs/testing.md`, ADR 0007 e ADR 0008.
 - Testes de CRUD, constraints, seed idempotente e migração repetida com
-  `sql.js`; telas testadas com repositórios em memória (27 testes).
+  `sql.js`; telas testadas com repositórios em memória (29 testes).
+- Conferido no Android: seed de 5 livros aparece no primeiro uso e permanece
+  após fechar/reabrir o app.
 
 ### Changed
 

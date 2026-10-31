@@ -35,9 +35,8 @@ migração inicial, repositórios testados e as 4 abas lendo do banco.
 ## Aceite
 
 - [x] CRUD de `books` coberto por testes e usando repositório.
-- [ ] App abre no Android com os dados vindos do SQLite; reiniciar mantém os
-      dados. *(pendente: verificação manual do dono; o agente validou
-      `expo export --platform android` e os testes com `sql.js`)*
+- [x] App abre no Android com os dados vindos do SQLite; reiniciar mantém os
+      dados. *(conferido pelo dono: 5 livros do seed persistem após reabrir)*
 - [x] Migração roda uma vez e é idempotente.
 - [x] Nenhum SQL fora de `src/db/`.
 - [x] `npm run lint`, `npm run typecheck`, `npm run test` e `npm run doctor`

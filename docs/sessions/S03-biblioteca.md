@@ -13,6 +13,18 @@ no SQLite, com ISBN e capa escolhida da galeria.
 - Registro de leitura e progresso automático (S5).
 - Exclusão em massa, importação e backup (S11).
 
+## Correções trazidas da S2 (fazer primeiro)
+
+1. Corrigir o corte de descendentes em `AppText variant="display"`
+   (`src/theme/typography.ts`): `fontSize.display = 52` com
+   `lineHeight.display = 56` corta `p`, `g` e `J` no Android e faz a linha
+   seguinte sobrepor. Dar folga (~15–20%) e revisar `xxl` (36/42) pelo mesmo
+   motivo. Não usar `paddingBottom` como gambiarra: corrigir o token.
+2. Teste de regressão em `src/theme/typography.test.ts`: garantir
+   `lineHeight >= fontSize * 1.15` para `display`, `xxl` e `xl`.
+3. Conferir no Android (aba Hoje e títulos Estante/Fila/Ajustes) que "18
+   páginas", "Hoje" e "Ajustes" aparecem inteiros e sem sobreposição.
+
 ## Tarefas
 
 1. Migração `0001`: adicionar `isbn` (text, nullable, único quando presente) e
@@ -42,6 +54,7 @@ no SQLite, com ISBN e capa escolhida da galeria.
 
 ## Aceite
 
+- [ ] Títulos e textos `display` sem corte de descendentes no Android.
 - [ ] Cadastrar livro pela UI → aparece na Estante e sobrevive ao reiniciar.
 - [ ] Buscar por título, autor ou ISBN encontra o livro.
 - [ ] Editar qualquer campo persiste a mudança e atualiza `updated_at`.
@@ -65,6 +78,9 @@ no SQLite, com ISBN e capa escolhida da galeria.
 
 ## Riscos
 
+- **Tipografia:** o corte de descendentes só aparece no Android; validar no
+  device, não só no teste de token. Se aumentar `lineHeight` demais, os
+  cartões da Estante ficam altos — conferir visual.
 - **Migração aditiva:** nunca recriar a tabela. Conferir `drizzle-kit generate`
   antes de commitar e rodar `npm run test` (as migrações reais rodam no `sql.js`).
 - **Arquivos de capa órfãos:** copiar/remover precisa ser testável sem módulo
