@@ -22,8 +22,8 @@ Ter um repositório público saudável, um app Expo mínimo rodando no Android e
 ## Aceite
 - [x] `npm run lint`, `npm run typecheck` e `npm run test` passam.
 - [x] App abre no Android via Expo Go.
-- [ ] `gitleaks detect` limpo no histórico.
-- [ ] CI verde no GitHub.
+- [x] `gitleaks detect` limpo no histórico.
+- [x] CI verde no GitHub.
 - [x] README público com descrição, stack, como rodar, privacidade e licença.
 - [x] Nenhum segredo, dado pessoal ou arte com metadados no commit.
 
@@ -31,8 +31,8 @@ Ter um repositório público saudável, um app Expo mínimo rodando no Android e
 
 - Entrega: Expo SDK 58 + Expo Router, Biome, Jest, Husky, CI e docs.
 - Email dos commits corrigido para o `noreply` do GitHub (ADR 0004).
-- App validado por `npx expo export --platform android`; falta o teste visual no
-  aparelho e o primeiro run do CI.
+- App validado por `npx expo export --platform android` e CI verde (lint,
+  tipos, testes, expo-doctor e gitleaks). Falta só o teste visual no aparelho.
 - `gitleaks` não está instalado no Windows local: roda só no CI.
 - NativeWind, fontes e ícones ficaram para a S1.
 

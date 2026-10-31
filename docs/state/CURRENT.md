@@ -13,7 +13,8 @@
 - `app.config.ts` com `LêBot`, slug/scheme `lebot`, package `com.francis.lebot`.
 - Tooling: Biome (lint + format), Jest (`jest-expo`), Husky + lint-staged.
 - CI (`.github/workflows/ci.yml`): lint, typecheck, test, expo-doctor, gitleaks
-  com `fetch-depth: 0` e `permissions: contents: read`.
+  com `fetch-depth: 0` e `permissions: contents: read`. **Verde** em `main`.
+- `gitleaks` limpo no histórico completo.
 - Docs: `README.md`, `SECURITY.md`, `docs/architecture.md`,
   `docs/security-privacy.md`, `docs/learn/expo-for-react-devs.md`.
 - Licença MIT (código + arte) e e-mail `noreply` do GitHub nos commits.
