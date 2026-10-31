@@ -72,6 +72,10 @@ Arquivos de configuração: `babel.config.js` (`jsxImportSource: nativewind`),
 Nunca combine `fontFamily` de peso com `fontWeight`: o peso já está no arquivo.
 Escala de tamanhos em `fontSize` (`xs` 12 → `display` 52) e `lineHeight`.
 
+> **Pendência conhecida (S3):** `display` (52/56) corta descendentes (`p`, `g`,
+> `J`) no Android e sobrepõe a linha seguinte. A regra passa a ser
+> `lineHeight >= fontSize * 1.15`; validar no device.
+
 ## Classes no Tailwind
 
 O `tailwind.config.ts` expõe:
@@ -167,7 +171,8 @@ aparece ao lado (caso da área principal da Fila).
 
 `@testing-library/react-native` 14 (API assíncrona): sempre `await render(...)`
 e `await fireEvent.press(...)`. Use `renderWithProviders` de
-`src/test-utils/render.tsx`, que injeta o `SafeAreaProvider`.
+`src/test-utils/render.tsx`, que injeta o `SafeAreaProvider` e repositórios em
+memória.
 
 ```tsx
 import { screen } from '@testing-library/react-native';
@@ -183,5 +188,7 @@ it('mostra a estante', async () => {
 
 - Rotas em `src/app/(tabs)/` só reexportam a tela da feature.
 - Telas vivem em `src/features/<nome>/<Nome>Screen.tsx`.
-- Dados fake ficam em `src/features/<nome>/__fixtures__/`.
+- Livros e preferências vêm do SQLite via `useBooks`/`useSettings`; não há
+  fixture de dados reais.
+- Ainda são fixtures: `queue` (até S8) e `daily-plan` (até S6/S7).
 - As 4 abas atuais: Estante, Fila, Hoje, Ajustes.

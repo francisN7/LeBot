@@ -12,10 +12,10 @@ telemetria no MVP.
 
 | Dado | Onde | Observação |
 |---|---|---|
-| Livros, gêneros, status | SQLite local | sem sincronização no MVP |
-| Sessões de leitura e progresso | SQLite local | histórico do plano |
-| Resenhas e notas | SQLite local | nunca enviadas para fora |
-| Preferências | SQLite local | meta diária, ritmo |
+| Livros, gêneros, status | SQLite local | implementado na S2 |
+| Sessões de leitura e progresso | SQLite local | a partir da S5 |
+| Resenhas e notas | SQLite local | a partir da S9 |
+| Preferências | SQLite local | meta diária e tema, na S2 |
 
 Backup é manual: export/import de um JSON que o usuário escolhe onde guardar
 (S11). Nenhum upload automático.
@@ -29,8 +29,11 @@ Backup é manual: export/import de um JSON que o usuário escolhe onde guardar
 
 ## Permissões Android
 
-Alvo: **nenhuma permissão perigosa** no MVP. Consultas de ISBN usam rede apenas
-quando o usuário pede para buscar a capa/metadados (S3), e só com `INTERNET`.
+Alvo: **nenhuma permissão perigosa** no MVP. A S3 lê capas da galeria pelo
+seletor do sistema, sem pedir acesso amplo à biblioteca de arquivos.
+
+O MVP **não consulta ISBN online**. Se isso entrar, será só quando o usuário
+pedir, apenas com `INTERNET` e enviando nada além do ISBN digitado.
 
 ## Repositório público
 

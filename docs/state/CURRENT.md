@@ -25,7 +25,7 @@
   Estante, Fila e Ajustes leem do banco; Hoje usa `goal.pages` de `settings`
   (blocos ainda são fixture até S6/S7).
 - Fixtures de livros e de settings removidas; sobram `queue` e `daily-plan`.
-- 27 testes em 10 suítes: CRUD, constraints, seed idempotente, migração
+- 29 testes em 11 suítes: CRUD, constraints, seed idempotente, migração
   repetida e as 4 telas com repositórios em memória.
 - CI: typecheck passou a encontrar `*.css` no runner — `expo-env.d.ts` é
   gitignored, então `types/expo-types.d.ts` referencia `expo/types` e fica
@@ -61,6 +61,9 @@ depois migração 0001 (`isbn`, `cover_uri`), formulário/detalhe, busca e capa.
 - Ícone e splash ainda são placeholders do template (S4).
 - Migração em device: WAL/arquivo não são cobertos pelo `sql.js`; validar no
   Android a cada mudança de schema.
+- `docs/brand.md` fala em DNF/abandono, mas o schema só tem `reading`, `queued`,
+  `paused` e `finished`. Decidir na S9 se abandono vira status próprio ou é
+  `paused`.
 - `brand/source/*.png` ainda têm metadados: limpar no primeiro export real.
 
 ## Arquivos-chave

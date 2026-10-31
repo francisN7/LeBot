@@ -7,11 +7,11 @@ Notas curtas para reduzir o custo de troca de contexto entre sessões.
 | React (web) | Expo / React Native |
 |---|---|
 | `div`, `span`, `p` | `View`, `Text` |
-| CSS, classes | `StyleSheet.create` (até o NativeWind entrar) |
+| CSS, classes | NativeWind (`className`) + `StyleSheet` para estilo dinâmico |
 | `onClick` | `onPress` |
 | `img` | `Image` (`expo-image` para cache e placeholders) |
 | React Router | `expo-router` com arquivos em `src/app/` |
-| `localStorage` | SQLite (Drizzle) — não existe storage síncrono |
+| `localStorage` | SQLite (`expo-sqlite` + Drizzle); sem chave-valor síncrono |
 
 ## Regras que evitam bugs
 
@@ -49,5 +49,6 @@ npm run android    # abre no emulador/dispositivo conectado
 ## Testes
 
 Jest roda com o preset `jest-expo`. Componentes usam
-`@testing-library/react-native` (a partir da S1). Funções puras em `src/lib/` e
-o motor do plano não importam nada de React Native.
+`@testing-library/react-native` com repositórios em memória; repositórios usam
+`sql.js` com as migrações reais. Funções puras em `src/lib/` e o motor do plano
+não importam nada de React Native. Detalhes em `docs/testing.md`.

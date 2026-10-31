@@ -37,11 +37,13 @@ App mobile pessoal para catalogar livros, organizar a fila de leitura e gerar um
 
 - `src/app/` — rotas (Expo Router), sem lógica de negócio.
 - `src/features/<nome>/` — UI, hooks e serviços da feature; expõe `index.ts`.
-- `src/db/` — schema, migrations e repositórios.
+- `src/db/` — schema, client, migrações, seed e repositórios.
+- `drizzle/` — SQL das migrações gerado pelo `drizzle-kit` (não editar à mão).
 - `src/components/ui/` — componentes genéricos.
 - `src/theme/` — tokens de design.
 - `src/lib/` — utilitários puros.
 - `src/features/planner/engine/` — algoritmo puro, sem React Native.
+- `types/` — declarações globais versionadas (`expo/types`, `*.sql`).
 - `brand/` — arte-fonte (não vai para o bundle).
 - `assets/` — ícone/splash referenciados no `app.config.ts`.
 - `src/assets/` — imagens importadas pelos componentes.

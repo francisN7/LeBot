@@ -26,5 +26,6 @@ Interessam especialmente:
 
 - Segredos só em variáveis do EAS; nada em `.env` versionado.
 - `gitleaks` roda no CI (histórico completo) e opcionalmente no hook local.
-- Dependabot mensal para npm e GitHub Actions.
+- Dependabot apenas com alertas e *security updates*; sem PRs de versão
+  (`docs/adr/0005-sem-dependabot-de-versao.md`).
 - CI com `permissions: contents: read`.
