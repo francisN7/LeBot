@@ -34,8 +34,7 @@
 
 ## Pendente (dono, no Android)
 
-- Revalidar o último patch (capa na Estante, título em uma linha, diálogo de
-  exclusão e "Páginas lidas"); se falhar, corrigir antes da S3.2.
+- Revalidar o último patch (capa na Estante, título em uma linha, diálogo de exclusão e "Páginas lidas"); se falhar, corrigir antes da S3.2.
 
 ## Decisões abertas
 
@@ -67,8 +66,9 @@
 - `getDb()` é lazy; chamar no topo de um módulo quebra os testes. `update`
   valida o livro completo; patch sozinho não passa.
 - RTL 14 é assíncrono: `await render(...)`, `await fireEvent.press(...)`.
-- Fontes: família com peso (`Fredoka_700Bold`), nunca `fontWeight`;
-  `lineHeight` abaixo de 1.15× do `fontSize` corta descendentes no Android.
+- Fontes: família com peso, nunca `fontWeight`; `lineHeight` < 1.15× corta
+  descendentes; `label` com `letterSpacing` quebra a última letra no Android
+  (revisão na S3.2).
 - Node local 26 vs CI 22: rode `npm run test` antes de culpar o código.
 
 ## Como rodar

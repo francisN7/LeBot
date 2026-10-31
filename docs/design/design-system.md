@@ -77,6 +77,11 @@ Regra de folga (S3): `lineHeight >= fontSize * 1.15` em `xl`, `xxl` e
 `display` 52/64, `xxl` 36/44, `xl` 28/34. O teste
 `src/theme/typography.test.ts` trava a proporção.
 
+> **Pendência (S3.2):** `label` tem `letterSpacing: 0.5` e tende a quebrar a
+> última letra em containers de largura justa no Android ("Terro/r",
+> "Volta/r"). Até a revisão, todo texto dentro de container shrink-to-fit usa
+> `numberOfLines={1}` e folga horizontal.
+
 ## Classes no Tailwind
 
 O `tailwind.config.ts` expõe:
