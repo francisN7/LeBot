@@ -51,7 +51,7 @@ export function Spine({
       <View className="mt-auto p-sm">
         {showLabel ? (
           <View className="rounded-sm bg-cream/95 px-xs py-xs">
-            <AppText variant="label" numberOfLines={2}>
+            <AppText ellipsizeMode="tail" numberOfLines={2} variant="label">
               {title}
             </AppText>
           </View>

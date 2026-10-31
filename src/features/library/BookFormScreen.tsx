@@ -116,6 +116,10 @@ export function BookFormScreen({
   }
 
   async function save() {
+    if (saving) {
+      return;
+    }
+
     const result = validateBookForm(form, null);
 
     if (!result.ok) {

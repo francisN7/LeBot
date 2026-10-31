@@ -9,7 +9,8 @@ Estante com sensação de profundidade — sem perder legibilidade nem o offline
 ## Fora de escopo
 
 - Motor do plano, progresso de leitura e fila automática (S5–S8).
-- Animações complexas de física/3D real (`react-native-svg` + Reanimated basta).
+- Animações de física/3D real (`react-native-svg` + Reanimated bastam; o
+  mascote ganha animação de estado, não um rig 3D).
 - Tema escuro e nova paleta (o token set da S1 continua valendo).
 - Publicação de loja e screenshots de marketing (S12).
 
@@ -34,7 +35,9 @@ Estante com sensação de profundidade — sem perder legibilidade nem o offline
 4. Atualizar `Spine` (ou criar `SpineArt`) para renderizar o asset, preservando
    `onPress`, `accessibilityLabel`, tamanhos do token e o modo compacto.
 5. `Mascot` em `src/components/ui/`: props `state` e `size`, `accessibilityLabel`
-   descritivo; usar na tela Hoje (saudação) e no estado vazio da Estante.
+   descritivo. Animações discretas com Reanimated: respiração/idle, piscada e
+   transição suave ao trocar de estado (sem física 3D). Usar na tela Hoje
+   (saudação) e no estado vazio da Estante.
 6. Estante: grade com profundidade discreta (sombra/offset por camada), capa
    real quando existir e transição suave ao trocar filtro/busca.
 7. Ícone e splash definitivos em `assets/images/` (adaptativo Android,
@@ -71,6 +74,9 @@ Estante com sensação de profundidade — sem perder legibilidade nem o offline
   sem licença; arte é do projeto (MIT).
 - **Android antigo:** WebP com alpha é suportado, mas conferir no device antes
   de remover o fallback.
+- **Gênero personalizado (backlog):** se entrar antes da S4, a lombada deve
+  receber token de cor e não uma lista fixa de gêneros; desenhar o mapa
+  `colorForGenre` pensando nisso.
 
 ## Próximo depois desta
 

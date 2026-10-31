@@ -43,6 +43,14 @@ Sem mudanças pendentes: a S4 é a próxima sessão.
   descendentes no Android.
 - Voltar do formulário para a estante/detalhe mostra os dados novos, não os
   antigos.
+- Toque duplo durante a animação não empilha mais telas iguais
+  (`createNavigationGuard`).
+- Fila conta só os livros que ainda existem e abre o detalhe ao tocar no livro
+  (antes o item ficava inerte).
+- Detalhe não repete o título dentro da lombada; rótulo longo trunca com
+  reticências em vez de quebrar no meio da palavra.
+- Chip e rótulo de gênero ficam em uma linha só (o "Terror" quebrava em
+  "Terro/r" no formulário e na Estante).
 
 ## S2 — Persistência com SQLite + Drizzle
 

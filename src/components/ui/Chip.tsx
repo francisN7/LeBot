@@ -32,7 +32,11 @@ export function Chip({
       onPress={onPress}
       testID={testID}
     >
-      <AppText variant="label" tone={selected ? 'inverse' : 'default'}>
+      <AppText
+        numberOfLines={1}
+        tone={selected ? 'inverse' : 'default'}
+        variant="label"
+      >
         {label}
       </AppText>
     </Pressable>

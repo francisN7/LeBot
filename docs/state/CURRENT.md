@@ -24,9 +24,11 @@
   `CoverService` injetado no `_layout.tsx`; testes usam `createFakeCoverService`.
 - `useBooks` expõe `create`, `update`, `remove`, `refresh` e avisa as outras
   telas com o mesmo repositório (assinaturas em `WeakMap`).
+- Fila: conta só livros existentes e abre o detalhe; toque duplo não empilha
+  telas (`src/lib/navigation.ts`).
 - `TextField` novo em `ui/`. Tipografia: `display` 52/64, `xxl` 36/44;
   `typography.test.ts` trava `lineHeight >= fontSize * 1.15`.
-- 72 testes em 18 suítes; lint, typecheck, doctor e export Android verdes.
+- 76 testes em 19 suítes; lint, typecheck, doctor e export Android verdes.
 
 ## Pendente (dono, no Android)
 

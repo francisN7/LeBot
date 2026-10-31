@@ -94,7 +94,13 @@ export function EstanteScreen({
             <AppText variant="caption" tone="muted" numberOfLines={1}>
               {book.author}
             </AppText>
-            <AppText variant="label">{genreLabel[book.genre]}</AppText>
+            <AppText
+              numberOfLines={1}
+              style={{ alignSelf: 'stretch', textAlign: 'center' }}
+              variant="label"
+            >
+              {genreLabel[book.genre]}
+            </AppText>
             <Chip label={labelForStatus(book.status)} />
           </Card>
         ))}

@@ -1,19 +1,30 @@
 import { useMemo } from 'react';
-import { Alert, View } from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
 
 import { AppText, Button, Card, Chip, Screen, Spine } from '@/components/ui';
 import { colorForGenre, genreLabel, useBooks } from '@/features/library';
 import { sizes } from '@/theme';
+
 import { queue } from './__fixtures__/queue';
 
-export function FilaScreen() {
+type FilaScreenProps = {
+  onOpenBook?: (bookId: string) => void;
+};
+
+export function FilaScreen({ onOpenBook }: FilaScreenProps = {}) {
   const { books } = useBooks();
   const booksById = useMemo(
     () => new Map(books.map((book) => [book.id, book])),
     [books],
   );
 
-  const [nextItem, ...rest] = queue;
+  // A fila é fixture até a S8; livros apagados somem e não contam no total.
+  const items = useMemo(
+    () => queue.filter((item) => booksById.has(item.bookId)),
+    [booksById],
+  );
+
+  const [nextItem, ...rest] = items;
   const nextBook = nextItem ? booksById.get(nextItem.bookId) : undefined;
 
   return (
@@ -21,7 +32,10 @@ export function FilaScreen() {
       <View className="gap-xs">
         <AppText variant="display">Fila</AppText>
         <AppText tone="muted">
-          {queue.length} livros esperando a sua vez
+          {items.length}{' '}
+          {items.length === 1
+            ? 'livro esperando a sua vez'
+            : 'livros esperando a sua vez'}
         </AppText>
       </View>
 
@@ -33,10 +47,11 @@ export function FilaScreen() {
           <View className="flex-row gap-md">
             <Spine
               color={colorForGenre(nextBook.genre)}
+              onPress={() => onOpenBook?.(nextBook.id)}
+              showLabel={false}
               title={nextBook.title}
               width={sizes.spineCompact.width}
               height={sizes.spineCompact.height}
-              showLabel={false}
             />
             <View className="flex-1 justify-center gap-xs">
               <AppText variant="subtitle">{nextBook.title}</AppText>
@@ -68,16 +83,24 @@ export function FilaScreen() {
           }
 
           return (
-            <Card className="flex-row items-center gap-md" key={item.bookId}>
-              <AppText variant="title">{index + 2}</AppText>
-              <View className="flex-1 gap-xs">
-                <AppText variant="bodyStrong">{book.title}</AppText>
-                <AppText variant="caption" tone="muted">
-                  {item.note}
-                </AppText>
-              </View>
-              <Chip label={`${item.plannedPages} pág.`} />
-            </Card>
+            <Pressable
+              accessibilityLabel={`Abrir ${book.title}`}
+              accessibilityRole="button"
+              className="active:opacity-80"
+              key={item.bookId}
+              onPress={() => onOpenBook?.(book.id)}
+            >
+              <Card className="flex-row items-center gap-md">
+                <AppText variant="title">{index + 2}</AppText>
+                <View className="flex-1 gap-xs">
+                  <AppText variant="bodyStrong">{book.title}</AppText>
+                  <AppText variant="caption" tone="muted">
+                    {item.note}
+                  </AppText>
+                </View>
+                <Chip label={`${item.plannedPages} pág.`} />
+              </Card>
+            </Pressable>
           );
         })}
       </View>

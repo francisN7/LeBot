@@ -81,7 +81,11 @@ export function BookDetailScreen({
               style={{ width: sizes.spine.width, height: sizes.spine.height }}
             />
           ) : (
-            <Spine color={colorForGenre(book.genre)} title={book.title} />
+            <Spine
+              color={colorForGenre(book.genre)}
+              showLabel={false}
+              title={book.title}
+            />
           )}
           <View className="flex-1 gap-sm">
             <View className="flex-row flex-wrap gap-xs">
