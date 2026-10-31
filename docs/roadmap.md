@@ -10,6 +10,7 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S1 | [x] | Design system + shell | 4 abas navegáveis com dados fake | `sessions/S01-design-system.md` |
 | S2 | [x] | Persistência (SQLite + Drizzle) | CRUD via repositório testado | `sessions/S02-persistencia.md` |
 | S3 | [~] | Biblioteca (cadastro, ISBN, capas) | Cadastrar → achar → editar | `sessions/S03-biblioteca.md` |
+| S3.2 | [ ] | Gêneros personalizados + cores por tema | Criar/editar/excluir gênero com par claro/escuro | `sessions/S03.2-generos.md` |
 | S4 | [ ] | Identidade 3D (mascote + lombadas) | Estante fluida com identidade própria | `sessions/S04-identidade-3d.md` |
 | S5 | [ ] | Registro de leitura | Registrar sessão e ver progresso | — |
 | S6 | [ ] | Motor do plano (funções puras) | 25+ testes e algoritmo documentado | — |
@@ -23,10 +24,8 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 
 ## Backlog pós-MVP
 
-- Gêneros personalizados: hoje `bookGenres` é enum fixo. Pedido na S3; exige
-  tabela `genres` (nome + um dos 6 tokens de cor), migração do enum para FK e
-  UI de adicionar/remover. Se entrar, a arte da S4 deve usar token de cor, não
-  lista fixa.
+- Tema escuro: os gêneros já guardam o par claro/escuro (S3.2); falta o toggle,
+  os tokens de superfície e revisar contraste em todas as telas.
 - Sync multi-dispositivo (Supabase ou similar).
 - Compartilhar resenhas.
 - Importação Goodreads.

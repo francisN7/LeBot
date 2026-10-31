@@ -17,8 +17,8 @@ Estante com sensação de profundidade — sem perder legibilidade nem o offline
 ## Antes de começar
 
 1. Confirmar no Android o aceite da S3 (tipografia, cadastro, busca, edição,
-   exclusão e capa). Se algo falhar, corrigir primeiro e só então seguir.
-2. Marcar S3 como `[x]` em `docs/roadmap.md` e atualizar
+   exclusão e capa) e da S3.2 (gêneros e cores).
+2. Marcar S3/S3.2 como `[x]` em `docs/roadmap.md` e atualizar
    `docs/state/CURRENT.md`.
 
 ## Tarefas
@@ -29,9 +29,10 @@ Estante com sensação de profundidade — sem perder legibilidade nem o offline
 2. Produzir a arte-fonte em `brand/source/` e exportar o mínimo viável:
    - lombadas para os 6 gêneros × 4 status (`spine-<cor>-<expressao>.webp`);
    - mascote neutro, lendo, feliz, sonolento, pensando e comemorando.
-3. `src/features/library/spine-art.ts`: mapa puro gênero+status → asset, com
-   fallback para a lombada 2D atual quando o asset não existir e para capa
-   cadastrada (`cover_uri`) quando houver.
+3. `src/features/library/spine-art.ts`: mapa puro **cor do gênero + status** →
+   asset, com fallback para a lombada 2D atual quando o asset não existir e
+   para capa cadastrada (`cover_uri`) quando houver. A cor vem do par
+   `color_light`/`color_dark` do gênero (S3.2), não de uma lista fixa.
 4. Atualizar `Spine` (ou criar `SpineArt`) para renderizar o asset, preservando
    `onPress`, `accessibilityLabel`, tamanhos do token e o modo compacto.
 5. `Mascot` em `src/components/ui/`: props `state` e `size`, `accessibilityLabel`
@@ -74,9 +75,9 @@ Estante com sensação de profundidade — sem perder legibilidade nem o offline
   sem licença; arte é do projeto (MIT).
 - **Android antigo:** WebP com alpha é suportado, mas conferir no device antes
   de remover o fallback.
-- **Gênero personalizado (backlog):** se entrar antes da S4, a lombada deve
-  receber token de cor e não uma lista fixa de gêneros; desenhar o mapa
-  `colorForGenre` pensando nisso.
+- **Gênero personalizado (S3.2):** a cor vem do par claro/escuro do gênero. A
+  arte precisa funcionar com qualquer hex (ou cair no fallback 2D quando a
+  combinação não existir), sem assumir as 6 cores fixes da S1.
 
 ## Próximo depois desta
 
