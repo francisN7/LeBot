@@ -4,7 +4,7 @@
 
 ## Sessão
 - **Atual:** S2 — Persistência SQLite + Drizzle (`docs/sessions/S02-persistencia.md`)
-- **Última concluída:** S1 — Design system + shell (`S1: design system e shell`)
+- **Última concluída:** S1 — Design system + shell (`9e650d8`)
 - **Próxima:** S2 — CRUD via repositório testado, telas lendo do banco
 
 ## Pronto
@@ -26,14 +26,14 @@
   roadmap e changelog atualizados.
 - Validação: lint, typecheck, test (12/12), `expo-doctor` (20/20) e
   `expo export --platform android` (bundle 3.8 MB) verdes.
+- Conferido no Expo Go pelo dono: 4 abas navegam e `Lê/ç/ã` renderizam sem
+  warning de fonte.
 
 ## Próximo passo
 Executar a S2: instalar `expo-sqlite` + Drizzle, schema/migração inicial,
 repositórios e seed, trocando as fixtures pelo banco.
 
 ## Pendências manuais (dono)
-- Abrir no Expo Go e conferir: 4 abas navegam, `Lê/ç/ã` renderizam com
-  Fredoka/Nunito e não aparece warning de fonte.
 - Fechar os 7 PRs antigos do Dependabot (a config já foi removida).
 - Ligar em *Settings → Code security*: Dependabot alerts, security updates,
   secret scanning e push protection.

@@ -34,6 +34,7 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   splash controlado.
 - `docs/design/design-system.md` e ADR
   `docs/adr/0006-design-system-nativewind.md`.
+- Shell validado no Expo Go: 4 abas navegam e fontes PT-BR renderizam.
 
 ### Changed
 
