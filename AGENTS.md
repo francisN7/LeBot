@@ -60,12 +60,13 @@ App mobile pessoal para catalogar livros, organizar a fila de leitura e gerar um
 ```bash
 npm run start        # Expo
 npm run android      # app no Android
-npm run lint
+npm run lint         # Biome
 npm run typecheck
 npm run test
+npm run doctor       # expo-doctor
 ```
 
-> Ajustar na S0 se os scripts mudarem.
+> Ajustar se os scripts mudarem (revisado na S0).
 
 ## Definition of Done
 

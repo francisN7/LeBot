@@ -14,14 +14,14 @@
 |---|---|---|
 | `docs/roadmap.md` | planejar a próxima sessão | ✅ |
 | `docs/brand.md` | UI, cores, mascote, ícones | ✅ |
-| `docs/architecture.md` | camadas e fluxo de dados | S0 |
+| `docs/architecture.md` | camadas e fluxo de dados | OK |
 | `docs/data-model.md` | schema e relações | S2 |
 | `docs/planner-algorithm.md` | regras do plano diário | S6 |
 | `docs/design/design-system.md` | tokens e componentes | S1 |
 | `docs/design/assets-3d.md` | lombadas e mascote | S4 |
-| `docs/learn/expo-for-react-devs.md` | dúvidas de Expo/React Native | S0 |
+| `docs/learn/expo-for-react-devs.md` | dúvidas de Expo/React Native | OK |
 | `docs/testing.md` | como testar | S2 |
-| `docs/security-privacy.md` | dados, permissões e LGPD | S0 |
+| `docs/security-privacy.md` | dados, permissões e LGPD | OK |
 | `docs/release.md` | build e publicação | S12 |
 | `CHANGELOG.md` | histórico curto por sessão | ✅ |
 | `docs/adr/` | decisões imutáveis | ✅ |

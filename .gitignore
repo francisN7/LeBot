@@ -1,0 +1,46 @@
+# Dependências
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Builds nativos gerados
+/android
+/ios
+.kotlin/
+
+# Metro
+.metro-health-check*
+
+# Credenciais e arquivos de assinatura (nunca commitar)
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+google-services.json
+GoogleService-Info.plist
+credentials.json
+
+# Ambientes
+.env
+.env.*
+!.env.example
+
+# Logs e temporários
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.orig.*
+*.tsbuildinfo
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Backups locais do app
+backups/

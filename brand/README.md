@@ -18,5 +18,8 @@ Arte original do LêBot. **Não vai para o bundle do app**; exports finais vivem
 
 ## Licença da arte
 
-- [ ] Definir na S0: MIT junto do código ou CC BY 4.0 para a arte.
-- [ ] Confirmar autoria/titularidade antes de publicar.
+- **MIT, junto do código** (decidido na S0). Vale para os originais em
+  `brand/source/` e para os exports.
+- A licença cobre o uso do arquivo, não a identidade do projeto: forks devem
+  trocar nome, wordmark e mascote.
+- Autoria: francisN7.
