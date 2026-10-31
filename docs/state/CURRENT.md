@@ -32,10 +32,6 @@
 - Docs: ADR 0009 + modelo, arquitetura, testes, design system, privacidade e
   CHANGELOG.
 
-## Pendente (dono, no Android)
-
-- Revalidar o último patch (capa na Estante, título em uma linha, diálogo de exclusão e "Páginas lidas"); se falhar, corrigir antes da S3.2.
-
 ## Decisões abertas
 
 - NativeWind v4 sem suporte oficial à SDK 58 (ADR 0006); se SDK 59 quebrar,
