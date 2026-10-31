@@ -17,17 +17,17 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 - `LICENSE` MIT (código e arte), `SECURITY.md`, `.gitattributes` e `.nvmrc`.
 - Documentação: `README.md`, `docs/architecture.md`,
   `docs/security-privacy.md`, `docs/learn/expo-for-react-devs.md`.
+- Scaffolding de contexto entre sessões (`AGENTS.md`, `docs/state/CURRENT.md`,
+  `docs/INDEX.md`, `docs/roadmap.md`, specs e ADRs).
+- Identidade LêBot documentada (`docs/brand.md`,
+  `docs/adr/0002-identidade-lebot.md`).
+- Arte-fonte organizada em `brand/source/`.
+- Skills globais `session-start` (handoff) e `project-context-init` (estrutura
+  em novos projetos).
 
 ### Changed
 
-- Dependabot deixa de abrir PRs de versão; só alertas de segurança
-  (`docs/adr/0005-sem-dependabot-de-versao.md`).
-
 - Commits passam a usar o e-mail `noreply` do GitHub; commit inicial reescrito
   e republicado.
-
-- Scaffolding de contexto entre sessões (`AGENTS.md`, `docs/state/CURRENT.md`,
-  `docs/INDEX.md`, `docs/roadmap.md`, specs e ADRs).
-- Identidade LêBot documentada (`docs/brand.md`, `docs/adr/0002-identidade-lebot.md`).
-- Arte-fonte organizada em `brand/source/`.
-- Skills globais `session-start` (handoff) e `project-context-init` (estrutura em novos projetos).
+- Dependabot deixa de abrir PRs de versão; só alertas de segurança
+  (`docs/adr/0005-sem-dependabot-de-versao.md`).

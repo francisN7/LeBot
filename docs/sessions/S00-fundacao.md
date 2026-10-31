@@ -34,6 +34,8 @@ Ter um repositório público saudável, um app Expo mínimo rodando no Android e
 - App validado por `npx expo export --platform android` e CI verde (lint,
   tipos, testes, expo-doctor e gitleaks). Falta só o teste visual no aparelho.
 - `gitleaks` não está instalado no Windows local: roda só no CI.
+- Dependabot de versão removido no fim da sessão (ADR 0005): só alertas de
+  segurança.
 - NativeWind, fontes e ícones ficaram para a S1.
 
 ## Contexto necessário

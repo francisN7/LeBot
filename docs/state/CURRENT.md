@@ -4,7 +4,7 @@
 
 ## Sessão
 - **Atual:** S1 — Design system + shell (`docs/sessions/S01-design-system.md`)
-- **Última concluída:** S0 — Fundação pública + onboarding Expo
+- **Última concluída:** S0 — Fundação pública + onboarding Expo (`5d2900c`)
 - **Próxima:** S1 — 4 abas navegáveis com dados fake
 
 ## Pronto
@@ -24,6 +24,13 @@
 ## Próximo passo
 Executar a S1: design system (tokens, tipografia Fredoka/Nunito) e shell com
 4 abas usando dados fake.
+
+## Pendências manuais (dono)
+- Fechar os 7 PRs antigos do Dependabot (botão *Close*); a config já foi removida.
+- Ligar em *Settings → Code security*: Dependabot alerts, security updates,
+  secret scanning e push protection.
+- Ruleset na `main`: *restrict deletions* + *block force pushes* (bypass admin).
+- Abrir o app no Expo Go (`npm start`) e confirmar a tela da S0 no aparelho.
 
 ## Decisões abertas
 - NativeWind: entrou na S1 (ainda não instalado).
