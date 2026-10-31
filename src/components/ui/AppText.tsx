@@ -50,11 +50,14 @@ const variantStyles = StyleSheet.create({
     fontSize: fontSize.sm,
     lineHeight: lineHeight.sm,
   },
+  /**
+   * `label` não tem `letterSpacing`: o Android mede a linha sem o espaçamento
+   * final e quebra a última letra em containers justos ("Terro/r", "Volta/r").
+   */
   label: {
     fontFamily: fontFamily.bodyBold,
     fontSize: fontSize.xs,
     lineHeight: lineHeight.xs,
-    letterSpacing: 0.5,
   },
 });
 

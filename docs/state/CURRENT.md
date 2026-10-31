@@ -63,8 +63,7 @@
   valida o livro completo; patch sozinho não passa.
 - RTL 14 é assíncrono: `await render(...)`, `await fireEvent.press(...)`.
 - Fontes: família com peso, nunca `fontWeight`; `lineHeight` < 1.15× corta
-  descendentes; `label` com `letterSpacing` quebra a última letra no Android
-  (revisão na S3.2).
+  descendentes; `label` **não** leva `letterSpacing` (quebra o "r" no Android).
 - Node local 26 vs CI 22: rode `npm run test` antes de culpar o código.
 
 ## Como rodar
