@@ -21,14 +21,19 @@ export const fontSize = {
   display: 52,
 } as const;
 
+/**
+ * A caixa de linha precisa de folga sobre o `fontSize`: abaixo de ~15% o
+ * Android corta descendentes (`p`, `g`, `J`) das fontes Fredoka. O teste
+ * `typography.test.ts` trava essa proporção nos tamanhos grandes.
+ */
 export const lineHeight = {
   xs: 16,
   sm: 20,
   md: 24,
   lg: 26,
   xl: 34,
-  xxl: 42,
-  display: 56,
+  xxl: 44,
+  display: 64,
 } as const;
 
 export type FontFamilyToken = keyof typeof fontFamily;

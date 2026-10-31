@@ -5,7 +5,44 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 ## [Unreleased]
 
-Sem mudanças pendentes: a S3 ainda não começou.
+Sem mudanças pendentes: a S4 é a próxima sessão.
+
+## S3 — Biblioteca: cadastrar, buscar e editar
+
+### Added
+
+- Migração `drizzle/0001_conscious_hannibal_king.sql`: `books.isbn` (único
+  quando presente) e `books.cover_uri`, sem recriar a tabela.
+- `src/lib/isbn.ts`: normalização e dígito verificador de ISBN-10/13; o
+  repositório grava normalizado, recusa ISBN inválido e repetido.
+- `src/lib/book-search.ts`: busca sem acento e sem caixa; a Estante filtra a
+  lista já carregada (ADR 0009).
+- Telas `BookDetailScreen` e `BookFormScreen`, com rotas `/livro/novo`,
+  `/livro/[id]` e `/livro/[id]/editar`; excluir pede confirmação.
+- `TextField` em `src/components/ui/` com rótulo, dica e erro por campo.
+- Capa: `expo-image-picker` + `expo-file-system`, copiada para
+  `documentDirectory/covers/<id>.jpg`; `CoverService` injetável isola o módulo
+  nativo dos testes (ADR 0009).
+- `useBooks` ganhou `create`, `update` e `remove`, e avisa as outras telas que
+  usam o mesmo repositório.
+- ADR 0009; docs de modelo, arquitetura, testes, design system e privacidade
+  atualizados.
+
+### Changed
+
+- Tipografia: `display` passa a 52/64 e `xxl` a 36/44; teste trava
+  `lineHeight >= fontSize * 1.15` em `xl`, `xxl` e `display`.
+- Estante ganhou campo de busca e botão "Novo livro"; tocar na lombada abre o
+  detalhe.
+- `expo-image-picker` e `expo-file-system` entram como dependências; o plugin
+  de permissão de fotos fica no `app.config.ts`.
+
+### Fixed
+
+- Textos `display` (`Hoje`, `Ajustes`, "18 páginas") não cortam mais
+  descendentes no Android.
+- Voltar do formulário para a estante/detalhe mostra os dados novos, não os
+  antigos.
 
 ## S2 — Persistência com SQLite + Drizzle
 

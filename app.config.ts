@@ -29,6 +29,13 @@ const config: ExpoConfig = {
     'expo-router',
     'expo-sqlite',
     [
+      'expo-image-picker',
+      {
+        photosPermission:
+          'O LêBot usa suas fotos só para colocar a capa dos livros. Nada é enviado para a internet.',
+      },
+    ],
+    [
       'expo-splash-screen',
       {
         backgroundColor: '#FFF6E8',

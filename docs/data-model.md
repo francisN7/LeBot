@@ -16,11 +16,17 @@ Drizzle. Nada sai do aparelho e nenhum dado real do dono vai para o repositório
 | `status` | text | `reading`, `queued`, `paused`, `finished` |
 | `pages` | integer | > 0 |
 | `pages_read` | integer | 0 ≤ `pages_read` ≤ `pages` (default 0) |
+| `isbn` | text | opcional; ISBN-10/13 normalizado (só dígitos e `X`); único quando presente |
+| `cover_uri` | text | opcional; caminho local `documentDirectory/covers/<id>.jpg` |
 | `created_at` | integer | ms desde 1970 (`timestamp_ms` no Drizzle) |
 | `updated_at` | integer | ms desde 1970; reescrito em todo `update` |
 
-Constraints: `books_pages_positive` e `books_pages_read_range`.
-Ordenação padrão: `created_at`, desempate por `id`.
+Constraints: `books_pages_positive`, `books_pages_read_range` e índice único
+`books_isbn_unique` (SQLite permite vários `NULL`). Ordenação padrão:
+`created_at`, desempate por `id`.
+
+A validade do ISBN (dígito verificador) é checada em `src/lib/isbn.ts` e no Zod
+do repositório; o banco só guarda o valor já normalizado.
 
 ### `settings`
 
@@ -65,6 +71,16 @@ roda no aparelho (`expo-sqlite`) e nos testes (`sql.js`).
 
 - Entrada validada com Zod (`bookInputSchema`); `update` valida o livro
   completo (merge com a linha atual).
+- ISBN inválido e ISBN repetido são rejeitados com mensagem clara; o valor é
+  gravado normalizado.
 - Nenhum SQL fora de `src/db/`.
 - As telas acessam via hooks (`useBooks`, `useSettings`), nunca pelo
   repositório diretamente.
+
+## Busca e capa
+
+- Busca da Estante: filtro em memória (`src/lib/book-search.ts`), sem acento e
+  sem caixa, combinado com o chip de status. Ver ADR 0009.
+- Capa: `expo-image-picker` copia para `documentDirectory/covers/<id>.jpg` via
+  `CoverService` (`src/lib/covers.ts` + `cover-service.ts`); o banco guarda só
+  o caminho. Ver ADR 0009.

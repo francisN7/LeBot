@@ -14,9 +14,9 @@ npm run lint && npm run typecheck
 
 | Camada | O que usa | O que garante |
 |---|---|---|
-| Funções puras (`src/lib`, motor do plano) | Node puro | regra de negócio |
+| Funções puras (`src/lib`, motor do plano) | Node puro | regra de negócio (ISBN, busca, capa) |
 | Repositórios (`src/db/repositories/*.test.ts`) | `sql.js` (wasm) + migrações reais de `drizzle/` | SQL, constraints e CRUD |
-| Telas (`src/features/**/*.test.tsx`) | repositórios em memória + `renderWithProviders` | renderização e interação |
+| Telas (`src/features/**/*.test.tsx`) | repositórios em memória, capa fake e `renderWithProviders` | renderização e interação |
 
 ### Banco de teste
 
@@ -28,21 +28,48 @@ esses testes são assíncronos (`await createTestDatabase()`).
 ### Telas
 
 `renderWithProviders` já envolve a tela com `SafeAreaProvider`,
-`BooksRepositoryProvider` e `SettingsRepositoryProvider`. Por padrão usa os
-dados do seed em memória; para cenários específicos:
+`BooksRepositoryProvider`, `SettingsRepositoryProvider` e
+`CoverServiceProvider`. Por padrão usa os dados do seed em memória e um
+`CoverService` fake; para cenários específicos:
 
 ```tsx
 const books = createInMemoryBooksRepository([]);
-await renderWithProviders(<EstanteScreen />, { booksRepository: books });
+const cover = createFakeCoverService('file:///tmp/capa.jpg');
+
+await renderWithProviders(<EstanteScreen />, {
+  booksRepository: books,
+  coverService: cover,
+});
 ```
 
-Nunca importe `expo-sqlite` no teste: o módulo nativo não roda no Node.
+`createFakeCoverService` não toca no disco nem na galeria: registra o que seria
+salvo (`saved`) e apagado (`removed`). `pickedUri = null` simula o cancelamento
+da galeria.
+
+Nunca importe `expo-sqlite`, `expo-file-system` ou `expo-image-picker` no teste:
+são módulos nativos. As telas recebem `CoverService` por contexto justamente
+para isso.
 
 ## Convenções
 
 - RTL 14 é assíncrono: `await render(...)`, `await fireEvent.press(...)`.
 - Prefira consultas por texto visível (`getByText`) e `getAllByText` quando o
-  mesmo rótulo aparece duas vezes.
+  mesmo rótulo aparece duas vezes (ex.: título do livro e rótulo da lombada).
 - Teste o comportamento, não a implementação: nada de snapshot de árvore.
 - Dados de teste são fictícios; sem dados pessoais.
 - Node local 26 vs CI 22: rode `npm run test` antes de culpar o CI.
+
+## Cobertura da S3
+
+- `src/lib/isbn.test.ts`: ISBN-10/13 válidos, dígito errado, tamanho e `X`.
+- `src/lib/book-search.test.ts`: busca sem acento/caixa e busca vazia.
+- `src/lib/covers.test.ts`: nome do arquivo e `hasCover`.
+- `src/db/repositories/books.test.ts`: ISBN normalizado, inválido, duplicado,
+  capa gravada/removida e `updated_at`.
+- `BookFormScreen.test.tsx`: criar, editar, ISBN inválido, ISBN duplicado,
+  capa escolhida/removida e livro inexistente.
+- `BookDetailScreen.test.tsx`: dados, edição e exclusão com confirmação.
+- `EstanteScreen.test.tsx`: busca por título/autor/ISBN, filtro e navegação.
+- `src/theme/typography.test.ts`: folga de `lineHeight` em `display`/`xxl`/`xl`.
+
+O que continua manual: corte de descendentes e galeria só aparecem no Android.

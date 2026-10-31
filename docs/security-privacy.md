@@ -12,10 +12,13 @@ telemetria no MVP.
 
 | Dado | Onde | Observação |
 |---|---|---|
-| Livros, gêneros, status | SQLite local | implementado na S2 |
+| Livros, gêneros, status, ISBN | SQLite local | S2; ISBN desde a S3 |
+| Capa escolhida | `documentDirectory/covers/` | só o caminho fica no banco (S3) |
 | Sessões de leitura e progresso | SQLite local | a partir da S5 |
 | Resenhas e notas | SQLite local | a partir da S9 |
 | Preferências | SQLite local | meta diária e tema, na S2 |
+
+A capa é copiada para a área privada do app; apagar o app apaga banco e capas.
 
 Backup é manual: export/import de um JSON que o usuário escolhe onde guardar
 (S11). Nenhum upload automático.

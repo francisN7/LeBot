@@ -33,6 +33,10 @@ export const books = sqliteTable(
     status: text('status', { enum: readingStatuses }).notNull(),
     pages: integer('pages').notNull(),
     pagesRead: integer('pages_read').notNull().default(0),
+    /** ISBN-10 ou ISBN-13 já normalizado (só dígitos e X). Nulo quando não há. */
+    isbn: text('isbn').unique(),
+    /** Caminho local da capa (`documentDirectory/covers/<id>.jpg`). */
+    coverUri: text('cover_uri'),
     createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
     updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull(),
   },

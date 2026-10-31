@@ -13,6 +13,8 @@ export const testBookRows: BookRow[] = seedBooks.map((book, index) => ({
   status: book.status,
   pages: book.pages,
   pagesRead: book.pagesRead ?? 0,
+  isbn: book.isbn ?? null,
+  coverUri: book.coverUri ?? null,
   createdAt: new Date(baseTime + index * 1_000),
   updatedAt: new Date(baseTime + index * 1_000),
 }));
@@ -24,6 +26,23 @@ export function createInMemoryBooksRepository(
   let current = rows.map((row) => ({ ...row }));
   let nextId = 0;
 
+  function assertIsbnAvailable(
+    isbn: string | null | undefined,
+    exceptId?: string,
+  ): void {
+    if (!isbn) {
+      return;
+    }
+
+    const duplicated = current.some(
+      (row) => row.isbn === isbn && row.id !== exceptId,
+    );
+
+    if (duplicated) {
+      throw new Error('Já existe um livro com este ISBN');
+    }
+  }
+
   return {
     list() {
       return [...current];
@@ -34,6 +53,7 @@ export function createInMemoryBooksRepository(
     },
 
     create(input) {
+      assertIsbnAvailable(input.isbn);
       const now = new Date();
       const row: BookRow = {
         id: input.id ?? `book-fake-${nextId++}`,
@@ -43,6 +63,8 @@ export function createInMemoryBooksRepository(
         status: input.status,
         pages: input.pages,
         pagesRead: input.pagesRead ?? 0,
+        isbn: input.isbn ?? null,
+        coverUri: input.coverUri ?? null,
         createdAt: now,
         updatedAt: now,
       };
@@ -60,8 +82,12 @@ export function createInMemoryBooksRepository(
       const updated: BookRow = {
         ...existing,
         ...patch,
+        isbn: patch.isbn === undefined ? existing.isbn : patch.isbn,
+        coverUri:
+          patch.coverUri === undefined ? existing.coverUri : patch.coverUri,
         updatedAt: new Date(),
       };
+      assertIsbnAvailable(updated.isbn, id);
       current[index] = updated;
       return updated;
     },

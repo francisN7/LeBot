@@ -1,7 +1,7 @@
 # Arquitetura
 
-Esqueleto criado na S0; persistência entrou na S2. Cresce conforme as sessões
-entregam camadas.
+Esqueleto criado na S0; persistência entrou na S2 e a biblioteca completa
+(cadastro, busca, capa) na S3. Cresce conforme as sessões entregam camadas.
 
 ## Camadas
 
@@ -10,7 +10,7 @@ src/app/          rotas (Expo Router) — só orquestram telas
 src/features/*/   UI + hooks + serviços de uma feature
 src/db/           schema Drizzle, client, migrações, seed e repositórios
 src/lib/          funções puras, sem React Native
-src/components/ui componentes genéricos (Screen, AppText, Button, Card, Chip, Spine)
+src/components/ui componentes genéricos (Screen, AppText, Button, Card, Chip, Spine, TextField)
 src/theme/        tokens (cor, espaçamento, raio, tipografia, tamanhos)
 drizzle/          SQL gerado pelo drizzle-kit (+ bundle das migrações)
 types/            declarações globais versionadas (`expo/types`, `*.sql`)
@@ -42,8 +42,27 @@ SQLite (expo-sqlite + Drizzle)
 - `src/db/repositories/index.ts` guarda os repositórios reais (singleton lazy).
 - O hook usa o repositório injetado por contexto quando existe (testes) e cai
   no real quando não existe (app).
+- `useBooks` avisa todas as telas que usam o mesmo repositório depois de
+  escrever (assinaturas em `WeakMap`), então Estante, Fila e Detalhe não ficam
+  com dados velhos ao voltar do formulário.
 - Erros de escrita sobem como exceção; validação de entrada é Zod no
   repositório.
+
+## Biblioteca (S3)
+
+- Rotas: `/livro/novo` (formulário), `/livro/[id]` (detalhe) e
+  `/livro/[id]/editar` (mesmo formulário, em modo edição). As rotas só lêem
+  params e navegam; a lógica mora em `src/features/library/`.
+- Busca: filtro em memória (`src/lib/book-search.ts`) sobre a lista do
+  `useBooks`, combinado com o chip de status.
+- ISBN: `src/lib/isbn.ts` valida dígito verificador de ISBN-10/13; o
+  repositório grava normalizado e recusa duplicado.
+- Capa: `CoverService` (`src/lib/covers.ts`) escolhe na galeria
+  (`expo-image-picker`), copia para `documentDirectory/covers/<id>.jpg`
+  (`expo-file-system`) e remove ao trocar/excluir. A implementação nativa
+  (`cover-service.ts`) é montada no `_layout.tsx` via `CoverServiceProvider`;
+  as telas recebem o serviço por contexto e os testes recebem um fake.
+- Decisão: ADR 0009.
 
 ## Boot
 
@@ -64,9 +83,13 @@ Nenhum passo apaga dados ou esconde erro de migração.
 - Design system: [`docs/adr/0006-design-system-nativewind.md`](adr/0006-design-system-nativewind.md)
 - Persistência: [`docs/adr/0007-persistencia-sqlite-drizzle.md`](adr/0007-persistencia-sqlite-drizzle.md)
 - Testes de banco: [`docs/adr/0008-testes-sqlite-sqljs.md`](adr/0008-testes-sqlite-sqljs.md)
+- Biblioteca (busca e capas):
+  [`docs/adr/0009-biblioteca-busca-e-capas.md`](adr/0009-biblioteca-busca-e-capas.md)
 
 ## Pendências conhecidas
 
 - Ícones e splash ainda são placeholders do template do Expo até a S4.
 - A tela Hoje ainda usa o plano fictício: só a meta diária vem de `settings`.
   Plano persistido entra na S6/S7; a fila continua manual até a S8.
+- `cover_uri` guarda caminho absoluto do aparelho: o backup JSON (S11) não pode
+  reutilizá-lo em outro device.

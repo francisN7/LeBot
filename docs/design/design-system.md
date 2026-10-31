@@ -72,9 +72,10 @@ Arquivos de configuração: `babel.config.js` (`jsxImportSource: nativewind`),
 Nunca combine `fontFamily` de peso com `fontWeight`: o peso já está no arquivo.
 Escala de tamanhos em `fontSize` (`xs` 12 → `display` 52) e `lineHeight`.
 
-> **Pendência conhecida (S3):** `display` (52/56) corta descendentes (`p`, `g`,
-> `J`) no Android e sobrepõe a linha seguinte. A regra passa a ser
-> `lineHeight >= fontSize * 1.15`; validar no device.
+Regra de folga (S3): `lineHeight >= fontSize * 1.15` em `xl`, `xxl` e
+`display`, senão o Android corta descendentes (`p`, `g`, `J`). Hoje:
+`display` 52/64, `xxl` 36/44, `xl` 28/34. O teste
+`src/theme/typography.test.ts` trava a proporção.
 
 ## Classes no Tailwind
 
@@ -144,6 +145,22 @@ Etiqueta compacta. Com `onPress` vira filtro selecionável (`selected`).
 <Chip label="Lendo" selected onPress={() => setFilter('reading')} />
 ```
 
+### `TextField`
+
+Campo de texto com rótulo, dica e erro por campo (borda coral quando há erro).
+Aceita as props do `TextInput` (`keyboardType`, `autoCapitalize`, `value`,
+`onChangeText`…). O rótulo também vira `accessibilityLabel`, então os testes
+usam `getByLabelText('Título')`.
+
+```tsx
+<TextField
+  error={errors.title}
+  label="Título"
+  onChangeText={setTitle}
+  value={title}
+/>
+```
+
 ### `Spine`
 
 Placeholder 2D da lombada: bloco colorido por gênero com etiqueta do título.
@@ -188,6 +205,9 @@ it('mostra a estante', async () => {
 
 - Rotas em `src/app/(tabs)/` só reexportam a tela da feature.
 - Telas vivem em `src/features/<nome>/<Nome>Screen.tsx`.
+- Rotas fora das abas: `/livro/novo`, `/livro/[id]` e `/livro/[id]/editar`
+  (S3). Elas passam callbacks (`onBack`, `onEdit`, `onDone`) para a tela, que
+  continua sem depender do router nos testes.
 - Livros e preferências vêm do SQLite via `useBooks`/`useSettings`; não há
   fixture de dados reais.
 - Ainda são fixtures: `queue` (até S8) e `daily-plan` (até S6/S7).

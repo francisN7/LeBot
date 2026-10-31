@@ -88,4 +88,95 @@ describe('books repository', () => {
     expect(() => repository.update('book-1', { pagesRead: 999 })).toThrow();
     expect(repository.findById('book-1')?.pagesRead).toBe(128);
   });
+
+  it('grava ISBN normalizado e capa', async () => {
+    const db = await createTestDatabase();
+    const repository = createBooksRepository(db);
+
+    const created = repository.create({
+      ...baseBook,
+      id: 'book-1',
+      isbn: ' 978-0-306-40615-7 ',
+      coverUri: 'file:///covers/book-1.jpg',
+    });
+
+    expect(created.isbn).toBe('9780306406157');
+    expect(created.coverUri).toBe('file:///covers/book-1.jpg');
+    expect(repository.findById('book-1')?.isbn).toBe('9780306406157');
+  });
+
+  it('grava null quando ISBN e capa não são informados', async () => {
+    const db = await createTestDatabase();
+    const repository = createBooksRepository(db);
+
+    const created = repository.create({ ...baseBook, isbn: '   ' });
+
+    expect(created.isbn).toBeNull();
+    expect(created.coverUri).toBeNull();
+  });
+
+  it('rejeita ISBN com dígito verificador errado', async () => {
+    const db = await createTestDatabase();
+    const repository = createBooksRepository(db);
+
+    expect(() =>
+      repository.create({ ...baseBook, isbn: '9780306406158' }),
+    ).toThrow();
+
+    repository.create({ ...baseBook, id: 'book-1' });
+    expect(() => repository.update('book-1', { isbn: '0306406153' })).toThrow();
+  });
+
+  it('impede dois livros com o mesmo ISBN', async () => {
+    const db = await createTestDatabase();
+    const repository = createBooksRepository(db);
+    repository.create({
+      ...baseBook,
+      id: 'book-1',
+      isbn: '9780306406157',
+    });
+    repository.create({ ...baseBook, id: 'book-2', title: 'Outro livro' });
+
+    expect(() =>
+      repository.create({
+        ...baseBook,
+        id: 'book-3',
+        isbn: '9780306406157',
+      }),
+    ).toThrow('Já existe um livro com este ISBN');
+
+    expect(() =>
+      repository.update('book-2', { isbn: '9780306406157' }),
+    ).toThrow('Já existe um livro com este ISBN');
+  });
+
+  it('mantém ISBN e capa quando o patch não os menciona', async () => {
+    const db = await createTestDatabase();
+    const repository = createBooksRepository(db);
+    repository.create({
+      ...baseBook,
+      id: 'book-1',
+      isbn: '9780306406157',
+      coverUri: 'file:///covers/book-1.jpg',
+    });
+
+    const updated = repository.update('book-1', { status: 'finished' });
+
+    expect(updated?.isbn).toBe('9780306406157');
+    expect(updated?.coverUri).toBe('file:///covers/book-1.jpg');
+  });
+
+  it('remove a capa quando o patch manda null', async () => {
+    const db = await createTestDatabase();
+    const repository = createBooksRepository(db);
+    repository.create({
+      ...baseBook,
+      id: 'book-1',
+      coverUri: 'file:///covers/book-1.jpg',
+    });
+
+    const updated = repository.update('book-1', { coverUri: null });
+
+    expect(updated?.coverUri).toBeNull();
+  });
 });

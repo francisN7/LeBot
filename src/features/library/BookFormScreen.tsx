@@ -1,0 +1,291 @@
+import { useState } from 'react';
+import { Alert, Image, View } from 'react-native';
+
+import {
+  AppText,
+  Button,
+  Card,
+  Chip,
+  Screen,
+  TextField,
+} from '@/components/ui';
+import { bookGenres, readingStatuses } from '@/db/schema';
+import { createId } from '@/lib/id';
+import { sizes } from '@/theme';
+
+import { useCoverService } from './cover-context';
+import {
+  type BookFormErrors,
+  type BookFormState,
+  emptyBookForm,
+  validateBookForm,
+} from './form';
+import { genreLabel, labelForStatus } from './genre';
+import type { Book } from './types';
+import { useBooks } from './use-books';
+
+type BookFormScreenProps = {
+  /** Presente ao editar; ausente ao cadastrar. */
+  bookId?: string;
+  onDone: () => void;
+  onCancel: () => void;
+};
+
+function messageOf(error: unknown): string {
+  return error instanceof Error
+    ? error.message
+    : 'Não foi possível salvar o livro.';
+}
+
+function toFormState(book: Book): BookFormState {
+  return {
+    title: book.title,
+    author: book.author,
+    genre: book.genre,
+    status: book.status,
+    pages: String(book.pages),
+    isbn: book.isbn ?? '',
+  };
+}
+
+/** Cadastro e edição compartilham a mesma tela; `bookId` decide o modo. */
+export function BookFormScreen({
+  bookId,
+  onDone,
+  onCancel,
+}: BookFormScreenProps) {
+  const { books, create, update } = useBooks();
+  const covers = useCoverService();
+  const existing = bookId
+    ? books.find((book) => book.id === bookId)
+    : undefined;
+
+  const [form, setForm] = useState<BookFormState>(() =>
+    existing ? toFormState(existing) : emptyBookForm,
+  );
+  const [errors, setErrors] = useState<BookFormErrors>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const [pickedCover, setPickedCover] = useState<string | null>(null);
+  const [dropStoredCover, setDropStoredCover] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  if (bookId && !existing) {
+    return (
+      <Screen>
+        <AppText variant="title">Livro não encontrado</AppText>
+        <AppText tone="muted">
+          Ele pode ter sido excluído. Volte para a estante e tente de novo.
+        </AppText>
+        <Button label="Voltar" onPress={onCancel} />
+      </Screen>
+    );
+  }
+
+  const storedCover = existing?.coverUri ?? null;
+  const previewCover = pickedCover ?? (dropStoredCover ? null : storedCover);
+
+  function setText(
+    field: 'title' | 'author' | 'pages' | 'isbn',
+    value: string,
+  ) {
+    setForm((current) => ({ ...current, [field]: value }));
+    setErrors((current) =>
+      current[field] ? { ...current, [field]: undefined } : current,
+    );
+  }
+
+  async function pickCover() {
+    try {
+      const result = await covers.pick();
+
+      if (result.status === 'picked') {
+        setPickedCover(result.uri);
+        setDropStoredCover(false);
+      }
+    } catch {
+      Alert.alert(
+        'Galeria indisponível',
+        'Você ainda pode salvar o livro sem capa.',
+      );
+    }
+  }
+
+  function removeCover() {
+    setPickedCover(null);
+    setDropStoredCover(Boolean(storedCover));
+  }
+
+  async function save() {
+    const result = validateBookForm(form, null);
+
+    if (!result.ok) {
+      setErrors(result.errors);
+      setFormError(null);
+      return;
+    }
+
+    if (existing && result.input.pages < existing.pagesRead) {
+      setErrors({
+        pages: `Este livro já tem ${existing.pagesRead} páginas lidas`,
+      });
+      return;
+    }
+
+    const id = existing?.id ?? createId('book');
+    let coverUri = dropStoredCover ? null : storedCover;
+    let savedNewCover = false;
+
+    setSaving(true);
+    setFormError(null);
+
+    try {
+      if (pickedCover) {
+        coverUri = await covers.save(id, pickedCover);
+        savedNewCover = true;
+      }
+
+      const input = { ...result.input, coverUri };
+
+      if (existing) {
+        update(existing.id, input);
+      } else {
+        create({ ...input, id });
+      }
+    } catch (error) {
+      // Não deixa arquivo de capa órfão quando o livro não foi gravado.
+      if (savedNewCover && coverUri) {
+        await covers.remove(coverUri).catch(() => undefined);
+      }
+
+      setFormError(messageOf(error));
+      setSaving(false);
+      return;
+    }
+
+    if (dropStoredCover && storedCover) {
+      await covers.remove(storedCover).catch(() => undefined);
+    }
+
+    onDone();
+  }
+
+  return (
+    <Screen>
+      <View className="gap-xs">
+        <AppText variant="title">
+          {existing ? 'Editar livro' : 'Novo livro'}
+        </AppText>
+        <AppText tone="muted">
+          Tudo fica neste aparelho. Nada é enviado para a internet.
+        </AppText>
+      </View>
+
+      <Card className="gap-md">
+        <TextField
+          autoCapitalize="sentences"
+          error={errors.title}
+          label="Título"
+          onChangeText={(value) => setText('title', value)}
+          placeholder="O nome do livro"
+          value={form.title}
+        />
+        <TextField
+          autoCapitalize="words"
+          error={errors.author}
+          label="Autor"
+          onChangeText={(value) => setText('author', value)}
+          placeholder="Quem escreveu"
+          value={form.author}
+        />
+        <TextField
+          error={errors.pages}
+          keyboardType="number-pad"
+          label="Páginas"
+          onChangeText={(value) => setText('pages', value)}
+          placeholder="Ex.: 320"
+          value={form.pages}
+        />
+        <TextField
+          autoCapitalize="characters"
+          autoCorrect={false}
+          error={errors.isbn}
+          hint="Opcional. ISBN-10 ou ISBN-13."
+          keyboardType="numbers-and-punctuation"
+          label="ISBN"
+          onChangeText={(value) => setText('isbn', value)}
+          placeholder="978-85-359-0000-2"
+          value={form.isbn}
+        />
+      </Card>
+
+      <View className="gap-sm">
+        <AppText variant="label">Gênero</AppText>
+        <View className="flex-row flex-wrap gap-sm">
+          {bookGenres.map((genre) => (
+            <Chip
+              key={genre}
+              label={genreLabel[genre]}
+              onPress={() => setForm((current) => ({ ...current, genre }))}
+              selected={form.genre === genre}
+            />
+          ))}
+        </View>
+      </View>
+
+      <View className="gap-sm">
+        <AppText variant="label">Status</AppText>
+        <View className="flex-row flex-wrap gap-sm">
+          {readingStatuses.map((status) => (
+            <Chip
+              key={status}
+              label={labelForStatus(status)}
+              onPress={() => setForm((current) => ({ ...current, status }))}
+              selected={form.status === status}
+            />
+          ))}
+        </View>
+      </View>
+
+      <Card className="gap-sm">
+        <AppText variant="label">Capa</AppText>
+        {previewCover ? (
+          <Image
+            accessibilityLabel="Capa escolhida"
+            resizeMode="cover"
+            source={{ uri: previewCover }}
+            style={{ width: sizes.spine.width, height: sizes.spine.height }}
+          />
+        ) : (
+          <AppText variant="caption" tone="muted">
+            Sem capa, usamos a lombada da cor do gênero.
+          </AppText>
+        )}
+        <View className="flex-row flex-wrap gap-sm">
+          <Button
+            label={previewCover ? 'Trocar capa' : 'Escolher capa'}
+            onPress={pickCover}
+            size="sm"
+            variant="secondary"
+          />
+          {previewCover ? (
+            <Button
+              label="Remover capa"
+              onPress={removeCover}
+              size="sm"
+              variant="ghost"
+            />
+          ) : null}
+        </View>
+      </Card>
+
+      {formError ? <AppText tone="accent">{formError}</AppText> : null}
+
+      <Button
+        disabled={saving}
+        label={saving ? 'Salvando…' : 'Salvar livro'}
+        onPress={save}
+      />
+      <Button label="Cancelar" onPress={onCancel} variant="ghost" />
+    </Screen>
+  );
+}

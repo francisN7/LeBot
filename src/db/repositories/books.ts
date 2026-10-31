@@ -2,9 +2,19 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
 import { createId } from '@/lib/id';
+import { isValidIsbn, toStoredIsbn } from '@/lib/isbn';
 
 import { type BookRow, bookGenres, books, readingStatuses } from '../schema';
 import type { AppDatabase } from '../types';
+
+const isbnField = z
+  .string()
+  .nullable()
+  .optional()
+  .transform((value) => toStoredIsbn(value))
+  .refine((value) => value === null || isValidIsbn(value), {
+    message: 'ISBN inválido',
+  });
 
 const bookFields = z.object({
   id: z.string().trim().min(1).optional(),
@@ -14,6 +24,13 @@ const bookFields = z.object({
   status: z.enum(readingStatuses),
   pages: z.number().int().positive(),
   pagesRead: z.number().int().nonnegative().default(0),
+  isbn: isbnField,
+  coverUri: z
+    .string()
+    .trim()
+    .nullable()
+    .optional()
+    .transform((value) => (value ? value : null)),
 });
 
 export const bookInputSchema = bookFields.refine(
@@ -35,9 +52,24 @@ export type BooksRepository = {
   remove(id: string): boolean;
 };
 
+const DUPLICATE_ISBN = 'Já existe um livro com este ISBN';
+
 export function createBooksRepository<TRunResult>(
   db: AppDatabase<TRunResult>,
 ): BooksRepository {
+  /** O índice único do banco também protege, mas aqui a mensagem fica clara. */
+  function assertIsbnAvailable(isbn: string | null, exceptId?: string): void {
+    if (!isbn) {
+      return;
+    }
+
+    const existing = db.select().from(books).where(eq(books.isbn, isbn)).get();
+
+    if (existing && existing.id !== exceptId) {
+      throw new Error(DUPLICATE_ISBN);
+    }
+  }
+
   const repository: BooksRepository = {
     list() {
       return db.select().from(books).orderBy(books.createdAt, books.id).all();
@@ -49,6 +81,7 @@ export function createBooksRepository<TRunResult>(
 
     create(input) {
       const parsed = bookInputSchema.parse(input);
+      assertIsbnAvailable(parsed.isbn);
       const now = new Date();
 
       return db
@@ -77,8 +110,12 @@ export function createBooksRepository<TRunResult>(
         status: current.status,
         pages: current.pages,
         pagesRead: current.pagesRead,
+        isbn: current.isbn,
+        coverUri: current.coverUri,
         ...patch,
       });
+
+      assertIsbnAvailable(merged.isbn, id);
 
       return db
         .update(books)
@@ -89,6 +126,8 @@ export function createBooksRepository<TRunResult>(
           status: merged.status,
           pages: merged.pages,
           pagesRead: merged.pagesRead,
+          isbn: merged.isbn,
+          coverUri: merged.coverUri,
           updatedAt: new Date(),
         })
         .where(eq(books.id, id))

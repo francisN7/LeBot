@@ -22,6 +22,8 @@ import { getDb } from '@/db/client';
 import { getBooksRepository, getSettingsRepository } from '@/db/repositories';
 import { seedIfEmpty } from '@/db/seed';
 import type { DeviceDatabase } from '@/db/types';
+import { CoverServiceProvider } from '@/features/library';
+import { createDeviceCoverService } from '@/features/library/cover-service';
 import { colors } from '@/theme';
 import migrations from '../../drizzle/migrations';
 
@@ -68,6 +70,7 @@ function DatabaseBoot({
 }) {
   const { success, error } = useMigrations(db, migrations);
   const [seeded, setSeeded] = useState(false);
+  const [coverService] = useState(createDeviceCoverService);
 
   useEffect(() => {
     if (!success) {
@@ -103,12 +106,14 @@ function DatabaseBoot({
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: colors.cream },
-        }}
-      />
+      <CoverServiceProvider service={coverService}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: colors.cream },
+          }}
+        />
+      </CoverServiceProvider>
     </SafeAreaProvider>
   );
 }

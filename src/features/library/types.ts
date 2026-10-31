@@ -11,4 +11,8 @@ export type Book = {
   status: ReadingStatus;
   pages: number;
   pagesRead: number;
+  /** ISBN normalizado, quando o dono preencheu. */
+  isbn: string | null;
+  /** Caminho local da capa em `documentDirectory/covers/`. */
+  coverUri: string | null;
 };

@@ -9,8 +9,8 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S0 | [x] | Fundação pública + onboarding Expo | App abre no Expo Go; CI verde; gitleaks limpo | `sessions/S00-fundacao.md` |
 | S1 | [x] | Design system + shell | 4 abas navegáveis com dados fake | `sessions/S01-design-system.md` |
 | S2 | [x] | Persistência (SQLite + Drizzle) | CRUD via repositório testado | `sessions/S02-persistencia.md` |
-| S3 | [ ] | Biblioteca (cadastro, ISBN, capas) | Cadastrar → achar → editar | `sessions/S03-biblioteca.md` |
-| S4 | [ ] | Identidade 3D (mascote + lombadas) | Estante fluida com identidade própria | — |
+| S3 | [~] | Biblioteca (cadastro, ISBN, capas) | Cadastrar → achar → editar | `sessions/S03-biblioteca.md` |
+| S4 | [ ] | Identidade 3D (mascote + lombadas) | Estante fluida com identidade própria | `sessions/S04-identidade-3d.md` |
 | S5 | [ ] | Registro de leitura | Registrar sessão e ver progresso | — |
 | S6 | [ ] | Motor do plano (funções puras) | 25+ testes e algoritmo documentado | — |
 | S7 | [ ] | Plano na UI + tela Hoje | Plano diário ponta a ponta | — |

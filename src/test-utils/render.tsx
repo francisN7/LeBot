@@ -3,9 +3,14 @@ import type { ReactElement, ReactNode } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { BooksRepository, SettingsRepository } from '@/db/repositories';
-import { BooksRepositoryProvider } from '@/features/library';
+import {
+  BooksRepositoryProvider,
+  CoverServiceProvider,
+} from '@/features/library';
 import { SettingsRepositoryProvider } from '@/features/settings';
+import type { CoverService } from '@/lib/covers';
 
+import { createFakeCoverService } from './covers';
 import {
   createInMemoryBooksRepository,
   createInMemorySettingsRepository,
@@ -19,17 +24,19 @@ const metrics = {
 type RenderWithProvidersOptions = Omit<RenderOptions, 'wrapper'> & {
   booksRepository?: BooksRepository;
   settingsRepository?: SettingsRepository;
+  coverService?: CoverService;
 };
 
 /**
  * Renderiza com o SafeAreaProvider e os repositórios que as telas esperam.
- * Por padrão usa repositórios em memória com os dados do seed.
+ * Por padrão usa repositórios em memória com os dados do seed e uma capa fake.
  */
 export function renderWithProviders(
   ui: ReactElement,
   {
     booksRepository = createInMemoryBooksRepository(),
     settingsRepository = createInMemorySettingsRepository(),
+    coverService = createFakeCoverService(),
     ...options
   }: RenderWithProvidersOptions = {},
 ) {
@@ -37,7 +44,9 @@ export function renderWithProviders(
     <SafeAreaProvider initialMetrics={metrics}>
       <BooksRepositoryProvider repository={booksRepository}>
         <SettingsRepositoryProvider repository={settingsRepository}>
-          {children}
+          <CoverServiceProvider service={coverService}>
+            {children}
+          </CoverServiceProvider>
         </SettingsRepositoryProvider>
       </BooksRepositoryProvider>
     </SafeAreaProvider>
