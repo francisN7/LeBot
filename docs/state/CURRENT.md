@@ -3,69 +3,80 @@
 > Handoff entre sessões. Atualizar no fim de toda sessão. Manter < 80 linhas.
 
 ## Sessão
-- **Atual:** S2 — Persistência SQLite + Drizzle (`docs/sessions/S02-persistencia.md`)
-- **Última concluída:** S1 — Design system + shell (`9e650d8`)
-- **Próxima:** S2 — CRUD via repositório testado, telas lendo do banco
+- **Atual:** S3 — Biblioteca: cadastrar, buscar e editar (`docs/sessions/S03-biblioteca.md`)
+- **Última concluída:** S2 — Persistência SQLite + Drizzle
+- **Próxima:** S3 — formulário e detalhe do livro lendo/escrevendo no banco
 
 ## Pronto
-- NativeWind 4.2.7 + Tailwind 3.4 (SDK 58) com `babel.config.js`,
-  `metro.config.js`, `global.css` e `nativewind-env.d.ts`.
-- Tokens em `src/theme/`: cores (inclui `surface` e `navyMuted`), espaçamento,
-  raios, tipografia, tamanhos, bordas e opacidades. `tailwind.config.ts` importa
-  os tokens — sem paleta duplicada.
-- Fontes Fredoka (600/700) e Nunito (400/600/700) via `expo-font`, com splash
-  controlado no layout raiz.
-- `src/components/ui/`: `Screen`, `AppText`, `Button`, `Card`, `Chip`, `Spine`
-  (placeholder 2D por gênero) + `index.ts`. `className` passa por `twMerge`.
-- Shell com 4 abas (`src/app/(tabs)/`): Estante, Fila, Hoje, Ajustes. Rotas só
-  reexportam telas de `src/features/*/`.
-- Fixtures fictícias em `src/features/*/__fixtures__/` (5 livros, fila, plano e
-  ajustes).
-- 12 testes (4 telas + Button + Spine + paleta) com RTL 14 assíncrono.
-- Docs: `docs/design/design-system.md`, ADR 0006, `INDEX`, `architecture`,
-  roadmap e changelog atualizados.
-- Validação: lint, typecheck, test (12/12), `expo-doctor` (20/20) e
-  `expo export --platform android` (bundle 3.8 MB) verdes.
-- Conferido no Expo Go pelo dono: 4 abas navegam e `Lê/ç/ã` renderizam sem
-  warning de fonte.
+- SQLite real no aparelho: `expo-sqlite` 58.0.15 + `drizzle-orm` 0.45.4,
+  `drizzle-kit` 0.31.11 e migração `drizzle/0000_aspiring_unicorn.sql`.
+- `src/db/schema.ts`: `books` (id, title, author, genre, status, pages,
+  pages_read, created_at, updated_at, 2 CHECKs) e `settings` (key, value).
+- `src/db/client.ts`: abertura lazy, `PRAGMA journal_mode = WAL` e
+  `foreign_keys = ON`; `getDb()` reaproveita a instância.
+- Boot em `src/app/_layout.tsx`: fontes → banco → `useMigrations` → seed →
+  splash; falha de banco/migração mostra `DatabaseError` em tela.
+- Repositórios em `src/db/repositories/` (`books`: list/findById/create/update/
+  remove; `settings`: get/all/set/remove), com Zod e merge na validação do
+  `update`. SQL só dentro de `src/db/`.
+- Seed de 5 livros fictícios + 4 preferências, só em banco vazio e uma vez
+  (`seed.books.version`); não repõe livros apagados.
+- Hooks `useBooks` e `useSettings` com repositório injetável por contexto;
+  Estante, Fila e Ajustes leem do banco; Hoje usa `goal.pages` de `settings`
+  (blocos ainda são fixture até S6/S7).
+- Fixtures de livros e de settings removidas; sobram `queue` e `daily-plan`.
+- 27 testes em 10 suítes: CRUD, constraints, seed idempotente, migração
+  repetida e as 4 telas com repositórios em memória.
+- CI: typecheck passou a encontrar `*.css` no runner — `expo-env.d.ts` é
+  gitignored, então `types/expo-types.d.ts` referencia `expo/types` e fica
+  versionado. O commit `9e650d8` falhava só nisso.
+- Docs: `docs/data-model.md`, `docs/testing.md`, `docs/architecture.md`,
+  `docs/INDEX.md`, ADR 0007 e 0008.
 
 ## Próximo passo
-Executar a S2: instalar `expo-sqlite` + Drizzle, schema/migração inicial,
-repositórios e seed, trocando as fixtures pelo banco.
+Executar a S3: migração 0001 (`isbn`, `cover_uri`), tela de cadastro/edição,
+detalhe do livro, busca local e capa escolhida da galeria.
 
 ## Pendências manuais (dono)
-- Fechar os 7 PRs antigos do Dependabot (a config já foi removida).
-- Ligar em *Settings → Code security*: Dependabot alerts, security updates,
-  secret scanning e push protection.
-- Ruleset na `main`: *restrict deletions* + *block force pushes* (bypass admin).
+- ~~Fechar os 7 PRs antigos do Dependabot~~ feito.
+- ~~Ligar Dependabot alerts/security updates, secret scanning e push
+  protection~~ feito.
+- ~~Ruleset na `main` (restrict deletions + block force pushes)~~ feito.
+- Rodar no Android e confirmar que o seed aparece e sobrevive ao fechar o app
+  (o agente só validou `expo export`, não device).
 
 ## Decisões abertas
 - NativeWind v4 não declara suporte oficial à SDK 58 (ADR 0006): bundle passou;
   se SDK 59 quebrar, migrar para NativeWind 5 + Tailwind 4.
 - Ícone e splash ainda são placeholders do template (S4).
-- Estratégia de teste do SQLite no Jest será fechada na S2 (driver em memória
-  vs. fake).
+- Migração em device: WAL/arquivo não são cobertos pelo `sql.js`; validar no
+  Android a cada mudança de schema.
 - `brand/source/*.png` ainda têm metadados: limpar no primeiro export real.
 
 ## Arquivos-chave
-- `tailwind.config.ts`, `global.css`, `babel.config.js`, `metro.config.js`
-- `src/theme/{colors,spacing,radii,typography,sizes}.ts`
-- `src/components/ui/{Screen,AppText,Button,Card,Chip,Spine}.tsx`
-- `src/app/_layout.tsx`, `src/app/(tabs)/_layout.tsx`
-- `src/features/{library,queue,today,settings}/`
-- `docs/design/design-system.md`, `docs/adr/0006-design-system-nativewind.md`
+- `src/db/{schema,client,seed,types}.ts`, `src/db/repositories/*`
+- `drizzle.config.ts`, `drizzle/` (migração + `migrations.js`)
+- `src/app/_layout.tsx`, `babel.config.js`, `metro.config.js`, `app.config.ts`
+- `src/features/library/{use-books.tsx,EstanteScreen.tsx}`
+- `src/features/settings/{use-settings.tsx,rows.ts}`
+- `src/test-utils/{render.tsx,repositories.ts,sqlite.ts}`
+- `types/expo-types.d.ts`, `types/sql.d.ts`
 
 ## Armadilhas
-- `global.css` está na raiz: importe `../../global.css` a partir de
-  `src/app/_layout.tsx`.
-- Componente com `className` deve usar `twMerge`; sem isso, classes base do
-  Tailwind vencem o override (ex.: `bg-surface` sobre `bg-pink`).
+- `expo-env.d.ts` é gerado e ignorado; não apague `types/expo-types.d.ts` ou o
+  CI quebra no `global.css`.
+- Migração nova: editar `schema.ts` → `npx drizzle-kit generate` → commitar
+  `drizzle/`. Nunca editar migração já aplicada.
+- `.sql` só é importado por causa do `inline-import` no Babel e de `sql` em
+  `metro.config.js.sourceExts`.
+- `expo-sqlite` não roda no Jest: teste de repositório usa `sql.js`; teste de
+  tela injeta repositório em memória.
+- `getDb()` é lazy de propósito; chamar no topo de um módulo quebra os testes.
+- `update` valida o livro completo — patch sozinho não passa validação.
 - RTL 14 é assíncrono: `await render(...)` e `await fireEvent.press(...)`.
 - Fontes: use a família com peso (`Fredoka_700Bold`), nunca `fontWeight`.
 - Node local 26 vs CI 22: rode `npm run test` antes de culpar o código.
-- Biome não formata Markdown: `*.md` está excluído.
 - `npx expo install <pkg>` sempre; nunca `npm install` direto para libs nativas.
-- `expo-env.d.ts` é gerado e ignorado; não commitar.
 - Repo é público: nada de dados pessoais em seeds, screenshots ou docs.
 
 ## Como rodar

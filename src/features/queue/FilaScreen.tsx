@@ -1,13 +1,20 @@
+import { useMemo } from 'react';
 import { Alert, View } from 'react-native';
 
 import { AppText, Button, Card, Chip, Screen, Spine } from '@/components/ui';
-import { colorForGenre, findBookById, genreLabel } from '@/features/library';
+import { colorForGenre, genreLabel, useBooks } from '@/features/library';
 import { sizes } from '@/theme';
 import { queue } from './__fixtures__/queue';
 
 export function FilaScreen() {
+  const { books } = useBooks();
+  const booksById = useMemo(
+    () => new Map(books.map((book) => [book.id, book])),
+    [books],
+  );
+
   const [nextItem, ...rest] = queue;
-  const nextBook = nextItem ? findBookById(nextItem.bookId) : undefined;
+  const nextBook = nextItem ? booksById.get(nextItem.bookId) : undefined;
 
   return (
     <Screen>
@@ -55,7 +62,7 @@ export function FilaScreen() {
       <View className="gap-sm">
         <AppText variant="subtitle">Depois</AppText>
         {rest.map((item, index) => {
-          const book = findBookById(item.bookId);
+          const book = booksById.get(item.bookId);
           if (!book) {
             return null;
           }

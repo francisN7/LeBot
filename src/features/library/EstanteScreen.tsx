@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { Alert, View } from 'react-native';
 
 import { AppText, Card, Chip, Screen, Spine } from '@/components/ui';
-import { books } from './__fixtures__/books';
 import { colorForGenre, genreLabel, labelForStatus } from './genre';
 import type { ReadingStatus } from './types';
+import { useBooks } from './use-books';
 
 type ShelfFilter = 'all' | ReadingStatus;
 
@@ -18,6 +18,7 @@ const filters: { value: ShelfFilter; label: string }[] = [
 
 export function EstanteScreen() {
   const [filter, setFilter] = useState<ShelfFilter>('all');
+  const { books } = useBooks();
   const visibleBooks =
     filter === 'all' ? books : books.filter((book) => book.status === filter);
 

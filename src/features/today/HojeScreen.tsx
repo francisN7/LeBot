@@ -1,6 +1,7 @@
 import { Alert, View } from 'react-native';
 
 import { AppText, Button, Card, Chip, Screen } from '@/components/ui';
+import { useSettings } from '@/features/settings';
 import { dailyPlan } from './__fixtures__/daily-plan';
 import type { PlanBlockStatus } from './types';
 
@@ -11,6 +12,10 @@ const blockStatusLabel: Record<PlanBlockStatus, string> = {
 };
 
 export function HojeScreen() {
+  const { values } = useSettings();
+  const goal =
+    Number(values['goal.pages'] ?? dailyPlan.pages) || dailyPlan.pages;
+
   return (
     <Screen>
       <View className="gap-xs">
@@ -20,7 +25,7 @@ export function HojeScreen() {
 
       <Card className="items-center gap-xs bg-pink">
         <AppText variant="label">Meta do dia</AppText>
-        <AppText variant="display">{dailyPlan.pages} páginas</AppText>
+        <AppText variant="display">{goal} páginas</AppText>
         <AppText variant="caption">
           cerca de {dailyPlan.minutes} minutos de leitura
         </AppText>

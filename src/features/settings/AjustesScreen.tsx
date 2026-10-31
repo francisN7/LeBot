@@ -1,12 +1,17 @@
 import Constants from 'expo-constants';
+import { useMemo } from 'react';
 import { View } from 'react-native';
 
 import { AppText, Card, Chip, Screen } from '@/components/ui';
-import { settingsRows } from './__fixtures__/settings';
+import { toSettingRows } from './rows';
+import { useSettings } from './use-settings';
 
 const appVersion = Constants.expoConfig?.version ?? '0.1.0';
 
 export function AjustesScreen() {
+  const { values } = useSettings();
+  const settingsRows = useMemo(() => toSettingRows(values), [values]);
+
   return (
     <Screen>
       <View className="gap-xs">

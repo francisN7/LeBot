@@ -44,3 +44,34 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
   e republicado.
 - Dependabot deixa de abrir PRs de versão; só alertas de segurança
   (`docs/adr/0005-sem-dependabot-de-versao.md`).
+
+## S2 — Persistência com SQLite + Drizzle
+
+### Added
+
+- Banco local com `expo-sqlite` + `drizzle-orm`, migração
+  `drizzle/0000_aspiring_unicorn.sql` e schema tipado em `src/db/schema.ts`
+  (`books` e `settings`).
+- `src/db/client.ts` com abertura lazy, WAL e `foreign_keys = ON`.
+- Migrações no boot (`useMigrations`) com tela de erro `DatabaseError`; seed de
+  5 livros fictícios e 4 preferências só em banco vazio.
+- Repositórios `books` (list/findById/create/update/remove) e `settings`
+  (get/all/set/remove) com validação Zod.
+- Hooks `useBooks` e `useSettings` com repositório injetável; Estante, Fila e
+  Ajustes passam a ler do SQLite e Hoje lê a meta diária.
+- `docs/data-model.md`, `docs/testing.md`, ADR 0007 e ADR 0008.
+- Testes de CRUD, constraints, seed idempotente e migração repetida com
+  `sql.js`; telas testadas com repositórios em memória (27 testes).
+
+### Changed
+
+- Fixtures de livros e de preferências removidas; `queue` e `daily-plan`
+  continuam fictícios até S8 e S6/S7.
+- `babel.config.js` usa `babel-plugin-inline-import` e `metro.config.js` inclui
+  `sql` em `sourceExts`.
+
+### Fixed
+
+- CI (`Lint, tipos e testes`) falhava no `typecheck` desde `9e650d8`: o arquivo
+  gerado `expo-env.d.ts` não existe no runner. `types/expo-types.d.ts` versiona
+  a referência a `expo/types` (declaração de `*.css`).

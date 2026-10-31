@@ -1,14 +1,8 @@
-/** Gêneros usados para colorir a lombada (ver `docs/brand.md`). */
-export type BookGenre =
-  | 'fantasy'
-  | 'romance'
-  | 'nonfiction'
-  | 'classic'
-  | 'children'
-  | 'horror';
+import type { BookGenre, ReadingStatus } from '@/db/schema';
 
-export type ReadingStatus = 'reading' | 'queued' | 'paused' | 'finished';
+export type { BookGenre, ReadingStatus };
 
+/** Livro como a UI enxerga: sem timestamps nem detalhes de persistência. */
 export type Book = {
   id: string;
   title: string;

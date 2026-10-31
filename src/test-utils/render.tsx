@@ -1,20 +1,47 @@
 import { type RenderOptions, render } from '@testing-library/react-native';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import type { BooksRepository, SettingsRepository } from '@/db/repositories';
+import { BooksRepositoryProvider } from '@/features/library';
+import { SettingsRepositoryProvider } from '@/features/settings';
+
+import {
+  createInMemoryBooksRepository,
+  createInMemorySettingsRepository,
+} from './repositories';
 
 const metrics = {
   frame: { x: 0, y: 0, width: 390, height: 844 },
   insets: { top: 47, left: 0, right: 0, bottom: 34 },
 };
 
-const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <SafeAreaProvider initialMetrics={metrics}>{children}</SafeAreaProvider>
-);
+type RenderWithProvidersOptions = Omit<RenderOptions, 'wrapper'> & {
+  booksRepository?: BooksRepository;
+  settingsRepository?: SettingsRepository;
+};
 
-/** Renderiza com o SafeAreaProvider que as telas esperam. */
+/**
+ * Renderiza com o SafeAreaProvider e os repositórios que as telas esperam.
+ * Por padrão usa repositórios em memória com os dados do seed.
+ */
 export function renderWithProviders(
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>,
+  {
+    booksRepository = createInMemoryBooksRepository(),
+    settingsRepository = createInMemorySettingsRepository(),
+    ...options
+  }: RenderWithProvidersOptions = {},
 ) {
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <SafeAreaProvider initialMetrics={metrics}>
+      <BooksRepositoryProvider repository={booksRepository}>
+        <SettingsRepositoryProvider repository={settingsRepository}>
+          {children}
+        </SettingsRepositoryProvider>
+      </BooksRepositoryProvider>
+    </SafeAreaProvider>
+  );
+
   return render(ui, { wrapper, ...options });
 }

@@ -64,6 +64,7 @@ npm run lint         # Biome
 npm run typecheck
 npm run test
 npm run doctor       # expo-doctor
+npx drizzle-kit generate   # nova migração depois de mudar src/db/schema.ts
 ```
 
 > Ajustar se os scripts mudarem (revisado na S0).
