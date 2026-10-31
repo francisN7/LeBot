@@ -45,7 +45,7 @@ describe('seed', () => {
     books.create({
       title: 'Livro do dono',
       author: 'Autora',
-      genre: 'romance',
+      genreId: 'romance',
       status: 'reading',
       pages: 200,
     });
@@ -61,7 +61,7 @@ describe('migração', () => {
     books.create({
       title: 'Persistente',
       author: 'Autora',
-      genre: 'classic',
+      genreId: 'classic',
       status: 'queued',
       pages: 100,
     });

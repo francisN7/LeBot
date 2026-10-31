@@ -11,11 +11,12 @@ import {
   Screen,
   Spine,
 } from '@/components/ui';
+import { useGenres } from '@/features/genres';
 import { hasCover } from '@/lib/covers';
-import { sizes } from '@/theme';
+import { colors, sizes } from '@/theme';
 
 import { useCoverService } from './cover-context';
-import { colorForGenre, genreLabel, labelForStatus } from './genre';
+import { labelForStatus, UNKNOWN_GENRE_NAME } from './genre';
 import { useBooks } from './use-books';
 
 type BookDetailScreenProps = {
@@ -31,6 +32,7 @@ export function BookDetailScreen({
   onEdit,
 }: BookDetailScreenProps) {
   const { books, remove } = useBooks();
+  const { genreById } = useGenres();
   const covers = useCoverService();
   const [confirming, setConfirming] = useState(false);
   const found = books.find((item) => item.id === bookId);
@@ -48,6 +50,7 @@ export function BookDetailScreen({
   }
 
   const book = found;
+  const genre = genreById.get(book.genreId);
 
   async function deleteBook() {
     // A capa sai do disco mesmo que o arquivo já não exista.
@@ -81,14 +84,14 @@ export function BookDetailScreen({
             />
           ) : (
             <Spine
-              color={colorForGenre(book.genre)}
+              color={genre?.colorLight ?? colors.navyMuted}
               showLabel={false}
               title={book.title}
             />
           )}
           <View className="flex-1 gap-sm">
             <View className="flex-row flex-wrap gap-xs">
-              <Chip label={genreLabel[book.genre]} />
+              <Chip label={genre?.name ?? UNKNOWN_GENRE_NAME} />
               <Chip label={labelForStatus(book.status)} selected />
             </View>
             <View className="gap-xs">

@@ -2,7 +2,12 @@ import { type RenderOptions, render } from '@testing-library/react-native';
 import type { ReactElement, ReactNode } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import type { BooksRepository, SettingsRepository } from '@/db/repositories';
+import type {
+  BooksRepository,
+  GenresRepository,
+  SettingsRepository,
+} from '@/db/repositories';
+import { GenresRepositoryProvider } from '@/features/genres';
 import {
   BooksRepositoryProvider,
   CoverServiceProvider,
@@ -13,7 +18,9 @@ import type { CoverService } from '@/lib/covers';
 import { createFakeCoverService } from './covers';
 import {
   createInMemoryBooksRepository,
+  createInMemoryGenresRepository,
   createInMemorySettingsRepository,
+  testGenreRows,
 } from './repositories';
 
 const metrics = {
@@ -23,6 +30,7 @@ const metrics = {
 
 type RenderWithProvidersOptions = Omit<RenderOptions, 'wrapper'> & {
   booksRepository?: BooksRepository;
+  genresRepository?: GenresRepository;
   settingsRepository?: SettingsRepository;
   coverService?: CoverService;
 };
@@ -35,6 +43,12 @@ export function renderWithProviders(
   ui: ReactElement,
   {
     booksRepository = createInMemoryBooksRepository(),
+    genresRepository = createInMemoryGenresRepository(
+      testGenreRows,
+      (genreId) =>
+        booksRepository.list().filter((book) => book.genreId === genreId)
+          .length,
+    ),
     settingsRepository = createInMemorySettingsRepository(),
     coverService = createFakeCoverService(),
     ...options
@@ -43,11 +57,13 @@ export function renderWithProviders(
   const wrapper = ({ children }: { children: ReactNode }) => (
     <SafeAreaProvider initialMetrics={metrics}>
       <BooksRepositoryProvider repository={booksRepository}>
-        <SettingsRepositoryProvider repository={settingsRepository}>
-          <CoverServiceProvider service={coverService}>
-            {children}
-          </CoverServiceProvider>
-        </SettingsRepositoryProvider>
+        <GenresRepositoryProvider repository={genresRepository}>
+          <SettingsRepositoryProvider repository={settingsRepository}>
+            <CoverServiceProvider service={coverService}>
+              {children}
+            </CoverServiceProvider>
+          </SettingsRepositoryProvider>
+        </GenresRepositoryProvider>
       </BooksRepositoryProvider>
     </SafeAreaProvider>
   );

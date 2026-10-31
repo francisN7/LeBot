@@ -14,7 +14,7 @@ function bookRow(overrides: Partial<BookRow> = {}): BookRow {
     id: 'book-teste',
     title: 'O Hobbit',
     author: 'J. R. R. Tolkien',
-    genre: 'fantasy',
+    genreId: 'fantasy',
     status: 'reading',
     pages: 310,
     pagesRead: 128,

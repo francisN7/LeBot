@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react-native';
+import { fireEvent, screen } from '@testing-library/react-native';
 
 import { renderWithProviders } from '@/test-utils/render';
 
@@ -12,5 +12,16 @@ describe('AjustesScreen', () => {
     expect(screen.getByText('Meta diária')).toBeOnTheScreen();
     expect(screen.getByText('Lembrete')).toBeOnTheScreen();
     expect(screen.getByText('Sobre o LêBot')).toBeOnTheScreen();
+  });
+
+  it('abre a gestão de gêneros', async () => {
+    const onOpenGenres = jest.fn();
+    await renderWithProviders(<AjustesScreen onOpenGenres={onOpenGenres} />);
+
+    expect(screen.getByText('6 gêneros')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByText('Gerenciar gêneros'));
+
+    expect(onOpenGenres).toHaveBeenCalledTimes(1);
   });
 });

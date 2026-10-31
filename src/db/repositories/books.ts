@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { createId } from '@/lib/id';
 import { isValidIsbn, toStoredIsbn } from '@/lib/isbn';
 
-import { type BookRow, bookGenres, books, readingStatuses } from '../schema';
+import { type BookRow, books, readingStatuses } from '../schema';
 import type { AppDatabase } from '../types';
 
 const isbnField = z
@@ -20,7 +20,7 @@ const bookFields = z.object({
   id: z.string().trim().min(1).optional(),
   title: z.string().trim().min(1, 'Informe o título'),
   author: z.string().trim().min(1, 'Informe o autor'),
-  genre: z.enum(bookGenres),
+  genreId: z.string().trim().min(1, 'Escolha um gênero'),
   status: z.enum(readingStatuses),
   pages: z.number().int().positive(),
   pagesRead: z.number().int().nonnegative().default(0),
@@ -106,7 +106,7 @@ export function createBooksRepository<TRunResult>(
       const merged = bookInputSchema.parse({
         title: current.title,
         author: current.author,
-        genre: current.genre,
+        genreId: current.genreId,
         status: current.status,
         pages: current.pages,
         pagesRead: current.pagesRead,
@@ -122,7 +122,7 @@ export function createBooksRepository<TRunResult>(
         .set({
           title: merged.title,
           author: merged.author,
-          genre: merged.genre,
+          genreId: merged.genreId,
           status: merged.status,
           pages: merged.pages,
           pagesRead: merged.pagesRead,

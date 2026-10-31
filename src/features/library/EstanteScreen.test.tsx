@@ -1,8 +1,13 @@
 import { fireEvent, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 
 import type { BookRow } from '@/db/schema';
 import { renderWithProviders } from '@/test-utils/render';
-import { createInMemoryBooksRepository } from '@/test-utils/repositories';
+import {
+  createInMemoryBooksRepository,
+  createInMemoryGenresRepository,
+  testGenreRows,
+} from '@/test-utils/repositories';
 
 import { EstanteScreen } from './EstanteScreen';
 
@@ -13,7 +18,7 @@ function bookRow(overrides: Partial<BookRow> = {}): BookRow {
     id: 'book-teste',
     title: 'O Hobbit',
     author: 'J. R. R. Tolkien',
-    genre: 'fantasy',
+    genreId: 'fantasy',
     status: 'reading',
     pages: 310,
     pagesRead: 0,
@@ -106,5 +111,24 @@ describe('EstanteScreen', () => {
     expect(
       screen.queryByLabelText('Lombada de O Hobbit'),
     ).not.toBeOnTheScreen();
+  });
+
+  it('usa nome e cor do gênero vindos do banco', async () => {
+    const genres = createInMemoryGenresRepository(
+      testGenreRows.map((genre) =>
+        genre.id === 'fantasy'
+          ? { ...genre, name: 'Fantasia épica', colorLight: '#123456' }
+          : genre,
+      ),
+    );
+
+    await renderWithProviders(<EstanteScreen />, { genresRepository: genres });
+
+    expect(screen.getByText('Fantasia épica')).toBeOnTheScreen();
+
+    const spine = screen.getByLabelText('Lombada de O Hobbit');
+    const style = StyleSheet.flatten(spine.props.style);
+
+    expect(style.backgroundColor).toBe('#123456');
   });
 });

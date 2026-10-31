@@ -1,13 +1,14 @@
-import type { BookGenre, ReadingStatus } from '@/db/schema';
+import type { ReadingStatus } from '@/db/schema';
 
-export type { BookGenre, ReadingStatus };
+export type { ReadingStatus };
 
 /** Livro como a UI enxerga: sem timestamps nem detalhes de persistência. */
 export type Book = {
   id: string;
   title: string;
   author: string;
-  genre: BookGenre;
+  /** `genres.id`; o nome e a cor vêm do mapa de gêneros. */
+  genreId: string;
   status: ReadingStatus;
   pages: number;
   pagesRead: number;

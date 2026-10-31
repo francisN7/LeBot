@@ -1,24 +1,7 @@
-import { colors } from '@/theme';
+import type { ReadingStatus } from './types';
 
-import type { BookGenre, ReadingStatus } from './types';
-
-export const genreLabel: Record<BookGenre, string> = {
-  fantasy: 'Fantasia',
-  romance: 'Romance',
-  nonfiction: 'Não-ficção',
-  classic: 'Clássico',
-  children: 'Infantojuvenil',
-  horror: 'Terror',
-};
-
-export const genreColor: Record<BookGenre, string> = {
-  fantasy: colors.purple,
-  romance: colors.coral,
-  nonfiction: colors.teal,
-  classic: colors.navy,
-  children: colors.gold,
-  horror: colors.pink,
-};
+/** Nome usado quando o gênero do livro foi excluído fora do app. */
+export const UNKNOWN_GENRE_NAME = 'Sem gênero';
 
 export const statusLabel: Record<ReadingStatus, string> = {
   reading: 'Lendo',
@@ -26,10 +9,6 @@ export const statusLabel: Record<ReadingStatus, string> = {
   paused: 'Pausado',
   finished: 'Concluído',
 };
-
-export function colorForGenre(genre: BookGenre): string {
-  return genreColor[genre];
-}
 
 export function labelForStatus(status: ReadingStatus): string {
   return statusLabel[status];

@@ -67,7 +67,7 @@ export function toBook(row: BookRow): Book {
     id: row.id,
     title: row.title,
     author: row.author,
-    genre: row.genre,
+    genreId: row.genreId,
     status: row.status,
     pages: row.pages,
     pagesRead: row.pagesRead,

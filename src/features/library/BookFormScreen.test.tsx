@@ -3,7 +3,11 @@ import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import type { BookRow } from '@/db/schema';
 import { createFakeCoverService } from '@/test-utils/covers';
 import { renderWithProviders } from '@/test-utils/render';
-import { createInMemoryBooksRepository } from '@/test-utils/repositories';
+import {
+  createInMemoryBooksRepository,
+  createInMemoryGenresRepository,
+  testGenreRows,
+} from '@/test-utils/repositories';
 
 import { BookFormScreen } from './BookFormScreen';
 
@@ -14,7 +18,7 @@ function bookRow(overrides: Partial<BookRow> = {}): BookRow {
     id: 'book-teste',
     title: 'O Hobbit',
     author: 'J. R. R. Tolkien',
-    genre: 'fantasy',
+    genreId: 'fantasy',
     status: 'reading',
     pages: 310,
     pagesRead: 12,
@@ -28,6 +32,7 @@ function bookRow(overrides: Partial<BookRow> = {}): BookRow {
 
 type FormOptions = {
   bookId?: string;
+  genresRepository?: ReturnType<typeof createInMemoryGenresRepository>;
 };
 
 function renderForm(
@@ -48,7 +53,11 @@ function renderForm(
         onCancel={onCancel}
         onDone={onDone}
       />,
-      { booksRepository: repository, coverService },
+      {
+        booksRepository: repository,
+        genresRepository: options.genresRepository,
+        coverService,
+      },
     ),
   };
 }
@@ -224,6 +233,28 @@ describe('BookFormScreen', () => {
     );
     expect(form.onDone).not.toHaveBeenCalled();
     expect(repository.list()).toHaveLength(1);
+  });
+
+  it('lista os gêneros do banco e salva o escolhido', async () => {
+    const repository = createInMemoryBooksRepository([]);
+    const genresRepository = createInMemoryGenresRepository(
+      testGenreRows.map((genre) =>
+        genre.id === 'horror' ? { ...genre, name: 'Assombro' } : genre,
+      ),
+    );
+    const form = renderForm(repository, { genresRepository });
+    await form.render;
+
+    expect(screen.getByText('Assombro')).toBeOnTheScreen();
+
+    await fireEvent.changeText(screen.getByLabelText('Título'), 'Coraline');
+    await fireEvent.changeText(screen.getByLabelText('Autor'), 'Gaiman');
+    await fireEvent.changeText(screen.getByLabelText('Páginas'), '208');
+    await fireEvent.press(screen.getByText('Assombro'));
+    await fireEvent.press(screen.getByText('Salvar livro'));
+
+    await waitFor(() => expect(form.onDone).toHaveBeenCalledTimes(1));
+    expect(repository.list()[0]?.genreId).toBe('horror');
   });
 
   it('avisa que o livro não existe', async () => {

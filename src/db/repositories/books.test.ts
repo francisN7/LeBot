@@ -4,7 +4,7 @@ import { createTestDatabase } from '@/test-utils/sqlite';
 const baseBook = {
   title: 'O Hobbit',
   author: 'J. R. R. Tolkien',
-  genre: 'fantasy',
+  genreId: 'fantasy',
   status: 'reading',
   pages: 310,
   pagesRead: 128,

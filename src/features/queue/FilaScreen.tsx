@@ -2,8 +2,9 @@ import { useMemo } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 
 import { AppText, Button, Card, Chip, Screen, Spine } from '@/components/ui';
-import { colorForGenre, genreLabel, useBooks } from '@/features/library';
-import { sizes } from '@/theme';
+import { useGenres } from '@/features/genres';
+import { UNKNOWN_GENRE_NAME, useBooks } from '@/features/library';
+import { colors, sizes } from '@/theme';
 
 import { queue } from './__fixtures__/queue';
 
@@ -13,6 +14,7 @@ type FilaScreenProps = {
 
 export function FilaScreen({ onOpenBook }: FilaScreenProps = {}) {
   const { books } = useBooks();
+  const { genreById } = useGenres();
   const booksById = useMemo(
     () => new Map(books.map((book) => [book.id, book])),
     [books],
@@ -26,6 +28,7 @@ export function FilaScreen({ onOpenBook }: FilaScreenProps = {}) {
 
   const [nextItem, ...rest] = items;
   const nextBook = nextItem ? booksById.get(nextItem.bookId) : undefined;
+  const nextGenre = nextBook ? genreById.get(nextBook.genreId) : undefined;
 
   return (
     <Screen>
@@ -46,7 +49,7 @@ export function FilaScreen({ onOpenBook }: FilaScreenProps = {}) {
           </AppText>
           <View className="flex-row gap-md">
             <Spine
-              color={colorForGenre(nextBook.genre)}
+              color={nextGenre?.colorLight ?? colors.navyMuted}
               onPress={() => onOpenBook?.(nextBook.id)}
               showLabel={false}
               title={nextBook.title}
@@ -56,7 +59,7 @@ export function FilaScreen({ onOpenBook }: FilaScreenProps = {}) {
             <View className="flex-1 justify-center gap-xs">
               <AppText variant="subtitle">{nextBook.title}</AppText>
               <AppText variant="caption" tone="muted">
-                {nextBook.author} · {genreLabel[nextBook.genre]}
+                {nextBook.author} · {nextGenre?.name ?? UNKNOWN_GENRE_NAME}
               </AppText>
               <AppText variant="caption">{nextItem.note}</AppText>
             </View>

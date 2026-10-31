@@ -1,6 +1,12 @@
-import type { BooksRepository, SettingsRepository } from '@/db/repositories';
-import type { BookRow } from '@/db/schema';
+import type {
+  BooksRepository,
+  GenresRepository,
+  SettingsRepository,
+} from '@/db/repositories';
+import { booksUsingGenre } from '@/db/repositories/genres';
+import type { BookRow, GenreRow } from '@/db/schema';
 import { seedBooks, seedSettings } from '@/db/seed';
+import { normalizeGenreName } from '@/lib/genre-name';
 
 const baseTime = new Date('2026-01-01T00:00:00.000Z').getTime();
 
@@ -9,7 +15,7 @@ export const testBookRows: BookRow[] = seedBooks.map((book, index) => ({
   id: book.id ?? `book-test-${index}`,
   title: book.title,
   author: book.author,
-  genre: book.genre,
+  genreId: book.genreId,
   status: book.status,
   pages: book.pages,
   pagesRead: book.pagesRead ?? 0,
@@ -18,6 +24,72 @@ export const testBookRows: BookRow[] = seedBooks.map((book, index) => ({
   createdAt: new Date(baseTime + index * 1_000),
   updatedAt: new Date(baseTime + index * 1_000),
 }));
+
+/** Os 6 gêneros de fábrica, iguais aos que a migração `0002` insere. */
+const defaultGenreSeeds: Omit<GenreRow, 'createdAt' | 'updatedAt'>[] = [
+  {
+    id: 'fantasy',
+    name: 'Fantasia',
+    colorLight: '#7B69EE',
+    colorDark: '#B3A7FF',
+    paletteIndex: 0,
+    isDefault: true,
+    sortOrder: 0,
+  },
+  {
+    id: 'romance',
+    name: 'Romance',
+    colorLight: '#FF6B5B',
+    colorDark: '#FF9A8F',
+    paletteIndex: 1,
+    isDefault: true,
+    sortOrder: 1,
+  },
+  {
+    id: 'nonfiction',
+    name: 'Não-ficção',
+    colorLight: '#34C6B8',
+    colorDark: '#6FE3D6',
+    paletteIndex: 2,
+    isDefault: true,
+    sortOrder: 2,
+  },
+  {
+    id: 'classic',
+    name: 'Clássico',
+    colorLight: '#2A2340',
+    colorDark: '#8B84A8',
+    paletteIndex: 3,
+    isDefault: true,
+    sortOrder: 3,
+  },
+  {
+    id: 'children',
+    name: 'Infantojuvenil',
+    colorLight: '#FFC145',
+    colorDark: '#FFD980',
+    paletteIndex: 4,
+    isDefault: true,
+    sortOrder: 4,
+  },
+  {
+    id: 'horror',
+    name: 'Terror',
+    colorLight: '#FF8FA3',
+    colorDark: '#FFB3C1',
+    paletteIndex: 5,
+    isDefault: true,
+    sortOrder: 5,
+  },
+];
+
+export const testGenreRows: GenreRow[] = defaultGenreSeeds.map(
+  (row, index) => ({
+    ...row,
+    createdAt: new Date(baseTime + index * 1_000),
+    updatedAt: new Date(baseTime + index * 1_000),
+  }),
+);
 
 /** Repositório em memória para testar telas sem abrir SQLite. */
 export function createInMemoryBooksRepository(
@@ -59,7 +131,7 @@ export function createInMemoryBooksRepository(
         id: input.id ?? `book-fake-${nextId++}`,
         title: input.title,
         author: input.author,
-        genre: input.genre,
+        genreId: input.genreId,
         status: input.status,
         pages: input.pages,
         pagesRead: input.pagesRead ?? 0,
@@ -98,6 +170,107 @@ export function createInMemoryBooksRepository(
       return current.length < before;
     },
   };
+}
+
+export function createInMemoryGenresRepository(
+  rows: GenreRow[] = testGenreRows,
+  countBooks: (genreId: string) => number = () => 0,
+): GenresRepository {
+  let current = rows.map((row) => ({ ...row }));
+  let nextId = 0;
+
+  function findByName(name: string, exceptId?: string) {
+    const wanted = normalizeGenreName(name);
+    return current.find(
+      (row) => row.id !== exceptId && normalizeGenreName(row.name) === wanted,
+    );
+  }
+
+  const repository: GenresRepository = {
+    list() {
+      return [...current].sort(
+        (first, second) => first.sortOrder - second.sortOrder,
+      );
+    },
+
+    findById(id) {
+      return current.find((row) => row.id === id);
+    },
+
+    countBooks,
+
+    nameExists(name, exceptId) {
+      return findByName(name, exceptId) !== undefined;
+    },
+
+    create(input) {
+      if (findByName(input.name)) {
+        throw new Error('Já existe um gênero com este nome');
+      }
+
+      const now = new Date();
+      const row: GenreRow = {
+        id: input.id ?? `genre-fake-${nextId++}`,
+        name: input.name,
+        colorLight: input.colorLight,
+        colorDark: input.colorDark,
+        paletteIndex: input.paletteIndex ?? null,
+        isDefault: false,
+        sortOrder: current.length,
+        createdAt: now,
+        updatedAt: now,
+      };
+      current.push(row);
+      return row;
+    },
+
+    update(id, patch) {
+      const index = current.findIndex((row) => row.id === id);
+      const existing = current[index];
+      if (!existing) {
+        return undefined;
+      }
+
+      const name = patch.name ?? existing.name;
+
+      if (findByName(name, id)) {
+        throw new Error('Já existe um gênero com este nome');
+      }
+
+      const updated: GenreRow = {
+        ...existing,
+        ...patch,
+        name,
+        paletteIndex:
+          patch.paletteIndex === undefined
+            ? existing.paletteIndex
+            : patch.paletteIndex,
+        updatedAt: new Date(),
+      };
+      current[index] = updated;
+      return updated;
+    },
+
+    remove(id) {
+      if (!current.some((row) => row.id === id)) {
+        return false;
+      }
+
+      if (current.length <= 1) {
+        throw new Error('Mantenha pelo menos um gênero.');
+      }
+
+      if (countBooks(id) > 0) {
+        throw new Error(booksUsingGenre(countBooks(id)));
+      }
+
+      const before = current.length;
+      current = current.filter((row) => row.id !== id);
+      return current.length < before;
+    },
+  };
+
+  return repository;
 }
 
 export function createInMemorySettingsRepository(

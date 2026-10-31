@@ -1,5 +1,9 @@
+import { useRouter } from 'expo-router';
+
 import { AjustesScreen } from '@/features/settings';
 
 export default function AjustesRoute() {
-  return <AjustesScreen />;
+  const router = useRouter();
+
+  return <AjustesScreen onOpenGenres={() => router.push('/generos')} />;
 }

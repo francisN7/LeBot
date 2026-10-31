@@ -1,15 +1,15 @@
 import { z } from 'zod';
 import type { CreateBookInput } from '@/db/repositories';
-import { bookGenres, readingStatuses } from '@/db/schema';
+import { readingStatuses } from '@/db/schema';
 import { isValidIsbn, toStoredIsbn } from '@/lib/isbn';
 
-import type { BookGenre, ReadingStatus } from './types';
+import type { ReadingStatus } from './types';
 
 /** O formulário guarda tudo como texto; a conversão acontece na validação. */
 export type BookFormState = {
   title: string;
   author: string;
-  genre: BookGenre;
+  genreId: string;
   status: ReadingStatus;
   pages: string;
   pagesRead: string;
@@ -27,7 +27,7 @@ export type BookFormResult =
 export const emptyBookForm: BookFormState = {
   title: '',
   author: '',
-  genre: 'fantasy',
+  genreId: '',
   status: 'queued',
   pages: '',
   pagesRead: '0',
@@ -37,7 +37,7 @@ export const emptyBookForm: BookFormState = {
 const bookFormSchema = z.object({
   title: z.string().trim().min(1, 'Informe o título'),
   author: z.string().trim().min(1, 'Informe o autor'),
-  genre: z.enum(bookGenres),
+  genreId: z.string().trim().min(1, 'Escolha um gênero'),
   status: z.enum(readingStatuses),
   pages: z
     .string()
@@ -104,7 +104,7 @@ export function validateBookForm(
     input: {
       title: parsed.data.title,
       author: parsed.data.author,
-      genre: parsed.data.genre,
+      genreId: parsed.data.genreId,
       status: parsed.data.status,
       pages: parsed.data.pages,
       pagesRead: parsed.data.pagesRead,

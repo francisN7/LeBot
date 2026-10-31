@@ -1,8 +1,18 @@
 import { sql } from 'drizzle-orm';
-import { check, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import {
+  check,
+  index,
+  integer,
+  sqliteTable,
+  text,
+  uniqueIndex,
+} from 'drizzle-orm/sqlite-core';
 
-/** Gêneros do app. A UI usa os mesmos valores para colorir a lombada. */
-export const bookGenres = [
+/**
+ * Ids dos gêneros de fábrica. A migração `0002` insere estas linhas; o dono
+ * pode renomear, recolorir e excluir como qualquer outro gênero.
+ */
+export const defaultGenreIds = [
   'fantasy',
   'romance',
   'nonfiction',
@@ -10,8 +20,6 @@ export const bookGenres = [
   'children',
   'horror',
 ] as const;
-
-export type BookGenre = (typeof bookGenres)[number];
 
 /** Status de leitura de um livro. */
 export const readingStatuses = [
@@ -23,13 +31,41 @@ export const readingStatuses = [
 
 export type ReadingStatus = (typeof readingStatuses)[number];
 
+export const genres = sqliteTable(
+  'genres',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    /** Hex `#RRGGBB` usado no tema claro. */
+    colorLight: text('color_light').notNull(),
+    /** Par do tema escuro; guardado desde já, usado quando o tema chegar. */
+    colorDark: text('color_dark').notNull(),
+    /** 0–9 quando a cor veio da paleta; `NULL` para cor personalizada. */
+    paletteIndex: integer('palette_index'),
+    isDefault: integer('is_default', { mode: 'boolean' })
+      .notNull()
+      .default(false),
+    sortOrder: integer('sort_order').notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (table) => [
+    uniqueIndex('genres_name_unique').on(table.name),
+    index('genres_sort_order_idx').on(table.sortOrder),
+  ],
+);
+
+export type GenreRow = typeof genres.$inferSelect;
+export type NewGenreRow = typeof genres.$inferInsert;
+
 export const books = sqliteTable(
   'books',
   {
     id: text('id').primaryKey(),
     title: text('title').notNull(),
     author: text('author').notNull(),
-    genre: text('genre', { enum: bookGenres }).notNull(),
+    /** `genres.id`. Sem FK física: a integridade fica no repositório. */
+    genreId: text('genre').notNull(),
     status: text('status', { enum: readingStatuses }).notNull(),
     pages: integer('pages').notNull(),
     pagesRead: integer('pages_read').notNull().default(0),

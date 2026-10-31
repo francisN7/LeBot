@@ -2,14 +2,20 @@ import Constants from 'expo-constants';
 import { useMemo } from 'react';
 import { View } from 'react-native';
 
-import { AppText, Card, Chip, Screen } from '@/components/ui';
+import { AppText, Button, Card, Chip, Screen } from '@/components/ui';
+import { useGenres } from '@/features/genres';
 import { toSettingRows } from './rows';
 import { useSettings } from './use-settings';
 
 const appVersion = Constants.expoConfig?.version ?? '0.1.0';
 
-export function AjustesScreen() {
+type AjustesScreenProps = {
+  onOpenGenres?: () => void;
+};
+
+export function AjustesScreen({ onOpenGenres }: AjustesScreenProps = {}) {
   const { values } = useSettings();
+  const { genres } = useGenres();
   const settingsRows = useMemo(() => toSettingRows(values), [values]);
 
   return (
@@ -32,6 +38,26 @@ export function AjustesScreen() {
           </Card>
         ))}
       </View>
+
+      <Card className="gap-xs">
+        <View className="flex-row items-center justify-between">
+          <AppText variant="bodyStrong">Gêneros</AppText>
+          <Chip
+            label={
+              genres.length === 1 ? '1 gênero' : `${genres.length} gêneros`
+            }
+          />
+        </View>
+        <AppText variant="caption" tone="muted">
+          Nome e cor de cada prateleira. A cor vale na lombada e na fita.
+        </AppText>
+        <Button
+          label="Gerenciar gêneros"
+          onPress={onOpenGenres}
+          size="sm"
+          variant="secondary"
+        />
+      </Card>
 
       <Card className="gap-xs">
         <AppText variant="subtitle">Sobre o LêBot</AppText>

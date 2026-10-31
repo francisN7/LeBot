@@ -10,11 +10,12 @@ import {
   Spine,
   TextField,
 } from '@/components/ui';
+import { useGenres } from '@/features/genres';
 import { matchesQuery } from '@/lib/book-search';
 import { hasCover } from '@/lib/covers';
-import { sizes } from '@/theme';
+import { colors, sizes } from '@/theme';
 
-import { colorForGenre, genreLabel, labelForStatus } from './genre';
+import { labelForStatus, UNKNOWN_GENRE_NAME } from './genre';
 import type { ReadingStatus } from './types';
 import { useBooks } from './use-books';
 
@@ -40,6 +41,7 @@ export function EstanteScreen({
   const [filter, setFilter] = useState<ShelfFilter>('all');
   const [query, setQuery] = useState('');
   const { books } = useBooks();
+  const { genreById } = useGenres();
 
   const visibleBooks = books.filter(
     (book) =>
@@ -86,53 +88,57 @@ export function EstanteScreen({
       </View>
 
       <View className="flex-row flex-wrap gap-md">
-        {visibleBooks.map((book) => (
-          <Card className="w-[46%] items-center gap-sm" key={book.id}>
-            {hasCover(book.coverUri) ? (
-              <Pressable
-                accessibilityLabel={`Abrir ${book.title}`}
-                accessibilityRole="button"
-                className="active:opacity-80"
-                onPress={() => onOpenBook?.(book.id)}
-              >
-                <Image
-                  accessibilityLabel={`Capa de ${book.title}`}
-                  resizeMode="cover"
-                  source={{ uri: book.coverUri }}
-                  style={{
-                    width: sizes.spine.width,
-                    height: sizes.spine.height,
-                  }}
+        {visibleBooks.map((book) => {
+          const genre = genreById.get(book.genreId);
+
+          return (
+            <Card className="w-[46%] items-center gap-sm" key={book.id}>
+              {hasCover(book.coverUri) ? (
+                <Pressable
+                  accessibilityLabel={`Abrir ${book.title}`}
+                  accessibilityRole="button"
+                  className="active:opacity-80"
+                  onPress={() => onOpenBook?.(book.id)}
+                >
+                  <Image
+                    accessibilityLabel={`Capa de ${book.title}`}
+                    resizeMode="cover"
+                    source={{ uri: book.coverUri }}
+                    style={{
+                      width: sizes.spine.width,
+                      height: sizes.spine.height,
+                    }}
+                  />
+                </Pressable>
+              ) : (
+                <Spine
+                  color={genre?.colorLight ?? colors.navyMuted}
+                  onPress={() => onOpenBook?.(book.id)}
+                  showLabel={false}
+                  title={book.title}
                 />
-              </Pressable>
-            ) : (
-              <Spine
-                color={colorForGenre(book.genre)}
-                onPress={() => onOpenBook?.(book.id)}
-                showLabel={false}
-                title={book.title}
-              />
-            )}
-            <AppText
-              numberOfLines={1}
-              style={{ alignSelf: 'stretch', textAlign: 'center' }}
-              variant="bodyStrong"
-            >
-              {book.title}
-            </AppText>
-            <AppText variant="caption" tone="muted" numberOfLines={1}>
-              {book.author}
-            </AppText>
-            <AppText
-              numberOfLines={1}
-              style={{ alignSelf: 'stretch', textAlign: 'center' }}
-              variant="label"
-            >
-              {genreLabel[book.genre]}
-            </AppText>
-            <Chip label={labelForStatus(book.status)} />
-          </Card>
-        ))}
+              )}
+              <AppText
+                numberOfLines={1}
+                style={{ alignSelf: 'stretch', textAlign: 'center' }}
+                variant="bodyStrong"
+              >
+                {book.title}
+              </AppText>
+              <AppText variant="caption" tone="muted" numberOfLines={1}>
+                {book.author}
+              </AppText>
+              <AppText
+                numberOfLines={1}
+                style={{ alignSelf: 'stretch', textAlign: 'center' }}
+                variant="label"
+              >
+                {genre?.name ?? UNKNOWN_GENRE_NAME}
+              </AppText>
+              <Chip label={labelForStatus(book.status)} />
+            </Card>
+          );
+        })}
       </View>
 
       {visibleBooks.length === 0 ? (

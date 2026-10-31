@@ -9,7 +9,8 @@ import {
   Screen,
   TextField,
 } from '@/components/ui';
-import { bookGenres, readingStatuses } from '@/db/schema';
+import { readingStatuses } from '@/db/schema';
+import { useGenres } from '@/features/genres';
 import { createId } from '@/lib/id';
 import { sizes } from '@/theme';
 
@@ -20,7 +21,7 @@ import {
   emptyBookForm,
   validateBookForm,
 } from './form';
-import { genreLabel, labelForStatus } from './genre';
+import { labelForStatus } from './genre';
 import type { Book } from './types';
 import { useBooks } from './use-books';
 
@@ -41,7 +42,7 @@ function toFormState(book: Book): BookFormState {
   return {
     title: book.title,
     author: book.author,
-    genre: book.genre,
+    genreId: book.genreId,
     status: book.status,
     pages: String(book.pages),
     pagesRead: String(book.pagesRead),
@@ -56,13 +57,16 @@ export function BookFormScreen({
   onCancel,
 }: BookFormScreenProps) {
   const { books, create, update } = useBooks();
+  const { genres } = useGenres();
   const covers = useCoverService();
   const existing = bookId
     ? books.find((book) => book.id === bookId)
     : undefined;
 
   const [form, setForm] = useState<BookFormState>(() =>
-    existing ? toFormState(existing) : emptyBookForm,
+    existing
+      ? toFormState(existing)
+      : { ...emptyBookForm, genreId: genres[0]?.id ?? '' },
   );
   const [errors, setErrors] = useState<BookFormErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -228,15 +232,22 @@ export function BookFormScreen({
       <View className="gap-sm">
         <AppText variant="label">Gênero</AppText>
         <View className="flex-row flex-wrap gap-sm">
-          {bookGenres.map((genre) => (
+          {genres.map((genre) => (
             <Chip
-              key={genre}
-              label={genreLabel[genre]}
-              onPress={() => setForm((current) => ({ ...current, genre }))}
-              selected={form.genre === genre}
+              key={genre.id}
+              label={genre.name}
+              onPress={() =>
+                setForm((current) => ({ ...current, genreId: genre.id }))
+              }
+              selected={form.genreId === genre.id}
             />
           ))}
         </View>
+        {genres.length === 0 ? (
+          <AppText variant="caption" tone="muted">
+            Cadastre um gênero em Ajustes para classificar o livro.
+          </AppText>
+        ) : null}
       </View>
 
       <View className="gap-sm">
