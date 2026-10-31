@@ -29,7 +29,8 @@ Sem mudanças pendentes: a S4 é a próxima sessão.
   preview e aviso de contraste baixo.
 - `BookCover` e `Bookmark` (`react-native-svg`): capa com raio e borda dos cards
   e fita na cor do gênero, no canto superior esquerdo.
-- ISBN no formulário de livro aceita dígitos puros, normaliza ao sair do campo e
+- ISBN no formulário de livro aceita dígitos puros, aplica a máscara enquanto
+  digita (`85-359-0277-2` / `978-85-359-0277-2`), normaliza o valor gravado e
   mostra "ISBN válido"/"ISBN inválido" antes de salvar.
 - ADR 0010 e docs de modelo, arquitetura, testes, design system, brand e
   privacidade atualizados.

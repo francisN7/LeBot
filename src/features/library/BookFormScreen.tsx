@@ -13,7 +13,7 @@ import {
 import { readingStatuses } from '@/db/schema';
 import { useGenres } from '@/features/genres';
 import { createId } from '@/lib/id';
-import { isValidIsbn, normalizeIsbn } from '@/lib/isbn';
+import { formatIsbnInput, isValidIsbn, normalizeIsbn } from '@/lib/isbn';
 import { colors } from '@/theme';
 
 import { useCoverService } from './cover-context';
@@ -227,12 +227,11 @@ export function BookFormScreen({
             autoCapitalize="characters"
             autoCorrect={false}
             error={errors.isbn}
-            hint="Opcional. Só números; o X final do ISBN-10 também vale."
+            hint="Opcional. Digite só os números; os hífens entram sozinhos."
             keyboardType="number-pad"
             label="ISBN"
-            onBlur={() => setText('isbn', normalizeIsbn(form.isbn))}
-            onChangeText={(value) => setText('isbn', value)}
-            placeholder="9788535900002"
+            onChangeText={(value) => setText('isbn', formatIsbnInput(value))}
+            placeholder="978-85-359-0277-2"
             value={form.isbn}
           />
           {isbnComplete && !errors.isbn ? (

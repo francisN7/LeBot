@@ -26,7 +26,9 @@ Constraints: `books_pages_positive`, `books_pages_read_range` e índice único
 `created_at`, desempate por `id`.
 
 A validade do ISBN (dígito verificador) é checada em `src/lib/isbn.ts` e no Zod
-do repositório; o banco só guarda o valor já normalizado.
+do repositório; o banco só guarda o valor já normalizado (dígitos e `X`). A
+máscara com hífens (`formatIsbnInput`) existe só na UI: o formulário formata
+enquanto o dono digita, mas o valor salvo não tem hífen.
 
 `books.genre` não tem FK para `genres`: o SQLite exigiria recriar a tabela, e a
 migração precisa ser aditiva. A integridade fica no repositório de gêneros:

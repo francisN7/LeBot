@@ -21,8 +21,9 @@
 - `BookCover` (raio + borda navy + `overflow: hidden`) e `Bookmark` em
   `react-native-svg` (fita na cor do gênero, topo/esquerda) na Estante, no
   detalhe e no preview.
-- ISBN com `number-pad`, normalizado no blur e "válido/inválido" antes de
-  salvar; `AppText` `label` sem `letterSpacing`.
+- ISBN: dígitos puros com máscara enquanto digita (`85-359-0277-2` /
+  `978-85-359-0277-2`, troca pelo prefixo 978/979), "válido/inválido" antes de
+  salvar; o banco grava só os dígitos. `AppText` `label` sem `letterSpacing`.
 - 139 testes em 30 suítes; lint, typecheck, doctor e export Android verdes.
   Docs: ADR 0010, modelo, arquitetura, design system, brand, testes, privacidade
   e CHANGELOG.
@@ -31,13 +32,12 @@
 
 1. `Terror`, `Voltar` e título longo terminando em "r" inteiros em chip, botão e
    lombada.
-2. Capa com canto arredondado e borda 2 px sem vazar; fita visível sobre capa
-   clara (entalhe em "V" e contorno navy).
+2. Capa arredondada e borda 2 px sem vazar; fita visível sobre capa clara.
 3. Contraste real dos 10 presets na lombada.
 4. Criar gênero (preset e custom), renomear e repintar a Estante; excluir sem
    livros, em uso (mensagem com contagem) e o último.
-5. ISBN: teclado numérico, normalização no blur, X final; e Ajustes → Gêneros →
-   editar → voltar sem empilhar telas.
+5. ISBN: máscara ao digitar (8535 → 85-35; 97885359027 → 978-85-359-027),
+   teclado numérico e X final; Ajustes → Gêneros → editar → voltar.
 
 ## Decisões abertas
 
@@ -45,8 +45,9 @@
 - Tema escuro: pares prontos; falta toggle, superfícies e contraste.
 - Ícone e splash ainda são placeholders (S4).
 - `cover_uri` é absoluto: o backup (S11) decide entre referência e imagem.
-- DNF (S9), ISBN sem hifenização e metadados em `brand/source/*.png` (limpar no
-  primeiro export real).
+- Máscara do ISBN fixa no padrão brasileiro (sem tabela de ranges): outro grupo
+  pode ganhar hífen no lugar errado; o valor gravado é só dígitos.
+- DNF (S9), metadados em `brand/source/*.png` (limpar no primeiro export real).
 
 ## Arquivos-chave
 
@@ -57,20 +58,19 @@
 
 ## Armadilhas
 
-- `expo-env.d.ts` é gerado/ignorado; não apague `types/expo-types.d.ts`. Rota
-  nova só tipa depois de gerar `.expo/types/router.d.ts` (`npm start` ou
-  `npx expo start --offline` com timeout) antes do typecheck.
+- `expo-env.d.ts` é gerado/ignorado. Rota nova só tipa depois de gerar
+  `.expo/types/router.d.ts` (`npm start` ou `npx expo start --offline`).
 - `expo-sqlite`, `expo-file-system` e `expo-image-picker` não rodam no Jest;
   banco por `sql.js`, capa por contexto. SVG roda normal.
 - Migração: `schema.ts` → `npx drizzle-kit generate` → revisar o SQL (os 6
   gêneros são `INSERT` à mão) → commitar `drizzle/` e `migrations.js`.
   `getDb()` é lazy; chamar no topo de um módulo quebra os testes.
-- RTL 14 é assíncrono e não tem mais `UNSAFE_getByType`; use `testID`/texto.
+- RTL 14 é assíncrono e sem `UNSAFE_getByType` (use `testID`/texto); Node 26 vs
+  CI 22: rode `npm run test` antes de culpar o código.
 - Fontes: família com peso, nunca `fontWeight`; `lineHeight` < 1.15× corta
   descendentes; `label` **não** leva `letterSpacing`.
 - Contraste da paleta: 3:1 contra o creme **ou** o navy (navy é cor do preset
   "classic"; comparar só com navy dá 1:1).
-- Node local 26 vs CI 22: rode `npm run test` antes de culpar o código.
 ## Como rodar
 
 ```bash

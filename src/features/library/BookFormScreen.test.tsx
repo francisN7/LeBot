@@ -257,18 +257,22 @@ describe('BookFormScreen', () => {
     expect(repository.list()[0]?.genreId).toBe('horror');
   });
 
-  it('mostra ISBN válido enquanto digita e normaliza ao sair do campo', async () => {
+  it('aplica a máscara do ISBN enquanto digita', async () => {
     const repository = createInMemoryBooksRepository([]);
     const form = renderForm(repository);
     await form.render;
 
     const isbn = screen.getByLabelText('ISBN');
 
-    await fireEvent.changeText(isbn, '978-0-306-40615-7');
-    expect(screen.getByText('ISBN válido')).toBeOnTheScreen();
+    await fireEvent.changeText(isbn, '8535');
+    expect(screen.getByDisplayValue('85-35')).toBeOnTheScreen();
 
-    await fireEvent(isbn, 'blur');
-    expect(screen.getByDisplayValue('9780306406157')).toBeOnTheScreen();
+    await fireEvent.changeText(isbn, '97885359027');
+    expect(screen.getByDisplayValue('978-85-359-027')).toBeOnTheScreen();
+
+    await fireEvent.changeText(isbn, '9788535902778');
+    expect(screen.getByDisplayValue('978-85-359-0277-8')).toBeOnTheScreen();
+    expect(screen.getByText('ISBN válido')).toBeOnTheScreen();
   });
 
   it('avisa que o livro não existe', async () => {

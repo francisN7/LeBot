@@ -67,7 +67,8 @@ para isso.
 
 ## Cobertura da S3
 
-- `src/lib/isbn.test.ts`: ISBN-10/13 válidos, dígito errado, tamanho e `X`.
+- `src/lib/isbn.test.ts`: ISBN-10/13 válidos, dígito errado, tamanho e `X`;
+  máscara de UI (`8535` → `85-35`, `97885359027` → `978-85-359-027`).
 - `src/lib/book-search.test.ts`: busca sem acento/caixa e busca vazia.
 - `src/lib/covers.test.ts`: nome do arquivo e `hasCover`.
 - `src/db/repositories/books.test.ts`: ISBN normalizado, inválido, duplicado,
