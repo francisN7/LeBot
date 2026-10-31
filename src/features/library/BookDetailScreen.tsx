@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Image, View } from 'react-native';
+import { View } from 'react-native';
 
 import {
   AppText,
   BackButton,
+  BookCover,
   Button,
   Card,
   Chip,
@@ -13,7 +14,7 @@ import {
 } from '@/components/ui';
 import { useGenres } from '@/features/genres';
 import { hasCover } from '@/lib/covers';
-import { colors, sizes } from '@/theme';
+import { colors } from '@/theme';
 
 import { useCoverService } from './cover-context';
 import { labelForStatus, UNKNOWN_GENRE_NAME } from './genre';
@@ -76,11 +77,10 @@ export function BookDetailScreen({
       <Card className="gap-md">
         <View className="flex-row gap-md">
           {hasCover(book.coverUri) ? (
-            <Image
-              accessibilityLabel={`Capa de ${book.title}`}
-              resizeMode="cover"
-              source={{ uri: book.coverUri }}
-              style={{ width: sizes.spine.width, height: sizes.spine.height }}
+            <BookCover
+              genreColor={genre?.colorLight ?? colors.navyMuted}
+              title={book.title}
+              uri={book.coverUri}
             />
           ) : (
             <Spine

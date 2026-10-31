@@ -7,6 +7,44 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 Sem mudanças pendentes: a S4 é a próxima sessão.
 
+## S3.2 — Gêneros personalizados e cores por tema
+
+### Added
+
+- Migração `drizzle/0002_slow_pepper_potts.sql`: tabela `genres` (nome, par de
+  cores, preset, ordem e timestamps) com os 6 gêneros de fábrica, sem recriar
+  `books` nem alterar `books.genre`.
+- `src/theme/genre-colors.ts`: paleta de 10 pares claro/escuro,
+  `resolveGenreColor` e `paletteEntryAt`; o gênero guarda a cópia dos hexes.
+- `src/lib/genre-color.ts`: validação `#RRGGBB`, normalização e contraste WCAG;
+  par claro = escuro é recusado.
+- Repositório `genres` (`list`, `findById`, `create`, `update`, `remove`,
+  `countBooks`, `nameExists`) com nome único sem acento/caixa e bloqueio de
+  exclusão para gênero em uso e para o último gênero.
+- `useGenres` com repositório injetável e mapa `genreById` compartilhado por
+  Estante, Fila, Detalhe e Formulário.
+- Telas `/generos` (lista com contagem), `/generos/novo` e
+  `/generos/[id]/editar`; Ajustes ganhou "Gerenciar gêneros".
+- Formulário de gênero com grade de 10 presets, cor personalizada em dois hexes,
+  preview e aviso de contraste baixo.
+- `BookCover` e `Bookmark` (`react-native-svg`): capa com raio e borda dos cards
+  e fita na cor do gênero, no canto superior esquerdo.
+- ISBN no formulário de livro aceita dígitos puros, normaliza ao sair do campo e
+  mostra "ISBN válido"/"ISBN inválido" antes de salvar.
+- ADR 0010 e docs de modelo, arquitetura, testes, design system, brand e
+  privacidade atualizados.
+
+### Changed
+
+- `books.genre` passa a guardar `genres.id`; `Book.genre` virou `genreId` e o
+  enum `BookGenre` saiu do schema e da UI.
+- `AppText` `label` perdeu o `letterSpacing`: era a causa do "Terro/r" e do
+  "Volta/r" em containers de largura justa.
+- Estante, detalhe e preview do formulário usam `BookCover` no lugar da `Image`
+  solta; `resolveGenreColor(genre, 'dark')` já está coberto por teste, mas a UI
+  segue clara.
+- `react-native-svg` entra como dependência.
+
 ## S3 — Biblioteca: cadastrar, buscar e editar
 
 ### Added

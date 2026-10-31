@@ -1,75 +1,80 @@
 # Estado atual
 
-> Handoff entre sessões. Atualizar no fim de toda sessão. Manter < 80 linhas.
-
 ## Sessão
 
-- **Atual:** nenhuma aberta (S3 concluída e validada no Android)
-- **Última concluída:** S3 — Biblioteca + ajustes pós-validação
-- **Próxima:** S3.2 — gêneros e cores (`docs/sessions/S03.2-generos.md`);
-  o par claro/escuro é guardado, mas o tema escuro segue no backlog.
+- **Atual:** nenhuma aberta (S3.2 entregue; falta conferir no Android)
+- **Última concluída:** S3.2 — gêneros personalizados e cores por tema
+- **Próxima:** aceite da S3.2 no device; depois S4
+  (`docs/sessions/S04-identidade-3d.md`).
 
-## Pronto (S3)
+## Pronto (S3.2)
 
-- Migração `0001_conscious_hannibal_king.sql`: `books.isbn` (único, vários `NULL`) e `books.cover_uri`; tabela não recriada.
-- `src/lib/isbn.ts` valida ISBN-10/13 pelo dígito verificador; repositório grava
-  normalizado e recusa inválido/duplicado.
-- `src/lib/book-search.ts` busca sem acento/caixa (ADR 0009).
-- `BookDetailScreen` (`/livro/[id]`): capa ou `Spine`, dados, Editar e Excluir
-  com `ConfirmDialog` do app (não mais `Alert`), apagando a capa.
-- `BookFormScreen` (`/livro/novo`, `/livro/[id]/editar`): campos (incluindo
-  "Páginas lidas"), erro por campo via Zod e capa.
-- `CoverService` injetável; capa em `documentDirectory/covers/<id>.jpg`.
-- Estante: busca, capa real quando existe, título em linha única fora da
-  lombada (corrige "Warbreak/er") e filtro por status.
-- Fila: conta só livros existentes e abre o detalhe; toque duplo não empilha
-  telas (`src/lib/navigation.ts`).
-- `useBooks` tem `create`/`update`/`remove`/`refresh` e avisa as telas com o
-  mesmo repositório.
-- `BackButton` e `ConfirmDialog` novos em `ui/`; "Voltar" não corta mais a
-  última letra.
-- 83 testes em 21 suítes; lint, typecheck, doctor e export Android verdes.
-- Docs: ADR 0009 + modelo, arquitetura, testes, design system, privacidade e
-  CHANGELOG.
+- Migração `0002_slow_pepper_potts.sql` aditiva: `genres`, 2 índices e os 6
+  gêneros de fábrica; `books` intacta e `books.genre` guarda `genres.id`.
+- `genre-colors.ts` (10 pares, `resolveGenreColor`) e `genre-color.ts` (hex,
+  contraste WCAG, par igual recusado); o gênero grava a cópia dos hexes.
+- Repositório `genres` (`countBooks`, `nameExists`, nome único sem acento/caixa,
+  exclusão bloqueada com livros e no último) e `useGenres` + `genreById`;
+  `Book.genreId` substituiu `Book.genre` e o enum `BookGenre` saiu.
+- `/generos`, `/generos/novo`, `/generos/[id]/editar`; Ajustes → "Gerenciar
+  gêneros". Formulário com 10 presets, dois hexes, preview e aviso de contraste.
+- `BookCover` (raio + borda navy + `overflow: hidden`) e `Bookmark` em
+  `react-native-svg` (fita na cor do gênero, topo/esquerda) na Estante, no
+  detalhe e no preview.
+- ISBN com `number-pad`, normalizado no blur e "válido/inválido" antes de
+  salvar; `AppText` `label` sem `letterSpacing`.
+- 139 testes em 30 suítes; lint, typecheck, doctor e export Android verdes.
+  Docs: ADR 0010, modelo, arquitetura, design system, brand, testes, privacidade
+  e CHANGELOG.
+
+## Revisar no Android antes da S4
+
+1. `Terror`, `Voltar` e título longo terminando em "r" inteiros em chip, botão e
+   lombada.
+2. Capa com canto arredondado e borda 2 px sem vazar; fita visível sobre capa
+   clara (entalhe em "V" e contorno navy).
+3. Contraste real dos 10 presets na lombada.
+4. Criar gênero (preset e custom), renomear e repintar a Estante; excluir sem
+   livros, em uso (mensagem com contagem) e o último.
+5. ISBN: teclado numérico, normalização no blur, X final; e Ajustes → Gêneros →
+   editar → voltar sem empilhar telas.
 
 ## Decisões abertas
 
-- NativeWind v4 sem suporte oficial à SDK 58 (ADR 0006); se SDK 59 quebrar,
-  migrar para NativeWind 5 + Tailwind 4.
+- NativeWind v4 sem suporte oficial à SDK 58 (ADR 0006).
+- Tema escuro: pares prontos; falta toggle, superfícies e contraste.
 - Ícone e splash ainda são placeholders (S4).
 - `cover_uri` é absoluto: o backup (S11) decide entre referência e imagem.
-- DNF: `brand.md` fala em abandono, schema só tem `reading`, `queued`, `paused`
-  e `finished`. Decidir na S9 se vira status próprio.
-- ISBN sem hifenização automática (não há tabela de ranges): aceitar dígitos e
-  dar feedback de válido/inválido fica na S3.2.
-- `brand/source/*.png` têm metadados: limpar no primeiro export real.
+- DNF (S9), ISBN sem hifenização e metadados em `brand/source/*.png` (limpar no
+  primeiro export real).
 
 ## Arquivos-chave
 
-- `src/db/**`, `drizzle/0001_*`, `src/lib/{isbn,book-search,covers,navigation}.ts`
-- `src/features/library/*` (telas, `form.ts`, `cover-*`, `use-books.tsx`)
-- `src/components/ui/{TextField,ConfirmDialog}.tsx`, `src/app/livro/**`
-- `src/test-utils/{render,repositories,covers}.ts(x)`
+- `src/db/{schema.ts,repositories/genres.ts}`, `drizzle/0002_*`
+- `src/theme/genre-colors.ts`, `src/lib/{genre-color,genre-name}.ts`
+- `src/features/genres/*`, `src/components/ui/{BookCover,Bookmark}.tsx`,
+  `src/features/library/{form.ts,use-books.tsx,BookFormScreen.tsx}`
 
 ## Armadilhas
 
-- `expo-env.d.ts` é gerado/ignorado; não apague `types/expo-types.d.ts`.
-- Rota nova só tipa depois de gerar `.expo/types/router.d.ts`: rode `npm start`
-  (ou regenere com o script do `@expo/router-server`).
+- `expo-env.d.ts` é gerado/ignorado; não apague `types/expo-types.d.ts`. Rota
+  nova só tipa depois de gerar `.expo/types/router.d.ts` (`npm start` ou
+  `npx expo start --offline` com timeout) antes do typecheck.
 - `expo-sqlite`, `expo-file-system` e `expo-image-picker` não rodam no Jest;
-  capa entra por contexto, banco por `sql.js`.
-- Migração: `schema.ts` → `npx drizzle-kit generate` → commitar `drizzle/`.
-- `getDb()` é lazy; chamar no topo de um módulo quebra os testes. `update`
-  valida o livro completo; patch sozinho não passa.
-- RTL 14 é assíncrono: `await render(...)`, `await fireEvent.press(...)`.
+  banco por `sql.js`, capa por contexto. SVG roda normal.
+- Migração: `schema.ts` → `npx drizzle-kit generate` → revisar o SQL (os 6
+  gêneros são `INSERT` à mão) → commitar `drizzle/` e `migrations.js`.
+  `getDb()` é lazy; chamar no topo de um módulo quebra os testes.
+- RTL 14 é assíncrono e não tem mais `UNSAFE_getByType`; use `testID`/texto.
 - Fontes: família com peso, nunca `fontWeight`; `lineHeight` < 1.15× corta
-  descendentes; `label` **não** leva `letterSpacing` (quebra o "r" no Android).
+  descendentes; `label` **não** leva `letterSpacing`.
+- Contraste da paleta: 3:1 contra o creme **ou** o navy (navy é cor do preset
+  "classic"; comparar só com navy dá 1:1).
 - Node local 26 vs CI 22: rode `npm run test` antes de culpar o código.
-
 ## Como rodar
 
 ```bash
-npm install && npm start      # QR code para o Expo Go
+npm install && npm start      # Expo Go
 npm run lint && npm run typecheck && npm run test
 npm run doctor && npx expo export --platform android --output-dir dist
 ```

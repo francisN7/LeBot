@@ -63,6 +63,8 @@ Estante com sensação de profundidade — sem perder legibilidade nem o offline
 `docs/design/design-system.md`, `docs/security-privacy.md`,
 `src/features/library/`, `src/components/ui/Spine.tsx`, `app.config.ts`.
 
+`react-native-svg` já entrou na S3.2 (`Bookmark`); não instalar de novo.
+
 ## Riscos
 
 - **Peso do bundle:** 24 lombadas + 6 mascotes em WebP pode estourar; medir com

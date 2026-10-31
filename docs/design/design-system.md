@@ -56,6 +56,8 @@ Arquivos de configuração: `babel.config.js` (`jsxImportSource: nativewind`),
 ### Tamanhos e opacidade (`src/theme/sizes.ts`)
 
 - `sizes.spine` = 88×128; `sizes.spineCompact` = 72×104.
+- `sizes.bookmark` = 18×28 (fita sobre a capa); `sizes.genreSwatch` = 48×32
+  (par de cores na lista/formulário de gênero).
 - `borderWidths.hairline` 1 · `strong` 2.
 - `opacities.decor` 0.25 · `disabled` 0.5 · `muted` 0.7.
 
@@ -199,15 +201,56 @@ usam `getByLabelText('Título')`.
 ### `Spine`
 
 Placeholder 2D da lombada: bloco colorido por gênero com etiqueta do título.
-Cor sempre vem de `colorForGenre()` em `src/features/library/genre.ts`. Com
-`onPress` vira botão acessível; use `showLabel={false}` quando o título já
-aparece ao lado (caso da área principal da Fila, do detalhe e dos cards da
-Estante). Quando o livro tem capa, o card da Estante usa a imagem no lugar da
-lombada.
+A cor vem do gênero do banco (`genreById.get(book.genreId)?.colorLight`) e cai
+em `navyMuted` quando o gênero não existe mais. Com `onPress` vira botão
+acessível; use `showLabel={false}` quando o título já aparece ao lado (caso da
+área principal da Fila, do detalhe e dos cards da Estante). Quando o livro tem
+capa, o card usa `BookCover` no lugar da lombada.
 
 ```tsx
-<Spine color={colorForGenre(book.genre)} title={book.title} />
+<Spine color={genre.colorLight} title={book.title} />
 ```
+
+### `BookCover`
+
+Capa com o mesmo acabamento dos cards: `overflow: hidden`, borda navy de 2 px
+(por dentro do tamanho do token) e raio `radii.md`; `resizeMode="cover"`. O
+rótulo fica no wrapper (`Capa de <título>`), então a imagem não é lida duas
+vezes pelo leitor de tela. Aceita `onPress` e `accessibilityLabel` próprio (o
+preview do formulário usa "Capa escolhida").
+
+```tsx
+<BookCover
+  genreColor={genre.colorLight}
+  title={book.title}
+  uri={book.coverUri}
+/>
+```
+
+### `Bookmark`
+
+Fita de marca-página em SVG (`react-native-svg`): retângulo com entalhe em "V"
+na base, contorno navy e preenchimento na cor do gênero. Fica no canto superior
+esquerdo da capa, colada no topo, com margem `spacing.sm` à esquerda. É
+decorativa (`accessibilityElementsHidden`): a cor não substitui informação
+textual.
+
+```tsx
+<Bookmark color={genre.colorLight} />
+```
+
+## Gêneros e cores
+
+- `src/theme/genre-colors.ts` tem 10 pares claro/escuro. O gênero grava os hexes,
+  então alterar a paleta não repinta escolhas antigas.
+- `resolveGenreColor(genre, scheme = 'light')`; a UI usa `light` até o tema
+  escuro existir.
+- `src/lib/genre-color.ts` valida `#RRGGBB`, normaliza para maiúsculo e calcula
+  contraste (WCAG). Par com claro = escuro é recusado.
+- O teste da paleta exige 3:1 contra o creme **ou** contra o navy: o bloco
+  colorido sempre aparece sobre um dos dois.
+- Hex baixo contraste em cor personalizada só gera aviso no formulário; a
+  escolha é do dono.
 
 ## Regras
 
@@ -243,9 +286,10 @@ it('mostra a estante', async () => {
 - Rotas em `src/app/(tabs)/` só reexportam a tela da feature.
 - Telas vivem em `src/features/<nome>/<Nome>Screen.tsx`.
 - Rotas fora das abas: `/livro/novo`, `/livro/[id]` e `/livro/[id]/editar`
-  (S3). Elas passam callbacks (`onBack`, `onEdit`, `onDone`) para a tela, que
-  continua sem depender do router nos testes.
-- Livros e preferências vêm do SQLite via `useBooks`/`useSettings`; não há
-  fixture de dados reais.
+  (S3); `/generos`, `/generos/novo` e `/generos/[id]/editar` (S3.2). Elas
+  passam callbacks (`onBack`, `onEdit`, `onDone`) para a tela, que continua sem
+  depender do router nos testes.
+- Livros, gêneros e preferências vêm do SQLite via `useBooks`/`useGenres`/
+  `useSettings`; não há fixture de dados reais.
 - Ainda são fixtures: `queue` (até S8) e `daily-plan` (até S6/S7).
 - As 4 abas atuais: Estante, Fila, Hoje, Ajustes.

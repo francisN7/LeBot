@@ -10,7 +10,7 @@ src/app/          rotas (Expo Router) — só orquestram telas
 src/features/*/   UI + hooks + serviços de uma feature
 src/db/           schema Drizzle, client, migrações, seed e repositórios
 src/lib/          funções puras, sem React Native
-src/components/ui componentes genéricos (Screen, AppText, Button, Card, Chip, ConfirmDialog, Spine, TextField)
+src/components/ui componentes genéricos (Screen, AppText, Button, Card, Chip, ConfirmDialog, Spine, TextField, BookCover, Bookmark)
 src/theme/        tokens (cor, espaçamento, raio, tipografia, tamanhos)
 drizzle/          SQL gerado pelo drizzle-kit (+ bundle das migrações)
 types/            declarações globais versionadas (`expo/types`, `*.sql`)
@@ -32,7 +32,7 @@ Regras:
 ```
 SQLite (expo-sqlite + Drizzle)
   → repositório (src/db/repositories, síncrono, recebe o db)
-  → hook da feature (useBooks, useSettings, com refresh após escrita)
+  → hook da feature (useBooks, useGenres, useSettings, com refresh após escrita)
   → tela
 ```
 
@@ -44,7 +44,8 @@ SQLite (expo-sqlite + Drizzle)
   no real quando não existe (app).
 - `useBooks` avisa todas as telas que usam o mesmo repositório depois de
   escrever (assinaturas em `WeakMap`), então Estante, Fila e Detalhe não ficam
-  com dados velhos ao voltar do formulário.
+  com dados velhos ao voltar do formulário. `useGenres` segue o mesmo padrão e
+  expõe `genreById` para nome e cor.
 - Erros de escrita sobem como exceção; validação de entrada é Zod no
   repositório.
 
@@ -63,6 +64,20 @@ SQLite (expo-sqlite + Drizzle)
   (`cover-service.ts`) é montada no `_layout.tsx` via `CoverServiceProvider`;
   as telas recebem o serviço por contexto e os testes recebem um fake.
 - Decisão: ADR 0009.
+
+## Gêneros (S3.2)
+
+- Rotas: `/generos` (lista com contagem), `/generos/novo` e
+  `/generos/[id]/editar`. Ajustes → "Gerenciar gêneros" abre a lista.
+- `src/features/genres/` guarda as telas, o `genre-form.ts` (validação pura do
+  formulário) e o `useGenres`.
+- A paleta de 10 pares mora em `src/theme/genre-colors.ts`; a validação de hex e
+  contraste, em `src/lib/genre-color.ts`. `resolveGenreColor` já aceita `dark`,
+  mas a UI segue no claro.
+- O livro guarda só `genreId`; nome e cor são resolvidos por `genreById` na
+  Estante, Fila, Detalhe e Formulário.
+- Sem FK: excluir gênero em uso e apagar o último gênero são bloqueados no
+  repositório. Decisão: ADR 0010.
 
 ## Boot
 
@@ -85,6 +100,8 @@ Nenhum passo apaga dados ou esconde erro de migração.
 - Testes de banco: [`docs/adr/0008-testes-sqlite-sqljs.md`](adr/0008-testes-sqlite-sqljs.md)
 - Biblioteca (busca e capas):
   [`docs/adr/0009-biblioteca-busca-e-capas.md`](adr/0009-biblioteca-busca-e-capas.md)
+- Gêneros editáveis e cores:
+  [`docs/adr/0010-generos-editaveis-e-cores.md`](adr/0010-generos-editaveis-e-cores.md)
 
 ## Pendências conhecidas
 
@@ -93,3 +110,5 @@ Nenhum passo apaga dados ou esconde erro de migração.
   Plano persistido entra na S6/S7; a fila continua manual até a S8.
 - `cover_uri` guarda caminho absoluto do aparelho: o backup JSON (S11) não pode
   reutilizá-lo em outro device.
+- Tema escuro: os gêneros já guardam `color_dark`, mas faltam o toggle, os
+  tokens de superfície e revisar o contraste das telas.

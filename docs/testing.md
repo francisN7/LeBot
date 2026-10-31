@@ -28,9 +28,10 @@ esses testes são assíncronos (`await createTestDatabase()`).
 ### Telas
 
 `renderWithProviders` já envolve a tela com `SafeAreaProvider`,
-`BooksRepositoryProvider`, `SettingsRepositoryProvider` e
-`CoverServiceProvider`. Por padrão usa os dados do seed em memória e um
-`CoverService` fake; para cenários específicos:
+`BooksRepositoryProvider`, `GenresRepositoryProvider`,
+`SettingsRepositoryProvider` e `CoverServiceProvider`. Por padrão usa os dados
+do seed em memória (livros + 6 gêneros de fábrica) e um `CoverService` fake;
+para cenários específicos:
 
 ```tsx
 const books = createInMemoryBooksRepository([]);
@@ -45,6 +46,11 @@ await renderWithProviders(<EstanteScreen />, {
 `createFakeCoverService` não toca no disco nem na galeria: registra o que seria
 salvo (`saved`) e apagado (`removed`). `pickedUri = null` simula o cancelamento
 da galeria.
+
+O repositório de gêneros em memória recebe a contagem de livros por callback
+(`createInMemoryGenresRepository(rows, countBooks)`); `renderWithProviders`
+liga essa contagem ao repositório de livros, então excluir um gênero em uso é
+bloqueado também nos testes de tela.
 
 Nunca importe `expo-sqlite`, `expo-file-system` ou `expo-image-picker` no teste:
 são módulos nativos. As telas recebem `CoverService` por contexto justamente
@@ -73,3 +79,27 @@ para isso.
 - `src/theme/typography.test.ts`: folga de `lineHeight` em `display`/`xxl`/`xl`.
 
 O que continua manual: corte de descendentes e galeria só aparecem no Android.
+
+## Cobertura da S3.2
+
+- `src/lib/genre-color.test.ts`: hex válido/inválido, normalização, contraste
+  (1:1 a 21:1) e par claro/escuro igual.
+- `src/theme/genre-colors.test.ts`: 10 presets, `resolveGenreColor` nas duas
+  pontas e contraste ≥ 3:1 contra creme ou navy.
+- `src/db/repositories/genres.test.ts`: 6 gêneros de fábrica, criar/renomear,
+  nome duplicado sem acento/caixa, cor inválida, contagem de livros, exclusão em
+  uso e último gênero.
+- `src/db/genres-migration.test.ts`: migração `0002` insere os 6 gêneros e
+  mantém `books.genre` legível ao rodar de novo.
+- `src/features/genres/genre-form.test.ts`: nome único e preset × cor custom.
+- `src/features/genres/GenreFormScreen.test.tsx`: criar com preset e custom,
+  hex inválido, renomear, excluir e bloqueio em uso.
+- `src/features/genres/GenresScreen.test.tsx`: lista com contagem e navegação.
+- `BookCover.test.tsx`: rótulo, fita na cor do gênero e modo botão.
+- `AppText.test.tsx`: `label` sem `letterSpacing` e `numberOfLines` em largura
+  justa.
+- `BookFormScreen.test.tsx` e `EstanteScreen.test.tsx`: gênero vindo do banco
+  (nome, cor e `genreId` salvo).
+
+O que continua manual: contraste real das cores na lombada, fita sobre fotos
+claras, recorte da borda em telas de baixa densidade e o "r" final no chip.

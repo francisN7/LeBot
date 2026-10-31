@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Image, Pressable, View } from 'react-native';
+import { View } from 'react-native';
 
 import {
   AppText,
+  BookCover,
   Button,
   Card,
   Chip,
@@ -13,7 +14,7 @@ import {
 import { useGenres } from '@/features/genres';
 import { matchesQuery } from '@/lib/book-search';
 import { hasCover } from '@/lib/covers';
-import { colors, sizes } from '@/theme';
+import { colors } from '@/theme';
 
 import { labelForStatus, UNKNOWN_GENRE_NAME } from './genre';
 import type { ReadingStatus } from './types';
@@ -94,22 +95,12 @@ export function EstanteScreen({
           return (
             <Card className="w-[46%] items-center gap-sm" key={book.id}>
               {hasCover(book.coverUri) ? (
-                <Pressable
-                  accessibilityLabel={`Abrir ${book.title}`}
-                  accessibilityRole="button"
-                  className="active:opacity-80"
+                <BookCover
+                  genreColor={genre?.colorLight ?? colors.navyMuted}
                   onPress={() => onOpenBook?.(book.id)}
-                >
-                  <Image
-                    accessibilityLabel={`Capa de ${book.title}`}
-                    resizeMode="cover"
-                    source={{ uri: book.coverUri }}
-                    style={{
-                      width: sizes.spine.width,
-                      height: sizes.spine.height,
-                    }}
-                  />
-                </Pressable>
+                  title={book.title}
+                  uri={book.coverUri}
+                />
               ) : (
                 <Spine
                   color={genre?.colorLight ?? colors.navyMuted}

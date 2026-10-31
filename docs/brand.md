@@ -54,13 +54,42 @@ Nome: LêBot. Personalidade: otimista, levemente nerd, nunca culpabiliza o leito
 | pensando | dicas do plano e estatísticas |
 | comemorando | livro concluído e resenha |
 
+## Gêneros e cores
+
+Desde a S3.2 o gênero é dado do dono, não enum: ele cria, renomeia, recolore e
+exclui. Cada gênero guarda um par de hexes (claro + escuro) escolhido de uma
+paleta de 10 ou digitado à mão.
+
+| # | Preset | Claro | Escuro |
+|---|---|---|---|
+| 0 | purple | `#7B69EE` | `#B3A7FF` |
+| 1 | coral | `#FF6B5B` | `#FF9A8F` |
+| 2 | teal | `#34C6B8` | `#6FE3D6` |
+| 3 | navy | `#2A2340` | `#8B84A8` |
+| 4 | gold | `#FFC145` | `#FFD980` |
+| 5 | pink | `#FF8FA3` | `#FFB3C1` |
+| 6 | blue | `#4C7DFF` | `#8FAFFF` |
+| 7 | green | `#3FA45B` | `#7DD99A` |
+| 8 | orange | `#FF9F43` | `#FFC182` |
+| 9 | plum | `#A65CC9` | `#D19AEB` |
+
+Os 6 gêneros de fábrica repetem as cores da marca: fantasia = purple,
+romance = coral, não-ficção = teal, clássico = navy, infantojuvenil = gold,
+terror = pink. A cor vira fundo da lombada e da fita sobre a capa; o contorno
+segue navy. Mudar a paleta no código **não** repinta gêneros já salvos.
+
+O tema escuro ainda não existe: o par escuro fica guardado e entra no backlog.
+Contraste: textos seguem em navy sobre creme; o teste da paleta exige 3:1
+contra o creme ou contra o navy.
+
 ## Lombadas 3D
 
 Sistema de ícone de livro:
 
-- **Cor = gênero** (ex.: fantasia = roxo, romance = coral, não-ficção = teal, clássico = navy, infantojuvenil = gold, terror = pink).
+- **Cor = gênero** (do banco: a escolhida na S3.2, com padrão por preset).
 - **Expressão = status** (lendo = feliz, pausado = sonolento, concluído = brilho, DNF = neutro).
-- Sem capa cadastrada, a lombada vira a capa padrão.
+- Sem capa cadastrada, a lombada vira a capa padrão; com capa, a fita do gênero
+  aparece no canto superior esquerdo.
 - Formato de runtime: WebP com alpha, 256–512px; nome `spine-<cor>-<expressao>.webp`.
 
 ## Voz e tom

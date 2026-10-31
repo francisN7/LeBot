@@ -6,7 +6,7 @@ import { colors, opacities, radii, sizes } from '@/theme';
 
 type SpineProps = {
   title: string;
-  /** Cor de gênero, sempre vinda de `colors` via `src/features/library/genre.ts`. */
+  /** Cor de gênero vinda do banco (`genreById`), nunca uma lista fixa. */
   color: string;
   width?: number;
   height?: number;

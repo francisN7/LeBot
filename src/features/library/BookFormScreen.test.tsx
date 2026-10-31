@@ -257,6 +257,20 @@ describe('BookFormScreen', () => {
     expect(repository.list()[0]?.genreId).toBe('horror');
   });
 
+  it('mostra ISBN válido enquanto digita e normaliza ao sair do campo', async () => {
+    const repository = createInMemoryBooksRepository([]);
+    const form = renderForm(repository);
+    await form.render;
+
+    const isbn = screen.getByLabelText('ISBN');
+
+    await fireEvent.changeText(isbn, '978-0-306-40615-7');
+    expect(screen.getByText('ISBN válido')).toBeOnTheScreen();
+
+    await fireEvent(isbn, 'blur');
+    expect(screen.getByDisplayValue('9780306406157')).toBeOnTheScreen();
+  });
+
   it('avisa que o livro não existe', async () => {
     const repository = createInMemoryBooksRepository([]);
     const form = renderForm(repository, { bookId: 'book-sumiu' });

@@ -12,7 +12,8 @@ telemetria no MVP.
 
 | Dado | Onde | Observação |
 |---|---|---|
-| Livros, gêneros, status, ISBN | SQLite local | S2; ISBN desde a S3 |
+| Livros, gêneros, status, ISBN | SQLite local | S2; ISBN desde a S3; gêneros na S3.2 |
+| Cores dos gêneros | SQLite local | par claro/escuro, copiado da paleta na S3.2 |
 | Capa escolhida | `documentDirectory/covers/` | só o caminho fica no banco (S3) |
 | Sessões de leitura e progresso | SQLite local | a partir da S5 |
 | Resenhas e notas | SQLite local | a partir da S9 |

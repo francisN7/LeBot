@@ -12,7 +12,7 @@ Drizzle. Nada sai do aparelho e nenhum dado real do dono vai para o repositório
 | `id` | text | PK; `book-<base36>` gerado em `src/lib/id.ts` |
 | `title` | text | obrigatório, sem espaços nas pontas |
 | `author` | text | obrigatório, sem espaços nas pontas |
-| `genre` | text | `fantasy`, `romance`, `nonfiction`, `classic`, `children`, `horror` |
+| `genre` | text | `genres.id`; sem FK física (ver abaixo) |
 | `status` | text | `reading`, `queued`, `paused`, `finished` |
 | `pages` | integer | > 0 |
 | `pages_read` | integer | 0 ≤ `pages_read` ≤ `pages` (default 0) |
@@ -27,6 +27,27 @@ Constraints: `books_pages_positive`, `books_pages_read_range` e índice único
 
 A validade do ISBN (dígito verificador) é checada em `src/lib/isbn.ts` e no Zod
 do repositório; o banco só guarda o valor já normalizado.
+
+`books.genre` não tem FK para `genres`: o SQLite exigiria recriar a tabela, e a
+migração precisa ser aditiva. A integridade fica no repositório de gêneros:
+excluir um gênero em uso é bloqueado, e o último gênero nunca sai.
+
+### `genres`
+
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `id` | text | PK; de fábrica `fantasy`, `romance`, `nonfiction`, `classic`, `children`, `horror`; novos `genre-<base36>` |
+| `name` | text | obrigatório, até 40 caracteres; único por conteúdo (trim, caixa e acento ignorados) |
+| `color_light` | text | `#RRGGBB` do tema claro |
+| `color_dark` | text | `#RRGGBB` do tema escuro; precisa ser diferente do claro |
+| `palette_index` | integer | 0–9 quando veio da paleta; `NULL` para cor personalizada |
+| `is_default` | integer | 1 nos 6 gêneros de fábrica (não muda depois) |
+| `sort_order` | integer | ordem dos chips; gênero novo entra no fim |
+| `created_at` / `updated_at` | integer | ms desde 1970 |
+
+Índices: `genres_name_unique` (nome) e `genres_sort_order_idx`. As cores são
+**cópias** dos hexes: alterar a paleta não repinta quem já escolheu. Ver
+ADR 0010.
 
 ### `settings`
 
@@ -47,6 +68,8 @@ Chaves usadas hoje: `goal.pages`, `reminder.time`, `appearance.theme`,
   `metro.config.js` inclui `sql` em `sourceExts`.
 - Nunca apagar o banco do usuário: migração nova só adiciona/altera estrutura.
 - Erro de migração aparece em tela (`DatabaseError`) — não é engolido.
+- `0002_slow_pepper_potts.sql` é aditiva: `CREATE TABLE genres`, dois índices e
+  os 6 `INSERT` de fábrica. Nenhum `ALTER`/recreate em `books`.
 
 Para criar uma migração:
 
@@ -60,22 +83,27 @@ npm run test   # os testes rodam as migrações reais
 
 `src/db/seed.ts` insere 5 livros fictícios e as preferências iniciais **só** em
 banco vazio e uma vez por versão de seed (`seed.books.version`). Assim, livros
-que o dono apagar não voltam no próximo boot.
+que o dono apagar não voltam no próximo boot. Os gêneros **não** passam pelo
+seed: os 6 de fábrica vêm da migração `0002`, então existem mesmo antes do
+primeiro seed.
 
 ## Repositórios
 
-`src/db/repositories/books.ts` e `settings.ts` expõem funções síncronas
-(`list`, `findById`, `create`, `update`, `remove`; `get`, `all`, `set`,
-`remove`). Recebem a instância do Drizzle por parâmetro, então o mesmo código
-roda no aparelho (`expo-sqlite`) e nos testes (`sql.js`).
+`src/db/repositories/books.ts`, `genres.ts` e `settings.ts` expõem funções
+síncronas (`list`, `findById`, `create`, `update`, `remove`; `get`, `all`,
+`set`, `remove`). Recebem a instância do Drizzle por parâmetro, então o mesmo
+código roda no aparelho (`expo-sqlite`) e nos testes (`sql.js`).
 
-- Entrada validada com Zod (`bookInputSchema`); `update` valida o livro
-  completo (merge com a linha atual).
+- Entrada validada com Zod (`bookInputSchema`, `genreFields`); `update` valida
+  a linha completa (merge com o valor atual).
 - ISBN inválido e ISBN repetido são rejeitados com mensagem clara; o valor é
   gravado normalizado.
+- Gênero: nome duplicado (sem acento/caixa), par de cores igual e hex inválido
+  são rejeitados. `countBooks` e `nameExists` apoiam as telas; `remove` bloqueia
+  gênero em uso e o último gênero.
 - Nenhum SQL fora de `src/db/`.
-- As telas acessam via hooks (`useBooks`, `useSettings`), nunca pelo
-  repositório diretamente.
+- As telas acessam via hooks (`useBooks`, `useGenres`, `useSettings`), nunca
+  pelo repositório diretamente.
 
 ## Busca e capa
 
@@ -84,3 +112,6 @@ roda no aparelho (`expo-sqlite`) e nos testes (`sql.js`).
 - Capa: `expo-image-picker` copia para `documentDirectory/covers/<id>.jpg` via
   `CoverService` (`src/lib/covers.ts` + `cover-service.ts`); o banco guarda só
   o caminho. Ver ADR 0009.
+- Exibição: `BookCover` cuida do arredondamento, da borda navy e da fita do
+  gênero; `Bookmark` desenha a fita em SVG. Sem capa, `Spine` usa a cor do
+  gênero do mapa `genreById`.

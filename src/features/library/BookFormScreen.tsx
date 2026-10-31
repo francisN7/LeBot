@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Alert, Image, View } from 'react-native';
+import { Alert, View } from 'react-native';
 
 import {
   AppText,
+  BookCover,
   Button,
   Card,
   Chip,
@@ -12,7 +13,8 @@ import {
 import { readingStatuses } from '@/db/schema';
 import { useGenres } from '@/features/genres';
 import { createId } from '@/lib/id';
-import { sizes } from '@/theme';
+import { isValidIsbn, normalizeIsbn } from '@/lib/isbn';
+import { colors } from '@/theme';
 
 import { useCoverService } from './cover-context';
 import {
@@ -57,7 +59,7 @@ export function BookFormScreen({
   onCancel,
 }: BookFormScreenProps) {
   const { books, create, update } = useBooks();
-  const { genres } = useGenres();
+  const { genres, genreById } = useGenres();
   const covers = useCoverService();
   const existing = bookId
     ? books.find((book) => book.id === bookId)
@@ -88,6 +90,10 @@ export function BookFormScreen({
 
   const storedCover = existing?.coverUri ?? null;
   const previewCover = pickedCover ?? (dropStoredCover ? null : storedCover);
+
+  const isbnDigits = normalizeIsbn(form.isbn);
+  const isbnComplete = isbnDigits.length === 10 || isbnDigits.length === 13;
+  const isbnValid = isbnComplete && isValidIsbn(isbnDigits);
 
   function setText(
     field: 'title' | 'author' | 'pages' | 'pagesRead' | 'isbn',
@@ -216,17 +222,25 @@ export function BookFormScreen({
           placeholder="Ex.: 0"
           value={form.pagesRead}
         />
-        <TextField
-          autoCapitalize="characters"
-          autoCorrect={false}
-          error={errors.isbn}
-          hint="Opcional. ISBN-10 ou ISBN-13."
-          keyboardType="numbers-and-punctuation"
-          label="ISBN"
-          onChangeText={(value) => setText('isbn', value)}
-          placeholder="978-85-359-0000-2"
-          value={form.isbn}
-        />
+        <View className="gap-xs">
+          <TextField
+            autoCapitalize="characters"
+            autoCorrect={false}
+            error={errors.isbn}
+            hint="Opcional. Só números; o X final do ISBN-10 também vale."
+            keyboardType="number-pad"
+            label="ISBN"
+            onBlur={() => setText('isbn', normalizeIsbn(form.isbn))}
+            onChangeText={(value) => setText('isbn', value)}
+            placeholder="9788535900002"
+            value={form.isbn}
+          />
+          {isbnComplete && !errors.isbn ? (
+            <AppText variant="caption" tone={isbnValid ? 'default' : 'accent'}>
+              {isbnValid ? 'ISBN válido' : 'ISBN inválido'}
+            </AppText>
+          ) : null}
+        </View>
       </Card>
 
       <View className="gap-sm">
@@ -267,11 +281,13 @@ export function BookFormScreen({
       <Card className="gap-sm">
         <AppText variant="label">Capa</AppText>
         {previewCover ? (
-          <Image
+          <BookCover
             accessibilityLabel="Capa escolhida"
-            resizeMode="cover"
-            source={{ uri: previewCover }}
-            style={{ width: sizes.spine.width, height: sizes.spine.height }}
+            genreColor={
+              genreById.get(form.genreId)?.colorLight ?? colors.navyMuted
+            }
+            title={form.title.trim() || 'Sem título'}
+            uri={previewCover}
           />
         ) : (
           <AppText variant="caption" tone="muted">
