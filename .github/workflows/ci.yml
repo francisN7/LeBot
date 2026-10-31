@@ -44,7 +44,18 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npx --yes expo-doctor@latest
+
+      - name: expo-doctor
+        run: |
+          set +e
+          npm run doctor -- --verbose > doctor.log 2>&1
+          status=$?
+          cat doctor.log
+          if [ "$status" -ne 0 ]; then
+            message=$(grep -E "✖|error|Error" doctor.log | head -n 6 | tr '\n' ' ' | tr -d '%' | cut -c1-600)
+            echo "::error title=expo-doctor::${message}"
+          fi
+          exit "$status"
 
   secrets:
     name: Gitleaks
