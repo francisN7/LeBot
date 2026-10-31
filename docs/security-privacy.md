@@ -45,7 +45,7 @@ Proteções ativas:
 - `.gitignore` cobre credenciais, builds e backups;
 - `gitleaks` roda no CI com histórico completo (`fetch-depth: 0`);
 - hook local opcional (`gitleaks git --staged`) quando a ferramenta existe;
-- Dependabot mensal para npm e Actions.
+- Dependabot: **só alertas de segurança** (sem PRs de versão).
 
 ## Dados fictícios
 

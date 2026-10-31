@@ -18,7 +18,8 @@
 - Docs: `README.md`, `SECURITY.md`, `docs/architecture.md`,
   `docs/security-privacy.md`, `docs/learn/expo-for-react-devs.md`.
 - Licença MIT (código + arte) e e-mail `noreply` do GitHub nos commits.
-- Dependabot (npm + Actions) e `.nvmrc` com Node 22.
+- Dependabot desligado para versões (só alertas de segurança) e `.nvmrc` com
+  Node 22.
 
 ## Próximo passo
 Executar a S1: design system (tokens, tipografia Fredoka/Nunito) e shell com

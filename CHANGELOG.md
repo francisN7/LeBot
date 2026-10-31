@@ -17,9 +17,11 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 - `LICENSE` MIT (código e arte), `SECURITY.md`, `.gitattributes` e `.nvmrc`.
 - Documentação: `README.md`, `docs/architecture.md`,
   `docs/security-privacy.md`, `docs/learn/expo-for-react-devs.md`.
-- Dependabot mensal para npm e GitHub Actions.
 
 ### Changed
+
+- Dependabot deixa de abrir PRs de versão; só alertas de segurança
+  (`docs/adr/0005-sem-dependabot-de-versao.md`).
 
 - Commits passam a usar o e-mail `noreply` do GitHub; commit inicial reescrito
   e republicado.

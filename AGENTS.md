@@ -68,6 +68,19 @@ npm run doctor       # expo-doctor
 
 > Ajustar se os scripts mudarem (revisado na S0).
 
+## Dependências
+
+Sem Dependabot de versão (ADR 0005). Atualizar em sessão de release:
+
+```bash
+npx expo install --check   # mostra o que diverge do SDK
+npx expo install --fix     # alinha os pacotes Expo/React Native
+npm run lint && npm run typecheck && npm run test
+```
+
+Patch de segurança chega pelo GitHub (*Dependabot security updates*), não por
+`dependabot.yml`.
+
 ## Definition of Done
 
 - [ ] lint, typecheck e testes verdes
