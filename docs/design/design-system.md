@@ -209,8 +209,12 @@ fallback. Com `onPress` vira botão acessível; use `showLabel={false}` quando o
 título já aparece ao lado (Fila, detalhe e cards da Estante). Quando o livro tem
 capa, o card usa `BookCover` no lugar da lombada.
 
+Movimento: o toque inclina com mola e `animated` liga a flutuação contínua —
+reserve para telas com um livro só (detalhe), não para a grade.
+
 ```tsx
 <Spine
+  animated
   color={genre.colorLight}
   status={book.status}
   title={book.title}
@@ -224,8 +228,9 @@ título continua sobre `cream/95` para o texto pequeno não perder contraste.
 
 LêBot em SVG com os seis estados da marca (`neutral`, `reading`, `happy`,
 `sleepy`, `thinking`, `celebrating`). A respiração e a piscada usam Reanimated;
-`size` é a largura e a altura segue a proporção. O wrapper anuncia
-`mascotLabel[state]` — passe `accessibilityLabel` para um texto específico.
+os acessórios (zzz e confete) pulsam e a troca de estado tem fade. `size` é a
+largura e a altura segue a proporção. O wrapper anuncia `mascotLabel[state]` —
+passe `accessibilityLabel` para um texto específico.
 
 ```tsx
 <Mascot size={72} state="thinking" />
@@ -241,9 +246,16 @@ rótulo fica no wrapper (`Capa de <título>`), então a imagem não é lida duas
 vezes pelo leitor de tela. Aceita `onPress` e `accessibilityLabel` próprio (o
 preview do formulário usa "Capa escolhida").
 
+Desde a S4c a capa é tratada como livro físico: bloco de páginas na direita,
+brilho diagonal e, com `status`, um selo com o rosto da lombada. `animated` faz
+o brilho atravessar (use no detalhe). Sem `status`, o selo não aparece — é o
+caso do preview no formulário.
+
 ```tsx
 <BookCover
+  animated
   genreColor={genre.colorLight}
+  status={book.status}
   title={book.title}
   uri={book.coverUri}
 />

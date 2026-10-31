@@ -78,12 +78,15 @@ export function BookDetailScreen({
         <View className="flex-row gap-md">
           {hasCover(book.coverUri) ? (
             <BookCover
+              animated
               genreColor={genre?.colorLight ?? colors.navyMuted}
+              status={book.status}
               title={book.title}
               uri={book.coverUri}
             />
           ) : (
             <Spine
+              animated
               color={genre?.colorLight ?? colors.navyMuted}
               showLabel={false}
               status={book.status}

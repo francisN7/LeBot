@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import Animated, {
   Easing,
+  FadeIn,
   useAnimatedProps,
   useAnimatedStyle,
   useSharedValue,
@@ -12,6 +13,8 @@ import Animated, {
 import Svg, { Circle, Ellipse, G, Path, Rect } from 'react-native-svg';
 
 import { colors } from '@/theme';
+
+const AnimatedG = Animated.createAnimatedComponent(G);
 
 /** Estados do LêBot definidos em `docs/brand.md`. */
 export type MascotState =
@@ -212,6 +215,7 @@ export function Mascot({
 }: MascotProps) {
   const breath = useSharedValue(1);
   const eyeRadius = useSharedValue(EYE_RADIUS);
+  const accessoryPulse = useSharedValue(1);
 
   useEffect(() => {
     breath.value = withRepeat(
@@ -244,6 +248,23 @@ export function Mascot({
     ],
   }));
 
+  useEffect(() => {
+    if (state !== 'sleepy' && state !== 'celebrating') {
+      accessoryPulse.value = 1;
+      return;
+    }
+
+    accessoryPulse.value = withRepeat(
+      withTiming(0.35, { duration: 1100, easing: Easing.inOut(Easing.quad) }),
+      -1,
+      true,
+    );
+  }, [accessoryPulse, state]);
+
+  const accessories = useAnimatedProps(() => ({
+    opacity: accessoryPulse.value,
+  }));
+
   const blinking = useAnimatedProps(() => ({ r: eyeRadius.value }));
 
   return (
@@ -253,93 +274,104 @@ export function Mascot({
         accessibilityRole="image"
         testID={testID}
       >
-        <Svg
-          accessibilityElementsHidden
-          height={(size * VIEWBOX.height) / VIEWBOX.width}
-          importantForAccessibility="no-hide-descendants"
-          viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`}
-          width={size}
-        >
-          <Path
-            d="M60 18 V30"
-            stroke={colors.navy}
-            strokeLinecap="round"
-            strokeWidth={5}
-          />
-          <Circle cx={60} cy={12} fill={colors.coral} r={7} />
-          <Rect fill={colors.navy} height={22} rx={5} width={10} x={8} y={52} />
-          <Rect
-            fill={colors.navy}
-            height={22}
-            rx={5}
-            width={10}
-            x={102}
-            y={52}
-          />
-          <Rect
-            fill={colors.cream}
-            height={58}
-            rx={20}
-            stroke={colors.navy}
-            strokeWidth={3}
-            width={84}
-            x={18}
-            y={32}
-          />
-          <Rect
-            fill={colors.navy}
-            height={38}
-            rx={14}
-            width={60}
-            x={30}
-            y={42}
-          />
-          {BLINKING_STATES.includes(state) ? (
-            <>
-              <AnimatedCircle
-                animatedProps={blinking}
-                cx={46}
-                cy={58}
-                fill={colors.gold}
-              />
-              <AnimatedCircle
-                animatedProps={blinking}
-                cx={74}
-                cy={58}
-                fill={colors.gold}
-              />
-              <Circle cx={42} cy={54} fill={colors.cream} r={2.5} />
-              <Circle cx={70} cy={54} fill={colors.cream} r={2.5} />
-            </>
-          ) : (
-            <Eyes state={state} />
-          )}
-          <Mouth state={state} />
-          <Rect
-            fill={colors.gold}
-            height={26}
-            rx={7}
-            width={60}
-            x={30}
-            y={94}
-          />
-          <Rect
-            fill={colors.cream}
-            height={18}
-            rx={3}
-            width={52}
-            x={34}
-            y={98}
-          />
-          <Path d="M60 98 V116" stroke={colors.goldDeep} strokeWidth={2} />
-          <Path
-            d="M40 103 H52 M40 108 H52 M68 103 H80 M68 108 H80"
-            stroke={colors.navyMuted}
-            strokeLinecap="round"
-            strokeWidth={2}
-          />
-          <Accessories state={state} />
-        </Svg>
+        <Animated.View entering={FadeIn.duration(200)} key={state}>
+          <Svg
+            accessibilityElementsHidden
+            height={(size * VIEWBOX.height) / VIEWBOX.width}
+            importantForAccessibility="no-hide-descendants"
+            viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`}
+            width={size}
+          >
+            <Path
+              d="M60 18 V30"
+              stroke={colors.navy}
+              strokeLinecap="round"
+              strokeWidth={5}
+            />
+            <Circle cx={60} cy={12} fill={colors.coral} r={7} />
+            <Rect
+              fill={colors.navy}
+              height={22}
+              rx={5}
+              width={10}
+              x={8}
+              y={52}
+            />
+            <Rect
+              fill={colors.navy}
+              height={22}
+              rx={5}
+              width={10}
+              x={102}
+              y={52}
+            />
+            <Rect
+              fill={colors.cream}
+              height={58}
+              rx={20}
+              stroke={colors.navy}
+              strokeWidth={3}
+              width={84}
+              x={18}
+              y={32}
+            />
+            <Rect
+              fill={colors.navy}
+              height={38}
+              rx={14}
+              width={60}
+              x={30}
+              y={42}
+            />
+            {BLINKING_STATES.includes(state) ? (
+              <>
+                <AnimatedCircle
+                  animatedProps={blinking}
+                  cx={46}
+                  cy={58}
+                  fill={colors.gold}
+                />
+                <AnimatedCircle
+                  animatedProps={blinking}
+                  cx={74}
+                  cy={58}
+                  fill={colors.gold}
+                />
+                <Circle cx={42} cy={54} fill={colors.cream} r={2.5} />
+                <Circle cx={70} cy={54} fill={colors.cream} r={2.5} />
+              </>
+            ) : (
+              <Eyes state={state} />
+            )}
+            <Mouth state={state} />
+            <Rect
+              fill={colors.gold}
+              height={26}
+              rx={7}
+              width={60}
+              x={30}
+              y={94}
+            />
+            <Rect
+              fill={colors.cream}
+              height={18}
+              rx={3}
+              width={52}
+              x={34}
+              y={98}
+            />
+            <Path d="M60 98 V116" stroke={colors.goldDeep} strokeWidth={2} />
+            <Path
+              d="M40 103 H52 M40 108 H52 M68 103 H80 M68 108 H80"
+              stroke={colors.navyMuted}
+              strokeLinecap="round"
+              strokeWidth={2}
+            />
+            <AnimatedG animatedProps={accessories}>
+              <Accessories state={state} />
+            </AnimatedG>
+          </Svg>
+        </Animated.View>
       </View>
     </Animated.View>
   );

@@ -7,6 +7,28 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 Sem mudanças pendentes: a S4b é a próxima sessão.
 
+## S4c — Movimento e vida
+
+### Added
+
+- Lombada animada: piscada (olhos somem no visor), brilho que atravessa o corpo,
+  "z" pulsando no sono e mola de toque (`withSpring`) em vez de inclinação seca.
+- `Spine` com `animated`: flutuação contínua para o detalhe do livro.
+- Estante com entrada em cascata (`FadeInDown` por card) ao trocar filtro/busca.
+- Detalhe com animação contínua: lombada flutuando e capa com brilho varrendo.
+- `BookCover` como livro físico: bloco de páginas na borda direita, brilho
+  diagonal, selo com o rosto do status e mola no toque.
+- `Mascot`: pulso nos acessórios, fade na troca de estado e respiração mais
+  visível.
+- Hoje com entrada em cascata dos cards.
+- Spec `S04c-movimento.md` e seção de movimento em `docs/design/assets-3d.md`.
+
+### Changed
+
+- `BookCover` recebe `status` (selo) e `animated` (brilho no detalhe).
+- `Spine` concentra flutuação e toque em um único estilo animado, evitando que
+  os dois `transform` se sobrescrevam.
+
 ## S4a — Identidade 3D vetorial
 
 ### Added

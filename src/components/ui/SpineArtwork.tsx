@@ -1,127 +1,32 @@
-import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import { useEffect } from 'react';
+import Animated, {
+  Easing,
+  useAnimatedProps,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
+import Svg, { G, Path, Rect } from 'react-native-svg';
 
 import type {
   SpineExpression,
   SpinePalette,
 } from '@/features/library/spine-art';
 
+import { SpineEyes, SpineMouth } from './SpineFace';
+
+const AnimatedG = Animated.createAnimatedComponent(G);
+const AnimatedRect = Animated.createAnimatedComponent(Rect);
+
 /** Raio do corpo no viewBox 100×140; acompanha `radii.md` na proporção. */
 const ART_RADIUS = 14;
-
-function star(cx: number, cy: number, radius: number): string {
-  const waist = radius * 0.3;
-
-  return [
-    `M${cx} ${cy - radius}`,
-    `L${cx + waist} ${cy - waist}`,
-    `L${cx + radius} ${cy}`,
-    `L${cx + waist} ${cy + waist}`,
-    `L${cx} ${cy + radius}`,
-    `L${cx - waist} ${cy + waist}`,
-    `L${cx - radius} ${cy}`,
-    `L${cx - waist} ${cy - waist}`,
-    'Z',
-  ].join(' ');
-}
 
 /** Corpo com canto direito arredondado, onde entra a faixa de sombra. */
 const BODY_PATH = `M0 ${ART_RADIUS} Q0 0 ${ART_RADIUS} 0 H${100 - ART_RADIUS} Q100 0 100 ${ART_RADIUS} V${140 - ART_RADIUS} Q100 140 ${100 - ART_RADIUS} 140 H${ART_RADIUS} Q0 140 0 ${140 - ART_RADIUS} Z`;
 
 const SHADE_PATH = `M76 0 H86 Q100 0 100 ${ART_RADIUS} V${140 - ART_RADIUS} Q100 140 86 140 H76 Z`;
-
-function Face({
-  expression,
-  ink,
-}: {
-  expression: SpineExpression;
-  ink: string;
-}) {
-  if (expression === 'happy') {
-    return (
-      <>
-        <Path
-          d="M28 62 Q34 54 40 62"
-          fill="none"
-          stroke={ink}
-          strokeLinecap="round"
-          strokeWidth={4.5}
-        />
-        <Path
-          d="M60 62 Q66 54 72 62"
-          fill="none"
-          stroke={ink}
-          strokeLinecap="round"
-          strokeWidth={4.5}
-        />
-        <Path
-          d="M42 74 Q50 82 58 74"
-          fill="none"
-          stroke={ink}
-          strokeLinecap="round"
-          strokeWidth={4}
-        />
-      </>
-    );
-  }
-
-  if (expression === 'sleepy') {
-    return (
-      <>
-        <Path
-          d="M29 62 H39"
-          stroke={ink}
-          strokeLinecap="round"
-          strokeWidth={4}
-        />
-        <Path
-          d="M61 62 H71"
-          stroke={ink}
-          strokeLinecap="round"
-          strokeWidth={4}
-        />
-        <Path
-          d="M46 76 Q50 79 54 76"
-          fill="none"
-          stroke={ink}
-          strokeLinecap="round"
-          strokeWidth={3.5}
-        />
-        <Path
-          d="M80 26 H90 L80 36 H90"
-          fill="none"
-          stroke={ink}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={3}
-        />
-      </>
-    );
-  }
-
-  if (expression === 'shine') {
-    return (
-      <>
-        <Path d={star(34, 62, 10)} fill={ink} />
-        <Path d={star(66, 62, 10)} fill={ink} />
-        <Path
-          d="M42 76 Q50 86 58 76"
-          fill="none"
-          stroke={ink}
-          strokeLinecap="round"
-          strokeWidth={4}
-        />
-      </>
-    );
-  }
-
-  return (
-    <>
-      <Circle cx={34} cy={62} fill={ink} r={6} />
-      <Circle cx={66} cy={62} fill={ink} r={6} />
-      <Rect fill={ink} height={5} rx={2.5} width={12} x={44} y={76} />
-    </>
-  );
-}
 
 type SpineArtworkProps = {
   expression: SpineExpression;
@@ -133,14 +38,73 @@ type SpineArtworkProps = {
  * Desenho da lombada 3D: corpo na cor do gênero, faixa de sombra à direita,
  * brilho à esquerda, faixas superior/inferior e o rosto do status.
  *
- * O viewBox é fixo (100×140) e escala junto com a lombada; por isso o mesmo
- * desenho serve ao tamanho cheio e ao compacto da Fila.
+ * A vida vem de três animações discretas, todas no eixo do UI thread:
+ * piscada (olhos), brilho que atravessa a lombada e o "z" pulsando no sono.
+ * O viewBox é fixo (100×140), então o mesmo desenho serve ao tamanho cheio e
+ * ao compacto da Fila.
  */
 export function SpineArtwork({
   expression,
   palette,
   testID,
 }: SpineArtworkProps) {
+  const blink = useSharedValue(1);
+  const sheen = useSharedValue(-40);
+  const asleep = useSharedValue(1);
+
+  const canBlink = expression === 'neutral' || expression === 'happy';
+
+  useEffect(() => {
+    if (!canBlink) {
+      blink.value = 1;
+      return;
+    }
+
+    blink.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 2600 }),
+        withTiming(0, { duration: 70 }),
+        withTiming(1, { duration: 90 }),
+        withTiming(1, { duration: 180 }),
+      ),
+      -1,
+    );
+  }, [blink, canBlink]);
+
+  useEffect(() => {
+    sheen.value = -40;
+    sheen.value = withRepeat(
+      withSequence(
+        withDelay(
+          1800,
+          withTiming(140, {
+            duration: 1500,
+            easing: Easing.inOut(Easing.quad),
+          }),
+        ),
+        withTiming(-40, { duration: 0 }),
+      ),
+      -1,
+    );
+  }, [sheen]);
+
+  useEffect(() => {
+    if (expression !== 'sleepy') {
+      asleep.value = 1;
+      return;
+    }
+
+    asleep.value = withRepeat(
+      withTiming(0.3, { duration: 1200, easing: Easing.inOut(Easing.quad) }),
+      -1,
+      true,
+    );
+  }, [asleep, expression]);
+
+  const eyesProps = useAnimatedProps(() => ({ opacity: blink.value }));
+  const sheenProps = useAnimatedProps(() => ({ x: sheen.value }));
+  const asleepProps = useAnimatedProps(() => ({ opacity: asleep.value }));
+
   return (
     <Svg
       accessibilityElementsHidden
@@ -179,7 +143,30 @@ export function SpineArtwork({
         x={10}
         y={24}
       />
-      <Face expression={expression} ink={palette.ink} />
+      <AnimatedRect
+        animatedProps={sheenProps}
+        fill={palette.highlight}
+        height={180}
+        opacity={expression === 'shine' ? 0.42 : 0.22}
+        width={16}
+        y={-20}
+      />
+      <AnimatedG animatedProps={eyesProps}>
+        <SpineEyes expression={expression} ink={palette.ink} />
+      </AnimatedG>
+      <SpineMouth expression={expression} ink={palette.ink} />
+      {expression === 'sleepy' ? (
+        <AnimatedG animatedProps={asleepProps}>
+          <Path
+            d="M80 26 H90 L80 36 H90"
+            fill="none"
+            stroke={palette.ink}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={3}
+          />
+        </AnimatedG>
+      ) : null}
     </Svg>
   );
 }

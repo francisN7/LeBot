@@ -88,6 +88,45 @@ node scripts/build-icons.mjs
 O script rasteriza já no tamanho final (redimensionar depois deixa halo claro no
 contorno), usa compressão 9 e não grava metadados.
 
+## Movimento
+
+Regra: a **grade** reage (toque, status, entrada); o **detalhe** respira (loop
+contínuo, porque há um livro só).
+
+| Elemento | Gesto | Onde |
+|---|---|---|
+| Lombada | mola de escala 0,97 e inclinação −2° no toque | grade e detalhe |
+| Lombada | piscada: olhos somem por 70 ms a cada ~2,9 s | `happy`, `neutral` |
+| Lombada | brilho varre o corpo a cada ~3,3 s | todas |
+| Lombada | "z" pulsa entre 1 e 0,3 | `sleepy` |
+| Lombada | flutuação de 3% e −2,4 px, ida e volta em 4,4 s | só `animated` (detalhe) |
+| Capa | mola de escala 0,97 e inclinação −1,5° no toque | grade e detalhe |
+| Capa | brilho diagonal atravessa a capa em 1,7 s | só `animated` (detalhe) |
+| Grade | `FadeInDown` com 45 ms de atraso por card (máx. 6) | troca de filtro/busca |
+| Mascote | respiração 1,04 e −2 px, 4 s ida e volta | sempre |
+| Mascote | piscada de 90 ms a cada ~2,8 s | estados de olhos redondos |
+| Mascote | acessórios pulsam entre 1 e 0,35 | `sleepy`, `celebrating` |
+| Mascote | fade de 200 ms ao trocar de estado | sempre |
+
+Todas as animações usam `transform` e `opacity`, no UI thread; nenhuma mexe em
+layout. Sem `useReducedMotion` por enquanto — fica no backlog de acessibilidade.
+
+## Capa personalizada como livro
+
+Uma foto recortada parece um card; para parecer o mesmo objeto da lombada ela
+recebe três camadas:
+
+1. **Bloco de páginas** na borda direita: faixa creme de 7% da largura, com três
+   linhas finas (`navyMuted` a 30%).
+2. **Brilho diagonal** (banda branca a 18%) atravessando o canto superior
+   esquerdo; no detalhe ele varre a capa.
+3. **Selo de status** no canto inferior direito: quadrado creme com borda navy e
+   o rosto da lombada (mesmo `SpineFace`). Largura `width * 0.26` limitada a
+   18–26 px, para não dominar o 72×104.
+
+A fita do gênero continua no topo esquerdo. Sem `status` (preview do formulário),
+o selo não aparece.
+
 ## Cache e performance
 
 - Não há cache de imagem: o SVG é recalculado por render. `resolveSpineArt` é

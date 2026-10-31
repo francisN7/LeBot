@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, type ViewStyle } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 import {
   AppText,
@@ -122,51 +122,59 @@ export function EstanteScreen({
             const genreColor = genre?.colorLight ?? colors.navyMuted;
 
             return (
-              <Card
-                className="w-[46%] items-center gap-sm"
-                key={book.id}
-                style={shelfDepth(index % 2 === 0 ? 3 : 5)}
-              >
-                {hasCover(book.coverUri) ? (
-                  <BookCover
-                    genreColor={genreColor}
-                    onPress={() => onOpenBook?.(book.id)}
-                    title={book.title}
-                    uri={book.coverUri}
-                  />
-                ) : (
-                  <Spine
-                    color={genreColor}
-                    onPress={() => onOpenBook?.(book.id)}
-                    showLabel={false}
-                    status={book.status}
-                    title={book.title}
-                  />
+              <Animated.View
+                entering={FadeInDown.delay(Math.min(index, 6) * 45).duration(
+                  240,
                 )}
-                <AppText
-                  numberOfLines={1}
-                  style={{ alignSelf: 'stretch', textAlign: 'center' }}
-                  variant="bodyStrong"
+                key={book.id}
+                style={{ width: '46%' }}
+              >
+                <Card
+                  className="w-full items-center gap-sm"
+                  style={shelfDepth(index % 2 === 0 ? 3 : 5)}
                 >
-                  {book.title}
-                </AppText>
-                <AppText
-                  numberOfLines={1}
-                  style={{ alignSelf: 'stretch', textAlign: 'center' }}
-                  tone="muted"
-                  variant="caption"
-                >
-                  {book.author}
-                </AppText>
-                <AppText
-                  numberOfLines={1}
-                  style={{ alignSelf: 'stretch', textAlign: 'center' }}
-                  variant="label"
-                >
-                  {genre?.name ?? UNKNOWN_GENRE_NAME}
-                </AppText>
-                <Chip label={labelForStatus(book.status)} />
-              </Card>
+                  {hasCover(book.coverUri) ? (
+                    <BookCover
+                      genreColor={genreColor}
+                      onPress={() => onOpenBook?.(book.id)}
+                      status={book.status}
+                      title={book.title}
+                      uri={book.coverUri}
+                    />
+                  ) : (
+                    <Spine
+                      color={genreColor}
+                      onPress={() => onOpenBook?.(book.id)}
+                      showLabel={false}
+                      status={book.status}
+                      title={book.title}
+                    />
+                  )}
+                  <AppText
+                    numberOfLines={1}
+                    style={{ alignSelf: 'stretch', textAlign: 'center' }}
+                    variant="bodyStrong"
+                  >
+                    {book.title}
+                  </AppText>
+                  <AppText
+                    numberOfLines={1}
+                    style={{ alignSelf: 'stretch', textAlign: 'center' }}
+                    tone="muted"
+                    variant="caption"
+                  >
+                    {book.author}
+                  </AppText>
+                  <AppText
+                    numberOfLines={1}
+                    style={{ alignSelf: 'stretch', textAlign: 'center' }}
+                    variant="label"
+                  >
+                    {genre?.name ?? UNKNOWN_GENRE_NAME}
+                  </AppText>
+                  <Chip label={labelForStatus(book.status)} />
+                </Card>
+              </Animated.View>
             );
           })}
         </View>

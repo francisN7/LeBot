@@ -1,4 +1,5 @@
 import { Alert, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { AppText, Button, Card, Chip, Mascot, Screen } from '@/components/ui';
 import { useSettings } from '@/features/settings';
@@ -23,27 +24,31 @@ export function HojeScreen() {
         <AppText tone="muted">{dailyPlan.dateLabel}</AppText>
       </View>
 
-      <Card className="items-center gap-xs bg-pink">
-        <AppText variant="label">Meta do dia</AppText>
-        <AppText variant="display">{goal} páginas</AppText>
-        <AppText variant="caption">
-          cerca de {dailyPlan.minutes} minutos de leitura
-        </AppText>
-      </Card>
+      <Animated.View entering={FadeInDown.delay(40).duration(260)}>
+        <Card className="items-center gap-xs bg-pink">
+          <AppText variant="label">Meta do dia</AppText>
+          <AppText variant="display">{goal} páginas</AppText>
+          <AppText variant="caption">
+            cerca de {dailyPlan.minutes} minutos de leitura
+          </AppText>
+        </Card>
+      </Animated.View>
 
-      <Card className="flex-row items-center gap-md">
-        <Mascot size={72} state="thinking" />
-        <View className="flex-1 gap-xs">
-          <AppText variant="label" tone="accent">
-            LêBot diz
-          </AppText>
-          <AppText variant="subtitle">{dailyPlan.message}</AppText>
-          <AppText variant="caption" tone="muted">
-            Sequência de {dailyPlan.streak} dias. Sem pressão: se hoje não der,
-            a gente ajusta.
-          </AppText>
-        </View>
-      </Card>
+      <Animated.View entering={FadeInDown.delay(120).duration(260)}>
+        <Card className="flex-row items-center gap-md">
+          <Mascot size={72} state="thinking" />
+          <View className="flex-1 gap-xs">
+            <AppText variant="label" tone="accent">
+              LêBot diz
+            </AppText>
+            <AppText variant="subtitle">{dailyPlan.message}</AppText>
+            <AppText variant="caption" tone="muted">
+              Sequência de {dailyPlan.streak} dias. Sem pressão: se hoje não
+              der, a gente ajusta.
+            </AppText>
+          </View>
+        </Card>
+      </Animated.View>
 
       <View className="gap-sm">
         <AppText variant="subtitle">Blocos de leitura</AppText>

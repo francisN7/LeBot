@@ -50,6 +50,33 @@ describe('BookCover', () => {
 
     expect(screen.getByLabelText('Capa escolhida')).toBeOnTheScreen();
   });
+
+  it('mostra o selo do status quando o livro tem status', async () => {
+    await render(
+      <BookCover
+        genreColor="#123456"
+        status="finished"
+        testID="capa-selo"
+        title="O Hobbit"
+        uri="file:///covers/1.jpg"
+      />,
+    );
+
+    expect(screen.getByTestId('capa-selo-stamp')).toBeOnTheScreen();
+  });
+
+  it('não mostra selo no preview sem status', async () => {
+    await render(
+      <BookCover
+        genreColor="#123456"
+        testID="capa-selo"
+        title="O Hobbit"
+        uri="file:///covers/1.jpg"
+      />,
+    );
+
+    expect(screen.queryByTestId('capa-selo-stamp')).not.toBeOnTheScreen();
+  });
 });
 
 describe('Bookmark', () => {
