@@ -44,7 +44,7 @@
     "jest": "^30.0.0",
     "jest-expo": "~58.0.13",
     "lint-staged": "^17.6.0",
-    "typescript": "~6.0.3"
+    "typescript": "~7.0.2"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json}": "biome check --write --no-errors-on-unmatched"
