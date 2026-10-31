@@ -48,8 +48,9 @@ tela de detalhe com animação contínua (lá existe um livro só).
 - [ ] Capa personalizada usa bloco de páginas, brilho e selo do status.
 - [ ] Mascote pulsa os acessórios e troca de estado com fade.
 - [ ] Nenhuma animação contínua na grade além de piscada/brilho do status.
-- [ ] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
-- [ ] Conferido no Android pelo dono.
+- [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
+- [x] Conferido no Android pelo dono. Ícone e splash só aparecem em build
+      nativo (Expo Go mostra a tela dele); conferir no APK da S12.
 
 ## Contexto necessário
 

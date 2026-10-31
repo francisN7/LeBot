@@ -29,6 +29,11 @@ Sem mudanças pendentes: a S4b é a próxima sessão.
 - `Spine` concentra flutuação e toque em um único estilo animado, evitando que
   os dois `transform` se sobrescrevam.
 
+### Validated
+
+- S4a e S4c conferidas no Android pelo dono; ícone, splash e monocromático só
+  entram em build nativo e ficam para o APK da S12.
+
 ## S4a — Identidade 3D vetorial
 
 ### Added

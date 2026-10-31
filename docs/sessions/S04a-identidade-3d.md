@@ -76,7 +76,8 @@ componente é usado sem status.
       sem metadados; fonte SVG versionada em `brand/source/`.
 - [x] Bundle Android não cresce mais que ~300 KB (nenhuma arte entra no bundle).
 - [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
-- [ ] Conferido no Android pelo dono.
+- [x] Conferido no Android pelo dono. Ícone e splash só aparecem em build
+      nativo (Expo Go mostra a tela dele); conferir no APK da S12.
 
 ## Contexto necessário
 

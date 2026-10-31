@@ -2,11 +2,11 @@
 
 ## Sessão
 
-- **Atual:** S4a + S4c implementadas; falta a conferência do dono no Android
-- **Última concluída:** S3.2 — gêneros personalizados e cores por tema
+- **Atual:** nenhuma aberta (S4a e S4c concluídas e validadas no Android)
+- **Última concluída:** S4c — movimento e vida
 - **Próxima:** S4b (`docs/sessions/S04b-isbn-avisos-fila.md`): tabela oficial do
-  ISBN, require cycle, aviso de `ImageBackground` e capa na Fila. A S4c já foi
-  implementada antes dela, por decisão do dono.
+  ISBN, require cycle, aviso de `ImageBackground` e capa na Fila. A S4c foi
+  executada antes dela, por decisão do dono.
 
 ## Pronto (S4a — identidade)
 
@@ -36,7 +36,9 @@
 
 ## Decisões abertas
 
-- S4a e S4c seguem `[~]` no roadmap até o dono conferir no Android.
+- Ícone, splash e camada monocromática só aparecem em build nativo: o Expo Go
+  mostra a própria tela de download. Conferir no APK da S12 (critério de aceite
+  já atualizado lá).
 - Transição compartilhada Estante → detalhe ("voo" da lombada) e contagem
   animada da meta ficaram para depois do S7 (plano real).
 - `useReducedMotion` (acessibilidade) ainda não é usado; backlog.
