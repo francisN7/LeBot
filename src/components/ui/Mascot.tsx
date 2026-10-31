@@ -215,7 +215,7 @@ export function Mascot({
 
   useEffect(() => {
     breath.value = withRepeat(
-      withTiming(1.025, { duration: 1800, easing: Easing.inOut(Easing.quad) }),
+      withTiming(1.04, { duration: 2000, easing: Easing.inOut(Easing.quad) }),
       -1,
       true,
     );
@@ -238,7 +238,10 @@ export function Mascot({
   }, [eyeRadius, state]);
 
   const breathing = useAnimatedStyle(() => ({
-    transform: [{ scale: breath.value }],
+    transform: [
+      { scale: breath.value },
+      { translateY: -(breath.value - 1) * 50 },
+    ],
   }));
 
   const blinking = useAnimatedProps(() => ({ r: eyeRadius.value }));

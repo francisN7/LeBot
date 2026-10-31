@@ -44,6 +44,20 @@ describe('BookDetailScreen', () => {
     expect(screen.getByText('9780306406157')).toBeOnTheScreen();
   });
 
+  it('usa a lombada 3D do status no detalhe', async () => {
+    const row = bookRow();
+    await renderWithProviders(
+      <BookDetailScreen
+        bookId={row.id}
+        onBack={jest.fn()}
+        onEdit={jest.fn()}
+      />,
+      { booksRepository: createInMemoryBooksRepository([row]) },
+    );
+
+    expect(screen.getByTestId('detalhe-lombada-art')).toBeOnTheScreen();
+  });
+
   it('chama a edição', async () => {
     const row = bookRow();
     const onEdit = jest.fn();

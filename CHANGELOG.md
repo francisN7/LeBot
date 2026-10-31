@@ -37,6 +37,13 @@ Sem mudanças pendentes: a S4b é a próxima sessão.
 - A arte deixou de ser WebP (spec original) e passou a vetorial paramétrica:
   qualquer hex de gênero funciona e o bundle quase não cresce.
 
+### Fixed
+
+- Detalhe do livro mostrava a lombada 2D: agora passa `status` e usa a arte 3D
+  como a Estante.
+- Toque na lombada e na capa inclina o livro (feedback de "sair da prateleira").
+- Respiração do mascote mais visível (escala 1,04 e leve flutuação).
+
 ## S3.2 — Gêneros personalizados e cores por tema
 
 ### Added

@@ -50,18 +50,19 @@ export function Spine({
     <Pressable
       accessibilityLabel={`Lombada de ${title}`}
       accessibilityRole={onPress ? 'button' : 'image'}
-      className={twMerge(
-        'overflow-hidden border-2 border-navy active:opacity-80',
-        className,
-      )}
+      className={twMerge('overflow-hidden border-2 border-navy', className)}
       disabled={!onPress}
       onPress={onPress}
-      style={{
-        backgroundColor: art.kind === 'art' ? art.palette.base : art.color,
-        width,
-        height,
-        borderRadius: radii.md,
-      }}
+      style={({ pressed }) => [
+        {
+          backgroundColor: art.kind === 'art' ? art.palette.base : art.color,
+          width,
+          height,
+          borderRadius: radii.md,
+        },
+        // O toque inclina a lombada como um livro saindo da prateleira.
+        pressed ? { transform: [{ scale: 0.97 }, { rotate: '-2deg' }] } : null,
+      ]}
       testID={testID}
     >
       {art.kind === 'art' ? (

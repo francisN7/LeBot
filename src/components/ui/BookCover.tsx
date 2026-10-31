@@ -45,7 +45,10 @@ export function BookCover({
       className={twMerge('active:opacity-80', className)}
       disabled={!onPress}
       onPress={onPress}
-      style={{ width, height }}
+      style={({ pressed }) => [
+        { width, height },
+        pressed ? { transform: [{ scale: 0.97 }, { rotate: '-2deg' }] } : null,
+      ]}
       testID={testID}
     >
       <View
