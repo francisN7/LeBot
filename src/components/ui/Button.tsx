@@ -4,7 +4,7 @@ import { twMerge } from 'tailwind-merge';
 import { AppText } from '@/components/ui/AppText';
 import { colors, opacities, spacing } from '@/theme';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 export type ButtonSize = 'sm' | 'md';
 
 type ButtonProps = {
@@ -29,6 +29,10 @@ const surfaceStyles = StyleSheet.create({
   ghost: {
     backgroundColor: 'transparent',
     borderColor: 'transparent',
+  },
+  danger: {
+    backgroundColor: colors.coral,
+    borderColor: colors.navy,
   },
 });
 

@@ -12,11 +12,12 @@ export type BookFormState = {
   genre: BookGenre;
   status: ReadingStatus;
   pages: string;
+  pagesRead: string;
   isbn: string;
 };
 
 export type BookFormErrors = Partial<
-  Record<'title' | 'author' | 'pages' | 'isbn', string>
+  Record<'title' | 'author' | 'pages' | 'pagesRead' | 'isbn', string>
 >;
 
 export type BookFormResult =
@@ -29,6 +30,7 @@ export const emptyBookForm: BookFormState = {
   genre: 'fantasy',
   status: 'queued',
   pages: '',
+  pagesRead: '0',
   isbn: '',
 };
 
@@ -44,6 +46,11 @@ const bookFormSchema = z.object({
     .regex(/^\d+$/, 'Use apenas números')
     .transform(Number)
     .refine((value) => value > 0, 'O livro precisa ter ao menos 1 página'),
+  pagesRead: z
+    .string()
+    .trim()
+    .regex(/^\d*$/, 'Use apenas números')
+    .transform((value) => (value.length === 0 ? 0 : Number(value))),
   isbn: z
     .string()
     .trim()
@@ -53,7 +60,13 @@ const bookFormSchema = z.object({
     ),
 });
 
-const fieldsWithErrors = ['title', 'author', 'pages', 'isbn'] as const;
+const fieldsWithErrors = [
+  'title',
+  'author',
+  'pages',
+  'pagesRead',
+  'isbn',
+] as const;
 
 /** Valida o formulário e devolve o input do repositório ou erros por campo. */
 export function validateBookForm(
@@ -77,6 +90,15 @@ export function validateBookForm(
     return { ok: false, errors };
   }
 
+  if (parsed.data.pagesRead > parsed.data.pages) {
+    return {
+      ok: false,
+      errors: {
+        pagesRead: 'As páginas lidas não podem passar do total',
+      },
+    };
+  }
+
   return {
     ok: true,
     input: {
@@ -85,6 +107,7 @@ export function validateBookForm(
       genre: parsed.data.genre,
       status: parsed.data.status,
       pages: parsed.data.pages,
+      pagesRead: parsed.data.pagesRead,
       isbn: toStoredIsbn(parsed.data.isbn),
       coverUri,
     },

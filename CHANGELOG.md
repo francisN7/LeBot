@@ -19,7 +19,11 @@ Sem mudanças pendentes: a S4 é a próxima sessão.
   lista já carregada (ADR 0009).
 - Telas `BookDetailScreen` e `BookFormScreen`, com rotas `/livro/novo`,
   `/livro/[id]` e `/livro/[id]/editar`; excluir pede confirmação.
-- `TextField` em `src/components/ui/` com rótulo, dica e erro por campo.
+- `TextField` em `src/components/ui/` com rótulo, dica e erro por campo;
+  `ConfirmDialog` próprio no lugar do `Alert` do sistema e variante `danger`
+  no `Button`.
+- Campo "Páginas lidas" no formulário: dá para cadastrar um livro que já estava
+  em andamento e editar o progresso manualmente.
 - Capa: `expo-image-picker` + `expo-file-system`, copiada para
   `documentDirectory/covers/<id>.jpg`; `CoverService` injetável isola o módulo
   nativo dos testes (ADR 0009).
@@ -33,7 +37,8 @@ Sem mudanças pendentes: a S4 é a próxima sessão.
 - Tipografia: `display` passa a 52/64 e `xxl` a 36/44; teste trava
   `lineHeight >= fontSize * 1.15` em `xl`, `xxl` e `display`.
 - Estante ganhou campo de busca e botão "Novo livro"; tocar na lombada abre o
-  detalhe.
+  detalhe. A capa cadastrada aparece no card e o título saiu de dentro da
+  lombada (linha única abaixo dela).
 - `expo-image-picker` e `expo-file-system` entram como dependências; o plugin
   de permissão de fotos fica no `app.config.ts`.
 

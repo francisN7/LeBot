@@ -1,6 +1,15 @@
-import { Alert, Image, View } from 'react-native';
+import { useState } from 'react';
+import { Image, View } from 'react-native';
 
-import { AppText, Button, Card, Chip, Screen, Spine } from '@/components/ui';
+import {
+  AppText,
+  Button,
+  Card,
+  Chip,
+  ConfirmDialog,
+  Screen,
+  Spine,
+} from '@/components/ui';
 import { hasCover } from '@/lib/covers';
 import { sizes } from '@/theme';
 
@@ -22,6 +31,7 @@ export function BookDetailScreen({
 }: BookDetailScreenProps) {
   const { books, remove } = useBooks();
   const covers = useCoverService();
+  const [confirming, setConfirming] = useState(false);
   const found = books.find((item) => item.id === bookId);
 
   if (!found) {
@@ -46,14 +56,8 @@ export function BookDetailScreen({
   }
 
   function confirmDelete() {
-    Alert.alert(
-      'Excluir livro?',
-      `"${book.title}" sai da estante e da fila. A capa também é apagada.`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Excluir', style: 'destructive', onPress: deleteBook },
-      ],
-    );
+    setConfirming(false);
+    void deleteBook();
   }
 
   return (
@@ -115,8 +119,18 @@ export function BookDetailScreen({
       <Button label="Editar livro" onPress={onEdit} />
       <Button
         label="Excluir livro"
-        onPress={confirmDelete}
+        onPress={() => setConfirming(true)}
         variant="secondary"
+      />
+
+      <ConfirmDialog
+        cancelLabel="Cancelar"
+        confirmLabel="Excluir"
+        message={`"${book.title}" sai da estante e da fila. A capa também é apagada.`}
+        onCancel={() => setConfirming(false)}
+        onConfirm={confirmDelete}
+        title="Excluir livro?"
+        visible={confirming}
       />
     </Screen>
   );

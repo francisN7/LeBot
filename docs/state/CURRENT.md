@@ -4,39 +4,38 @@
 
 ## Sessão
 
-- **Atual:** S3 — Biblioteca (entregue; falta conferir no Android)
-- **Última concluída:** S2 — Persistência SQLite + Drizzle (validada pelo dono)
+- **Atual:** nenhuma aberta (S3 concluída e validada no Android)
+- **Última concluída:** S3 — Biblioteca + ajustes pós-validação
 - **Próxima:** S3.2 — gêneros e cores (`docs/sessions/S03.2-generos.md`);
   o par claro/escuro é guardado, mas o tema escuro segue no backlog.
 
 ## Pronto (S3)
 
-- Migração `0001_conscious_hannibal_king.sql` adiciona `books.isbn` (único,
-  vários `NULL`) e `books.cover_uri`; tabela não recriada.
-- `src/lib/isbn.ts` valida ISBN-10/13 pelo dígito verificador; repositório
-  grava normalizado e recusa inválido/duplicado.
-- `src/lib/book-search.ts` busca sem acento/caixa (ADR 0009); Estante combina
-  com o chip de status.
+- Migração `0001_conscious_hannibal_king.sql`: `books.isbn` (único, vários
+  `NULL`) e `books.cover_uri`; tabela não recriada.
+- `src/lib/isbn.ts` valida ISBN-10/13 pelo dígito verificador; repositório grava
+  normalizado e recusa inválido/duplicado.
+- `src/lib/book-search.ts` busca sem acento/caixa (ADR 0009).
 - `BookDetailScreen` (`/livro/[id]`): capa ou `Spine`, dados, Editar e Excluir
-  com confirmação (apaga a capa).
-- `BookFormScreen` (`/livro/novo`, `/livro/[id]/editar`): campos, erro por
-  campo via Zod, ISBN e páginas validadas; escolhe/troca/remove capa.
-- Capa: galeria → `documentDirectory/covers/<id>.jpg`; só o caminho no banco.
-  `CoverService` injetado no `_layout.tsx`; testes usam `createFakeCoverService`.
-- `useBooks` tem `create`/`update`/`remove`/`refresh` e avisa as telas com o
-  mesmo repositório.
+  com `ConfirmDialog` do app (não mais `Alert`), apagando a capa.
+- `BookFormScreen` (`/livro/novo`, `/livro/[id]/editar`): campos (incluindo
+  "Páginas lidas"), erro por campo via Zod e capa.
+- `CoverService` injetável; capa em `documentDirectory/covers/<id>.jpg`.
+- Estante: busca, capa real quando existe, título em linha única fora da
+  lombada (corrige "Warbreak/er") e filtro por status.
 - Fila: conta só livros existentes e abre o detalhe; toque duplo não empilha
   telas (`src/lib/navigation.ts`).
-- `TextField` novo em `ui/`. Tipografia: `display` 52/64 e `xxl` 36/44; teste
-  trava folga de 15% no `lineHeight`.
-- 76 testes em 19 suítes; lint, typecheck, doctor e export Android verdes.
+- `useBooks` tem `create`/`update`/`remove`/`refresh` e avisa as telas com o
+  mesmo repositório.
+- Tipografia: `display` 52/64 e `xxl` 36/44; teste trava folga de 15%.
+- 81 testes em 20 suítes; lint, typecheck, doctor e export Android verdes.
+- Docs: ADR 0009 + modelo, arquitetura, testes, design system, privacidade e
+  CHANGELOG.
 
 ## Pendente (dono, no Android)
 
-- "18 páginas", "Hoje" e "Ajustes" inteiros, sem corte nem sobreposição.
-- Cadastrar → ver na Estante → reabrir; buscar, editar, excluir e escolher
-  capa pela galeria.
-- Se tudo passar: marcar S3 `[x]` no roadmap e registrar aqui.
+- Revalidar o último patch (capa na Estante, título em uma linha, diálogo de
+  exclusão e "Páginas lidas"); se falhar, corrigir antes da S3.2.
 
 ## Decisões abertas
 
@@ -46,13 +45,16 @@
 - `cover_uri` é absoluto: o backup (S11) decide entre referência e imagem.
 - DNF: `brand.md` fala em abandono, schema só tem `reading`, `queued`, `paused`
   e `finished`. Decidir na S9 se vira status próprio.
+- ISBN sem hifenização automática (não há tabela de ranges): aceitar dígitos e
+  dar feedback de válido/inválido fica na S3.2.
 - `brand/source/*.png` têm metadados: limpar no primeiro export real.
 
 ## Arquivos-chave
 
 - `src/db/**`, `drizzle/0001_*`, `src/lib/{isbn,book-search,covers,navigation}.ts`
 - `src/features/library/*` (telas, `form.ts`, `cover-*`, `use-books.tsx`)
-- `src/app/livro/**`, `src/test-utils/{render,repositories,covers}.ts(x)`
+- `src/components/ui/{TextField,ConfirmDialog}.tsx`, `src/app/livro/**`
+- `src/test-utils/{render,repositories,covers}.ts(x)`
 
 ## Armadilhas
 
@@ -65,8 +67,8 @@
 - `getDb()` é lazy; chamar no topo de um módulo quebra os testes. `update`
   valida o livro completo; patch sozinho não passa.
 - RTL 14 é assíncrono: `await render(...)`, `await fireEvent.press(...)`.
-- Fontes: família com peso (`Fredoka_700Bold`), nunca `fontWeight`.
-- `lineHeight` abaixo de 1.15× do `fontSize` corta descendentes no Android.
+- Fontes: família com peso (`Fredoka_700Bold`), nunca `fontWeight`;
+  `lineHeight` abaixo de 1.15× do `fontSize` corta descendentes no Android.
 - Node local 26 vs CI 22: rode `npm run test` antes de culpar o código.
 
 ## Como rodar
@@ -74,6 +76,5 @@
 ```bash
 npm install && npm start      # QR code para o Expo Go
 npm run lint && npm run typecheck && npm run test
-npm run doctor
-npx expo export --platform android --output-dir dist
+npm run doctor && npx expo export --platform android --output-dir dist
 ```

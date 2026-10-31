@@ -105,6 +105,39 @@ describe('BookFormScreen', () => {
     expect(repository.list()).toHaveLength(0);
   });
 
+  it('cadastra um livro já em andamento com páginas lidas', async () => {
+    const repository = createInMemoryBooksRepository([]);
+    const form = renderForm(repository);
+    await form.render;
+
+    await fireEvent.changeText(screen.getByLabelText('Título'), 'Warbreaker');
+    await fireEvent.changeText(screen.getByLabelText('Autor'), 'Sanderson');
+    await fireEvent.changeText(screen.getByLabelText('Páginas'), '900');
+    await fireEvent.changeText(screen.getByLabelText('Páginas lidas'), '120');
+    await fireEvent.press(screen.getByText('Salvar livro'));
+
+    await waitFor(() => expect(form.onDone).toHaveBeenCalledTimes(1));
+
+    expect(repository.list()[0]?.pagesRead).toBe(120);
+  });
+
+  it('bloqueia páginas lidas acima do total', async () => {
+    const repository = createInMemoryBooksRepository([]);
+    const form = renderForm(repository);
+    await form.render;
+
+    await fireEvent.changeText(screen.getByLabelText('Título'), 'Warbreaker');
+    await fireEvent.changeText(screen.getByLabelText('Autor'), 'Sanderson');
+    await fireEvent.changeText(screen.getByLabelText('Páginas'), '300');
+    await fireEvent.changeText(screen.getByLabelText('Páginas lidas'), '301');
+    await fireEvent.press(screen.getByText('Salvar livro'));
+
+    expect(
+      screen.getByText('As páginas lidas não podem passar do total'),
+    ).toBeOnTheScreen();
+    expect(repository.list()).toHaveLength(0);
+  });
+
   it('edita um livro existente e mantém o id', async () => {
     const row = bookRow({ isbn: '9780306406157' });
     const repository = createInMemoryBooksRepository([row]);

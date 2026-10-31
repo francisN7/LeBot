@@ -94,4 +94,17 @@ describe('EstanteScreen', () => {
 
     expect(onOpenBook).toHaveBeenCalledWith('book-hobbit');
   });
+
+  it('usa a capa no lugar da lombada quando o livro tem uma', async () => {
+    await renderWithProviders(<EstanteScreen />, {
+      booksRepository: createInMemoryBooksRepository([
+        bookRow({ coverUri: 'file:///covers/book-teste.jpg' }),
+      ]),
+    });
+
+    expect(screen.getByLabelText('Capa de O Hobbit')).toBeOnTheScreen();
+    expect(
+      screen.queryByLabelText('Lombada de O Hobbit'),
+    ).not.toBeOnTheScreen();
+  });
 });

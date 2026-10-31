@@ -10,7 +10,7 @@ src/app/          rotas (Expo Router) — só orquestram telas
 src/features/*/   UI + hooks + serviços de uma feature
 src/db/           schema Drizzle, client, migrações, seed e repositórios
 src/lib/          funções puras, sem React Native
-src/components/ui componentes genéricos (Screen, AppText, Button, Card, Chip, Spine, TextField)
+src/components/ui componentes genéricos (Screen, AppText, Button, Card, Chip, ConfirmDialog, Spine, TextField)
 src/theme/        tokens (cor, espaçamento, raio, tipografia, tamanhos)
 drizzle/          SQL gerado pelo drizzle-kit (+ bundle das migrações)
 types/            declarações globais versionadas (`expo/types`, `*.sql`)

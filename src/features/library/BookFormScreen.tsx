@@ -44,6 +44,7 @@ function toFormState(book: Book): BookFormState {
     genre: book.genre,
     status: book.status,
     pages: String(book.pages),
+    pagesRead: String(book.pagesRead),
     isbn: book.isbn ?? '',
   };
 }
@@ -85,7 +86,7 @@ export function BookFormScreen({
   const previewCover = pickedCover ?? (dropStoredCover ? null : storedCover);
 
   function setText(
-    field: 'title' | 'author' | 'pages' | 'isbn',
+    field: 'title' | 'author' | 'pages' | 'pagesRead' | 'isbn',
     value: string,
   ) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -125,13 +126,6 @@ export function BookFormScreen({
     if (!result.ok) {
       setErrors(result.errors);
       setFormError(null);
-      return;
-    }
-
-    if (existing && result.input.pages < existing.pagesRead) {
-      setErrors({
-        pages: `Este livro já tem ${existing.pagesRead} páginas lidas`,
-      });
       return;
     }
 
@@ -208,6 +202,15 @@ export function BookFormScreen({
           onChangeText={(value) => setText('pages', value)}
           placeholder="Ex.: 320"
           value={form.pages}
+        />
+        <TextField
+          error={errors.pagesRead}
+          hint="Comece do zero ou de onde você parou."
+          keyboardType="number-pad"
+          label="Páginas lidas"
+          onChangeText={(value) => setText('pagesRead', value)}
+          placeholder="Ex.: 0"
+          value={form.pagesRead}
         />
         <TextField
           autoCapitalize="characters"

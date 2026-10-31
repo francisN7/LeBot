@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View } from 'react-native';
+import { Image, Pressable, View } from 'react-native';
 
 import {
   AppText,
@@ -11,6 +11,8 @@ import {
   TextField,
 } from '@/components/ui';
 import { matchesQuery } from '@/lib/book-search';
+import { hasCover } from '@/lib/covers';
+import { sizes } from '@/theme';
 
 import { colorForGenre, genreLabel, labelForStatus } from './genre';
 import type { ReadingStatus } from './types';
@@ -86,11 +88,38 @@ export function EstanteScreen({
       <View className="flex-row flex-wrap gap-md">
         {visibleBooks.map((book) => (
           <Card className="w-[46%] items-center gap-sm" key={book.id}>
-            <Spine
-              color={colorForGenre(book.genre)}
-              onPress={() => onOpenBook?.(book.id)}
-              title={book.title}
-            />
+            {hasCover(book.coverUri) ? (
+              <Pressable
+                accessibilityLabel={`Abrir ${book.title}`}
+                accessibilityRole="button"
+                className="active:opacity-80"
+                onPress={() => onOpenBook?.(book.id)}
+              >
+                <Image
+                  accessibilityLabel={`Capa de ${book.title}`}
+                  resizeMode="cover"
+                  source={{ uri: book.coverUri }}
+                  style={{
+                    width: sizes.spine.width,
+                    height: sizes.spine.height,
+                  }}
+                />
+              </Pressable>
+            ) : (
+              <Spine
+                color={colorForGenre(book.genre)}
+                onPress={() => onOpenBook?.(book.id)}
+                showLabel={false}
+                title={book.title}
+              />
+            )}
+            <AppText
+              numberOfLines={1}
+              style={{ alignSelf: 'stretch', textAlign: 'center' }}
+              variant="bodyStrong"
+            >
+              {book.title}
+            </AppText>
             <AppText variant="caption" tone="muted" numberOfLines={1}>
               {book.author}
             </AppText>

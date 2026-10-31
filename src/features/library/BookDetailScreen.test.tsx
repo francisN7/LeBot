@@ -1,5 +1,4 @@
-import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
-import { Alert } from 'react-native';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 
 import type { BookRow } from '@/db/schema';
 import { createFakeCoverService } from '@/test-utils/covers';
@@ -28,10 +27,6 @@ function bookRow(overrides: Partial<BookRow> = {}): BookRow {
 }
 
 describe('BookDetailScreen', () => {
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
   it('mostra os dados do livro', async () => {
     const row = bookRow();
     await renderWithProviders(
@@ -67,7 +62,6 @@ describe('BookDetailScreen', () => {
     const repository = createInMemoryBooksRepository([row]);
     const coverService = createFakeCoverService();
     const onBack = jest.fn();
-    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
 
     await renderWithProviders(
       <BookDetailScreen bookId={row.id} onBack={onBack} onEdit={jest.fn()} />,
@@ -76,15 +70,15 @@ describe('BookDetailScreen', () => {
 
     await fireEvent.press(screen.getByText('Excluir livro'));
 
-    expect(alert).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('Excluir livro?')).toBeOnTheScreen();
     expect(repository.list()).toHaveLength(1);
 
-    const buttons = alert.mock.calls[0]?.[2] ?? [];
-    const confirm = buttons.find((button) => button.text === 'Excluir');
+    await fireEvent.press(screen.getByText('Cancelar'));
+    expect(screen.queryByText('Excluir livro?')).not.toBeOnTheScreen();
+    expect(repository.list()).toHaveLength(1);
 
-    await act(async () => {
-      await confirm?.onPress?.();
-    });
+    await fireEvent.press(screen.getByText('Excluir livro'));
+    await fireEvent.press(screen.getByText('Excluir'));
 
     await waitFor(() => expect(onBack).toHaveBeenCalledTimes(1));
     expect(repository.list()).toHaveLength(0);

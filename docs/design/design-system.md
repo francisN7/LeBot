@@ -119,12 +119,31 @@ Casca de tela: fundo creme, safe area e padding lateral.
 
 ### `Button`
 
-`variant`: `primary` (pink), `secondary` (branco), `ghost`; `size`: `sm` |
-`md`; aceita `disabled`, `onPress`, `className`, `testID`.
+`variant`: `primary` (pink), `secondary` (branco), `ghost` e `danger` (coral,
+para ações destrutivas); `size`: `sm` | `md`; aceita `disabled`, `onPress`,
+`className`, `testID`.
 
 ```tsx
 <Button label="Começar" onPress={start} />
 <Button label="Depois" size="sm" variant="secondary" />
+<Button label="Excluir" size="sm" variant="danger" />
+```
+
+### `ConfirmDialog`
+
+Confirmação no visual do app (fundo navy translúcido + `Card` central), no
+lugar do `Alert` do sistema. `cancelLabel` e `confirmLabel` são configuráveis;
+o confirmar usa a variante `danger`.
+
+```tsx
+<ConfirmDialog
+  confirmLabel="Excluir"
+  message="O livro sai da estante."
+  onCancel={() => setOpen(false)}
+  onConfirm={deleteBook}
+  title="Excluir livro?"
+  visible={open}
+/>
 ```
 
 ### `Card`
@@ -166,7 +185,9 @@ usam `getByLabelText('Título')`.
 Placeholder 2D da lombada: bloco colorido por gênero com etiqueta do título.
 Cor sempre vem de `colorForGenre()` em `src/features/library/genre.ts`. Com
 `onPress` vira botão acessível; use `showLabel={false}` quando o título já
-aparece ao lado (caso da área principal da Fila).
+aparece ao lado (caso da área principal da Fila, do detalhe e dos cards da
+Estante). Quando o livro tem capa, o card da Estante usa a imagem no lugar da
+lombada.
 
 ```tsx
 <Spine color={colorForGenre(book.genre)} title={book.title} />
