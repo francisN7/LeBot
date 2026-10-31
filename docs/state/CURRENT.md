@@ -2,10 +2,11 @@
 
 ## Sessão
 
-- **Atual:** nenhuma aberta (S3.2 entregue; falta conferir no Android)
+- **Atual:** nenhuma aberta (S3.2 concluída e validada no Android)
 - **Última concluída:** S3.2 — gêneros personalizados e cores por tema
-- **Próxima:** aceite da S3.2 no device; depois S4
-  (`docs/sessions/S04-identidade-3d.md`).
+- **Próxima:** S4 — identidade 3D (`docs/sessions/S04-identidade-3d.md`), que
+  absorve a tabela oficial de ranges do ISBN, os avisos do terminal e a capa na
+  Fila.
 
 ## Pronto (S3.2)
 
@@ -28,25 +29,14 @@
   Docs: ADR 0010, modelo, arquitetura, design system, brand, testes, privacidade
   e CHANGELOG.
 
-## Revisar no Android antes da S4
-
-1. `Terror`, `Voltar` e título longo terminando em "r" inteiros em chip, botão e
-   lombada.
-2. Capa arredondada e borda 2 px sem vazar; fita visível sobre capa clara.
-3. Contraste real dos 10 presets na lombada.
-4. Criar gênero (preset e custom), renomear e repintar a Estante; excluir sem
-   livros, em uso (mensagem com contagem) e o último.
-5. ISBN: máscara ao digitar (8535 → 85-35; 97885359027 → 978-85-359-027),
-   teclado numérico e X final; Ajustes → Gêneros → editar → voltar.
-
 ## Decisões abertas
 
 - NativeWind v4 sem suporte oficial à SDK 58 (ADR 0006).
 - Tema escuro: pares prontos; falta toggle, superfícies e contraste.
 - Ícone e splash ainda são placeholders (S4).
 - `cover_uri` é absoluto: o backup (S11) decide entre referência e imagem.
-- Máscara do ISBN fixa no padrão brasileiro (sem tabela de ranges): outro grupo
-  pode ganhar hífen no lugar errado; o valor gravado é só dígitos.
+- Máscara do ISBN fixa no padrão brasileiro; a S4 troca pela tabela oficial
+  (`RangeMessage.xml`), mantendo o banco sem hífen.
 - DNF (S9), metadados em `brand/source/*.png` (limpar no primeiro export real).
 
 ## Arquivos-chave
@@ -67,6 +57,10 @@
   `getDb()` é lazy; chamar no topo de um módulo quebra os testes.
 - RTL 14 é assíncrono e sem `UNSAFE_getByType` (use `testID`/texto); Node 26 vs
   CI 22: rode `npm run test` antes de culpar o código.
+- Metro avisa require cycle quando uma feature importa o barril de outra (S4
+  corrige com import direto, ex.: `@/features/library/use-books`).
+- `ImageBackground is deprecated` vem do `react-native-css-interop` (NativeWind
+  4) no boot, não do app; decisão na S4.
 - Fontes: família com peso, nunca `fontWeight`; `lineHeight` < 1.15× corta
   descendentes; `label` **não** leva `letterSpacing`.
 - Contraste da paleta: 3:1 contra o creme **ou** o navy (navy é cor do preset
