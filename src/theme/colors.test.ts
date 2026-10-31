@@ -10,9 +10,11 @@ describe('colors', () => {
       'gold',
       'goldDeep',
       'navy',
+      'navyMuted',
       'pink',
       'pinkSoft',
       'purple',
+      'surface',
       'teal',
     ]);
   });

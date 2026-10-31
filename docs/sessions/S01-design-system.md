@@ -30,10 +30,11 @@ fake — sem banco de dados.
 
 ## Aceite
 
-- [ ] 4 abas navegam no Expo Go sem warning de fonte.
-- [ ] Nenhum estilo hardcoded fora de `src/theme/` e do NativeWind.
-- [ ] `npm run lint`, `npm run typecheck` e `npm run test` verdes.
-- [ ] `docs/design/design-system.md` publicado e `docs/INDEX.md` atualizado.
+- [x] 4 abas navegam no Expo Go sem warning de fonte. _(bundle Android
+      exportado; conferência visual no aparelho ainda é manual)_
+- [x] Nenhum estilo hardcoded fora de `src/theme/` e do NativeWind.
+- [x] `npm run lint`, `npm run typecheck` e `npm run test` verdes.
+- [x] `docs/design/design-system.md` publicado e `docs/INDEX.md` atualizado.
 
 ## Contexto necessário
 

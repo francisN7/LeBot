@@ -1,0 +1,49 @@
+# ADR 0006 — Design system com NativeWind v4 e tokens em TypeScript
+
+- **Status:** aceito
+- **Data:** 2026-10-31
+- **Sessão:** S1
+
+## Contexto
+
+A S1 precisava de estilos consistentes em 4 abas, sem repetir cores e medidas em
+cada tela. O `src/theme/colors.ts` já existia desde a S0, mas só era consumido
+via `StyleSheet`. A spec da S1 pedia NativeWind + tokens tipados.
+
+Opções avaliadas:
+
+1. **NativeWind 4.2.7 (stable, Tailwind 3.4).** Documentado para Expo SDK 57,
+   mas o bundle Android da SDK 58 exportou sem erro no teste da S1.
+2. **NativeWind 5.0.0-rc.0 (Tailwind 4).** Mais alinhado ao futuro, porém RC,
+   com par fixo `react-native-css@3.1.0-rc.0` e alvo testado na SDK 57.
+3. **Só `StyleSheet` com tokens.** Zero dependência nova, mas mais verboso e
+   longe do que a spec pedia.
+
+## Decisão
+
+Adotar **NativeWind 4.2.7 + Tailwind CSS 3.4**, mantendo os tokens como fonte da
+verdade em `src/theme/`.
+
+- O `tailwind.config.ts` importa `colors`, `spacing`, `radii`, `typography` de
+  `src/theme/`; não há paleta duplicada.
+- `className` é o caminho padrão para layout e cor. Estilo dinâmico (safe area,
+  cor por gênero, tamanho de lombada) usa tokens via `style`.
+- Componentes que aceitam `className` passam a string por `tailwind-merge`
+  para que overrides (`gap-xs`, `bg-pink`) vençam a base do componente.
+- Fontes Fredoka/Nunito entram por `@expo-google-fonts/*` + `expo-font`, com
+  splash controlado no layout raiz.
+
+## Consequências
+
+- Build Android de `expo export` cobre a integração Metro/Babel do NativeWind;
+  validar visualmente no Expo Go continua sendo manual.
+- NativeWind v4 não declara suporte oficial à SDK 58. Se o upgrade para SDK 59
+  quebrar, o caminho é migrar para NativeWind 5 (Tailwind 4) e revisar
+  `global.css`/`postcss`.
+- `tailwind-merge` vira dependência de runtime pequena e sem código nativo.
+- Testes de UI usam a API assíncrona do RTL 14 (`await render`).
+
+## Alternativas descartadas
+
+- **NativeWind 5 RC:** risco de RC + par de versões fixas sem ganho imediato.
+- **StyleSheet puro:** contraria a spec e aumenta o custo de manter 4 telas.

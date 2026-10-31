@@ -12,6 +12,9 @@ export const colors = {
   coral: '#FF6B5B',
   teal: '#34C6B8',
   purple: '#7B69EE',
+  surface: '#FFFFFF',
+  /** Derivada do navy para rótulos inativos; mantém contraste sobre o creme. */
+  navyMuted: '#6E687F',
 } as const;
 
 export type ColorToken = keyof typeof colors;

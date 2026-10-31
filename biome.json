@@ -32,9 +32,29 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "preset": "recommended"
+      "preset": "recommended",
+      "correctness": {
+        "noReactNativeRawText": {
+          "level": "on",
+          "options": {
+            "skip": ["AppText", "Button", "Chip", "Spine"]
+          }
+        }
+      }
     }
   },
+  "overrides": [
+    {
+      "includes": ["global.css"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noUnknownAtRules": "off"
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "formatter": {
       "quoteStyle": "single",

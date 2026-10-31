@@ -7,8 +7,8 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | Sessão | Status | Entrega | Critério de aceite | Spec |
 |---|---|---|---|---|
 | S0 | [x] | Fundação pública + onboarding Expo | App abre no Expo Go; CI verde; gitleaks limpo | `sessions/S00-fundacao.md` |
-| S1 | [ ] | Design system + shell | 4 abas navegáveis com dados fake | `sessions/S01-design-system.md` |
-| S2 | [ ] | Persistência (SQLite + Drizzle) | CRUD via repositório testado | — |
+| S1 | [x] | Design system + shell | 4 abas navegáveis com dados fake | `sessions/S01-design-system.md` |
+| S2 | [ ] | Persistência (SQLite + Drizzle) | CRUD via repositório testado | `sessions/S02-persistencia.md` |
 | S3 | [ ] | Biblioteca (cadastro, ISBN, capas) | Cadastrar → achar → editar | — |
 | S4 | [ ] | Identidade 3D (mascote + lombadas) | Estante fluida com identidade própria | — |
 | S5 | [ ] | Registro de leitura | Registrar sessão e ver progresso | — |

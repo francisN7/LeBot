@@ -17,7 +17,7 @@
 | `docs/architecture.md` | camadas e fluxo de dados | OK |
 | `docs/data-model.md` | schema e relações | S2 |
 | `docs/planner-algorithm.md` | regras do plano diário | S6 |
-| `docs/design/design-system.md` | tokens e componentes | S1 |
+| `docs/design/design-system.md` | tokens e componentes | ✅ |
 | `docs/design/assets-3d.md` | lombadas e mascote | S4 |
 | `docs/learn/expo-for-react-devs.md` | dúvidas de Expo/React Native | OK |
 | `docs/testing.md` | como testar | S2 |

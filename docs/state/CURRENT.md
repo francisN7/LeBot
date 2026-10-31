@@ -3,52 +3,69 @@
 > Handoff entre sessões. Atualizar no fim de toda sessão. Manter < 80 linhas.
 
 ## Sessão
-- **Atual:** S1 — Design system + shell (`docs/sessions/S01-design-system.md`)
-- **Última concluída:** S0 — Fundação pública + onboarding Expo (`5d2900c`)
-- **Próxima:** S1 — 4 abas navegáveis com dados fake
+- **Atual:** S2 — Persistência SQLite + Drizzle (`docs/sessions/S02-persistencia.md`)
+- **Última concluída:** S1 — Design system + shell (`S1: design system e shell`)
+- **Próxima:** S2 — CRUD via repositório testado, telas lendo do banco
 
 ## Pronto
-- App Expo SDK 58 (React Native 0.88, TypeScript strict) rodando com Expo Router
-  em `src/app/`; bundle Android exporta sem erro.
-- `app.config.ts` com `LêBot`, slug/scheme `lebot`, package `com.francis.lebot`.
-- Tooling: Biome (lint + format), Jest (`jest-expo`), Husky + lint-staged.
-- CI (`.github/workflows/ci.yml`): lint, typecheck, test, expo-doctor, gitleaks
-  com `fetch-depth: 0` e `permissions: contents: read`. **Verde** em `main`.
-- `gitleaks` limpo no histórico completo.
-- Docs: `README.md`, `SECURITY.md`, `docs/architecture.md`,
-  `docs/security-privacy.md`, `docs/learn/expo-for-react-devs.md`.
-- Licença MIT (código + arte) e e-mail `noreply` do GitHub nos commits.
-- Dependabot desligado para versões (só alertas de segurança) e `.nvmrc` com
-  Node 22.
+- NativeWind 4.2.7 + Tailwind 3.4 (SDK 58) com `babel.config.js`,
+  `metro.config.js`, `global.css` e `nativewind-env.d.ts`.
+- Tokens em `src/theme/`: cores (inclui `surface` e `navyMuted`), espaçamento,
+  raios, tipografia, tamanhos, bordas e opacidades. `tailwind.config.ts` importa
+  os tokens — sem paleta duplicada.
+- Fontes Fredoka (600/700) e Nunito (400/600/700) via `expo-font`, com splash
+  controlado no layout raiz.
+- `src/components/ui/`: `Screen`, `AppText`, `Button`, `Card`, `Chip`, `Spine`
+  (placeholder 2D por gênero) + `index.ts`. `className` passa por `twMerge`.
+- Shell com 4 abas (`src/app/(tabs)/`): Estante, Fila, Hoje, Ajustes. Rotas só
+  reexportam telas de `src/features/*/`.
+- Fixtures fictícias em `src/features/*/__fixtures__/` (5 livros, fila, plano e
+  ajustes).
+- 12 testes (4 telas + Button + Spine + paleta) com RTL 14 assíncrono.
+- Docs: `docs/design/design-system.md`, ADR 0006, `INDEX`, `architecture`,
+  roadmap e changelog atualizados.
+- Validação: lint, typecheck, test (12/12), `expo-doctor` (20/20) e
+  `expo export --platform android` (bundle 3.8 MB) verdes.
 
 ## Próximo passo
-Executar a S1: design system (tokens, tipografia Fredoka/Nunito) e shell com
-4 abas usando dados fake.
+Executar a S2: instalar `expo-sqlite` + Drizzle, schema/migração inicial,
+repositórios e seed, trocando as fixtures pelo banco.
 
 ## Pendências manuais (dono)
-- Fechar os 7 PRs antigos do Dependabot (botão *Close*); a config já foi removida.
+- Abrir no Expo Go e conferir: 4 abas navegam, `Lê/ç/ã` renderizam com
+  Fredoka/Nunito e não aparece warning de fonte.
+- Fechar os 7 PRs antigos do Dependabot (a config já foi removida).
 - Ligar em *Settings → Code security*: Dependabot alerts, security updates,
   secret scanning e push protection.
 - Ruleset na `main`: *restrict deletions* + *block force pushes* (bypass admin).
-- Abrir o app no Expo Go (`npm start`) e confirmar a tela da S0 no aparelho.
 
 ## Decisões abertas
-- NativeWind: entrou na S1 (ainda não instalado).
-- Ícone e splash ainda são placeholders do template do Expo (S1/S4).
-- Branch protection na `main`: ativar manualmente no GitHub (não há `gh` local).
-- `brand/source/*.png` ainda têm metadados: limpar no primeiro export.
+- NativeWind v4 não declara suporte oficial à SDK 58 (ADR 0006): bundle passou;
+  se SDK 59 quebrar, migrar para NativeWind 5 + Tailwind 4.
+- Ícone e splash ainda são placeholders do template (S4).
+- Estratégia de teste do SQLite no Jest será fechada na S2 (driver em memória
+  vs. fake).
+- `brand/source/*.png` ainda têm metadados: limpar no primeiro export real.
 
 ## Arquivos-chave
-- `src/app/_layout.tsx`, `src/app/index.tsx`
-- `src/theme/colors.ts` (paleta de `docs/brand.md`)
-- `app.config.ts`, `biome.json`, `tsconfig.json`
-- `.github/workflows/ci.yml`, `.husky/pre-commit`
+- `tailwind.config.ts`, `global.css`, `babel.config.js`, `metro.config.js`
+- `src/theme/{colors,spacing,radii,typography,sizes}.ts`
+- `src/components/ui/{Screen,AppText,Button,Card,Chip,Spine}.tsx`
+- `src/app/_layout.tsx`, `src/app/(tabs)/_layout.tsx`
+- `src/features/{library,queue,today,settings}/`
+- `docs/design/design-system.md`, `docs/adr/0006-design-system-nativewind.md`
 
 ## Armadilhas
-- Node local 26 vs CI 22: rode `nvm use` antes de investigar falha de CI.
-- Biome formata Markdown; `*.md` está excluído para não gerar churn.
-- `npx expo install <pkg>` sempre, nunca `npm install` direto para libs nativas.
-- `expo-env.d.ts` é gerado e ignorado: não commitar.
+- `global.css` está na raiz: importe `../../global.css` a partir de
+  `src/app/_layout.tsx`.
+- Componente com `className` deve usar `twMerge`; sem isso, classes base do
+  Tailwind vencem o override (ex.: `bg-surface` sobre `bg-pink`).
+- RTL 14 é assíncrono: `await render(...)` e `await fireEvent.press(...)`.
+- Fontes: use a família com peso (`Fredoka_700Bold`), nunca `fontWeight`.
+- Node local 26 vs CI 22: rode `npm run test` antes de culpar o código.
+- Biome não formata Markdown: `*.md` está excluído.
+- `npx expo install <pkg>` sempre; nunca `npm install` direto para libs nativas.
+- `expo-env.d.ts` é gerado e ignorado; não commitar.
 - Repo é público: nada de dados pessoais em seeds, screenshots ou docs.
 
 ## Como rodar
@@ -57,4 +74,5 @@ npm install
 npm start            # QR code para o Expo Go
 npm run lint && npm run typecheck && npm run test
 npm run doctor
+npx expo export --platform android --output-dir dist
 ```

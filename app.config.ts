@@ -22,6 +22,7 @@ const config: ExpoConfig = {
     bundleIdentifier: 'com.francis.lebot',
   },
   web: {
+    bundler: 'metro',
     favicon: './assets/images/favicon.png',
   },
   plugins: [
