@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>LêBot — marca do robô</title>
+  <!-- Antena -->
+  <rect x="250" y="92" width="12" height="56" rx="6" fill="#2A2340" />
+  <circle cx="256" cy="76" r="30" fill="#FF6B5B" />
+  <circle cx="246" cy="66" r="9" fill="#FF9A8F" />
+  <!-- Orelhas -->
+  <rect x="64" y="232" width="44" height="96" rx="22" fill="#2A2340" />
+  <rect x="404" y="232" width="44" height="96" rx="22" fill="#2A2340" />
+  <!-- Carcaça -->
+  <rect x="104" y="168" width="304" height="216" rx="84" fill="#FFF6E8" />
+  <!-- Visor -->
+  <rect x="148" y="206" width="216" height="140" rx="52" fill="#2A2340" />
+  <!-- Olhos -->
+  <circle cx="212" cy="276" r="32" fill="#FFC145" />
+  <circle cx="300" cy="276" r="32" fill="#FFC145" />
+  <circle cx="202" cy="264" r="9" fill="#FFF6E8" />
+  <circle cx="290" cy="264" r="9" fill="#FFF6E8" />
+  <!-- Boca -->
+  <ellipse cx="256" cy="322" rx="18" ry="12" fill="#F4B43A" />
+</svg>

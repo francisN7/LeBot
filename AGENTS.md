@@ -67,6 +67,7 @@ npm run typecheck
 npm run test
 npm run doctor       # expo-doctor
 npx drizzle-kit generate   # nova migração depois de mudar src/db/schema.ts
+node scripts/build-icons.mjs   # regera ícone/splash a partir de brand/source/mark.svg
 ```
 
 > Ajustar se os scripts mudarem (revisado na S0).

@@ -1,13 +1,21 @@
-import { Pressable, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { twMerge } from 'tailwind-merge';
 
 import { AppText } from '@/components/ui/AppText';
+import { SpineArtwork } from '@/components/ui/SpineArtwork';
+import { resolveSpineArt } from '@/features/library/spine-art';
+import type { ReadingStatus } from '@/features/library/types';
 import { colors, opacities, radii, sizes } from '@/theme';
 
 type SpineProps = {
   title: string;
   /** Cor de gênero vinda do banco (`genreById`), nunca uma lista fixa. */
   color: string;
+  /**
+   * Status de leitura. Com status a lombada é a arte 3D (rosto por status);
+   * sem status fica o bloco 2D usado como fallback.
+   */
+  status?: ReadingStatus;
   width?: number;
   height?: number;
   onPress?: () => void;
@@ -18,12 +26,17 @@ type SpineProps = {
 };
 
 /**
- * Placeholder 2D da lombada: bloco colorido por gênero com etiqueta de título.
- * A versão 3D com expressão por status chega na S4.
+ * Lombada do livro. A arte é vetorial e paramétrica: a cor vem do gênero e a
+ * expressão do rosto do status (`resolveSpineArt`). Sem status, ou com hex
+ * inválido, desenha o bloco 2D com etiqueta.
+ *
+ * A etiqueta de título fica sobre `cream` opaco para o texto pequeno não
+ * disputar contraste com o rosto e o brilho da lombada.
  */
 export function Spine({
   title,
   color,
+  status,
   width = sizes.spine.width,
   height = sizes.spine.height,
   onPress,
@@ -31,6 +44,8 @@ export function Spine({
   className,
   testID,
 }: SpineProps) {
+  const art = resolveSpineArt({ color, status });
+
   return (
     <Pressable
       accessibilityLabel={`Lombada de ${title}`}
@@ -41,13 +56,28 @@ export function Spine({
       )}
       disabled={!onPress}
       onPress={onPress}
-      style={{ backgroundColor: color, width, height, borderRadius: radii.md }}
+      style={{
+        backgroundColor: art.kind === 'art' ? art.palette.base : art.color,
+        width,
+        height,
+        borderRadius: radii.md,
+      }}
       testID={testID}
     >
-      <View
-        className="mx-sm mt-sm h-xs rounded-pill"
-        style={{ backgroundColor: colors.navy, opacity: opacities.decor }}
-      />
+      {art.kind === 'art' ? (
+        <View
+          pointerEvents="none"
+          style={StyleSheet.absoluteFill}
+          testID={testID ? `${testID}-art` : undefined}
+        >
+          <SpineArtwork expression={art.expression} palette={art.palette} />
+        </View>
+      ) : (
+        <View
+          className="mx-sm mt-sm h-xs rounded-pill"
+          style={{ backgroundColor: colors.navy, opacity: opacities.decor }}
+        />
+      )}
       <View className="mt-auto p-sm">
         {showLabel ? (
           <View className="rounded-sm bg-cream/95 px-xs py-xs">

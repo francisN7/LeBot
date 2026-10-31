@@ -10,7 +10,7 @@ src/app/          rotas (Expo Router) — só orquestram telas
 src/features/*/   UI + hooks + serviços de uma feature
 src/db/           schema Drizzle, client, migrações, seed e repositórios
 src/lib/          funções puras, sem React Native
-src/components/ui componentes genéricos (Screen, AppText, Button, Card, Chip, ConfirmDialog, Spine, TextField, BookCover, Bookmark)
+src/components/ui componentes genéricos e arte vetorial (Screen, AppText, Button, Card, Chip, ConfirmDialog, Spine, SpineArtwork, Mascot, TextField, BookCover, Bookmark)
 src/theme/        tokens (cor, espaçamento, raio, tipografia, tamanhos)
 drizzle/          SQL gerado pelo drizzle-kit (+ bundle das migrações)
 types/            declarações globais versionadas (`expo/types`, `*.sql`)
@@ -26,6 +26,9 @@ Regras:
 5. Sem `any`; validação de borda com Zod.
 6. Estilo usa `className` (NativeWind) e tokens de `src/theme/`; nada de cor ou
    espaçamento solto no componente.
+7. Arte de lombada/mascote é vetorial e paramétrica (ADR 0011): o mapa puro
+   `src/features/library/spine-art.ts` decide expressão e paleta, e os
+   componentes só desenham. Nenhuma imagem de arte entra no bundle.
 
 ## Fluxo de dados
 

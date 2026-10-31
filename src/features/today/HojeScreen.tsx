@@ -1,6 +1,6 @@
 import { Alert, View } from 'react-native';
 
-import { AppText, Button, Card, Chip, Screen } from '@/components/ui';
+import { AppText, Button, Card, Chip, Mascot, Screen } from '@/components/ui';
 import { useSettings } from '@/features/settings';
 import { dailyPlan } from './__fixtures__/daily-plan';
 import type { PlanBlockStatus } from './types';
@@ -31,15 +31,18 @@ export function HojeScreen() {
         </AppText>
       </Card>
 
-      <Card>
-        <AppText variant="label" tone="accent">
-          LêBot diz
-        </AppText>
-        <AppText variant="subtitle">{dailyPlan.message}</AppText>
-        <AppText variant="caption" tone="muted">
-          Sequência de {dailyPlan.streak} dias. Sem pressão: se hoje não der, a
-          gente ajusta.
-        </AppText>
+      <Card className="flex-row items-center gap-md">
+        <Mascot size={72} state="thinking" />
+        <View className="flex-1 gap-xs">
+          <AppText variant="label" tone="accent">
+            LêBot diz
+          </AppText>
+          <AppText variant="subtitle">{dailyPlan.message}</AppText>
+          <AppText variant="caption" tone="muted">
+            Sequência de {dailyPlan.streak} dias. Sem pressão: se hoje não der,
+            a gente ajusta.
+          </AppText>
+        </View>
       </Card>
 
       <View className="gap-sm">

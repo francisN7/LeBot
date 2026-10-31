@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View } from 'react-native';
+import { View, type ViewStyle } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 import {
   AppText,
@@ -7,6 +8,7 @@ import {
   Button,
   Card,
   Chip,
+  Mascot,
   Screen,
   Spine,
   TextField,
@@ -35,6 +37,20 @@ const filters: { value: ShelfFilter; label: string }[] = [
   { value: 'finished', label: 'Concluídos' },
 ];
 
+/**
+ * Profundidade discreta do card na grade: sombra navy curta e deslocada para
+ * baixo, alternando a altura por coluna para a estante não parecer um bloco só.
+ */
+function shelfDepth(offset: number): ViewStyle {
+  return {
+    elevation: 3,
+    shadowColor: colors.navy,
+    shadowOffset: { width: 0, height: offset },
+    shadowOpacity: 0.16,
+    shadowRadius: 6,
+  };
+}
+
 export function EstanteScreen({
   onOpenBook,
   onCreateBook,
@@ -49,6 +65,13 @@ export function EstanteScreen({
       (filter === 'all' || book.status === filter) &&
       matchesQuery([book.title, book.author, book.isbn], query),
   );
+
+  const hasQuery = query.trim().length > 0;
+  const emptyState = hasQuery
+    ? 'Nenhum livro encontrado. Tente outro título, autor ou ISBN.'
+    : books.length === 0
+      ? 'Sua estante está vazia. Toque em Novo livro para começar.'
+      : 'Nada por aqui ainda. Ajuste o filtro para ver outros livros.';
 
   return (
     <Screen>
@@ -88,56 +111,74 @@ export function EstanteScreen({
         ))}
       </View>
 
-      <View className="flex-row flex-wrap gap-md">
-        {visibleBooks.map((book) => {
-          const genre = genreById.get(book.genreId);
+      <Animated.View
+        entering={FadeIn.duration(180)}
+        key={`${filter}:${hasQuery ? query.trim() : ''}`}
+        testID="estante-grade"
+      >
+        <View className="flex-row flex-wrap gap-md">
+          {visibleBooks.map((book, index) => {
+            const genre = genreById.get(book.genreId);
+            const genreColor = genre?.colorLight ?? colors.navyMuted;
 
-          return (
-            <Card className="w-[46%] items-center gap-sm" key={book.id}>
-              {hasCover(book.coverUri) ? (
-                <BookCover
-                  genreColor={genre?.colorLight ?? colors.navyMuted}
-                  onPress={() => onOpenBook?.(book.id)}
-                  title={book.title}
-                  uri={book.coverUri}
-                />
-              ) : (
-                <Spine
-                  color={genre?.colorLight ?? colors.navyMuted}
-                  onPress={() => onOpenBook?.(book.id)}
-                  showLabel={false}
-                  title={book.title}
-                />
-              )}
-              <AppText
-                numberOfLines={1}
-                style={{ alignSelf: 'stretch', textAlign: 'center' }}
-                variant="bodyStrong"
+            return (
+              <Card
+                className="w-[46%] items-center gap-sm"
+                key={book.id}
+                style={shelfDepth(index % 2 === 0 ? 3 : 5)}
               >
-                {book.title}
-              </AppText>
-              <AppText variant="caption" tone="muted" numberOfLines={1}>
-                {book.author}
-              </AppText>
-              <AppText
-                numberOfLines={1}
-                style={{ alignSelf: 'stretch', textAlign: 'center' }}
-                variant="label"
-              >
-                {genre?.name ?? UNKNOWN_GENRE_NAME}
-              </AppText>
-              <Chip label={labelForStatus(book.status)} />
-            </Card>
-          );
-        })}
-      </View>
+                {hasCover(book.coverUri) ? (
+                  <BookCover
+                    genreColor={genreColor}
+                    onPress={() => onOpenBook?.(book.id)}
+                    title={book.title}
+                    uri={book.coverUri}
+                  />
+                ) : (
+                  <Spine
+                    color={genreColor}
+                    onPress={() => onOpenBook?.(book.id)}
+                    showLabel={false}
+                    status={book.status}
+                    title={book.title}
+                  />
+                )}
+                <AppText
+                  numberOfLines={1}
+                  style={{ alignSelf: 'stretch', textAlign: 'center' }}
+                  variant="bodyStrong"
+                >
+                  {book.title}
+                </AppText>
+                <AppText
+                  numberOfLines={1}
+                  style={{ alignSelf: 'stretch', textAlign: 'center' }}
+                  tone="muted"
+                  variant="caption"
+                >
+                  {book.author}
+                </AppText>
+                <AppText
+                  numberOfLines={1}
+                  style={{ alignSelf: 'stretch', textAlign: 'center' }}
+                  variant="label"
+                >
+                  {genre?.name ?? UNKNOWN_GENRE_NAME}
+                </AppText>
+                <Chip label={labelForStatus(book.status)} />
+              </Card>
+            );
+          })}
+        </View>
+      </Animated.View>
 
       {visibleBooks.length === 0 ? (
-        <AppText tone="muted">
-          {query.trim().length > 0
-            ? 'Nenhum livro encontrado. Tente outro título, autor ou ISBN.'
-            : 'Nada por aqui ainda. Ajuste o filtro para ver outros livros.'}
-        </AppText>
+        <Card className="items-center gap-sm p-lg" style={shelfDepth(2)}>
+          <Mascot size={96} state={hasQuery ? 'thinking' : 'neutral'} />
+          <AppText style={{ textAlign: 'center' }} tone="muted">
+            {emptyState}
+          </AppText>
+        </Card>
       ) : null}
     </Screen>
   );

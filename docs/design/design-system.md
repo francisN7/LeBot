@@ -168,7 +168,8 @@ toda de propósito: com largura justa o Android quebrava o rótulo em
 
 Superfície branca, contorno navy 2px, raio `lg`, padding `lg`, `gap-sm`.
 `className` passa por `twMerge`, então overrides como `gap-xs` e `bg-pink`
-funcionam.
+funcionam. `style` existe para o que não cabe em classe — sombra/profundidade da
+grade da Estante, por exemplo.
 
 ```tsx
 <Card className="bg-pink">{/* ... */}</Card>
@@ -200,16 +201,37 @@ usam `getByLabelText('Título')`.
 
 ### `Spine`
 
-Placeholder 2D da lombada: bloco colorido por gênero com etiqueta do título.
-A cor vem do gênero do banco (`genreById.get(book.genreId)?.colorLight`) e cai
-em `navyMuted` quando o gênero não existe mais. Com `onPress` vira botão
-acessível; use `showLabel={false}` quando o título já aparece ao lado (caso da
-área principal da Fila, do detalhe e dos cards da Estante). Quando o livro tem
+Lombada do livro. A arte é vetorial e paramétrica (`docs/design/assets-3d.md`):
+a **cor** vem do gênero (`genreById.get(book.genreId)?.colorLight`, com
+`navyMuted` quando o gênero não existe mais) e a **expressão** do status de
+leitura. Sem `status` — ou com hex inválido — fica o bloco 2D chapado, que é o
+fallback. Com `onPress` vira botão acessível; use `showLabel={false}` quando o
+título já aparece ao lado (Fila, detalhe e cards da Estante). Quando o livro tem
 capa, o card usa `BookCover` no lugar da lombada.
 
 ```tsx
-<Spine color={genre.colorLight} title={book.title} />
+<Spine
+  color={genre.colorLight}
+  status={book.status}
+  title={book.title}
+/>
 ```
+
+O desenho do rosto e das faixas fica em `SpineArtwork` (interno); a etiqueta de
+título continua sobre `cream/95` para o texto pequeno não perder contraste.
+
+### `Mascot`
+
+LêBot em SVG com os seis estados da marca (`neutral`, `reading`, `happy`,
+`sleepy`, `thinking`, `celebrating`). A respiração e a piscada usam Reanimated;
+`size` é a largura e a altura segue a proporção. O wrapper anuncia
+`mascotLabel[state]` — passe `accessibilityLabel` para um texto específico.
+
+```tsx
+<Mascot size={72} state="thinking" />
+```
+
+Use com moderação: um mascote por tela.
 
 ### `BookCover`
 
@@ -263,6 +285,20 @@ textual.
 4. Texto sempre com `AppText`; não use `fontWeight` no lugar da família certa.
 5. Todo componente novo entra em `src/components/ui/index.ts` e ganha teste em
    `Componente.test.tsx`.
+6. Arte de personagem/lombada é vetorial (ADR 0011); raster só em
+   `assets/images/`, gerado por `scripts/build-icons.mjs`.
+
+## Ícones e splash
+
+`assets/images/` não é mais placeholder: `icon.png`,
+`android-icon-{foreground,background,monochrome}.png`, `splash-icon.png` e
+`favicon.png` saem de `brand/source/mark.svg` e `mark-mono.svg`.
+
+```bash
+node scripts/build-icons.mjs   # sharp, só no desenvolvimento
+```
+
+Tamanhos, regra de safe zone e compressão estão em `docs/design/assets-3d.md`.
 
 ## Testes
 

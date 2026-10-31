@@ -6,6 +6,7 @@ export { Button, type ButtonSize, type ButtonVariant } from './Button';
 export { Card } from './Card';
 export { Chip } from './Chip';
 export { ConfirmDialog } from './ConfirmDialog';
+export { Mascot, type MascotState, mascotLabel } from './Mascot';
 export { Screen } from './Screen';
 export { Spine } from './Spine';
 export { TextField } from './TextField';

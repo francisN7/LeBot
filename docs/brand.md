@@ -87,10 +87,13 @@ contra o creme ou contra o navy.
 Sistema de ícone de livro:
 
 - **Cor = gênero** (do banco: a escolhida na S3.2, com padrão por preset).
-- **Expressão = status** (lendo = feliz, pausado = sonolento, concluído = brilho, DNF = neutro).
+- **Expressão = status** (lendo = feliz, quero ler = neutro, pausado =
+  sonolento, concluído = brilho).
 - Sem capa cadastrada, a lombada vira a capa padrão; com capa, a fita do gênero
   aparece no canto superior esquerdo.
-- Formato de runtime: WebP com alpha, 256–512px; nome `spine-<cor>-<expressao>.webp`.
+- Formato de runtime: **SVG paramétrico** (`react-native-svg`), não imagem. A
+  sombra e o brilho vêm da cor do gênero, então qualquer hex personalizado
+  funciona. Detalhes em `docs/design/assets-3d.md` (ADR 0011).
 
 ## Voz e tom
 
@@ -100,7 +103,12 @@ Sistema de ícone de livro:
 
 ## Pipeline de assets
 
-1. Fonte em `brand/source/` (PNG @2x).
-2. Export otimizado: WebP com alpha em `src/assets/`; PNG opaco em `assets/` para ícone/splash.
-3. Remover metadados EXIF antes de commitar.
-4. Nomes ASCII: `lebot-robo`, `spine-purple-happy`, `mascot-thinking`.
+1. **Marca e personagem:** código vetorial. Lombada em
+   `src/features/library/spine-art.ts` + `SpineArtwork`; mascote em
+   `Mascot.tsx`. Mudar o desenho é mudar código e rodar os testes.
+2. **Ícone, adaptativo, monocromático, splash e favicon:** fonte em
+   `brand/source/mark.svg` / `mark-mono.svg`, export para `assets/images/` com
+   `node scripts/build-icons.mjs` (sharp em dev, compressão 9, sem metadados).
+3. **Arte-fonte de referência:** `brand/source/*.png` continua versionado, mas
+   não vai para o bundle.
+4. Nomes ASCII e minúsculos: `mark`, `mark-mono`, `icon`, `splash-icon`.

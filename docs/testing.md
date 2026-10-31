@@ -64,6 +64,11 @@ para isso.
 - Teste o comportamento, não a implementação: nada de snapshot de árvore.
 - Dados de teste são fictícios; sem dados pessoais.
 - Node local 26 vs CI 22: rode `npm run test` antes de culpar o CI.
+- Reanimated roda no Jest pelo resolver oficial
+  (`jest.resolver = react-native-reanimated/jest/resolver` no `package.json`),
+  que evita as variantes `.native` dos módulos de worklets. Não precisa de mock;
+  se um teste importar Reanimated direto e falhar com `loadUnpackersWithCode`, o
+  resolver saiu do lugar.
 
 ## Cobertura da S3
 
@@ -104,3 +109,20 @@ O que continua manual: corte de descendentes e galeria só aparecem no Android.
 
 O que continua manual: contraste real das cores na lombada, fita sobre fotos
 claras, recorte da borda em telas de baixa densidade e o "r" final no chip.
+
+## Cobertura da S4a
+
+- `src/lib/color-mix.test.ts`: parse de hex, mistura, limites 0–1 e hex
+  inválido.
+- `src/features/library/spine-art.test.ts`: status → expressão, cor
+  personalizada como base, sombra mais escura/brilho mais claro, rosto navy em
+  fundo claro, creme em fundo escuro, tom escuro do par, fallback sem
+  status/hex inválido/sem cor.
+- `Spine.test.tsx`: arte 3D com status, lombada 2D sem status, etiqueta oculta
+  e `onPress`.
+- `Mascot.test.tsx`: rótulo de cada estado, rótulo próprio e tamanho.
+- `EstanteScreen.test.tsx`: mascote neutro na estante vazia e pensando na busca
+  sem resultado, além de capa × lombada.
+
+O que continua manual: respiração/piscada e ícone no launcher do Android. Não há
+snapshot de imagem nem de árvore para arte.

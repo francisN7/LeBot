@@ -131,4 +131,25 @@ describe('EstanteScreen', () => {
 
     expect(style.backgroundColor).toBe('#123456');
   });
+
+  it('mostra o mascote neutro quando a estante está vazia', async () => {
+    await renderWithProviders(<EstanteScreen />, {
+      booksRepository: createInMemoryBooksRepository([]),
+    });
+
+    expect(screen.getByLabelText('LêBot, o robô leitor')).toBeOnTheScreen();
+    expect(
+      screen.getByText(
+        'Sua estante está vazia. Toque em Novo livro para começar.',
+      ),
+    ).toBeOnTheScreen();
+  });
+
+  it('mostra o mascote pensando quando a busca não encontra nada', async () => {
+    await renderWithProviders(<EstanteScreen />);
+
+    await fireEvent.changeText(screen.getByLabelText('Buscar'), 'zzz');
+
+    expect(screen.getByLabelText('LêBot pensando')).toBeOnTheScreen();
+  });
 });

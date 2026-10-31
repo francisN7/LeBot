@@ -5,7 +5,37 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 ## [Unreleased]
 
-Sem mudanças pendentes: a S4 é a próxima sessão.
+Sem mudanças pendentes: a S4b é a próxima sessão.
+
+## S4a — Identidade 3D vetorial
+
+### Added
+
+- `src/lib/color-mix.ts`: `parseHex` e `mixHex` puros, base da paleta da
+  lombada (sombra e brilho derivados da cor do gênero).
+- `src/features/library/spine-art.ts`: mapa **cor do gênero + status** →
+  expressão (`happy`, `sleepy`, `shine`, `neutral`) + paleta; rosto navy ou
+  creme conforme o contraste; fallback 2D sem status/hex inválido.
+- `SpineArtwork` (SVG) e `Spine` com `status`: corpo com faixa de sombra,
+  brilho, faixas superior/inferior e rosto por status; tamanho cheio e compacto.
+- `Mascot` em SVG com os seis estados da marca, respiração e piscada em
+  Reanimated, `accessibilityLabel` por estado.
+- Mascote na Hoje (card "LêBot diz") e no estado vazio da Estante.
+- Estante com profundidade discreta (sombra por coluna) e transição `FadeIn`
+  ao trocar filtro/busca.
+- `brand/source/mark.svg` e `mark-mono.svg` + `scripts/build-icons.mjs` (sharp,
+  devDependency): ícone, camadas adaptativas, monocromático com olhos vazados,
+  splash e favicon definitivos em `assets/images/`.
+- ADR 0011, `docs/design/assets-3d.md` e docs de design system, brand,
+  arquitetura e testes atualizados.
+
+### Changed
+
+- `app.config.ts`: splash aponta para `splash-icon.png` (200 px de largura).
+- `Card` aceita `style` para sombra/profundidade.
+- Jest usa o resolver oficial do Reanimated; nenhum mock manual.
+- A arte deixou de ser WebP (spec original) e passou a vetorial paramétrica:
+  qualquer hex de gênero funciona e o bundle quase não cresce.
 
 ## S3.2 — Gêneros personalizados e cores por tema
 

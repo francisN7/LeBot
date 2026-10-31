@@ -23,4 +23,39 @@ describe('Spine', () => {
 
     expect(onPress).toHaveBeenCalledTimes(1);
   });
+
+  it('desenha a arte 3D quando recebe o status', async () => {
+    await renderWithProviders(
+      <Spine
+        color={colors.teal}
+        status="reading"
+        testID="lombada"
+        title="Sapiens"
+      />,
+    );
+
+    expect(screen.getByTestId('lombada-art')).toBeOnTheScreen();
+  });
+
+  it('fica na lombada 2D sem status', async () => {
+    await renderWithProviders(
+      <Spine color={colors.teal} testID="lombada" title="Sapiens" />,
+    );
+
+    expect(screen.queryByTestId('lombada-art')).not.toBeOnTheScreen();
+  });
+
+  it('esconde a etiqueta quando showLabel é falso', async () => {
+    await renderWithProviders(
+      <Spine
+        color={colors.teal}
+        showLabel={false}
+        status="finished"
+        title="Sapiens"
+      />,
+    );
+
+    expect(screen.queryByText('Sapiens')).not.toBeOnTheScreen();
+    expect(screen.getByLabelText('Lombada de Sapiens')).toBeOnTheScreen();
+  });
 });
