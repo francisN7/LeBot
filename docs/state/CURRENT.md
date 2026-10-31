@@ -3,7 +3,7 @@
 ## Sessão
 
 - **Atual:** nenhuma aberta (S4a e S4c concluídas e validadas no Android)
-- **Última concluída:** S4c — movimento e vida
+- **Última concluída:** S4a (identidade 3D vetorial) e S4c (movimento e vida)
 - **Próxima:** S4b (`docs/sessions/S04b-isbn-avisos-fila.md`): tabela oficial do
   ISBN, require cycle, aviso de `ImageBackground` e capa na Fila. A S4c foi
   executada antes dela, por decisão do dono.
