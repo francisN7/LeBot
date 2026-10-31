@@ -25,7 +25,7 @@
 - ISBN: dígitos puros com máscara enquanto digita (`85-359-0277-2` /
   `978-85-359-0277-2`, troca pelo prefixo 978/979), "válido/inválido" antes de
   salvar; o banco grava só os dígitos. `AppText` `label` sem `letterSpacing`.
-- 139 testes em 30 suítes; lint, typecheck, doctor e export Android verdes.
+- 143 testes em 30 suítes; lint, typecheck, doctor e export Android verdes.
   Docs: ADR 0010, modelo, arquitetura, design system, brand, testes, privacidade
   e CHANGELOG.
 
@@ -65,6 +65,7 @@
   descendentes; `label` **não** leva `letterSpacing`.
 - Contraste da paleta: 3:1 contra o creme **ou** o navy (navy é cor do preset
   "classic"; comparar só com navy dá 1:1).
+
 ## Como rodar
 
 ```bash

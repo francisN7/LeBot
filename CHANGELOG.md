@@ -46,6 +46,11 @@ Sem mudanças pendentes: a S4 é a próxima sessão.
   segue clara.
 - `react-native-svg` entra como dependência.
 
+### Validated
+
+- Conferido no Android pelo dono: gêneros e cores, capa com fita, máscara do
+  ISBN e o "r" final.
+
 ## S3 — Biblioteca: cadastrar, buscar e editar
 
 ### Added
