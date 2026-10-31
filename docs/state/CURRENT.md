@@ -4,9 +4,9 @@
 
 - **Atual:** S4a + S4c implementadas; falta a conferência do dono no Android
 - **Última concluída:** S3.2 — gêneros personalizados e cores por tema
-- **Próxima:** conferir no aparelho e abrir a S4b
-  (`docs/sessions/S04b-isbn-avisos-fila.md`): tabela oficial do ISBN, require
-  cycle, aviso de `ImageBackground` e capa na Fila.
+- **Próxima:** S4b (`docs/sessions/S04b-isbn-avisos-fila.md`): tabela oficial do
+  ISBN, require cycle, aviso de `ImageBackground` e capa na Fila. A S4c já foi
+  implementada antes dela, por decisão do dono.
 
 ## Pronto (S4a — identidade)
 

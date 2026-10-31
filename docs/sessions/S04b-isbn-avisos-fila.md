@@ -72,4 +72,5 @@ tabela oficial da International ISBN Agency, require cycle e aviso de
 
 ## Próximo depois desta
 
-S5 — registro de leitura (`docs/sessions/S05-registro-de-leitura.md`).
+S4c — movimento e vida (`docs/sessions/S04c-movimento.md`), já implementada; falta
+conferir no Android.

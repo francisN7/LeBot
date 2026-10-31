@@ -71,5 +71,4 @@ tela de detalhe com animação contínua (lá existe um livro só).
 
 ## Próximo depois desta
 
-S4b — ISBN oficial, avisos do terminal e capa na Fila
-(`docs/sessions/S04b-isbn-avisos-fila.md`).
+S5 — registro de leitura (`docs/sessions/S05-registro-de-leitura.md`).
