@@ -1,4 +1,5 @@
 export { AppText, type TextTone, type TextVariant } from './AppText';
+export { BackButton } from './BackButton';
 export { Button, type ButtonSize, type ButtonVariant } from './Button';
 export { Card } from './Card';
 export { Chip } from './Chip';

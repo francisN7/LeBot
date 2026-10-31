@@ -3,6 +3,7 @@ import { Image, View } from 'react-native';
 
 import {
   AppText,
+  BackButton,
   Button,
   Card,
   Chip,
@@ -62,13 +63,7 @@ export function BookDetailScreen({
 
   return (
     <Screen>
-      <Button
-        className="self-start"
-        label="Voltar"
-        onPress={onBack}
-        size="sm"
-        variant="ghost"
-      />
+      <BackButton onPress={onBack} />
 
       <View className="gap-xs">
         <AppText variant="display">{book.title}</AppText>

@@ -11,8 +11,7 @@
 
 ## Pronto (S3)
 
-- Migração `0001_conscious_hannibal_king.sql`: `books.isbn` (único, vários
-  `NULL`) e `books.cover_uri`; tabela não recriada.
+- Migração `0001_conscious_hannibal_king.sql`: `books.isbn` (único, vários `NULL`) e `books.cover_uri`; tabela não recriada.
 - `src/lib/isbn.ts` valida ISBN-10/13 pelo dígito verificador; repositório grava
   normalizado e recusa inválido/duplicado.
 - `src/lib/book-search.ts` busca sem acento/caixa (ADR 0009).
@@ -27,8 +26,9 @@
   telas (`src/lib/navigation.ts`).
 - `useBooks` tem `create`/`update`/`remove`/`refresh` e avisa as telas com o
   mesmo repositório.
-- Tipografia: `display` 52/64 e `xxl` 36/44; teste trava folga de 15%.
-- 81 testes em 20 suítes; lint, typecheck, doctor e export Android verdes.
+- `BackButton` e `ConfirmDialog` novos em `ui/`; "Voltar" não corta mais a
+  última letra.
+- 83 testes em 21 suítes; lint, typecheck, doctor e export Android verdes.
 - Docs: ADR 0009 + modelo, arquitetura, testes, design system, privacidade e
   CHANGELOG.
 

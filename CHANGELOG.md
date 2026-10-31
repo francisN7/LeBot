@@ -56,6 +56,8 @@ Sem mudanças pendentes: a S4 é a próxima sessão.
   reticências em vez de quebrar no meio da palavra.
 - Chip e rótulo de gênero ficam em uma linha só (o "Terror" quebrava em
   "Terro/r" no formulário e na Estante).
+- "Voltar" não corta mais o "r": virou `BackButton` com largura total, no lugar
+  do botão fantasma de largura justa.
 
 ## S2 — Persistência com SQLite + Drizzle
 

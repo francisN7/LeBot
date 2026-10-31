@@ -146,6 +146,16 @@ o confirmar usa a variante `danger`.
 />
 ```
 
+### `BackButton`
+
+Voltar de tela cheia (texto "Voltar", alinhado à esquerda). Ocupa a largura
+toda de propósito: com largura justa o Android quebrava o rótulo em
+"Volta"/"r". Usa `numberOfLines={1}`.
+
+```tsx
+<BackButton onPress={() => router.back()} />
+```
+
 ### `Card`
 
 Superfície branca, contorno navy 2px, raio `lg`, padding `lg`, `gap-sm`.

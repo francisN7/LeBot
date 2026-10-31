@@ -73,7 +73,9 @@ export function Button({
       ]}
       testID={testID}
     >
-      <AppText variant="label">{label}</AppText>
+      <AppText numberOfLines={1} variant="label">
+        {label}
+      </AppText>
     </Pressable>
   );
 }
