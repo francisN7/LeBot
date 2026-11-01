@@ -15,8 +15,6 @@ type ScreenProps = {
   children: ReactNode;
   /** Desliga o scroll para telas curtas ou com lista virtualizada. */
   scroll?: boolean;
-  /** Permite travar a rolagem enquanto uma linha está sendo arrastada. */
-  scrollEnabled?: boolean;
   /** Ref usado pelo gesto de arrastar para bloquear a rolagem nativa. */
   scrollRef?: ScreenScrollViewRef;
   className?: string;
@@ -31,7 +29,6 @@ type ScreenProps = {
 export function Screen({
   children,
   scroll = true,
-  scrollEnabled = true,
   scrollRef,
   className,
   contentContainerClassName,
@@ -62,7 +59,6 @@ export function Screen({
       contentContainerClassName={twMerge('gap-lg', contentContainerClassName)}
       contentContainerStyle={padding}
       ref={scrollRef}
-      scrollEnabled={scrollEnabled}
       showsVerticalScrollIndicator={false}
       testID={testID}
     >

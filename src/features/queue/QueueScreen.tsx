@@ -57,7 +57,6 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
   const { books } = useBooks();
   const { genreById } = useGenres();
   const { items, move, replaceAll } = useQueue();
-  const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragPreview, setDragPreview] = useState<DragPreview | null>(null);
   const [commitDrop, setCommitDrop] = useState(false);
   const dragPreviewRef = useRef<DragPreview | null>(null);
@@ -210,12 +209,22 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
 
   function handleDrop(bookId: string, translationY: number) {
     const result = targetFor(bookId, translationY);
-    setCommitDrop(true);
-    clearDragPreview();
 
-    if (result && result.target !== result.from) {
-      move(bookId, result.target);
+    if (!result) {
+      clearDragPreview();
+      return;
     }
+
+    // Espera o frame da soltura terminar antes de trocar a ordem. Assim a
+    // prévia e a nova ordem não disputam o mesmo frame (era o "pisca").
+    requestAnimationFrame(() => {
+      setCommitDrop(true);
+      clearDragPreview();
+
+      if (result.target !== result.from) {
+        move(bookId, result.target);
+      }
+    });
   }
 
   function previewShiftFor(index: number): number {
@@ -260,14 +269,12 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
         note={entry.note}
         onDown={() => move(entry.bookId, index + 1)}
         onDragEnd={() => {
-          setDraggingId(null);
           clearDragPreview();
         }}
         onDragMove={(offset) => handleDragMove(entry.bookId, offset)}
         onDragStart={() => {
           setCommitDrop(false);
           clearDragPreview();
-          setDraggingId(entry.bookId);
         }}
         onDrop={(offset) => handleDrop(entry.bookId, offset)}
         onHeight={(height) => heights.current.set(entry.bookId, height)}
@@ -286,10 +293,7 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
   );
 
   return (
-    <Screen
-      scrollEnabled={draggingId === null && !commitDrop}
-      scrollRef={scrollRef}
-    >
+    <Screen scrollRef={scrollRef}>
       <View className="gap-xs">
         <AppText variant="display">Ordem</AppText>
         <AppText tone="muted">{QUEUE_LEGEND}</AppText>

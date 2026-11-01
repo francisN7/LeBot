@@ -50,8 +50,8 @@
   quando `books` muda; não remova esse gatilho.
 - Posição nunca com empate/buraco: `move`/`replaceAll` reescrevem a lista toda;
   `list()` deriva se faltar linha e concluído/órfão só sai na próxima escrita.
-- Arrastar exige toque longo; bloqueia a rolagem nativa, trava o scroll, calcula
-  a prévia do alvo com `onLayout` e confirma com `move` ao soltar.
+- Arrastar exige toque longo; bloqueia a rolagem nativa, calcula a prévia do
+  alvo com `onLayout` e confirma com `move` ao soltar.
 - `Screen` precisa do `ScrollView` do RNGH e o app do `GestureHandlerRootView`;
   no Jest, `react-native-worklets` vai para o mock (senão o RNGH quebra).
 - A Ordem não registra leitura nem muda status; o toque abre o detalhe.

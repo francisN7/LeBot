@@ -222,11 +222,12 @@ export function QueueRow({
         .onFinalize(() => {
           dragging.value = false;
 
+          // Com drop, quem finaliza é o `handleDrop` (commit + fim do scroll
+          // no mesmo lote). Sem drop, a linha volta e o estado é limpo aqui.
           if (!dropped.value) {
             translateY.value = 0;
+            runOnJS(handleDragEnd)();
           }
-
-          runOnJS(handleDragEnd)();
         }),
     [
       dragging,
@@ -270,7 +271,7 @@ export function QueueRow({
 
   return (
     <Animated.View
-      layout={animateLayout ? LinearTransition.duration(220) : undefined}
+      layout={LinearTransition.duration(animateLayout ? 220 : 0)}
       onLayout={(event) => onHeight(event.nativeEvent.layout.height)}
       style={animatedStyle}
     >
