@@ -23,29 +23,35 @@ banco, sem IA. A UI do plano é a S7.
    - `plan.ts` — `buildPlan(input): Plan`, puro, sincrônico, sem `Date.now` e
      sem `Math.random` (a data entra por parâmetro).
    - helpers puros de seleção/alternância de gênero, testáveis isoladamente.
-3. Regras iniciais (a confirmar com o dono no início da sessão):
-   - meta = `goal.pages` limitada a 1–200;
-   - livro ativo = `reading` com sessão mais recente nos últimos 7 dias; sem
-     ele, o primeiro da fila que não esteja `finished`;
-   - no máximo 60% da meta num livro só, salvo se ele estiver a menos disso do
-     fim;
+3. Regras confirmadas pelo dono em 2026-10-31 (detalhes em
+   `docs/planner-algorithm.md` e ADR 0013):
+   - meta = `goal.pages` limitada a 3–200; inválida cai em 3;
+   - meta < 10 não divide o dia: um livro leva a meta (o segundo só se o
+     primeiro acabar);
+   - livro ativo = `reading` com sessão mais recente nos últimos 7 dias
+     (hoje + 6); sem ele, a fila decide;
+   - `paused` e `finished` nunca entram;
+   - no máximo 60% da meta num livro só, só com ativo e meta ≥ 10; o teto é
+     flexível quando não há outro livro para receber a sobra;
    - alternar gênero quando o plano tiver mais de um livro;
    - nunca planejar além do restante (`pages - pagesRead`) de cada livro;
-   - dois dias sem sessão → meta reduzida a 70% ("volta leve");
-   - sem livro disponível → plano vazio com motivo `no-books`.
-4. Testes em `src/features/planner/engine/*.test.ts`: 25+ casos, incluindo
+   - última sessão de qualquer livro há 3+ dias → meta a 70% ("volta leve");
+   - sem livro disponível → plano vazio com motivo `no-books`;
+   - blocos da fila com ativo são `suggestion: true` (leitura paralela).
+4. Testes em `src/features/planner/engine/*.test.ts`: 75 casos, incluindo
    borda (meta 0/negativa, livro no fim, fila vazia, todos concluídos, sessão
    em outro fuso, livro que acaba no meio do plano).
-5. Atualizar `docs/INDEX.md`, `docs/architecture.md` e `docs/testing.md`.
+5. Atualizar `docs/INDEX.md`, `docs/architecture.md`, `docs/testing.md` e
+   registrar o contrato na ADR 0013.
 
 ## Aceite
 
-- [ ] `buildPlan` importa só `src/features/planner/engine/` e tipos — nenhum
+- [x] `buildPlan` importa só `src/features/planner/engine/` e tipos — nenhum
       `react-native`, `@/db` ou `@/features` de UI.
-- [ ] Mesma entrada → mesma saída, sem depender de relógio global.
-- [ ] A soma do plano nunca passa da meta nem do restante de cada livro.
-- [ ] 25+ testes verdes e `docs/planner-algorithm.md` com exemplos conferidos.
-- [ ] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
+- [x] Mesma entrada → mesma saída, sem depender de relógio global.
+- [x] A soma do plano nunca passa da meta nem do restante de cada livro.
+- [x] 75 testes verdes e `docs/planner-algorithm.md` com exemplos conferidos.
+- [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
 
 ## Contexto necessário
 
@@ -62,8 +68,8 @@ banco, sem IA. A UI do plano é a S7.
 
 ## Riscos
 
-- **Regra de produto sem dono:** as porcentagens acima são proposta. Confirmar
-  com o dono antes de codar e registrar a decisão em ADR se mudar.
+- **Regra de produto sem dono:** as porcentagens foram confirmadas pelo dono em
+  2026-10-31 e registradas na ADR 0013.
 - **Fuso e "hoje":** o dia da leitura é `read_at` local. O motor recebe a data
   já resolvida; não usar `new Date()` dentro dele.
 - **Fila fictícia:** `src/features/queue/__fixtures__/queue.ts` ainda manda na

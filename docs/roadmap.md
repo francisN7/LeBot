@@ -20,8 +20,8 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S4b | [x] | ISBN oficial + avisos + capa na Fila | Máscara pela tabela oficial; require cycle cortado; aviso do `ImageBackground` decidido; capa na Fila; conferido no Android | `sessions/S04b-isbn-avisos-fila.md` |
 | S4c | [x] | Movimento e vida | Mola no toque, cascata na grade, detalhe com animação contínua e capa tratada como livro | `sessions/S04c-movimento.md` |
 | S5 | [x] | Registro de leitura | Registrar sessão e ver progresso na hora; piso do progresso travado; conferido no Android | `sessions/S05-registro-leitura.md` |
-| S6 | [ ] | Motor do plano (funções puras) | 25+ testes e algoritmo documentado | `sessions/S06-motor-plano.md` |
-| S7 | [ ] | Plano na UI + tela Hoje | Plano diário ponta a ponta | — |
+| S6 | [x] | Motor do plano (funções puras) | Meta 3–200, volta leve, ativo em 7 dias, teto flexível e 75 testes; algoritmo documentado | `sessions/S06-motor-plano.md` |
+| S7 | [ ] | Plano na UI + tela Hoje | Plano diário ponta a ponta | `sessions/S07-plano-na-ui.md` |
 | S8 | [ ] | Fila e ordem anti-ressaca | Sugestão automática + reordenação | — |
 | S9 | [ ] | Conclusão + resenha | Livro finalizado gera resenha completa | — |
 | S10 | [ ] | Estatísticas e insights | Tela com dados reais | — |

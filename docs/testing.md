@@ -163,7 +163,24 @@ snapshot de imagem nem de árvore para arte.
 - `src/db/repositories/books.test.ts`: a guarda do repositório repete a regra
   mesmo que a UI seja contornada.
 
-A suíte atual tem 35 arquivos e 207 testes (`npm run test`).
+## Cobertura da S6
+
+O motor do plano é testado como função pura, sem banco e sem React Native:
+
+- `src/features/planner/engine/day.test.ts`: dia local `YYYY-MM-DD`, mesma data
+  com horas diferentes, virada do dia, mês, ano e semana.
+- `src/features/planner/engine/rounding.test.ts`: corte em 0,7 (18 × 60% → 11;
+  21 × 70% → 14), extremos inteiros e entrada inválida.
+- `src/features/planner/engine/selection.test.ts`: restante nunca negativo,
+  elegibilidade (pausado/concluído fora), sessão mais recente, ordem da fila,
+  ativo de 6 dias (entra) e 7 dias (não entra), empate pela fila, sessão futura
+  e alternância de gênero.
+- `src/features/planner/engine/plan.test.ts`: dia normal (ativo + sugestão), livro
+  perto do fim, um livro só, plano parcial, fila sem ativo, alternância, meta
+  3–200, meta < 10, volta leve, elegibilidade, invariantes (soma nunca passa da
+  meta nem do restante) e determinismo.
+
+A suíte atual tem 39 arquivos e 282 testes (`npm run test`).
 
 O que continua manual: teclado numérico do Android, tamanho do modal em tela
 pequena e a barra de progresso em densidades diferentes.

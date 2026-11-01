@@ -16,7 +16,7 @@
 | `docs/brand.md` | UI, cores, mascote, ícones | ✅ |
 | `docs/architecture.md` | camadas e fluxo de dados | OK |
 | `docs/data-model.md` | schema e relações | ✅ |
-| `docs/planner-algorithm.md` | regras do plano diário | S6 |
+| `docs/planner-algorithm.md` | regras do plano diário | OK |
 | `docs/design/design-system.md` | tokens e componentes | ✅ |
 | `docs/design/assets-3d.md` | lombadas, mascote, ícone e movimento | ✅ |
 | `docs/sessions/_TEMPLATE.md` | estrutura de uma spec nova | ✅ |

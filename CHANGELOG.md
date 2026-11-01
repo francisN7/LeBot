@@ -5,6 +5,14 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 ## [Unreleased]
 
+### Added
+
+- S6: motor puro do plano diário em `src/features/planner/engine/`
+  (`buildPlan`), com meta 3–200, volta leve após 3 dias, livro ativo em 7 dias,
+  teto flexível de 60% a partir de meta 10, alternância de gênero e sugestão
+  paralela da fila. 75 testes novos (282 na suíte), `docs/planner-algorithm.md`
+  e ADR 0013.
+
 ### Changed
 
 - Auditoria de documentação: `README.md`, `AGENTS.md`, `docs/INDEX.md`,
@@ -25,7 +33,7 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
   e ficam no backlog do roadmap; `npm audit fix --force` rebaixaria o Expo para
   51 e não deve ser usado.
 
-A S5 está concluída e validada no Android; a próxima sessão é a S6.
+A S6 está concluída; a próxima sessão é a S7.
 
 ## S5.1 — Progresso não desce abaixo do histórico
 

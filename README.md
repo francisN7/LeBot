@@ -3,10 +3,9 @@
 App mobile pessoal para catalogar livros, organizar a fila de leitura e receber
 um plano diário que evita ressaca literária.
 
-> **Status:** em desenvolvimento. S5 concluída e validada no Android: cadastro,
-> busca, gêneros personalizados, capas, identidade 3D e registro de leitura com
-> progresso. A S6 entrega o motor do plano diário (funções puras); a UI do plano
-> chega na S7.
+> **Status:** em desenvolvimento. S6 concluída: cadastro, busca, gêneros
+> personalizados, capas, identidade 3D, registro de leitura com progresso e o
+> motor do plano diário (funções puras, 75 testes). A UI do plano chega na S7.
 
 ## O que é
 

@@ -37,9 +37,9 @@ App mobile pessoal para catalogar livros, organizar a fila de leitura e gerar um
 
 - `src/app/` — rotas (Expo Router), sem lógica de negócio.
 - `src/features/<nome>/` — UI, hooks e serviços da feature; expõe `index.ts`
-  (`library`, `genres`, `queue`, `reading`, `settings`, `today`).
-- `src/features/planner/engine/` — algoritmo puro do plano, sem React Native
-  (criado na S6).
+  (`library`, `genres`, `planner`, `queue`, `reading`, `settings`, `today`).
+- `src/features/planner/engine/` — algoritmo puro do plano diário, sem React
+  Native, banco ou relógio global (S6).
 - `src/db/` — schema, client, migrações, seed e repositórios.
 - `drizzle/` — SQL das migrações gerado pelo `drizzle-kit` (não editar à mão).
 - `src/components/ui/` — componentes genéricos e arte vetorial.

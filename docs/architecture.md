@@ -2,7 +2,7 @@
 
 Esqueleto criado na S0; persistência entrou na S2, a biblioteca na S3, os
 gêneros na S3.2 e a identidade 3D na S4. O registro de leitura chegou na S5; o
-motor do plano é a S6. Cresce conforme as sessões entregam camadas.
+motor do plano chegou na S6. Cresce conforme as sessões entregam camadas.
 
 ## Camadas
 
@@ -106,6 +106,18 @@ SQLite (expo-sqlite + Drizzle)
 - Remover um livro ainda deixa as sessões dele órfãs (sem FK). Não afeta o
   progresso; a limpeza entra junto com conclusão/resenha (S9).
 
+## Plano (S6)
+
+- O motor vive em `src/features/planner/engine/` e é puro: `buildPlan(input)`
+  recebe dia, meta, livros, sessões e a ordem da fila; devolve os blocos do dia.
+  Nada de React Native, banco, relógio global ou IA.
+- Regras (meta 3–200, volta leve após 3 dias, ativo em 7 dias, teto flexível de
+  60% a partir de meta 10, alternância de gênero e sugestão paralela) estão em
+  [`docs/planner-algorithm.md`](planner-algorithm.md); a decisão, na ADR 0013.
+- `src/features/planner/index.ts` é o barril da feature; a S7 consome o motor na
+  tela Hoje. A S8 passa a fila real no lugar da fixture. O motor não grava plano
+  nem conhece a fixture.
+
 ## Boot
 
 `src/app/_layout.tsx`:
@@ -133,11 +145,13 @@ Nenhum passo apaga dados ou esconde erro de migração.
   [`docs/adr/0011-arte-vetorial-parametrica.md`](adr/0011-arte-vetorial-parametrica.md)
 - Progresso de leitura:
   [`docs/adr/0012-progresso-e-status-automatico.md`](adr/0012-progresso-e-status-automatico.md)
+- Motor do plano:
+  [`docs/adr/0013-motor-do-plano.md`](adr/0013-motor-do-plano.md)
 
 ## Pendências conhecidas
 
 - A tela Hoje ainda usa o plano fictício: só a meta diária vem de `settings`.
-  O motor entra na S6 (funções puras) e o plano na UI/persistência na S7; a
+  O motor existe desde a S6; a S7 consome na UI e decide sobre persistência. A
   fila continua manual até a S8. O botão "Começar sessão" da Hoje ainda mostra
   "Em breve".
 - Os ícones e o splash já são definitivos desde a S4a
