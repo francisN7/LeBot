@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 
 import { AppText, Button, Card, Screen } from '@/components/ui';
@@ -53,8 +53,21 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
   const { items, move, replaceAll } = useQueue();
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragPreview, setDragPreview] = useState<DragPreview | null>(null);
+  const [commitDrop, setCommitDrop] = useState(false);
   const dragPreviewRef = useRef<DragPreview | null>(null);
   const heights = useRef(new Map<string, number>());
+
+  // O drop já está na posição visual final (a prévia abriu o espaço). Uma
+  // transição de layout aqui faria a linha "passear" de novo; desligamos só
+  // nesse commit e religamos depois para as setas continuarem animadas.
+  useEffect(() => {
+    if (!commitDrop) {
+      return;
+    }
+
+    const id = setTimeout(() => setCommitDrop(false), 80);
+    return () => clearTimeout(id);
+  }, [commitDrop]);
 
   const booksById = useMemo(
     () => new Map(books.map((book) => [book.id, book])),
@@ -190,6 +203,7 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
 
   function handleDrop(bookId: string, translationY: number) {
     const result = targetFor(bookId, translationY);
+    setCommitDrop(true);
     clearDragPreview();
 
     if (result && result.target !== result.from) {
@@ -227,11 +241,13 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
 
     return (
       <QueueRow
+        animateLayout={!commitDrop}
         book={entry.book}
         canMoveDown={index < groupEnd}
         canMoveUp={index > groupStart}
         genreColor={genre?.colorLight ?? colors.navyMuted}
         genreName={genre?.name ?? UNKNOWN_GENRE_NAME}
+        instantPreview={commitDrop}
         isPrincipal={entry.bookId === principalId}
         key={entry.bookId}
         note={entry.note}
@@ -242,6 +258,7 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
         }}
         onDragMove={(offset) => handleDragMove(entry.bookId, offset)}
         onDragStart={() => {
+          setCommitDrop(false);
           clearDragPreview();
           setDraggingId(entry.bookId);
         }}

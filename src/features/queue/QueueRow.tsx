@@ -32,6 +32,10 @@ type QueueRowProps = {
   note: string | null;
   /** Deslocamento que abre o espaço do destino enquanto outra linha arrasta. */
   previewShift?: number;
+  /** Desliga a transição de layout no commit do drop. */
+  animateLayout?: boolean;
+  /** Zera a prévia na hora, sem animação, no commit do drop. */
+  instantPreview?: boolean;
   onOpen: () => void;
   onUp: () => void;
   onDown: () => void;
@@ -100,6 +104,8 @@ export function QueueRow({
   canMoveDown,
   note,
   previewShift = 0,
+  animateLayout = true,
+  instantPreview = false,
   onOpen,
   onUp,
   onDown,
@@ -139,8 +145,10 @@ export function QueueRow({
   }, []);
 
   useEffect(() => {
-    preview.value = withTiming(previewShift, { duration: 140 });
-  }, [preview, previewShift]);
+    preview.value = instantPreview
+      ? previewShift
+      : withTiming(previewShift, { duration: 140 });
+  }, [instantPreview, preview, previewShift]);
 
   useEffect(() => {
     sheen.value = withRepeat(
@@ -217,7 +225,7 @@ export function QueueRow({
 
   return (
     <Animated.View
-      layout={LinearTransition.duration(220)}
+      layout={animateLayout ? LinearTransition.duration(220) : undefined}
       onLayout={(event) => onHeight(event.nativeEvent.layout.height)}
       style={animatedStyle}
     >

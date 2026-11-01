@@ -243,4 +243,5 @@ O que continua manual: conferir a Hoje no Android (toque no botão do bloco,
 modal com o valor do plano e virada do dia), a ordem das abas e a legenda da
 Ordem em tela pequena; na S8, segurar a alça (toque longo) e arrastar uma linha
 no topo/fim de uma lista maior que a tela, conferindo a prévia que abre espaço,
-a rolagem vertical, a animação das setas e as setas com leitor de tela.
+o drop sem animação, a rolagem vertical, a animação das setas e as setas com
+leitor de tela.

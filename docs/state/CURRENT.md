@@ -16,9 +16,9 @@
   sem adicionar/remover (ADR 0017).
 - O primeiro Lendo é o principal (coroa/"Principal") e o bloco `active` do
   plano; o motor não usa mais a sessão mais recente para escolher o ativo.
-- Arrastar (toque longo na alça de 3 barras, com brilho e prévia de troca) ou
-  setas animadas; não cruza blocos. Novo Lendo entra no fim de "Lendo agora" e
-  "Sugerir ordem" alterna gênero por bloco.
+- Arrastar (toque longo na alça de 3 barras, com brilho e prévia; drop sem
+  animação) ou setas animadas; não cruza blocos. Novo Lendo entra no fim de
+  "Lendo agora" e "Sugerir ordem" alterna gênero por bloco.
 - Repositório com `list`/`sync`/`move`/`replaceAll` em transação; os hooks
   sincronizam quando a estante muda e reordenar atualiza a Hoje.
 - `Screen` usa o `ScrollView` do RNGH e o root monta `GestureHandlerRootView`;

@@ -142,8 +142,9 @@ SQLite (expo-sqlite + Drizzle)
   alça (três barras) exige toque longo, entrega o deslocamento, a tela trava o
   scroll e soma as alturas medidas. Durante o arraste, as linhas entre origem e
   destino abrem espaço com uma prévia animada; ao soltar, `move` confirma. As
-  setas ↑/↓ fazem o mesmo e são o caminho acessível; a troca de posição é
-  animada com `LinearTransition`. `move` não deixa cruzar os blocos.
+  setas ↑/↓ fazem o mesmo e são o caminho acessível; a troca por seta é animada
+  com `LinearTransition`, mas o drop da alça confirma sem animação porque a
+  prévia já abriu o espaço. `move` não deixa cruzar os blocos.
 - "Sugerir ordem" (`suggest-order.ts`) alterna gênero dentro de cada bloco; o
   primeiro Lendo não muda, então o principal é preservado.
 - Reordenar não toca em `books.status`: registrar leitura continua sendo só na
