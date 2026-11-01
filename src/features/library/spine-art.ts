@@ -2,8 +2,8 @@
  * Lombada 3D: mapa puro de **cor do gênero + status** para a arte.
  *
  * Não existe asset por cor. A partir da S3.2 o gênero guarda um par de hexes
- * livre, então a lombada é paramétrica: a cor vem do banco e sombra/brilho são
- * derivados (`color-mix`). A expressão do rosto vem do status de leitura.
+ * livre, então a lombada é paramétrica: a cor vem do banco e as faces, sombras
+ * e o tassel são derivados (`mixHex`). A expressão do rosto vem do status.
  *
  * Sem status, ou com hex inválido (gênero corrompido), a UI cai na lombada 2D.
  */
@@ -24,14 +24,24 @@ import type { ReadingStatus } from './types';
 export type SpineExpression = 'happy' | 'sleepy' | 'shine' | 'neutral';
 
 export type SpinePalette = {
-  /** Fundo da lombada: a cor do gênero. */
+  /** Frente da lombada: a cor do gênero. */
   base: string;
-  /** Faixa lateral direita, mais escura, que dá o volume. */
-  shade: string;
-  /** Faixas do topo/base e brilho vertical. */
+  /** Face lateral direita, mais escura: dá o volume. */
+  side: string;
+  /** Vinco/charneira à esquerda e arestas de topo/base. */
+  edge: string;
+  /** Luz do gradiente da frente. */
+  light: string;
+  /** Sombra de contato e sombra projetada pela lateral. */
+  shadow: string;
+  /** Faixas do topo/base e brilho que varre a lombada. */
   highlight: string;
+  /** Fita do tassel na base, derivada da cor e do rosto. */
+  accent: string;
   /** Rosto e linhas. Vira creme quando o fundo é escuro. */
   ink: string;
+  /** Paradas do gradiente da frente: vinco → base → luz → lateral. */
+  gradient: readonly [string, string, string, string];
 };
 
 export type SpineArt =
@@ -47,7 +57,7 @@ export const expressionByStatus: Record<ReadingStatus, SpineExpression> = {
   finished: 'shine',
 };
 
-/** Abaixo disso o fundo é escuro o bastante para a sombra seguir o preto. */
+/** Abaixo disso o fundo é escuro o bastante para sombra/lateral seguirem preto. */
 const DARK_LUMINANCE = 0.35;
 
 function fallback(color: string | null | undefined): SpineArt {
@@ -61,19 +71,27 @@ function fallback(color: string | null | undefined): SpineArt {
 
 function paletteFor(base: string): SpinePalette {
   const dark = relativeLuminance(base) < DARK_LUMINANCE;
+  const shadeWith = dark ? '#000000' : colors.navy;
+  const ink =
+    contrastRatio(base, colors.navy) >= MIN_CONTRAST
+      ? colors.navy
+      : colors.cream;
+  const side = mixHex(base, shadeWith, dark ? 0.45 : 0.4);
+  const edge = mixHex(base, shadeWith, dark ? 0.28 : 0.2);
+  const light = mixHex(base, colors.cream, dark ? 0.2 : 0.16);
 
   return {
     base,
-    shade: dark
-      ? mixHex(base, '#000000', 0.35)
-      : mixHex(base, colors.navy, 0.3),
+    side,
+    edge,
+    light,
+    shadow: mixHex(base, shadeWith, 0.55),
     highlight: dark
       ? mixHex(base, colors.cream, 0.28)
       : mixHex(base, colors.cream, 0.6),
-    ink:
-      contrastRatio(base, colors.navy) >= MIN_CONTRAST
-        ? colors.navy
-        : colors.cream,
+    accent: mixHex(base, ink, 0.45),
+    ink,
+    gradient: [edge, base, light, side],
   };
 }
 

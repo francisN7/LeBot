@@ -15,6 +15,7 @@ describe('BookCover', () => {
 
     expect(screen.getByLabelText('Capa de O Hobbit')).toBeOnTheScreen();
     expect(screen.getByTestId('capa-hobbit-bookmark')).toBeOnTheScreen();
+    expect(screen.getByTestId('capa-hobbit-pages')).toBeOnTheScreen();
   });
 
   it('vira botão quando tem onPress', async () => {
@@ -63,7 +64,32 @@ describe('BookCover', () => {
     );
 
     expect(screen.getByTestId('capa-selo-stamp')).toBeOnTheScreen();
+    expect(screen.getByTestId('capa-selo-stamp-face-shine')).toBeOnTheScreen();
   });
+
+  it.each([
+    ['reading', 'happy'],
+    ['queued', 'neutral'],
+    ['paused', 'sleepy'],
+    ['finished', 'shine'],
+  ] as const)(
+    'status %s usa o rosto %s no selo',
+    async (status, expression) => {
+      await render(
+        <BookCover
+          genreColor="#123456"
+          status={status}
+          testID="capa-selo"
+          title="O Hobbit"
+          uri="file:///covers/1.jpg"
+        />,
+      );
+
+      expect(
+        screen.getByTestId(`capa-selo-stamp-face-${expression}`),
+      ).toBeOnTheScreen();
+    },
+  );
 
   it('não mostra selo no preview sem status', async () => {
     await render(

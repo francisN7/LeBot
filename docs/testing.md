@@ -366,4 +366,27 @@ tela pequena — conferido em 2026-11-01. O `backup/service.ts` é a camada nati
 e não entra no Jest; o `backup/format.ts`, o `archive.ts` e o repositório são
 testados sem SQLite nativo.
 
-A suíte atual tem 64 arquivos e 486 testes (`npm run test`).
+## Cobertura da S11a
+
+- `src/features/library/spine-art.test.ts`: lateral/vinco/sombra mais escuros
+  que a base, luz/brilho mais claros, gradiente de quatro paradas, tassel entre
+  base e rosto, faces escuras mesmo com gênero escuro, expressão por status,
+  rosto navy/creme e fallback 2D sem status/hex/cor.
+- `src/components/ui/BookArt.test.tsx`: lombada 52×128 e 42×104 sem capa; capa
+  88×128 e 72×104 com capa; mesma altura dentro de cada par. A dimensão é lida
+  do wrapper `-frame` com `StyleSheet.flatten`, sem snapshot.
+- `src/components/ui/Spine.test.tsx`: arte 3D, rosto por status (feliz, neutro,
+  sonolento, brilho), tassel na base, fallback 2D sem status, etiqueta oculta e
+  `onPress`. O SVG é decorativo (`accessibilityElementsHidden`); por isso as
+  consultas de face/tassel usam `{ includeHiddenElements: true }`.
+- `src/components/ui/BookCover.test.tsx`: face de páginas (`-pages`), selo por
+  status nos quatro estados e ausência de selo sem status.
+- `src/features/library/BookFormScreen.test.tsx`: o preview mostra o selo do
+  status escolhido — neutro por padrão e brilho depois de tocar em "Concluído".
+
+O que continua manual: no Android, o volume da lateral (5 px no cheio, ~4 px no
+compacto), o tassel em 42×104, o rosto no selo de 18–26 px, a face de páginas
+sobre fotos claras, a sombra de contato e o alinhamento da grade com lombadas de
+52 px. A piscada do selo não é afirmada por frames; validamos montagem e props.
+
+A suíte atual tem 65 arquivos e 505 testes (`npm run test`).

@@ -8,6 +8,7 @@ export {
   resolveGenreColor,
 } from './genre-colors';
 export { type RadiusToken, radii } from './radii';
+export { contactShadow } from './shadows';
 export { borderWidths, opacities, sizes } from './sizes';
 export { type SpacingToken, spacing } from './spacing';
 export {

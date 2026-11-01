@@ -45,7 +45,7 @@ export function FinishedStrip({
           >
             <Spine
               color={genreColor(book.genreId) ?? colors.navyMuted}
-              height={44}
+              height={74}
               onPress={onOpenBook ? () => onOpenBook(book.bookId) : undefined}
               showLabel={false}
               status="finished"

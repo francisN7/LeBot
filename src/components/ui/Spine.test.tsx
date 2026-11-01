@@ -37,12 +37,52 @@ describe('Spine', () => {
     expect(screen.getByTestId('lombada-art')).toBeOnTheScreen();
   });
 
+  it.each([
+    ['reading', 'happy'],
+    ['queued', 'neutral'],
+    ['paused', 'sleepy'],
+    ['finished', 'shine'],
+  ] as const)('status %s desenha o rosto %s', async (status, expression) => {
+    await renderWithProviders(
+      <Spine
+        color={colors.teal}
+        status={status}
+        testID="lombada"
+        title="Sapiens"
+      />,
+    );
+
+    expect(
+      screen.getByTestId(`lombada-face-${expression}`, {
+        includeHiddenElements: true,
+      }),
+    ).toBeOnTheScreen();
+  });
+
+  it('mostra o tassel na base da lombada', async () => {
+    await renderWithProviders(
+      <Spine
+        color={colors.teal}
+        status="finished"
+        testID="lombada"
+        title="Sapiens"
+      />,
+    );
+
+    expect(
+      screen.getByTestId('lombada-tassel', { includeHiddenElements: true }),
+    ).toBeOnTheScreen();
+  });
+
   it('fica na lombada 2D sem status', async () => {
     await renderWithProviders(
       <Spine color={colors.teal} testID="lombada" title="Sapiens" />,
     );
 
     expect(screen.queryByTestId('lombada-art')).not.toBeOnTheScreen();
+    expect(
+      screen.queryByTestId('lombada-tassel', { includeHiddenElements: true }),
+    ).not.toBeOnTheScreen();
   });
 
   it('esconde a etiqueta quando showLabel é falso', async () => {

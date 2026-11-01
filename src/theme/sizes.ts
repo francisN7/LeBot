@@ -1,7 +1,13 @@
 /** Tamanhos de componentes que não cabem na escala de espaçamento. */
 export const sizes = {
-  spine: { width: 88, height: 128 },
-  spineCompact: { width: 72, height: 104 },
+  /**
+   * Capa com foto: 2:3. A lombada sem capa é mais estreita (`spine`) para ler
+   * como objeto fino; a altura é a mesma nos dois casos.
+   */
+  cover: { width: 88, height: 128 },
+  coverCompact: { width: 72, height: 104 },
+  spine: { width: 52, height: 128 },
+  spineCompact: { width: 42, height: 104 },
   /** Fita de gênero sobre a capa (canto superior esquerdo). */
   bookmark: { width: 18, height: 28 },
   /** Amostra do par de cores na lista e no formulário de gênero. */

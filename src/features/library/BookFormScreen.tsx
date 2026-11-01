@@ -321,6 +321,8 @@ export function BookFormScreen({
             genreColor={
               genreById.get(form.genreId)?.colorLight ?? colors.navyMuted
             }
+            status={form.status}
+            testID="preview-capa"
             title={form.title.trim() || 'Sem título'}
             uri={previewCover}
           />

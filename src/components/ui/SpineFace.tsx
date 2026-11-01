@@ -1,6 +1,16 @@
-import { Circle, Path, Rect } from 'react-native-svg';
+import { useEffect } from 'react';
+import Animated, {
+  useAnimatedProps,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
+import { Circle, G, Path, Rect } from 'react-native-svg';
 
 import type { SpineExpression } from '@/features/library/spine-art';
+
+const AnimatedG = Animated.createAnimatedComponent(G);
 
 function star(cx: number, cy: number, radius: number): string {
   const waist = radius * 0.3;
@@ -19,10 +29,10 @@ function star(cx: number, cy: number, radius: number): string {
 }
 
 /**
- * Olhos da lombada no sistema de coordenadas do corpo (100×140).
+ * Olhos no sistema de coordenadas da lombada estreita (52×128).
  * Ficam num grupo separado para a piscada poder animar só eles.
  */
-export function SpineEyes({
+function SpineEyes({
   expression,
   ink,
 }: {
@@ -33,16 +43,16 @@ export function SpineEyes({
     return (
       <>
         <Path
-          d="M29 62 H39"
+          d="M12 56 H21"
           stroke={ink}
           strokeLinecap="round"
-          strokeWidth={4}
+          strokeWidth={3.2}
         />
         <Path
-          d="M61 62 H71"
+          d="M26 56 H35"
           stroke={ink}
           strokeLinecap="round"
-          strokeWidth={4}
+          strokeWidth={3.2}
         />
       </>
     );
@@ -51,8 +61,8 @@ export function SpineEyes({
   if (expression === 'shine') {
     return (
       <>
-        <Path d={star(34, 62, 10)} fill={ink} />
-        <Path d={star(66, 62, 10)} fill={ink} />
+        <Path d={star(16.5, 56, 6.5)} fill={ink} />
+        <Path d={star(30.5, 56, 6.5)} fill={ink} />
       </>
     );
   }
@@ -61,18 +71,18 @@ export function SpineEyes({
     return (
       <>
         <Path
-          d="M28 62 Q34 54 40 62"
+          d="M11 56 Q16.5 49.5 22 56"
           fill="none"
           stroke={ink}
           strokeLinecap="round"
-          strokeWidth={4.5}
+          strokeWidth={3.6}
         />
         <Path
-          d="M60 62 Q66 54 72 62"
+          d="M25 56 Q30.5 49.5 36 56"
           fill="none"
           stroke={ink}
           strokeLinecap="round"
-          strokeWidth={4.5}
+          strokeWidth={3.6}
         />
       </>
     );
@@ -80,14 +90,14 @@ export function SpineEyes({
 
   return (
     <>
-      <Circle cx={34} cy={62} fill={ink} r={6} />
-      <Circle cx={66} cy={62} fill={ink} r={6} />
+      <Circle cx={16.5} cy={56} fill={ink} r={4.4} />
+      <Circle cx={30.5} cy={56} fill={ink} r={4.4} />
     </>
   );
 }
 
-/** Boca da lombada no mesmo sistema de coordenadas dos olhos. */
-export function SpineMouth({
+/** Boca no mesmo sistema de coordenadas dos olhos. */
+function SpineMouth({
   expression,
   ink,
 }: {
@@ -97,11 +107,11 @@ export function SpineMouth({
   if (expression === 'happy') {
     return (
       <Path
-        d="M42 74 Q50 82 58 74"
+        d="M17.5 68 Q23.5 75 29.5 68"
         fill="none"
         stroke={ink}
         strokeLinecap="round"
-        strokeWidth={4}
+        strokeWidth={3.4}
       />
     );
   }
@@ -109,11 +119,11 @@ export function SpineMouth({
   if (expression === 'sleepy') {
     return (
       <Path
-        d="M46 76 Q50 79 54 76"
+        d="M20 69 Q23.5 71.5 27 69"
         fill="none"
         stroke={ink}
         strokeLinecap="round"
-        strokeWidth={3.5}
+        strokeWidth={2.8}
       />
     );
   }
@@ -121,29 +131,61 @@ export function SpineMouth({
   if (expression === 'shine') {
     return (
       <Path
-        d="M42 76 Q50 86 58 76"
+        d="M17.5 69 Q23.5 77 29.5 69"
         fill="none"
         stroke={ink}
         strokeLinecap="round"
-        strokeWidth={4}
+        strokeWidth={3.4}
       />
     );
   }
 
-  return <Rect fill={ink} height={5} rx={2.5} width={12} x={44} y={76} />;
+  return <Rect fill={ink} height={3.6} rx={1.8} width={8} x={19.5} y={68} />;
 }
 
-/** Rosto completo, usado no selo de status sobre a capa. */
+/**
+ * Rosto completo do status, compartilhado pela lombada e pelo selo da capa.
+ *
+ * A piscada anima só a opacidade dos olhos (`happy`/`neutral`), porque `sleepy`
+ * já fecha os olhos e `shine` tem estrelas; boca e acessórios ficam parados.
+ * Usar o mesmo componente nos dois lugares impede as expressões de divergirem.
+ */
 export function SpineFace({
   expression,
   ink,
+  testID,
 }: {
   expression: SpineExpression;
   ink: string;
+  testID?: string;
 }) {
+  const blink = useSharedValue(1);
+  const canBlink = expression === 'neutral' || expression === 'happy';
+
+  useEffect(() => {
+    if (!canBlink) {
+      blink.value = 1;
+      return;
+    }
+
+    blink.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 2600 }),
+        withTiming(0, { duration: 70 }),
+        withTiming(1, { duration: 90 }),
+        withTiming(1, { duration: 180 }),
+      ),
+      -1,
+    );
+  }, [blink, canBlink]);
+
+  const eyesProps = useAnimatedProps(() => ({ opacity: blink.value }));
+
   return (
     <>
-      <SpineEyes expression={expression} ink={ink} />
+      <AnimatedG animatedProps={eyesProps} testID={testID}>
+        <SpineEyes expression={expression} ink={ink} />
+      </AnimatedG>
       <SpineMouth expression={expression} ink={ink} />
     </>
   );

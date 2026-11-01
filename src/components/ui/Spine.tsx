@@ -15,7 +15,7 @@ import { AppText } from '@/components/ui/AppText';
 import { SpineArtwork } from '@/components/ui/SpineArtwork';
 import { resolveSpineArt } from '@/features/library/spine-art';
 import type { ReadingStatus } from '@/features/library/types';
-import { colors, opacities, radii, sizes } from '@/theme';
+import { colors, contactShadow, opacities, radii, sizes } from '@/theme';
 
 type SpineProps = {
   title: string;
@@ -89,7 +89,10 @@ export function Spine({
   }));
 
   return (
-    <Animated.View style={[{ height, width }, motion]}>
+    <Animated.View
+      style={[{ height, width }, contactShadow, motion]}
+      testID={testID ? `${testID}-frame` : undefined}
+    >
       <Pressable
         accessibilityLabel={`Lombada de ${title}`}
         accessibilityRole={onPress ? 'button' : 'image'}
@@ -104,7 +107,7 @@ export function Spine({
         }}
         style={{
           backgroundColor: art.kind === 'art' ? art.palette.base : art.color,
-          borderRadius: radii.md,
+          borderRadius: radii.sm,
           flex: 1,
         }}
         testID={testID}
@@ -115,7 +118,11 @@ export function Spine({
             style={StyleSheet.absoluteFill}
             testID={testID ? `${testID}-art` : undefined}
           >
-            <SpineArtwork expression={art.expression} palette={art.palette} />
+            <SpineArtwork
+              expression={art.expression}
+              palette={art.palette}
+              testID={testID}
+            />
           </View>
         ) : (
           <View
@@ -123,7 +130,7 @@ export function Spine({
             style={{ backgroundColor: colors.navy, opacity: opacities.decor }}
           />
         )}
-        <View className="mt-auto p-sm">
+        <View className="mt-auto p-xs">
           {showLabel ? (
             <View className="rounded-sm bg-cream/95 px-xs py-xs">
               <AppText ellipsizeMode="tail" numberOfLines={2} variant="label">

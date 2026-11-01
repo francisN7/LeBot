@@ -201,6 +201,27 @@ describe('BookFormScreen', () => {
     );
   });
 
+  it('mostra o selo do status escolhido no preview da capa', async () => {
+    const repository = createInMemoryBooksRepository([]);
+    const form = renderForm(repository);
+    await form.render;
+
+    await fireEvent.press(screen.getByText('Escolher capa'));
+
+    expect(
+      screen.getByTestId('preview-capa-stamp-face-neutral'),
+    ).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByText('Concluído'));
+
+    expect(
+      screen.getByTestId('preview-capa-stamp-face-shine'),
+    ).toBeOnTheScreen();
+    expect(
+      screen.queryByTestId('preview-capa-stamp-face-neutral'),
+    ).not.toBeOnTheScreen();
+  });
+
   it('remove a capa antiga ao salvar sem capa', async () => {
     const row = bookRow({ coverUri: 'file:///covers/book-teste.jpg' });
     const repository = createInMemoryBooksRepository([row]);

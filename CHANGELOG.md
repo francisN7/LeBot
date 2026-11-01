@@ -18,6 +18,16 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 ### Added
 
+- S11a: lombada e capa com volume. A lombada sem capa ficou 52×128 (42×104
+  compacta), com frente em gradiente, face lateral de ~10%, vinco, faixas em
+  perspectiva, tassel balançando na base e sombra de contato. A capa trocou a
+  etiqueta de 7% por um bloco de páginas em trapézio de 11% com oito níveis de
+  texto, e o selo passou a usar o mesmo rosto animado da lombada (piscada em
+  feliz/neutro), deslocado para não cobrir as páginas. O preview do formulário
+  manda o status e acompanha o chip. `SpinePalette` ganhou
+  `side`/`edge`/`light`/`shadow`/`accent`/`gradient`; a mini-lombada de "Meu
+  ritmo" foi para 30×74 para manter a proporção. 19 testes novos (505 em 65
+  arquivos); ADR 0022.
 - S11: Ajustes completo e backup manual. A tela ganhou quatro seções (Leitura,
   Organização, Dados e Sobre): a meta diária virou campo editável de 3–200 e
   atualiza a Hoje na hora; Lembrete e Aparência mostram "Em breve" sem valores

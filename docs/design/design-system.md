@@ -55,7 +55,9 @@ Arquivos de configuração: `babel.config.js` (`jsxImportSource: nativewind`),
 
 ### Tamanhos e opacidade (`src/theme/sizes.ts`)
 
-- `sizes.spine` = 88×128; `sizes.spineCompact` = 72×104.
+- `sizes.cover` = 88×128 e `sizes.coverCompact` = 72×104 (capa com foto).
+- `sizes.spine` = 52×128 e `sizes.spineCompact` = 42×104 (lombada sem capa,
+  mais estreita que a capa e com a mesma altura).
 - `sizes.bookmark` = 18×28 (fita sobre a capa); `sizes.genreSwatch` = 48×32
   (par de cores na lista/formulário de gênero).
 - `sizes.chart` = prateleira de "Meu ritmo": `plotHeight` 96, `barMinHeight` 6,
@@ -247,8 +249,15 @@ fallback. Com `onPress` vira botão acessível; use `showLabel={false}` quando o
 título já aparece ao lado (Ordem, detalhe e cards da Estante). Quando o livro tem
 capa, o card usa `BookCover` no lugar da lombada.
 
-Movimento: o toque inclina com mola e `animated` liga a flutuação contínua —
-reserve para telas com um livro só (detalhe), não para a grade.
+Desde a S11a a lombada tem 52×128 (42×104 compacta), mais estreita que a capa:
+frente em gradiente, face lateral de ~10% da largura, vinco à esquerda, faixas
+de topo/base em leve diagonal, tassel na base e sombra de contato curta. O
+viewBox é 52×128; o rosto foi desenhado para esse formato, não comprimido. A
+piscada vive em `SpineFace` e é a mesma do selo da capa.
+
+Movimento: o toque inclina com mola, o tassel balança de leve e `animated` liga a
+flutuação contínua — reserve para telas com um livro só (detalhe), não para a
+grade.
 
 ```tsx
 <Spine
@@ -260,7 +269,8 @@ reserve para telas com um livro só (detalhe), não para a grade.
 ```
 
 O desenho do rosto e das faixas fica em `SpineArtwork` (interno); a etiqueta de
-título continua sobre `cream/95` para o texto pequeno não perder contraste.
+título continua sobre `cream/95` para o texto pequeno não perder contraste
+(padding `xs`, porque a lombada é estreita).
 
 ### `Mascot`
 
@@ -279,15 +289,18 @@ Use com moderação: um mascote por tela.
 ### `BookCover`
 
 Capa com o mesmo acabamento dos cards: `overflow: hidden`, borda navy de 2 px
-(por dentro do tamanho do token) e raio `radii.md`; `resizeMode="cover"`. O
+(por dentro do tamanho do token), raio `radii.md` e `resizeMode="cover"`. O
 rótulo fica no wrapper (`Capa de <título>`), então a imagem não é lida duas
 vezes pelo leitor de tela. Aceita `onPress` e `accessibilityLabel` próprio (o
 preview do formulário usa "Capa escolhida").
 
-Desde a S4c a capa é tratada como livro físico: bloco de páginas na direita,
-brilho diagonal e, com `status`, um selo com o rosto da lombada. `animated` faz
-o brilho atravessar (use no detalhe). Sem `status`, o selo não aparece — é o
-caso do preview no formulário.
+Desde a S4c a capa é tratada como livro físico; a S11a trocou a etiqueta de 7%
+por um **bloco de páginas em trapézio** de 11% da largura, com oito níveis de
+segmentos que leem como texto, vinco na divisa e sombra de contato curta. O
+selo com o rosto do status fica no canto inferior direito, deslocado para a
+esquerda da face de páginas. `animated` faz o brilho atravessar (use no detalhe).
+O selo usa `SpineFace` (mesma piscada da lombada) e só aparece com `status`; o
+preview do formulário passa o status escolhido e acompanha o chip.
 
 ```tsx
 <BookCover
@@ -345,9 +358,10 @@ cartão ou no vazio).
   Cada coluna é acessível com o intervalo e o total por extenso.
 - **Gêneros:** `GenreBars` em barras horizontais na cor do gênero, ordenadas por
   páginas, top 5 + "Outros". Cada linha mostra "N páginas · M concluídos".
-- **Concluídos:** `FinishedStrip` com mini-lombadas (`Spine` 30×44, sem rótulo,
-  status `finished`) clicáveis e o mês abreviado embaixo. Sem concluídos, o card
-  não aparece.
+- **Concluídos:** `FinishedStrip` com mini-lombadas (`Spine` 30×74, sem rótulo,
+  status `finished`) clicáveis e o mês abreviado embaixo. O 30×74 mantém a
+  proporção 1:2,46 da lombada nova (o antigo 30×44 esticava o rosto). Sem
+  concluídos, o card não aparece.
 - **Notas:** `RatingSummary` com média, `RatingStars` de leitura e distribuição
   5→1 em barrinhas douradas. Média e distribuição são de todas as resenhas; o
   cartão diz isso. Tocar numa nota troca o cartão pelos títulos daquela nota

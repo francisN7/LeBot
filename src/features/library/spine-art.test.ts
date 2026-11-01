@@ -35,15 +35,55 @@ describe('resolveSpineArt', () => {
     );
   });
 
-  it('deriva sombra mais escura e brilho mais claro que a base', () => {
+  it('deriva lateral, vinco e sombra mais escuros que a base', () => {
     const { palette } = artOf({ color: colors.gold, status: 'reading' });
 
-    expect(palette.shade).not.toBe(palette.base);
+    for (const shade of [palette.side, palette.edge, palette.shadow]) {
+      expect(shade).not.toBe(palette.base);
+      expect(relativeLuminance(shade)).toBeLessThan(
+        relativeLuminance(palette.base),
+      );
+    }
+  });
+
+  it('deriva luz e brilho mais claros que a base', () => {
+    const { palette } = artOf({ color: colors.gold, status: 'reading' });
+
+    expect(palette.light).not.toBe(palette.base);
     expect(palette.highlight).not.toBe(palette.base);
-    expect(relativeLuminance(palette.shade)).toBeLessThan(
+    expect(relativeLuminance(palette.light)).toBeGreaterThan(
       relativeLuminance(palette.base),
     );
     expect(relativeLuminance(palette.highlight)).toBeGreaterThan(
+      relativeLuminance(palette.base),
+    );
+  });
+
+  it('monta o gradiente da frente em quatro paradas', () => {
+    const { palette } = artOf({ color: colors.purple, status: 'reading' });
+
+    expect(palette.gradient).toEqual([
+      palette.edge,
+      palette.base,
+      palette.light,
+      palette.side,
+    ]);
+  });
+
+  it('deriva o tassel entre a base e o rosto', () => {
+    const { palette } = artOf({ color: colors.gold, status: 'reading' });
+
+    expect(palette.accent).not.toBe(palette.base);
+    expect(palette.accent).not.toBe(palette.ink);
+  });
+
+  it('escurece as faces mesmo quando o gênero já é escuro', () => {
+    const { palette } = artOf({ color: colors.navy, status: 'reading' });
+
+    expect(relativeLuminance(palette.side)).toBeLessThan(
+      relativeLuminance(palette.base),
+    );
+    expect(relativeLuminance(palette.edge)).toBeLessThan(
       relativeLuminance(palette.base),
     );
   });
@@ -65,7 +105,7 @@ describe('resolveSpineArt', () => {
     const escuro = artOf({ color: '#B3A7FF', status: 'reading' }).palette;
 
     expect(escuro.base).not.toBe(claro.base);
-    expect(escuro.shade).not.toBe(claro.shade);
+    expect(escuro.side).not.toBe(claro.side);
   });
 
   it('cai na lombada 2D sem status', () => {

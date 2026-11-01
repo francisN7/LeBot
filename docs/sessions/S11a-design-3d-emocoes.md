@@ -100,8 +100,26 @@ mesmas expressões da lombada sem capa.
    - não afirmar sobre frames de animação; validar montagem e props.
 8. **Docs:** `docs/design/assets-3d.md` (formato, faces, largura, movimento),
    `docs/design/design-system.md` (`Spine`, `BookCover`),
-   `docs/testing.md`, `CURRENT.md`, `roadmap.md`, `CHANGELOG.md` e ADR 0020 para
+   `docs/testing.md`, `CURRENT.md`, `roadmap.md`, `CHANGELOG.md` e ADR 0022 para
    a técnica de volume (SVG com faces × perspectiva nativa).
+
+## Ajustes na execução (2026-11-01)
+
+Decididos com o dono antes de codar:
+
+- A ADR de volume é a **0022** (a 0020 é a das estatísticas).
+- O `FinishedStrip` usa **30×74** (proporção 1:2,46) no lugar de 30×44; a
+  fileira de concluídos fica ~30 px mais alta, mas o rosto não estica.
+- O tassel **balança sempre** (±2,8°, 1,7 s, ida e volta), só com `transform`.
+- A cor do tassel é derivada (`accent` = 45% entre a base e o `ink`); não foi
+  preciso passar uma segunda cor do gênero por `BookArt`/`Spine`.
+- `showLabel` continua **true** por padrão; o padding caiu para `xs`.
+- O selo da capa foi deslocado para a esquerda da face de páginas
+  (`right = página + xs`).
+- A sombra de contato é nativa (`contactShadow`) nos dois objetos, não desenhada
+  dentro do SVG: uma faixa vazia no rodapé faria o livro parecer flutuando.
+- Validação visual: código + testes + export; a conferência no Android fica com
+  o dono.
 
 ## Aceite
 

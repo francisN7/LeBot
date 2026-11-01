@@ -6,8 +6,8 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 
 > A S4c foi implementada antes da S4b por decisão do dono; a tabela segue a numeração das sessões, e não a ordem em que foram executadas.
 >
-> A S11a é um plano de design para depois da S11; pode ser antecipada se o dono
-> pedir. O nome segue a numeração, como a S8a.
+> A S11a saiu depois da S11 e antes do release interno (S12); a conferência
+> visual no Android é o único item pendente dela.
 >
 > Antes da S6, uma auditoria de documentação conferiu README, AGENTS e docs
 > vivos contra o código da S5 (sem antecipar o motor do plano).
@@ -31,8 +31,8 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S9 | [x] | Conclusão + resenha | Nota/texto/citação, campos extras em Ajustes e selo na Estante; conferido no Android | `sessions/S09-conclusao-resenha.md` |
 | S10 | [x] | Estatísticas e insights | "Meu ritmo" na Estante com períodos civis (semana/mês/3 meses/ano), linha do tempo em "Ver tudo" e notas com drill-down; conferido no Android | `sessions/S10-estatisticas.md` |
 | S11 | [x] | Configurações + backup ZIP | Meta diária editável, backup `.zip` com JSON + capas (pasta escolhida no export), "Em breve" em lembrete/tema, fila saneada e remontagem após restaurar; 486 testes; conferido no Android | `sessions/S11-configuracoes-backup.md` |
-| S11a | [ ] | Design 3D da lombada e emoções | Lombada estreita (52 px) com tassel, capa com páginas em perspectiva e selo com piscada por status; conferido no Android | `sessions/S11a-design-3d-emocoes.md` |
-| S12 | [ ] | Release interno | APK instalável no Android; ícone, splash e camada adaptativa conferidos no launcher | — |
+| S11a | [~] | Design 3D da lombada e emoções | Lombada estreita (52 px) com tassel, capa com páginas em perspectiva e selo com piscada por status; implementado e testado, falta conferir no Android | `sessions/S11a-design-3d-emocoes.md` |
+| S12 | [ ] | Release interno | APK instalável no Android; ícone, splash e camada adaptativa conferidos no launcher | `sessions/S12-release-interno.md` |
 | S13 | [ ] | Documentação final + limpeza | Sub-sessões no padrão Xa/Xb; backlog reordenado pela prioridade do dono; itens descartados removidos dos docs; docs revisados e changelog fechado | `sessions/S13-documentacao-final.md` |
 
 ## Backlog pós-MVP

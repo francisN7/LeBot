@@ -16,6 +16,9 @@ type BookArtProps = {
 /**
  * Capa real quando existe, lombada 3D quando não. A Ordem e a tela Hoje
  * mostram o mesmo objeto, então a escolha vive num lugar só.
+ *
+ * A capa e a lombada têm larguras próprias (a lombada é mais estreita, como um
+ * livro fino); a altura do par é a mesma para o card não mudar de tamanho.
  */
 export function BookArt({
   book,
@@ -24,20 +27,26 @@ export function BookArt({
   onPress,
   testID,
 }: BookArtProps) {
-  const { height, width } = compact ? sizes.spineCompact : sizes.spine;
+  const coverUri = book.coverUri;
+  const withCover = hasCover(coverUri);
+  const size = withCover
+    ? compact
+      ? sizes.coverCompact
+      : sizes.cover
+    : compact
+      ? sizes.spineCompact
+      : sizes.spine;
   const common = {
-    height,
+    height: size.height,
     onPress,
     status: book.status,
     testID,
     title: book.title,
-    width,
+    width: size.width,
   };
 
-  if (hasCover(book.coverUri)) {
-    return (
-      <BookCover {...common} genreColor={genreColor} uri={book.coverUri} />
-    );
+  if (withCover) {
+    return <BookCover {...common} genreColor={genreColor} uri={coverUri} />;
   }
 
   return <Spine {...common} color={genreColor} showLabel={false} />;
