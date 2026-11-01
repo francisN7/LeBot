@@ -26,7 +26,7 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
   Tabelas `reviews` (nota com `CHECK`, citação em coluna própria para a futura
   galeria e extras JSON) e `review_fields`, com migração aditiva `0006` (ADR
   0019). 41 testes novos (391 na suíte); lint, typecheck, test, doctor e export
-  verdes; conferência no Android pendente.
+  verdes; conferido no Android em 2026-11-01.
 - S8a: troca rápida de status na Estante. Segurar o chip (~500 ms) abre uma
   roda radial flutuante na mesma tela, centrada no toque do chip; as quatro
   opções abrem em círculo com mola e a opção sob o dedo ganha destaque. Deslizar

@@ -82,7 +82,7 @@ se o livro for reaberto.
 - [x] Selo `★★★★` na Estante só em concluído com resenha, sem desalinhar a
       grade.
 - [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
-- [ ] Conferido no Android.
+- [x] Conferido no Android em 2026-11-01.
 
 ## Contexto necessário para retomar
 

@@ -2,10 +2,9 @@
 
 ## Sessão
 
-- **Atual:** nenhuma sessão aberta; S9 implementada em 2026-11-01, com a
-  conferência no Android pendente.
-- **Última concluída:** S9 (resenha + campos extras); falta o aceite manual no
+- **Atual:** nenhuma sessão aberta; S9 concluída em 2026-11-01 e conferida no
   Android.
+- **Última concluída:** S9 (resenha + campos extras).
 - **Próxima:** S10 (estatísticas e insights) — spec em
   `docs/sessions/S10-estatisticas.md`.
 - **Planejada:** S11a (design 3D da lombada e emoções), depois da S11 — spec em
@@ -32,13 +31,10 @@
   extras JSON) e `review_fields`; migração aditiva `0006`. Excluir o livro apaga
   a resenha na mesma transação (ADR 0019).
 - 41 testes novos (391 em 49 arquivos); lint, typecheck, test, doctor e export
-  verdes. Conferência no Android pendente.
+  verdes. Conferido no Android em 2026-11-01.
 
 ## Decisões abertas
 
-- Conferir no Android: abertura ao concluir (detalhe e Hoje), teclado
-  multilinha, acordeão dos chips, cadastro em Ajustes, selo e alinhamento da
-  grade.
 - S11a (planejada): decisões fechadas; a lombada sem capa fica mais estreita
   (52×128; compacta 42×104) e a capa mantém 88×128 (72×104 compacta), com o
   desenho redesenhado no novo formato, tassel, páginas com texto e selo animado.
