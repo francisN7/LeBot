@@ -6,8 +6,9 @@
 - **Última concluída:** S11b — tassel C animado com `matrix` no `G`, conferido no
   Android (no lab, `rotation` ficou parado e `matrix`/View animaram). A corda é
   cortada pela silhueta do corpo para não soltar do topo.
-- **Próxima:** S11c — Estante fluida (o dono viu ~10 fps na grade com muitas
-  lombadas), spec em `docs/sessions/S11c-estante-performance.md`; depois S12.
+- **Próxima:** S11c — Estante fluida; baseline dev com 5 livros: **UI 11 fps /
+  JS 56 fps**. Plano decidido na spec
+  `docs/sessions/S11c-estante-performance.md`; depois S12.
 
 ## Pronto (S11b)
 
@@ -29,8 +30,6 @@
 
 ## Decisões abertas
 
-- **S11c:** medir dev × release antes de otimizar; virtualizar a grade e isolar
-  as camadas animadas, sem remover animação.
 - S12: decidir build local (prebuild + Gradle) × EAS antes do APK.
 - Backlog: galeria de citações, `finished_at`, grid ajustável, animações do
   mascote, `useReducedMotion`, tema escuro e temas extras.

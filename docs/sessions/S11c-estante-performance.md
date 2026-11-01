@@ -2,96 +2,110 @@
 
 ## Objetivo
 
-Fazer a Estante rodar a 60 fps (ou sem queda perceptível) no Android, mantendo o
-balanço do tassel, o brilho que varre a lombada e a piscada, e medir antes e
-depois.
+Fazer a Estante rodar a 60 fps (ou sem queda perceptível) no Android com **5
+lombadas**, mantendo o balanço do tassel, o brilho que varre a lombada e a
+piscada; e deixar a grade pronta para escalar com muitas lombadas.
 
 ## Contexto
 
-- A Estante monta a grade num `View` com `flexWrap` dentro de um `ScrollView`:
-  **sem virtualização**. Todas as lombadas visíveis (e as de baixo) montam e
-  animam ao mesmo tempo.
+- **Medição do dono (dev, 5 livros):** UI **11 fps**, JS **56 fps**, Layout 1 ms.
+  O JavaScript está saudável; o gargalo é a thread de UI desenhando SVG. Não é
+  re-render de React nem tamanho da grade.
 - Cada lombada é um `<Svg>` grande: corpo, faixas, nervuras, rosto, brilho e
   tassel. O tassel anima **quatro matrizes** contínuas no mesmo SVG (corpo,
-  cabeça, franja e sombra); cada atualização invalida o SVG inteiro. A sombra do
-  tassel usa `FeGaussianBlur` **dentro** do grupo animado, então o blur pode ser
+  cabeça, franja e sombra); cada atualização invalida o SVG inteiro. A sombra usa
+  `FeGaussianBlur` **dentro** do grupo animado, então o blur pode ser
   re-rasterizado a cada frame.
-- O brilho anima a prop `x` de um `Rect` dentro do corpo: também invalida o SVG
-  do corpo enquanto varre.
-- O relato do dono é ~10 fps na Estante, com muitas animações. Um dev build é
-  mais lento que o release, mas 10 fps indica custo estrutural, não só overhead
-  de desenvolvimento.
+- O brilho anima a prop `x` de um `Rect` dentro do corpo; o “zzz” anima opacidade
+  no mesmo SVG. Os dois também invalidam o corpo inteiro.
+- Com 5 livros o custo já derruba: é por lombada **animada**, não pelo número de
+  cards. A virtualização não resolve o caso atual, mas é obrigatória para 30+.
+- Um dev build é mais lento que o release; o número final será medido no APK da
+  S12, mas a estrutura se corrige aqui.
 
 ## Fora de escopo
 
 - Remover o tassel, o brilho ou a piscada, ou mudar o modelo C aprovado.
 - Redesenhar a lombada, a capa, o rosto ou os tamanhos.
 - Trocar versões de Reanimated/react-native-svg.
-- S12 (release interno), exceto usar um build release para medir.
+- S12 (release interno), exceto usar o build release para a medição final.
+
+## Decisões fechadas
+
+- Isolar as camadas animadas **antes** de virtualizar a grade.
+- A corda do tassel passa a começar em `y=2.1` e o `bodyClip` sai: o clip atual
+  já esconde acima de ~1,08, então o comprimento visível fica equivalente e a
+  corda não descola do topo.
+- A técnica do tassel é a **3** do lab da S11b (`Animated.View` + `transform`),
+  confirmada no Android.
 
 ## Tarefas
 
-1. **Medir antes**, no aparelho: Perf Monitor (JS e UI) com poucas lombadas e com
-   a estante cheia; anotar fps em dev e em release. O número do release é o que
-   vale para decidir.
-2. **Virtualizar a grade:** `FlatList` com `numColumns={2}` e
+1. **Registrar o baseline** medido (UI 11 / JS 56 com 5 livros, dev) e repetir o
+   roteiro no fim.
+2. **Separar o corpo estático das camadas animadas** — o ganho principal:
+   - corpo, faixas, nervuras e rosto num `Svg` que não é tocado por frame;
+   - tassel (corda+cabeça, franja e sombra) em SVGs pequenos, movidos por
+     `Animated.View`/`transform`; a matriz sai do SVG grande;
+   - “zzz” num `Svg` próprio (só opacidade);
+   - brilho num `Svg` próprio com o clip do corpo, animando só ali.
+3. **Tirar o `FeGaussianBlur` do caminho animado:** sombra com `Ellipse` de
+   gradiente radial (visual equivalente, sem bitmap por frame).
+4. **Corda em `y=2.1`**, sem `bodyClip`; conferir no 64, no 52 e nos 3 gêneros.
+5. **Medir de novo com 5 livros** e comparar UI/JS. Se ainda não chegar a 60,
+   investigar o brilho e a piscada antes de mexer na grade.
+6. **Virtualizar a grade** para escala: `FlatList` com `numColumns={2}` e
    `ListHeaderComponent` (saudação, busca, filtros e resumo), mantendo o
-   `StatusWheelTrigger`, os slots de resenha e as alturas. Só monta o que está
-   perto da tela.
-3. **Isolar o tassel do corpo:** deixar corpo/rosto/faixas num SVG estático e
-   animar o tassel (corda+cabeça, franja, sombra) em SVGs pequenos com
-   `Animated.View`/transform (técnica 3 do lab da S11b) ou matriz num SVG
-   separado. O corpo deixa de ser redesenhado a cada frame. Manter o clip da
-   corda e o modelo C.
-4. **Tirar o `FeGaussianBlur` do caminho animado:** trocar a sombra por um
-   `Ellipse` com gradiente radial (visual equivalente, sem bitmap por frame).
-5. **Brilho:** animar um overlay separado com transform de `View` (ou deixar o
-   `x` num SVG só do brilho), para o corpo estático não invalidar.
-6. **Cache e memo:** `renderToHardwareTextureAndroid`/`shouldRasterizeIOS` no
-   corpo estático e `React.memo` nos cards; conferir memória.
-7. **Medir depois** com o mesmo roteiro e registrar os números.
-8. **Docs:** ADR 0024 (ou adendo à 0023) com a técnica e os números;
+   `StatusWheelTrigger`, os slots de resenha e as alturas.
+7. **Medir com estante cheia** (duplicar o seed em teste local) e registrar.
+8. **Cache/memo só se precisar:** `renderToHardwareTextureAndroid`/
+   `shouldRasterizeIOS` no corpo estático e `React.memo` nos cards; conferir
+   memória.
+9. **Docs:** ADR 0024 (ou adendo à 0023) com a técnica e os números;
    `assets-3d.md`, `design-system.md`, `testing.md`, `CURRENT.md`, `roadmap.md`,
    `CHANGELOG.md`.
-9. **Testes:** grade virtualizada, header/filtros/busca, wheel, slots e toque;
-   não afirmar frames.
+10. **Testes:** grade virtualizada, header/filtros/busca, wheel, slots e toque;
+    não afirmar frames.
 
 ## Aceite
 
-- [ ] A Estante com a estante cheia roda a 60 fps (ou sem queda perceptível) no
-      Android, medido antes/depois; o número do release está registrado.
-- [ ] Tassel, brilho e piscada continuam funcionando; nenhuma animação foi
-      removida.
-- [ ] Layout, alturas, busca, filtros, wheel e toque na lombada iguais.
+- [ ] Com **5 livros**, a UI fica em 60 fps (ou sem queda perceptível) no
+      Android; UI/JS medidos antes e depois.
+- [ ] Tassel, brilho e piscada continuam; nenhuma animação foi removida e o
+      modelo C segue igual.
+- [ ] A corda continua presa ao topo, sem `bodyClip` e sem mudar o comprimento
+      visível de forma perceptível.
 - [ ] Sem `FeGaussianBlur` em elemento animado e sem redesenhar o corpo inteiro
       por frame.
+- [ ] A grade virtualizada aguenta muitas lombadas sem mudar layout, alturas,
+      busca, filtros, wheel ou toque.
 - [ ] Testes, lint, typecheck, doctor e export verdes.
 
 ## Contexto necessário
 
-`AGENTS.md`, `docs/state/CURRENT.md`, esta spec, `docs/adr/0023-animacao-do-tassel.md`,
-`src/features/library/EstanteScreen.tsx`, `src/components/ui/Spine.tsx`,
-`SpineArtwork.tsx`, `Card.tsx` e `StatusWheelTrigger.tsx`.
+`AGENTS.md`, `docs/state/CURRENT.md`, esta spec,
+`docs/adr/0023-animacao-do-tassel.md`, `src/features/library/EstanteScreen.tsx`,
+`src/components/ui/Spine.tsx`, `SpineArtwork.tsx`, `Card.tsx` e
+`StatusWheelTrigger.tsx`.
 
 ## Arquivos prováveis
 
-- `src/features/library/EstanteScreen.tsx` (+ teste)
 - `src/components/ui/SpineArtwork.tsx`, `Spine.tsx` (+ teste)
-- `src/components/ui/Card.tsx` (cache/memo)
+- `src/features/library/EstanteScreen.tsx` (+ teste)
+- `src/components/ui/Card.tsx` (cache/memo, se necessário)
 - `docs/adr/0024-*.md`, `docs/design/assets-3d.md`, `docs/testing.md`
 
 ## Riscos
 
-- **Virtualização:** o header e o scroll da Estante podem quebrar; isolar o
+- **Isolar camadas:** o clip da corda, o follow-through da franja e a sombra
+  precisam continuar iguais; conferir no cheio/compacto e em 3 gêneros.
+- **Corda em y=2.1:** validar que a ponta não aparece no pico (10°) e que o
+  comprimento visível não muda de forma perceptível.
+- **Virtualização:** o header e o scroll podem quebrar; isolar o
   `ListHeaderComponent` e conferir a posição do wheel.
-- **Isolar o tassel:** o clip da corda e o filtro da sombra precisam continuar
-  iguais; conferir no cheio e no compacto, em 3 gêneros.
-- **Transform de View × matrix:** a técnica 3 do lab animou; validar que o clip e
-  o follow-through da franja sobrevivem.
-- **Release engana:** medir no dev pode exagerar a queda; não otimizar às cegas
-  antes de ter o número do release.
-- **Memória:** cache de textura em muitas lombadas pode trocar fps por RAM;
-  medir.
+- **Release engana:** o dev build exagera a queda; usar o APK da S12 para o
+  número final.
+- **Memória:** cache de textura em muitas lombadas troca fps por RAM; medir.
 
 ## Próximo depois desta
 
