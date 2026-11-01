@@ -78,12 +78,14 @@ SQLite (expo-sqlite + Drizzle)
   (`expo-file-system`) e remove ao trocar/excluir. A implementação nativa
   (`cover-service.ts`) é montada no `_layout.tsx` via `CoverServiceProvider`;
   as telas recebem o serviço por contexto e os testes recebem um fake.
-- Troca rápida de status: segurar o chip da Estante abre a `QuickStatusSheet`
-  (folha modal) com a capa/lombada grande e a `StatusWheel`. Deslizar só muda a
-  prévia (o card e a arte da folha acompanham); soltar o dedo ou tocar numa
-  opção confirma e grava via `useBooks().update`. Tocar fora ou em "Cancelar"
-  fecha sem gravar. A conta offset → status é pura
-  (`status-from-offset.ts`); concluir preenche `pages_read` (ADR 0018).
+- Troca rápida de status: segurar o chip da Estante abre uma roda radial
+  flutuante na mesma tela (`StatusWheelOverlay`), centrada no toque. O `Pan` do
+  `StatusWheelTrigger` usa `activateAfterLongPress(500)` e continua rastreando o
+  mesmo toque; deslizar escolhe o setor, o card e o rosto da lombada acompanham
+  a prévia e soltar grava via `useBooks().update`. Voltar ao miolo ou tocar fora
+  cancela. A geometria ângulo → status e o clamp na tela são puros
+  (`status-wheel-geometry.ts`); a roda fica na mesma janela, sem `Modal`, para
+  não cancelar o gesto. Concluir preenche `pages_read` (ADR 0018).
 - Decisão: ADR 0009.
 
 ## Gêneros (S3.2)

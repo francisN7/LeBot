@@ -8,16 +8,20 @@
 
 ## Pronto (S8a)
 
-- Segurar o chip de status (~500 ms) abre a `QuickStatusSheet`; o toque simples
-  continua sem trocar status. A folha mostra capa/lombada, título e a
-  `StatusWheel` com os quatro status. Deslizar só pré-visualiza (card e arte
-  acompanham); soltar/tocar confirma e fecha; tocar fora/Cancelar descarta.
-- `status-from-offset.ts` é a conta pura offset → status. A roda é um
-  `ScrollView` vertical com snap. A11y: chip com hint + ação "Trocar status";
-  roda `adjustable` com increment/decrement.
+- Segurar o chip de status (~500 ms) abre a roda radial flutuante na mesma tela,
+  centrada no toque do chip. As quatro opções abrem em círculo com mola;
+  deslizar o dedo escolhe pelo ângulo, o rosto/capa e o chip acompanham a prévia
+  e soltar grava. Voltar ao miolo, tocar fora ou a ação de cancelar descartam.
+- O gesto é um `Pan` da RNGH com `activateAfterLongPress(500)`: o mesmo toque
+  continua sendo rastreado depois de a roda abrir, sem roubar a rolagem antes
+  do toque longo. A geometria (ângulo → status, clamp na tela) é pura em
+  `status-wheel-geometry.ts`.
+- A roda é um overlay na mesma janela (sem `Modal`), com entrada/saída animadas
+  e destaque por mola na opção selecionada. A11y: o chip expõe a ação "Trocar
+  status" e a roda oferece as quatro opções como botões.
 - Concluir preenche as páginas lidas no repositório de livros (formulário e
   roda), com a mesma regra no repositório em memória (ADR 0018).
-- 16 testes novos (346 em 45 arquivos); lint, typecheck, test, doctor e export
+- 20 testes novos (350 em 45 arquivos); lint, typecheck, test, doctor e export
   verdes. Falta a conferência no Android.
 
 ## Pronto (S8)
@@ -39,8 +43,8 @@
 
 ## Arquivos-chave
 
-- `src/features/library/EstanteScreen.tsx`, `quick-status-sheet.tsx`,
-  `status-wheel.tsx`, `status-from-offset.ts` + testes
+- `src/features/library/EstanteScreen.tsx`, `status-wheel-trigger.tsx`,
+  `status-wheel-overlay.tsx`, `status-wheel-geometry.ts` + testes
 - `src/components/ui/Chip.tsx`
 - `src/db/repositories/books.ts`, `src/test-utils/repositories.ts`
 - `src/db/repositories/queue.ts`, `drizzle/0005_*.sql`, `src/features/queue/`
@@ -57,10 +61,13 @@
 - Arrastar exige toque longo e bloqueia a rolagem nativa; o drop via alça ainda
   pisca (setas ok). `Screen` precisa do `ScrollView` do RNGH e o app do
   `GestureHandlerRootView`; no Jest, `react-native-worklets` vai para o mock.
-- A roda separa prévia de escrita: `onScroll`/`onPreview` não podem chamar
-  `update`; só `onSettle`/`onCommit` grava. A prévia vive na Estante.
-- O chip só é interativo com `onPress` ou `onLongPress`; não desabilite o chip de
-  status (ele não tem toque simples).
+- A roda separa prévia de escrita: `onUpdate`/`onPreview` não podem chamar
+  `update`; só `onSettle`/`onSelect` grava. A prévia vive na Estante.
+- A roda não pode ser `Modal`: abrir outra janela cancela o `Pan` em andamento.
+  Ela é um overlay irmão do `Screen`, na mesma janela; `absoluteX/Y` são
+  relativas à raiz da tela.
+- O chip de status não tem `onLongPress`; quem segura é o `StatusWheelTrigger`
+  (wrapper com o `Pan`). Não desabilite o chip: a ação acessível depende dele.
 - Concluir (`finished`) sempre leva `pagesRead` ao total no repositório; trocar
   de volta para outro status mantém o progresso cheio.
 - A Ordem não registra leitura nem muda status; o toque abre o detalhe.

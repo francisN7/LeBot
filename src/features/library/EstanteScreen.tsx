@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, type ViewStyle } from 'react-native';
+import { type LayoutChangeEvent, View, type ViewStyle } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 import {
@@ -19,7 +19,9 @@ import { hasCover } from '@/lib/covers';
 import { colors } from '@/theme';
 
 import { labelForStatus, UNKNOWN_GENRE_NAME } from './genre';
-import { QuickStatusSheet } from './quick-status-sheet';
+import type { Area, Point } from './status-wheel-geometry';
+import { StatusWheelOverlay } from './status-wheel-overlay';
+import { StatusWheelTrigger } from './status-wheel-trigger';
 import type { ReadingStatus } from './types';
 import { useBooks } from './use-books';
 
@@ -52,44 +54,99 @@ function shelfDepth(offset: number): ViewStyle {
   };
 }
 
+type QuickStatusState = {
+  bookId: string;
+  preview: ReadingStatus;
+  original: ReadingStatus;
+  anchor: Point;
+  closing: boolean;
+};
+
 export function EstanteScreen({
   onOpenBook,
   onCreateBook,
 }: EstanteScreenProps = {}) {
   const [filter, setFilter] = useState<ShelfFilter>('all');
   const [query, setQuery] = useState('');
-  const [quickStatus, setQuickStatus] = useState<{
-    bookId: string;
-    preview: ReadingStatus;
-  } | null>(null);
+  const [wheelArea, setWheelArea] = useState<Area>({ width: 0, height: 0 });
+  const [quickStatus, setQuickStatus] = useState<QuickStatusState | null>(null);
   const { books, update } = useBooks();
   const { genreById } = useGenres();
 
-  const quickBook = quickStatus
-    ? books.find((book) => book.id === quickStatus.bookId)
-    : undefined;
+  function measureWheelArea(event: LayoutChangeEvent) {
+    const { width, height } = event.nativeEvent.layout;
 
-  function openStatusWheel(book: { id: string; status: ReadingStatus }) {
-    setQuickStatus({ bookId: book.id, preview: book.status });
+    setWheelArea((current) =>
+      current.width === width && current.height === height
+        ? current
+        : { width, height },
+    );
   }
 
-  function cancelStatusWheel() {
-    setQuickStatus(null);
-  }
+  function openStatusWheel(bookId: string, anchor: Point) {
+    const book = books.find((item) => item.id === bookId);
 
-  function commitStatus(status: ReadingStatus) {
-    if (!quickStatus) {
+    if (!book) {
       return;
     }
 
-    const book = books.find((item) => item.id === quickStatus.bookId);
+    setQuickStatus({
+      anchor,
+      bookId,
+      closing: false,
+      original: book.status,
+      preview: book.status,
+    });
+  }
 
-    // Escolher o status atual fecha a folha sem escrever de novo.
-    if (book && book.status !== status) {
+  function previewStatus(bookId: string, status: ReadingStatus | null) {
+    setQuickStatus((current) => {
+      if (
+        !current ||
+        current.bookId !== bookId ||
+        current.closing ||
+        current.preview === (status ?? current.original)
+      ) {
+        return current;
+      }
+
+      return { ...current, preview: status ?? current.original };
+    });
+  }
+
+  function closeStatusWheel() {
+    setQuickStatus((current) =>
+      current && !current.closing ? { ...current, closing: true } : current,
+    );
+  }
+
+  function settleStatus(bookId: string, status: ReadingStatus | null) {
+    if (!quickStatus || quickStatus.bookId !== bookId) {
+      return;
+    }
+
+    const book = books.find((item) => item.id === bookId);
+
+    // O status atual fecha sem escrever; `null` (miolo) cancela.
+    if (book && status && book.status !== status) {
       update(book.id, { status });
     }
 
-    setQuickStatus(null);
+    setQuickStatus((current) =>
+      current && !current.closing
+        ? {
+            ...current,
+            closing: true,
+            preview: status ?? current.original,
+          }
+        : current,
+    );
+  }
+
+  function selectStatus(status: ReadingStatus) {
+    if (quickStatus) {
+      settleStatus(quickStatus.bookId, status);
+    }
   }
 
   const visibleBooks = books.filter(
@@ -106,156 +163,151 @@ export function EstanteScreen({
       : 'Nada por aqui ainda. Ajuste o filtro para ver outros livros.';
 
   return (
-    <Screen>
-      <View className="gap-sm">
-        <View className="flex-row items-center justify-between gap-sm">
-          <AppText variant="display">Estante</AppText>
-          <Button
-            label="Novo livro"
-            onPress={onCreateBook}
-            size="sm"
-            testID="novo-livro"
-          />
-        </View>
-        <AppText tone="muted">
-          {books.length} livros · {visibleBooks.length} à vista
-        </AppText>
-      </View>
-
-      <TextField
-        autoCapitalize="none"
-        autoCorrect={false}
-        label="Buscar"
-        onChangeText={setQuery}
-        placeholder="Título, autor ou ISBN"
-        returnKeyType="search"
-        value={query}
-      />
-
-      <View className="flex-row flex-wrap gap-sm">
-        {filters.map((item) => (
-          <Chip
-            key={item.value}
-            label={item.label}
-            onPress={() => setFilter(item.value)}
-            selected={filter === item.value}
-          />
-        ))}
-      </View>
-
-      <Animated.View
-        entering={FadeIn.duration(180)}
-        key={`${filter}:${hasQuery ? query.trim() : ''}`}
-        testID="estante-grade"
+    <View className="flex-1" onLayout={measureWheelArea}>
+      <View
+        accessibilityElementsHidden={quickStatus !== null}
+        className="flex-1"
+        importantForAccessibility={quickStatus ? 'no-hide-descendants' : 'auto'}
       >
-        <View className="flex-row flex-wrap gap-md">
-          {visibleBooks.map((book, index) => {
-            const genre = genreById.get(book.genreId);
-            const genreColor = genre?.colorLight ?? colors.navyMuted;
-            const displayStatus =
-              quickStatus?.bookId === book.id
-                ? quickStatus.preview
-                : book.status;
+        <Screen>
+          <View className="gap-sm">
+            <View className="flex-row items-center justify-between gap-sm">
+              <AppText variant="display">Estante</AppText>
+              <Button
+                label="Novo livro"
+                onPress={onCreateBook}
+                size="sm"
+                testID="novo-livro"
+              />
+            </View>
+            <AppText tone="muted">
+              {books.length} livros · {visibleBooks.length} à vista
+            </AppText>
+          </View>
 
-            return (
-              <Animated.View
-                entering={FadeInDown.delay(Math.min(index, 6) * 45).duration(
-                  240,
-                )}
-                key={book.id}
-                style={{ width: '46%' }}
-              >
-                <Card
-                  className="w-full items-center gap-sm"
-                  style={shelfDepth(index % 2 === 0 ? 3 : 5)}
-                >
-                  {hasCover(book.coverUri) ? (
-                    <BookCover
-                      genreColor={genreColor}
-                      onPress={() => onOpenBook?.(book.id)}
-                      status={displayStatus}
-                      title={book.title}
-                      uri={book.coverUri}
-                    />
-                  ) : (
-                    <Spine
-                      color={genreColor}
-                      onPress={() => onOpenBook?.(book.id)}
-                      showLabel={false}
-                      status={displayStatus}
-                      testID={`lombada-${book.id}`}
-                      title={book.title}
-                    />
-                  )}
-                  <AppText
-                    numberOfLines={1}
-                    style={{ alignSelf: 'stretch', textAlign: 'center' }}
-                    variant="bodyStrong"
-                  >
-                    {book.title}
-                  </AppText>
-                  <AppText
-                    numberOfLines={1}
-                    style={{ alignSelf: 'stretch', textAlign: 'center' }}
-                    tone="muted"
-                    variant="caption"
-                  >
-                    {book.author}
-                  </AppText>
-                  <AppText
-                    numberOfLines={1}
-                    style={{ alignSelf: 'stretch', textAlign: 'center' }}
-                    variant="label"
-                  >
-                    {genre?.name ?? UNKNOWN_GENRE_NAME}
-                  </AppText>
-                  <Chip
-                    accessibilityActions={[
-                      { name: 'openStatusWheel', label: 'Trocar status' },
-                    ]}
-                    accessibilityHint="Segure para trocar o status"
-                    delayLongPress={500}
-                    label={labelForStatus(displayStatus)}
-                    onAccessibilityAction={(event) => {
-                      if (event.nativeEvent.actionName === 'openStatusWheel') {
-                        openStatusWheel(book);
-                      }
-                    }}
-                    onLongPress={() => openStatusWheel(book)}
-                    testID={`status-${book.id}`}
-                  />
-                </Card>
-              </Animated.View>
-            );
-          })}
-        </View>
-      </Animated.View>
+          <TextField
+            autoCapitalize="none"
+            autoCorrect={false}
+            label="Buscar"
+            onChangeText={setQuery}
+            placeholder="Título, autor ou ISBN"
+            returnKeyType="search"
+            value={query}
+          />
 
-      {visibleBooks.length === 0 ? (
-        <Card className="items-center gap-sm p-lg" style={shelfDepth(2)}>
-          <Mascot size={96} state={hasQuery ? 'thinking' : 'neutral'} />
-          <AppText style={{ textAlign: 'center' }} tone="muted">
-            {emptyState}
-          </AppText>
-        </Card>
-      ) : null}
+          <View className="flex-row flex-wrap gap-sm">
+            {filters.map((item) => (
+              <Chip
+                key={item.value}
+                label={item.label}
+                onPress={() => setFilter(item.value)}
+                selected={filter === item.value}
+              />
+            ))}
+          </View>
 
-      {quickStatus && quickBook ? (
-        <QuickStatusSheet
-          book={quickBook}
-          genreColor={
-            genreById.get(quickBook.genreId)?.colorLight ?? colors.navyMuted
-          }
-          onCancel={cancelStatusWheel}
-          onCommit={commitStatus}
-          onPreview={(preview) =>
-            setQuickStatus((current) =>
-              current ? { ...current, preview } : current,
-            )
-          }
+          <Animated.View
+            entering={FadeIn.duration(180)}
+            key={`${filter}:${hasQuery ? query.trim() : ''}`}
+            testID="estante-grade"
+          >
+            <View className="flex-row flex-wrap gap-md">
+              {visibleBooks.map((book, index) => {
+                const genre = genreById.get(book.genreId);
+                const genreColor = genre?.colorLight ?? colors.navyMuted;
+                const displayStatus =
+                  quickStatus?.bookId === book.id
+                    ? quickStatus.preview
+                    : book.status;
+
+                return (
+                  <Animated.View
+                    entering={FadeInDown.delay(
+                      Math.min(index, 6) * 45,
+                    ).duration(240)}
+                    key={book.id}
+                    style={{ width: '46%' }}
+                  >
+                    <Card
+                      className="w-full items-center gap-sm"
+                      style={shelfDepth(index % 2 === 0 ? 3 : 5)}
+                    >
+                      {hasCover(book.coverUri) ? (
+                        <BookCover
+                          genreColor={genreColor}
+                          onPress={() => onOpenBook?.(book.id)}
+                          status={displayStatus}
+                          title={book.title}
+                          uri={book.coverUri}
+                        />
+                      ) : (
+                        <Spine
+                          color={genreColor}
+                          onPress={() => onOpenBook?.(book.id)}
+                          showLabel={false}
+                          status={displayStatus}
+                          testID={`lombada-${book.id}`}
+                          title={book.title}
+                        />
+                      )}
+                      <AppText
+                        numberOfLines={1}
+                        style={{ alignSelf: 'stretch', textAlign: 'center' }}
+                        variant="bodyStrong"
+                      >
+                        {book.title}
+                      </AppText>
+                      <AppText
+                        numberOfLines={1}
+                        style={{ alignSelf: 'stretch', textAlign: 'center' }}
+                        tone="muted"
+                        variant="caption"
+                      >
+                        {book.author}
+                      </AppText>
+                      <AppText
+                        numberOfLines={1}
+                        style={{ alignSelf: 'stretch', textAlign: 'center' }}
+                        variant="label"
+                      >
+                        {genre?.name ?? UNKNOWN_GENRE_NAME}
+                      </AppText>
+                      <StatusWheelTrigger
+                        area={wheelArea}
+                        label={labelForStatus(displayStatus)}
+                        onOpen={(anchor) => openStatusWheel(book.id, anchor)}
+                        onPreview={(status) => previewStatus(book.id, status)}
+                        onSettle={(status) => settleStatus(book.id, status)}
+                        testID={`status-${book.id}`}
+                      />
+                    </Card>
+                  </Animated.View>
+                );
+              })}
+            </View>
+          </Animated.View>
+
+          {visibleBooks.length === 0 ? (
+            <Card className="items-center gap-sm p-lg" style={shelfDepth(2)}>
+              <Mascot size={96} state={hasQuery ? 'thinking' : 'neutral'} />
+              <AppText style={{ textAlign: 'center' }} tone="muted">
+                {emptyState}
+              </AppText>
+            </Card>
+          ) : null}
+        </Screen>
+      </View>
+
+      {quickStatus ? (
+        <StatusWheelOverlay
+          anchor={quickStatus.anchor}
+          closing={quickStatus.closing}
+          onCancel={closeStatusWheel}
+          onClosed={() => setQuickStatus(null)}
+          onSelect={selectStatus}
           preview={quickStatus.preview}
         />
       ) : null}
-    </Screen>
+    </View>
   );
 }

@@ -178,9 +178,8 @@ grade da Estante, por exemplo.
 ### `Chip`
 
 Etiqueta compacta. Com `onPress` vira filtro selecionável (`selected`). Com
-`onLongPress` também é botão mesmo sem toque simples — é o caso do chip de status
-da Estante, que aceita `delayLongPress`, `accessibilityHint` e ações de leitor de
-tela (`accessibilityActions`).
+`onLongPress` também é botão mesmo sem toque simples; `accessibilityActions` e
+`accessibilityHint` servem para ações de leitor de tela.
 
 ```tsx
 <Chip label="Lendo" selected onPress={() => setFilter('reading')} />
@@ -189,19 +188,22 @@ tela (`accessibilityActions`).
   accessibilityHint="Segure para trocar o status"
   delayLongPress={500}
   label="Lendo"
-  onLongPress={openStatusWheel}
+  onLongPress={openMenu}
 />
 ```
 
-### `StatusWheel` + `QuickStatusSheet`
+### `StatusWheelTrigger` + `StatusWheelOverlay`
 
-A troca rápida da Estante vive em `src/features/library/`. A folha modal mostra
-o livro em tamanho grande e a roda com os quatro status (`Lendo`, `Quero ler`,
-`Pausado`, `Concluído`). A roda é um `ScrollView` vertical com `snapToInterval`;
-deslizar chama `onPreview`, soltar/tocar chama `onSettle`, e tocar fora cancela.
-`status-from-offset.ts` converte offset em status e é a parte testável sem
-render. O leitor de tela trata a roda como `adjustable` (increment/decrement) e
-o chip expõe a ação "Trocar status".
+A troca rápida da Estante vive em `src/features/library/`. O `StatusWheelTrigger`
+envolve o chip com um `Pan` da RNGH que só ativa depois de 500 ms parado
+(`activateAfterLongPress`); o mesmo toque continua sendo rastreado. A
+`StatusWheelOverlay` é um overlay na mesma janela (sem `Modal`) centrado no
+toque, com as quatro opções (`Lendo`, `Quero ler`, `Pausado`, `Concluído`) em
+círculo. As opções abrem do centro com mola, o setor sob o dedo ganha destaque e
+o rosto da lombada/capa acompanha a prévia; soltar grava, voltar ao miolo ou
+tocar fora cancela. `status-wheel-geometry.ts` converte ângulo em status e faz o
+clamp na tela. O chip expõe a ação "Trocar status" e cada opção é botão, então o
+leitor de tela consegue abrir e escolher sem o gesto.
 
 ### `TextField`
 

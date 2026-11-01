@@ -24,7 +24,7 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S7 | [x] | Plano na UI + tela Hoje | Plano real na Hoje, sugestão com selo e registro a partir do bloco; revisão no Android gerou a S7.1 | `sessions/S07-plano-na-ui.md` |
 | S7.1 | [x] | Ajustes da revisão | Registrar retoma livro pausado; Hoje antes da Ordem; Fila → Ordem; blocos com ação explícita; conferido no Android | `sessions/S07.1-ajustes-hoje-ordem.md` |
 | S8 | [x] | Ordem real e sugestão anti-ressaca | Ordem automática por status, principal = primeiro Lendo, setas ok; drop via alça com glitch estético no backlog | `sessions/S08-ordem-real.md` |
-| S8a | [~] | Troca rápida de status na Estante | Segurar o chip de status abre uma roda; deslizar pré-visualiza e soltar grava; concluir preenche as páginas lidas (ADR 0018) | `sessions/S08a-troca-rapida-status.md` |
+| S8a | [~] | Troca rápida de status na Estante | Segurar o chip abre a roda radial; deslizar pré-visualiza e soltar grava; concluir preenche as páginas lidas (ADR 0018) | `sessions/S08a-troca-rapida-status.md` |
 | S9 | [ ] | Conclusão + resenha | Livro finalizado gera resenha completa | — |
 | S10 | [ ] | Estatísticas e insights | Tela com dados reais | — |
 | S11 | [ ] | Configurações + backup JSON | Meta diária editável, backup JSON com round-trip e estados explícitos para lembrete/tema; escopo fechado na abertura | — |

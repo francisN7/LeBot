@@ -8,15 +8,17 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 ### Added
 
 - S8a: troca rápida de status na Estante. Segurar o chip (~500 ms) abre uma
-  folha modal com a capa/lombada grande e uma roda (`StatusWheel`) com os quatro
-  status; deslizar só pré-visualiza (o card e a arte mudam) e soltar/tocar
-  confirma e grava via `useBooks`, tocar fora cancela. O chip expõe hint e ação
-  "Trocar status"; a roda é `adjustable` no leitor de tela. A conta offset →
-  status é pura (`status-from-offset.ts`), coberta por testes. Concluir agora
-  preenche as páginas lidas no repositório de livros (formulário e roda), com a
-  mesma regra no repositório em memória (ADR 0018). 16 testes novos (346 na
-  suíte); lint, typecheck, test, doctor e export verdes; falta a conferência no
-  Android.
+  roda radial flutuante na mesma tela, centrada no toque do chip; as quatro
+  opções abrem em círculo com mola e a opção sob o dedo ganha destaque. Deslizar
+  só pré-visualiza (o rosto/capa e o chip mudam) e soltar grava via `useBooks`;
+  voltar ao miolo ou tocar fora cancela. O gesto é um `Pan` da RNGH com
+  `activateAfterLongPress(500)`, e a roda fica na mesma janela (sem `Modal`) para
+  o toque continuar. A geometria ângulo → status é pura
+  (`status-wheel-geometry.ts`); o chip expõe a ação "Trocar status" e as opções
+  são botões no leitor de tela. Concluir agora preenche as páginas lidas no
+  repositório de livros (formulário e roda), com a mesma regra no repositório em
+  memória (ADR 0018). 20 testes novos (350 na suíte); lint, typecheck, test,
+  doctor e export verdes; falta a conferência no Android.
 - S8: Ordem automática e persistida em `queue_items` (migração aditiva `0005`):
   todo livro não concluído entra; `reading` forma o bloco "Lendo agora", com o
   primeiro coroado como principal, e `queued`/`paused` ficam em "Depois" com

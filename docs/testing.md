@@ -59,11 +59,13 @@ repositório de livros, mantendo progresso e status coerentes como a transação
 do SQLite. A ordem em memória (`createInMemoryQueueRepository(booksRepository)`)
 segue a mesma ideia: compacta posições e ignora órfãos/concluídos como o SQL.
 
-A roda de status é testada por eventos de scroll: `fireEvent.scroll` muda a
-prévia (sem gravar), `scrollEndDrag` com o mesmo `contentOffset` confirma e
-`fireEvent.press` numa opção (`roda-status-<status>`) exerce o caminho acessível.
-O teste afirma sobre o repositório em memória e o rótulo do chip — nunca sobre
-frames do Reanimated.
+A roda radial é testada com `createGestureController` +
+`getByGestureTestId('gesture-status-<id>')`: `begin`/`activate` abrem, `update`
+muda a prévia e `end` grava. Envolva cada chamada em `await act(async () => …)`
+porque o `runOnJS` do mock roda numa microtask. O destaque é afirmado pelo
+`accessibilityState.selected` da opção e o efeito real, pelo repositório em
+memória. A saída animada desmonta ~180 ms depois; espere com `waitFor`. Nunca
+afirme sobre frames do Reanimated.
 
 Nunca importe `expo-sqlite`, `expo-file-system` ou `expo-image-picker` no teste:
 são módulos nativos. As telas recebem `CoverService` por contexto justamente

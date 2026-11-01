@@ -1,5 +1,9 @@
-import { fireEvent, screen } from '@testing-library/react-native';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
+import {
+  createGestureController,
+  getByGestureTestId,
+} from 'react-native-gesture-handler/jest-utils';
 
 import type { BookRow } from '@/db/schema';
 import { renderWithProviders } from '@/test-utils/render';
@@ -10,7 +14,18 @@ import {
 } from '@/test-utils/repositories';
 
 import { EstanteScreen } from './EstanteScreen';
-import { STATUS_ITEM_HEIGHT } from './status-wheel';
+
+const GESTURE_ID = 'gesture-status-book-hobbit';
+
+function wheelController() {
+  return createGestureController(getByGestureTestId(GESTURE_ID));
+}
+
+async function closeWheel() {
+  await waitFor(() =>
+    expect(screen.queryByTestId('status-wheel')).not.toBeOnTheScreen(),
+  );
+}
 
 function bookRow(overrides: Partial<BookRow> = {}): BookRow {
   const time = new Date('2026-01-01T00:00:00.000Z');
@@ -154,24 +169,104 @@ describe('EstanteScreen', () => {
     expect(screen.getByLabelText('LêBot pensando')).toBeOnTheScreen();
   });
 
-  it('abre a roda no toque longo (e não no toque simples)', async () => {
+  it('abre a roda no toque longo, não no toque simples', async () => {
     await renderWithProviders(<EstanteScreen />);
-    const chip = screen.getByTestId('status-book-hobbit');
 
-    await fireEvent.press(chip);
-    expect(screen.queryByTestId('quick-status-folha')).not.toBeOnTheScreen();
+    await fireEvent.press(screen.getByTestId('status-book-hobbit'));
+    expect(screen.queryByTestId('status-wheel')).not.toBeOnTheScreen();
 
-    await fireEvent(chip, 'longPress');
+    const gesture = wheelController();
+    await act(async () => {
+      gesture.begin({ absoluteX: 200, absoluteY: 400 });
+      gesture.activate({ absoluteX: 200, absoluteY: 400 });
+    });
 
-    expect(screen.getByTestId('quick-status-folha')).toBeOnTheScreen();
-    expect(screen.getByTestId('roda-status')).toHaveProp(
-      'accessibilityRole',
-      'adjustable',
+    expect(screen.getByTestId('status-wheel')).toBeOnTheScreen();
+    expect(screen.getByTestId('status-wheel-reading')).toBeOnTheScreen();
+
+    await act(async () => {
+      gesture.end({ absoluteX: 200, absoluteY: 400 });
+    });
+  });
+
+  it('pré-visualiza ao arrastar e grava ao soltar', async () => {
+    const books = createInMemoryBooksRepository();
+    await renderWithProviders(<EstanteScreen />, { booksRepository: books });
+
+    const gesture = wheelController();
+    await act(async () => {
+      gesture.begin({ absoluteX: 200, absoluteY: 400 });
+      gesture.activate({ absoluteX: 200, absoluteY: 400 });
+    });
+    await act(async () => {
+      gesture.update({ absoluteX: 280, absoluteY: 400 });
+    });
+
+    expect(books.findById('book-hobbit')?.status).toBe('reading');
+    expect(
+      screen.getByTestId('status-wheel-queued').props.accessibilityState,
+    ).toEqual({ selected: true });
+
+    await act(async () => {
+      gesture.end({ absoluteX: 280, absoluteY: 400 });
+    });
+
+    expect(books.findById('book-hobbit')?.status).toBe('queued');
+    await closeWheel();
+    expect(screen.getByTestId('status-book-hobbit')).toHaveTextContent(
+      'Quero ler',
     );
   });
 
-  it('abre a roda pela ação acessível do chip', async () => {
-    await renderWithProviders(<EstanteScreen />);
+  it('soltar no miolo cancela sem gravar', async () => {
+    const books = createInMemoryBooksRepository();
+    await renderWithProviders(<EstanteScreen />, { booksRepository: books });
+
+    const gesture = wheelController();
+    await act(async () => {
+      gesture.begin({ absoluteX: 200, absoluteY: 400 });
+      gesture.activate({ absoluteX: 200, absoluteY: 400 });
+    });
+    await act(async () => {
+      gesture.update({ absoluteX: 205, absoluteY: 402 });
+    });
+    await act(async () => {
+      gesture.end({ absoluteX: 205, absoluteY: 402 });
+    });
+
+    expect(books.findById('book-hobbit')?.status).toBe('reading');
+    await closeWheel();
+    expect(screen.getByTestId('status-book-hobbit')).toHaveTextContent('Lendo');
+  });
+
+  it('concluir pela roda preenche as páginas lidas', async () => {
+    const books = createInMemoryBooksRepository();
+    await renderWithProviders(<EstanteScreen />, { booksRepository: books });
+
+    const gesture = wheelController();
+    await act(async () => {
+      gesture.begin({ absoluteX: 200, absoluteY: 400 });
+      gesture.activate({ absoluteX: 200, absoluteY: 400 });
+    });
+    await act(async () => {
+      gesture.update({ absoluteX: 120, absoluteY: 400 });
+    });
+    await act(async () => {
+      gesture.end({ absoluteX: 120, absoluteY: 400 });
+    });
+
+    const updated = books.findById('book-hobbit');
+    expect(updated?.status).toBe('finished');
+    expect(updated?.pagesRead).toBe(310);
+    await closeWheel();
+    expect(screen.getByTestId('status-book-hobbit')).toHaveTextContent(
+      'Concluído',
+    );
+  });
+
+  it('abre a roda pela ação acessível e escolhe uma opção', async () => {
+    const books = createInMemoryBooksRepository();
+    await renderWithProviders(<EstanteScreen />, { booksRepository: books });
 
     await fireEvent(
       screen.getByTestId('status-book-hobbit'),
@@ -181,101 +276,46 @@ describe('EstanteScreen', () => {
       },
     );
 
-    expect(screen.getByTestId('quick-status-folha')).toBeOnTheScreen();
-  });
+    expect(screen.getByTestId('status-wheel')).toBeOnTheScreen();
 
-  it('pré-visualiza ao deslizar e grava ao soltar', async () => {
-    const books = createInMemoryBooksRepository();
-    await renderWithProviders(<EstanteScreen />, { booksRepository: books });
-
-    await fireEvent(screen.getByTestId('status-book-hobbit'), 'longPress');
-    await fireEvent.scroll(screen.getByTestId('roda-status'), {
-      nativeEvent: { contentOffset: { y: STATUS_ITEM_HEIGHT } },
-    });
-
-    expect(screen.getByTestId('previa-status-rotulo')).toHaveTextContent(
-      'Quero ler',
-    );
-    expect(books.findById('book-hobbit')?.status).toBe('reading');
-
-    await fireEvent(screen.getByTestId('roda-status'), 'scrollEndDrag', {
-      nativeEvent: { contentOffset: { y: STATUS_ITEM_HEIGHT } },
-    });
-
-    expect(screen.queryByTestId('quick-status-folha')).not.toBeOnTheScreen();
-    expect(books.findById('book-hobbit')?.status).toBe('queued');
-    expect(screen.getByTestId('status-book-hobbit')).toHaveTextContent(
-      'Quero ler',
-    );
-  });
-
-  it('cancelar mantém o status anterior', async () => {
-    const books = createInMemoryBooksRepository();
-    await renderWithProviders(<EstanteScreen />, { booksRepository: books });
-
-    await fireEvent(screen.getByTestId('status-book-hobbit'), 'longPress');
-    await fireEvent.scroll(screen.getByTestId('roda-status'), {
-      nativeEvent: { contentOffset: { y: STATUS_ITEM_HEIGHT * 2 } },
-    });
-    expect(screen.getByTestId('previa-status-rotulo')).toHaveTextContent(
-      'Pausado',
-    );
-
-    await fireEvent.press(screen.getByText('Cancelar'));
-
-    expect(screen.queryByTestId('quick-status-folha')).not.toBeOnTheScreen();
-    expect(books.findById('book-hobbit')?.status).toBe('reading');
-    expect(screen.getByTestId('status-book-hobbit')).toHaveTextContent('Lendo');
-  });
-
-  it('tocar fora também cancela sem gravar', async () => {
-    const books = createInMemoryBooksRepository();
-    await renderWithProviders(<EstanteScreen />, { booksRepository: books });
-
-    await fireEvent(screen.getByTestId('status-book-hobbit'), 'longPress');
-    await fireEvent.press(screen.getByTestId('quick-status-fora'));
-
-    expect(screen.queryByTestId('quick-status-folha')).not.toBeOnTheScreen();
-    expect(books.findById('book-hobbit')?.status).toBe('reading');
-  });
-
-  it('roda ajustável confirma pelo leitor de tela', async () => {
-    const books = createInMemoryBooksRepository();
-    await renderWithProviders(<EstanteScreen />, { booksRepository: books });
-
-    await fireEvent(screen.getByTestId('status-book-hobbit'), 'longPress');
-    await fireEvent(screen.getByTestId('roda-status'), 'accessibilityAction', {
-      nativeEvent: { actionName: 'increment' },
-    });
+    await fireEvent.press(screen.getByTestId('status-wheel-queued'));
 
     expect(books.findById('book-hobbit')?.status).toBe('queued');
-    expect(screen.queryByTestId('quick-status-folha')).not.toBeOnTheScreen();
+    await closeWheel();
   });
 
-  it('escolher o status atual fecha sem escrever de novo', async () => {
+  it('tocar fora cancela sem gravar', async () => {
+    const books = createInMemoryBooksRepository();
+    await renderWithProviders(<EstanteScreen />, { booksRepository: books });
+
+    await fireEvent(
+      screen.getByTestId('status-book-hobbit'),
+      'accessibilityAction',
+      {
+        nativeEvent: { actionName: 'openStatusWheel' },
+      },
+    );
+    await fireEvent.press(screen.getByTestId('status-wheel-backdrop'));
+
+    expect(books.findById('book-hobbit')?.status).toBe('reading');
+    await closeWheel();
+  });
+
+  it('escolher o status atual não escreve de novo', async () => {
     const books = createInMemoryBooksRepository();
     const update = jest.spyOn(books, 'update');
     await renderWithProviders(<EstanteScreen />, { booksRepository: books });
 
-    await fireEvent(screen.getByTestId('status-book-hobbit'), 'longPress');
-    await fireEvent.press(screen.getByTestId('roda-status-reading'));
+    await fireEvent(
+      screen.getByTestId('status-book-hobbit'),
+      'accessibilityAction',
+      {
+        nativeEvent: { actionName: 'openStatusWheel' },
+      },
+    );
+    await fireEvent.press(screen.getByTestId('status-wheel-reading'));
 
     expect(update).not.toHaveBeenCalled();
-    expect(screen.queryByTestId('quick-status-folha')).not.toBeOnTheScreen();
-  });
-
-  it('concluir pela roda preenche as páginas lidas', async () => {
-    const books = createInMemoryBooksRepository();
-    await renderWithProviders(<EstanteScreen />, { booksRepository: books });
-
-    await fireEvent(screen.getByTestId('status-book-hobbit'), 'longPress');
-    await fireEvent.press(screen.getByTestId('roda-status-finished'));
-
-    const updated = books.findById('book-hobbit');
-    expect(updated?.status).toBe('finished');
-    expect(updated?.pagesRead).toBe(310);
-    expect(screen.getByTestId('status-book-hobbit')).toHaveTextContent(
-      'Concluído',
-    );
+    await closeWheel();
   });
 });

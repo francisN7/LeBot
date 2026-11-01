@@ -14,59 +14,60 @@ refletem a mudança na hora.
 - Redesenhar a arte da lombada ou criar expressões novas.
 - Haptics: `expo-haptics` não está instalado; fica para depois, se o dono pedir.
 
-## Decisões confirmadas na abertura (2026-11-01)
+## Decisões confirmadas na abertura (2026-11-01, revisadas na conferência)
 
-1. **Onde a roda aparece.** Folha modal (bottom sheet) com a capa/lombada
-   grande, o título e a roda logo abaixo.
-2. **Quando grava.** Grava ao soltar o dedo (ou tocar numa opção), com a folha
-   fechando em seguida; tocar fora ou em "Cancelar" cancela. Sem botão "Salvar".
-3. **Descoberta.** Só o toque longo (~500 ms) abre a folha; o toque simples
-   continua sem trocar status. O chip expõe `accessibilityHint` e a ação
-   "Trocar status" para leitor de tela.
-4. **Roda.** `ScrollView` vertical com `snapToInterval` e `onScrollEndDrag` /
-   `onMomentumScrollEnd`, sem dependência nova. A conta "offset → status" fica
-   em `status-from-offset.ts`, pura e testada.
-5. **Livro com capa.** A folha usa `BookArt` (capa real quando existe) e mantém
-   a prévia de rosto só para quem está sem capa; a capa mostra o selo do status.
+> A primeira versão abriu uma folha modal. Na conferência, o dono rejeitou a
+> folha ("nem é, nem nunca vai ser uma roda") e pediu a roda radial flutuante na
+> própria tela. As decisões abaixo refletem a revisão.
+
+1. **Onde a roda aparece.** Roda radial flutuante na mesma tela, centrada no
+   toque do chip; as quatro opções abrem em círculo ao redor do dedo. Nada de
+   folha, tela nova ou modal.
+2. **Quando grava.** Grava ao soltar o dedo, com o status do setor em que ele
+   parou. Voltar ao miolo cancela; tocar fora cancela. Sem botão "Salvar".
+3. **Descoberta.** Só toque longo (~500 ms) seguido de arraste abre e controla a
+   roda; o toque simples continua sem trocar status. Para leitor de tela, o chip
+   expõe a ação "Trocar status" e a roda oferece as quatro opções como botões.
+4. **Gesto.** `Pan` do `react-native-gesture-handler` com
+   `activateAfterLongPress(500)`: o mesmo toque continua sendo rastreado depois
+   de a roda abrir. A roda é um overlay irmão do `Screen` (sem `Modal`, que
+   cancelaria o gesto); a geometria ângulo → status e o clamp ficam puros em
+   `status-wheel-geometry.ts`. Entrada/saída e destaque usam Reanimated.
+5. **Livro com capa.** O card mantém a capa e o selo de status acompanha a
+   prévia; sem capa, o rosto da lombada muda em tempo real.
 6. **Concluir sem ler tudo.** O dono decidiu que concluir, em qualquer lugar do
    app, preenche as páginas lidas (ADR 0018). A roda grava `finished`, o
    repositório leva `pagesRead` ao total e não há aviso extra.
 
 ## Tarefas
 
-1. **Chip:** aceitar `onLongPress`/`delayLongPress` sem alterar o toque simples
-   e expor `accessibilityHint` (ex.: "Segure para trocar o status") e uma ação
-   acessível que abra a mesma folha.
-2. **Conta pura:** `status-from-offset.ts` em `src/features/library/` recebe o
-   offset da roda e devolve o status central (com clamp nas pontas), testada
-   com os quatro status e offsets fora da faixa.
-3. **Roda:** componente `StatusWheel` com os quatro rótulos
-   (`Lendo`, `Quero ler`, `Pausado`, `Concluído`), item central destacado,
-   `onPreview(status)` a cada mudança e `onSettle(status)` ao parar.
-4. **Folha:** `QuickStatusSheet` recebe o livro, mostra `BookArt`/`Spine` com
-   `status={preview}` e grava pelo `useBooks().update(id, { status })`, que já
-   avisa as outras telas.
-5. **Estante:** o `onLongPress` do chip abre a folha do livro; a grade usa
-   `preview` enquanto a folha estiver aberta (para a lombada do card também
-   mudar, se não estiver coberta).
-6. **Testes:** conta pura; long-press abre e toque simples não; deslizar muda o
-   rótulo/rosto de prévia; confirmar grava e atualiza o chip; cancelar não
-   grava; escolher o status atual não escreve de novo.
-7. **Docs:** `docs/architecture.md` (Estante + roda), `docs/design/design-system.md`
-   (interação do chip), `docs/testing.md`, `CURRENT.md`, `roadmap.md` e
-   `CHANGELOG.md`. Sem ADR, salvo se a interação mudar de forma relevante.
+1. **Trigger:** `StatusWheelTrigger` envolve o chip, aceita o `Pan` com
+   `activateAfterLongPress` e expõe `accessibilityHint` + ação acessível.
+2. **Geometria pura:** `status-wheel-geometry.ts` converte ângulo/dedo em status,
+   define raio/opções e faz o clamp na tela; testes cobrem setores, fronteiras,
+   miolo e bordas.
+3. **Roda:** `StatusWheelOverlay` desenha anel e quatro opções
+   (`Lendo`, `Quero ler`, `Pausado`, `Concluído`), destaca a selecionada com
+   mola, anima a entrada/saída e fecha ao soltar.
+4. **Estante:** o chip abre a roda; a grade e a lombada/capa usam `preview`
+   enquanto aberta; soltar grava pelo `useBooks().update(id, { status })`.
+5. **Testes:** geometria pura; gesto (abrir, prévia, soltar, miolo); a11y
+   (ação + opção); tocar fora; status atual sem escrita; concluir preenche
+   páginas. Usar o controller do RNGH no teste de gesto.
+6. **Docs:** `docs/architecture.md`, `docs/design/design-system.md`,
+   `docs/testing.md`, `CURRENT.md`, `roadmap.md`, `CHANGELOG.md` e ADR 0018.
 
 ## Aceite
 
-- [x] Segurar o chip de status (~500 ms) abre a roda; toque simples continua
-      sem trocar status.
-- [x] Deslizar a roda muda o rosto da lombada em tempo real, passando pelos
-      quatro status, sem gravar no banco.
-- [x] Soltar/confirmar grava o status e o chip da Estante muda na hora.
-- [x] Cancelar mantém o status anterior.
+- [x] Segurar o chip de status (~500 ms) abre a roda radial flutuante ao redor
+      do chip; toque simples continua sem trocar status.
+- [x] Deslizar o dedo na roda muda o rosto da lombada/capa em tempo real,
+      destacando a opção, sem gravar no banco.
+- [x] Soltar grava o status e o chip da Estante muda na hora.
+- [x] Voltar ao miolo, tocar fora ou cancelar mantém o status anterior.
 - [x] Registro em livro `paused`/`queued` continua mudando para `reading` pela
       Hoje/detalhe; a roda é só uma edição manual.
-- [x] A folha é operável por leitor de tela (ação + roda ajustável).
+- [x] A roda é operável por leitor de tela (ação no chip + opções botão).
 - [ ] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes; conferido no
       Android.
 
@@ -81,8 +82,8 @@ refletem a mudança na hora.
 ## Arquivos prováveis
 
 - `src/features/library/EstanteScreen.tsx`
-- `src/features/library/quick-status-sheet.tsx`,
-  `src/features/library/status-wheel.tsx`, `status-from-offset.ts` + testes
+- `src/features/library/status-wheel-trigger.tsx`,
+  `status-wheel-overlay.tsx`, `status-wheel-geometry.ts` + teste
 - `src/components/ui/Chip.tsx`
 - `src/test-utils/render.tsx` (se precisar de provider novo)
 - `docs/architecture.md`, `docs/design/design-system.md`, `docs/testing.md`
@@ -91,14 +92,17 @@ refletem a mudança na hora.
 
 - **Gesto roubado:** o toque longo no chip não pode abrir o detalhe do livro nem
   filtrar a estante. Testar no card inteiro e na borda do chip.
+- **Modal cancela o gesto:** a roda fica na mesma janela; abrir um `Modal`
+  interromperia o `Pan` em andamento. Não volte atrás sem testar no Android.
+- **Coordenadas:** a roda usa `absoluteX/Y` e é posicionada na raiz da tela;
+  conferir em telas com tab bar, status bar e densidades diferentes.
 - **Prévia que grava:** separar `preview` (estado local) de `commit`
-  (repositório). Nada de `update` durante o deslize.
-- **Snap no Android:** a roda pode tremer ou parar entre itens; testar em
-  densidades diferentes e com 4 itens.
-- **Capa sem rosto:** livro com capa não tem a expressão da lombada; usar
-  `BookArt` e deixar claro que a prévia visual é a capa.
-- **Testes frágeis:** não depender de frames do Reanimated; afirmar sobre props,
-  rótulos e o repositório em memória.
+  (repositório). Nada de `update` durante o arraste.
+- **Capa sem rosto:** livro com capa não tem a expressão da lombada; o selo e a
+  prévia do chip mostram o status.
+- **Testes frágeis:** o `runOnJS` do mock é microtask; envolver o controller do
+  gesto em `await act(async …)`. Não depender de frames do Reanimated; afirmar
+  sobre props, rótulos e o repositório em memória.
 
 ## Próximo depois desta
 

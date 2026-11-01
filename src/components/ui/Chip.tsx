@@ -33,7 +33,7 @@ export function Chip({
   className,
   testID,
 }: ChipProps) {
-  const interactive = Boolean(onPress || onLongPress);
+  const interactive = Boolean(onPress || onLongPress || onAccessibilityAction);
 
   return (
     <Pressable
