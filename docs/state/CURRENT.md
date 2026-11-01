@@ -15,8 +15,8 @@
   `.temp/s11b-tassel/pesquisa.md` (fora do git).
 - **Diagnóstico:** `rotation`/`origin` animados no `G` são descartados;
   detalhe em Armadilhas.
-- **3 modelos animados** em `.temp/s11b-tassel/modelos.html`: A brisa (−4,5°),
-  B follow-through (−7°, franja −9,5°) e C rajada (−10°), em 3 gêneros × 64/52.
+- **3 modelos animados** em `.temp/s11b-tassel/modelos.html`: A brisa (4,5°),
+  B follow-through (7°, franja 9,5°) e C rajada (10°), em 3 gêneros × 64/52.
 - **Lab temporário** `src/app/dev-tassel.tsx`: G+rotation (atual), G+matrix e
   View+SVG do tassel. Lint e typecheck verdes.
 

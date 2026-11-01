@@ -39,7 +39,7 @@ const GOLD_STOPS = [
   { offset: 1, color: '#D99A24' },
 ] as const;
 const THREADS = [-3, -1.8, -0.6, 0.6, 1.8, 3];
-const SWING = { peak: -7, hold: 520, back: 1200, settle: 420 } as const;
+const SWING = { peak: 7, hold: 520, back: 1200, settle: 420 } as const;
 
 type Swing = { peak: number; hold: number; back: number; settle: number };
 
