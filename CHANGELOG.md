@@ -38,8 +38,8 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
   recalcula ao registrar/desfazer leitura, `useTimeline` lê
   `readingSessions.listAll` e `listLatestPerBook` data a conclusão. Sem migração
   e sem lib de gráfico (ADR 0020, com dois adendos). 46 testes novos (437 na
-  suíte); lint, typecheck, test, doctor e export verdes; falta a reconferência no
-  Android.
+  suíte); lint, typecheck, test, doctor e export verdes; conferido no Android em
+  2026-11-01.
 - S9: conclusão com resenha. Livro concluído pela sessão de leitura abre
   `/livro/[id]/resenha`; pela roda ou edição, o detalhe mostra o CTA. A resenha
   tem nota 1–5 obrigatória, texto e citação opcionais, e campos extras globais

@@ -67,7 +67,7 @@ biblioteca nova no MVP.
 - [x] Períodos civis (semana rotativa, mês atual, últimos 3 meses, ano civil).
 - [x] "Ver tudo" mostra o histórico completo fora dos períodos.
 - [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
-- [ ] Conferido no Android.
+- [x] Conferido no Android em 2026-11-01.
 
 ## Contexto necessário
 
