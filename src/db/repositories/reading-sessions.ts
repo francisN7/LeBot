@@ -52,6 +52,11 @@ export type ReadingSessionsRepository = {
   listBetween(from: Date, to: Date): ReadingSessionRow[];
   /** Sessão mais recente de qualquer livro; `undefined` quando não há nenhuma. */
   latest(): ReadingSessionRow | undefined;
+  /**
+   * Última sessão de cada livro, uma linha por livro. A sessão que chega ao
+   * fim é sempre a última do livro, então ela data a conclusão (S10).
+   */
+  listLatestPerBook(): ReadingSessionRow[];
   create(input: CreateReadingSessionInput): ReadingSessionWrite;
   remove(id: string): ReadingSessionRemoval | undefined;
 };
@@ -90,6 +95,24 @@ export function createReadingSessionsRepository<TRunResult>(
         .orderBy(desc(readingSessions.readAt), desc(readingSessions.id))
         .limit(1)
         .get();
+    },
+
+    listLatestPerBook() {
+      const seen = new Set<string>();
+      const latestRows: ReadingSessionRow[] = [];
+
+      for (const row of db
+        .select()
+        .from(readingSessions)
+        .orderBy(desc(readingSessions.readAt), desc(readingSessions.id))
+        .all()) {
+        if (!seen.has(row.bookId)) {
+          seen.add(row.bookId);
+          latestRows.push(row);
+        }
+      }
+
+      return latestRows;
     },
 
     create(input) {

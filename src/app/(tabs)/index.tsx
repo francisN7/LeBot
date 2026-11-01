@@ -20,6 +20,7 @@ export default function EstanteRoute() {
       onOpenBook={(id) =>
         go(() => router.push({ pathname: '/livro/[id]', params: { id } }))
       }
+      onOpenStats={() => go(() => router.push('/estatisticas'))}
     />
   );
 }

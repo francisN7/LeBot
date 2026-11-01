@@ -11,4 +11,5 @@ export { Mascot, type MascotState, mascotLabel } from './Mascot';
 export { RatingStars } from './RatingStars';
 export { Screen, type ScreenScrollViewRef } from './Screen';
 export { Spine } from './Spine';
+export { StatsIcon } from './StatsIcon';
 export { TextField } from './TextField';

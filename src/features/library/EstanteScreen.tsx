@@ -1,5 +1,10 @@
 import { useState } from 'react';
-import { type LayoutChangeEvent, View, type ViewStyle } from 'react-native';
+import {
+  type LayoutChangeEvent,
+  Pressable,
+  View,
+  type ViewStyle,
+} from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 import {
@@ -12,6 +17,7 @@ import {
   RatingStars,
   Screen,
   Spine,
+  StatsIcon,
   TextField,
 } from '@/components/ui';
 import { useGenres } from '@/features/genres';
@@ -32,6 +38,8 @@ type ShelfFilter = 'all' | ReadingStatus;
 type EstanteScreenProps = {
   onOpenBook?: (bookId: string) => void;
   onCreateBook?: () => void;
+  /** Abre "Meu ritmo" (estatísticas); sem a prop, o atalho não aparece. */
+  onOpenStats?: () => void;
 };
 
 const filters: { value: ShelfFilter; label: string }[] = [
@@ -67,6 +75,7 @@ type QuickStatusState = {
 export function EstanteScreen({
   onOpenBook,
   onCreateBook,
+  onOpenStats,
 }: EstanteScreenProps = {}) {
   const [filter, setFilter] = useState<ShelfFilter>('all');
   const [query, setQuery] = useState('');
@@ -186,6 +195,20 @@ export function EstanteScreen({
             <AppText tone="muted">
               {books.length} livros · {visibleBooks.length} à vista
             </AppText>
+            {onOpenStats ? (
+              <Pressable
+                accessibilityLabel="Ver estatísticas de leitura"
+                accessibilityRole="button"
+                className="flex-row items-center gap-xs self-start active:opacity-60"
+                hitSlop={8}
+                onPress={onOpenStats}
+              >
+                <StatsIcon size={16} />
+                <AppText numberOfLines={1} tone="muted" variant="label">
+                  Meu ritmo
+                </AppText>
+              </Pressable>
+            ) : null}
           </View>
 
           <TextField

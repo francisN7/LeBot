@@ -16,6 +16,22 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 ### Added
 
+- S10: "Meu ritmo" (estatísticas). A Estante ganha um atalho discreto abaixo do
+  título que abre `/estatisticas`. Seletor de 4 semanas, 12 semanas e ano (12
+  meses corridos) no dia local; cartão do LêBot com uma frase calculada por
+  prioridade (sequência, conclusões, gênero dominante, alta sobre o período
+  anterior, nota média) e humor do mascote. Números de páginas, dias ativos e
+  sequência; prateleira de lombadas para o ritmo (sem biblioteca de gráfico, a
+  semana/mês corrente em dourado); gêneros em barras na cor de cada prateleira
+  com páginas e concluídos; mini-lombadas clicáveis dos livros concluídos no
+  período; nota média e distribuição de todas as resenhas. Sessão órfã conta
+  páginas e fica fora de gênero/nota; conclusão sem sessão usa `updated_at`
+  aproximado; período vazio mostra mascote e CTA, sem gráfico zerado. Agregação
+  pura (`period.ts`, `aggregate.ts`, `insights.ts`), `useStats` recalcula ao
+  registrar/desfazer leitura e `readingSessions.listLatestPerBook` data a
+  conclusão. Sem migração e sem lib de gráfico (ADR 0020). 35 testes novos (426
+  na suíte); lint, typecheck, test, doctor e export verdes; falta conferir no
+  Android.
 - S9: conclusão com resenha. Livro concluído pela sessão de leitura abre
   `/livro/[id]/resenha`; pela roda ou edição, o detalhe mostra o CTA. A resenha
   tem nota 1–5 obrigatória, texto e citação opcionais, e campos extras globais

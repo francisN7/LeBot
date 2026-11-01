@@ -2,7 +2,7 @@ import type { ReadingStatus } from '@/db/schema';
 
 export type { ReadingStatus };
 
-/** Livro como a UI enxerga: sem timestamps nem detalhes de persistência. */
+/** Livro como a UI enxerga: sem timestamps de persistência, exceto `updatedAt`. */
 export type Book = {
   id: string;
   title: string;
@@ -16,4 +16,9 @@ export type Book = {
   isbn: string | null;
   /** Caminho local da capa em `documentDirectory/covers/`. */
   coverUri: string | null;
+  /**
+   * Última alteração do livro. As estatísticas usam como data aproximada de
+   * conclusão quando o livro foi concluído sem sessão de leitura (roda/edição).
+   */
+  updatedAt: Date;
 };

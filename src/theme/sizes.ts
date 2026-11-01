@@ -6,6 +6,13 @@ export const sizes = {
   bookmark: { width: 18, height: 28 },
   /** Amostra do par de cores na lista e no formulário de gênero. */
   genreSwatch: { width: 48, height: 32 },
+  /** Gráfico de ritmo de "Meu ritmo": prateleira, barras e base. */
+  chart: {
+    plotHeight: 96,
+    barMinHeight: 6,
+    barWidth: 32,
+    barWidthCompact: 18,
+  },
 } as const;
 
 export const borderWidths = {

@@ -58,6 +58,8 @@ Arquivos de configuração: `babel.config.js` (`jsxImportSource: nativewind`),
 - `sizes.spine` = 88×128; `sizes.spineCompact` = 72×104.
 - `sizes.bookmark` = 18×28 (fita sobre a capa); `sizes.genreSwatch` = 48×32
   (par de cores na lista/formulário de gênero).
+- `sizes.chart` = prateleira de "Meu ritmo": `plotHeight` 96, `barMinHeight` 6,
+  `barWidth` 32 (4 semanas) e `barWidthCompact` 18 (12 semanas/ano).
 - `borderWidths.hairline` 1 · `strong` 2.
 - `opacities.decor` 0.25 · `disabled` 0.5 · `muted` 0.7.
 
@@ -309,6 +311,43 @@ textual.
 <Bookmark color={genre.colorLight} />
 ```
 
+### `StatsIcon`
+
+Três barras de livro em SVG, decorativas (`accessibilityElementsHidden`). É o
+ícone do atalho "Meu ritmo" na Estante; o rótulo fica no botão ao redor.
+
+```tsx
+<StatsIcon size={16} color={colors.navyMuted} />
+```
+
+### `Meu ritmo` (S10)
+
+A tela não é um dashboard: é uma página de diário. A ordem é cartão do LêBot →
+três números → ritmo → gêneros → concluídos → notas. Um mascote por tela (no
+cartão ou no vazio).
+
+- **Cartão do LêBot:** mascote de 64 px + uma frase calculada em `subtitle`.
+  O humor vem da mesma regra da frase (sequência, conclusão, nota alta, silêncio
+  recente). A sequência ≥ 2 ganha um adesivo `gold` com borda navy e rotação de
+  −3°, nunca emoji.
+- **Números:** um `Card` com três colunas (páginas, dias ativos, dias seguidos)
+  separadas por um filete navy a 15%. Número em `variant="title"`; a média por
+  dia ativo é uma `caption` abaixo do card.
+- **Ritmo:** `RhythmChart` desenha uma lombada por semana/mês sobre uma linha
+  navy de 2 px. Altura ∝ páginas (`barHeight`), topo arredondado, rosa; a
+  semana/mês corrente é `gold`. O valor compacto fica acima (`compactPages`,
+  "1,2k") e o rótulo embaixo. Cada coluna é acessível com o intervalo e o total
+  por extenso.
+- **Gêneros:** `GenreBars` em barras horizontais na cor do gênero, ordenadas por
+  páginas, top 5 + "Outros". Cada linha mostra "N páginas · M concluídos".
+- **Concluídos:** `FinishedStrip` com mini-lombadas (`Spine` 30×44, sem rótulo,
+  status `finished`) clicáveis e o mês abreviado embaixo. Sem concluídos, o card
+  não aparece.
+- **Notas:** `RatingSummary` com média, `RatingStars` de leitura e distribuição
+  5→1 em barrinhas douradas. Média e distribuição são de todas as resenhas; o
+  cartão diz isso.
+- **Vazio:** mascote `thinking`, frase e "Ir para Hoje"; nenhum gráfico zerado.
+
 ## Gêneros e cores
 
 - `src/theme/genre-colors.ts` tem 10 pares claro/escuro. O gênero grava os hexes,
@@ -370,12 +409,14 @@ it('mostra a estante', async () => {
 - Rotas em `src/app/(tabs)/` só reexportam a tela da feature.
 - Telas vivem em `src/features/<nome>/<Nome>Screen.tsx`.
 - Rotas fora das abas: `/livro/novo`, `/livro/[id]` e `/livro/[id]/editar`
-  (S3); `/generos`, `/generos/novo` e `/generos/[id]/editar` (S3.2). Elas
-  passam callbacks (`onBack`, `onEdit`, `onDone`) para a tela, que continua sem
-  depender do router nos testes.
-- Livros, gêneros, ordem, preferências e sessões de leitura vêm do SQLite via
-  `useBooks`/`useGenres`/`useQueue`/`useSettings`/`useReadingSessions`/
-  `useRecentSessions`; não há fixture de dados reais.
+  (S3); `/generos`, `/generos/novo` e `/generos/[id]/editar` (S3.2);
+  `/livro/[id]/resenha` (S9) e `/estatisticas` (S10). Elas passam callbacks
+  (`onBack`, `onEdit`, `onDone`) para a tela, que continua sem depender do
+  router nos testes.
+- Livros, gêneros, ordem, preferências, sessões de leitura e estatísticas vêm do
+  SQLite via `useBooks`/`useGenres`/`useQueue`/`useSettings`/
+  `useReadingSessions`/`useRecentSessions`/`useStats`; não há fixture de dados
+  reais.
 - A Ordem usa `react-native-gesture-handler` + Reanimated para arrastar; o
   `Screen` adota o `ScrollView` do gesture handler.
 - As 4 abas atuais, nesta ordem: Estante, Hoje, Ordem, Ajustes.

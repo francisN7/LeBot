@@ -286,4 +286,33 @@ com o valor do plano e virada do dia), a ordem das abas, a legenda da Ordem em
 tela pequena e o arrastar pela alça (toque longo, prévia que abre espaço,
 rolagem vertical e setas com leitor de tela).
 
-A suíte atual tem 49 arquivos e 391 testes (`npm run test`).
+## Cobertura da S10
+
+- `src/lib/day.test.ts`: dia local, diferença entre dias, início/fim do dia e
+  soma de dias atravessando mês e ano. É a base que o plano e as estatísticas
+  compartilham desde a S10.
+- `src/features/stats/period.test.ts`: janela de 4 e 12 semanas terminando hoje,
+  janela anterior encadeada sem sobreposição, 12 meses corridos, rótulos e
+  descrições acessíveis.
+- `src/features/stats/charts.test.ts`: escala das barras com piso, largura por
+  quantidade, "1,2k", fatia com mínimo visível e vírgula decimal.
+- `src/features/stats/aggregate.test.ts`: soma de páginas (com `appliedPages`),
+  dias ativos e média, sequência com folga de hoje e parada na falha, sessão
+  órfã contando páginas sem gênero, conclusão pela última sessão × `updated_at`
+  aproximado × fora do período, nota média sem livro excluído, comparação com a
+  janela anterior, "Outros" a partir do sexto gênero, vazio e troca de recorte.
+- `src/features/stats/use-stats.test.tsx`: registrar uma sessão recalcula a tela
+  na hora (assinatura do repositório de leitura).
+- `src/features/stats/StatsScreen.test.tsx`: números e frase do período, troca
+  para 12 semanas, estado vazio sem gráfico, abertura do concluído pela
+  mini-lombada e voltar.
+- `src/components/ui/StatsIcon.test.tsx`: o ícone existe e é decorativo.
+- `src/db/repositories/reading-sessions.test.ts`: `listLatestPerBook` devolve só
+  a sessão mais recente de cada livro.
+- `src/features/library/EstanteScreen.test.tsx`: atalho "Meu ritmo" chama a
+  navegação.
+
+O que continua manual: no Android, a prateleira com 4 e 12 barras, os rótulos
+curtos, a rotação do adesivo de sequência, as mini-lombadas e o estado vazio.
+
+A suíte atual tem 56 arquivos e 426 testes (`npm run test`).

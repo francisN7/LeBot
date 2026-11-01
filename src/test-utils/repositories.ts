@@ -483,6 +483,20 @@ export function createInMemoryReadingSessionsRepository(
       return sortedDescending(current)[0];
     },
 
+    listLatestPerBook() {
+      const seen = new Set<string>();
+      const latestRows: ReadingSessionRow[] = [];
+
+      for (const row of sortedDescending(current)) {
+        if (!seen.has(row.bookId)) {
+          seen.add(row.bookId);
+          latestRows.push({ ...row });
+        }
+      }
+
+      return latestRows;
+    },
+
     create(input) {
       if (!Number.isInteger(input.pages) || input.pages <= 0) {
         throw new Error('Informe pelo menos 1 página');

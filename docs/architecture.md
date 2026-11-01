@@ -11,7 +11,7 @@ src/app/          rotas (Expo Router) — só orquestram telas
 src/features/*/   UI + hooks + serviços de uma feature
 src/db/           schema Drizzle, client, migrações, seed e repositórios
 src/lib/          funções puras, sem React Native
-src/components/ui componentes genéricos e arte vetorial (Screen, AppText, Button, Card, Chip, ConfirmDialog, BackButton, Spine, SpineArtwork, SpineFace, Mascot, TextField, BookCover, Bookmark, BookArt)
+src/components/ui componentes genéricos e arte vetorial (Screen, AppText, Button, Card, Chip, ConfirmDialog, BackButton, Spine, SpineArtwork, SpineFace, Mascot, TextField, BookCover, Bookmark, BookArt, StatsIcon)
 src/theme/        tokens (cor, espaçamento, raio, tipografia, tamanhos)
 src/test-utils/   banco sql.js, repositórios em memória e providers de teste
 scripts/          geradores (ícone/splash e faixas do ISBN)
@@ -24,7 +24,8 @@ Regras:
 1. Tela não fala SQL: chama repositório, exposto por hook da feature.
 2. Repositório não conhece React.
 3. Motor do plano (`src/features/planner/engine/`, S6) é puro e testável fora do
-   React Native.
+   React Native. A agregação de estatísticas (`src/features/stats/aggregate.ts`,
+   S10) segue a mesma regra.
 4. `src/app/` só compõe: sem regra de negócio, sem acesso a dados.
 5. Sem `any`; validação de borda com Zod.
 6. Estilo usa `className` (NativeWind) e tokens de `src/theme/`; nada de cor ou
@@ -39,7 +40,7 @@ Regras:
 SQLite (expo-sqlite + Drizzle)
   → repositório (src/db/repositories, síncrono, recebe o db)
   → hook da feature (useBooks, useGenres, useQueue, useSettings,
-    useReadingSessions, com refresh após escrita)
+    useReadingSessions, useStats, com refresh após escrita)
   → tela
 ```
 
@@ -142,6 +143,31 @@ SQLite (expo-sqlite + Drizzle)
   preenchida e salva por upsert. A Estante mostra `★★★★` só em concluído com
   resenha.
 - `quote` é coluna própria, pensando na futura galeria de citações (backlog).
+
+## Estatísticas (S10)
+
+- Rota `/estatisticas` ("Meu ritmo"), aberta pelo atalho discreto da Estante
+  abaixo do título. Não existe aba nova: a Hoje continua focada no plano.
+- `src/features/stats/` guarda `StatsScreen`, os gráficos (`RhythmChart`,
+  `GenreBars`, `RatingSummary`, `FinishedStrip`), o `useStats` e três módulos
+  puros: `period.ts` (janelas e barras), `aggregate.ts` (junção e números) e
+  `insights.ts` (frase e humor do mascote).
+- O período (4 semanas, 12 semanas ou 12 meses) é derivado de `today` no dia
+  local. Semanas terminam hoje; o ano são 12 meses corridos. A janela anterior
+  do mesmo tamanho serve só para a comparação do insight.
+- `useStats` lê `readingSessions.listBetween` (uma janela que cobre o período e
+  a sequência de até 366 dias), `listLatestPerBook` (data de conclusão),
+  `useBooks`, `useGenres` e `useReviews`. Registrar ou desfazer sessão recalcula
+  a tela na hora, pela assinatura do repositório de leitura.
+- "Concluído em" é a última sessão do livro; livro concluído sem sessão (roda ou
+  edição) usa `books.updated_at` e é marcado como aproximado. Nada de
+  `finished_at` no MVP.
+- Sessões órfãs somam páginas no período e ficam fora de gênero/nota. Resenhas
+  de livro excluído são ignoradas.
+- Gráficos são `View`/NativeWind: prateleira de lombadas para o ritmo e barras
+  horizontais na cor do gênero. Cada barra é um elemento acessível com o total
+  por extenso; não há biblioteca de gráfico (ADR 0020).
+- Vazio: mascote, frase e CTA para a Hoje, sem gráfico zerado.
 
 ## Abas e papéis (S7.1)
 
@@ -267,13 +293,18 @@ Nenhum passo apaga dados ou esconde erro de migração.
   [`docs/adr/0018-concluir-preenche-paginas.md`](adr/0018-concluir-preenche-paginas.md)
 - Resenha e campos extras:
   [`docs/adr/0019-resenha-e-campos-extras.md`](adr/0019-resenha-e-campos-extras.md)
+- Estatísticas sem biblioteca de gráfico:
+  [`docs/adr/0020-estatisticas.md`](adr/0020-estatisticas.md)
 
 ## Pendências conhecidas
 
 - Os ícones e o splash já são definitivos desde a S4a
   (`assets/images/` + `scripts/build-icons.mjs`), mas só aparecem em build
   nativo; o Expo Go não os exibe.
-- `cover_uri` guarda caminho absoluto do aparelho: o backup JSON (S11) não pode
-  reutilizá-lo em outro device.
+- O `cover_uri` guarda caminho absoluto do aparelho: o backup JSON (S11) não
+  pode reutilizá-lo em outro device.
+- Conclusão sem sessão (roda/edição) é datada por `books.updated_at`: editar um
+  livro já concluído pode mover a data aproximada para a edição. Uma coluna
+  `finished_at` resolveria, mas não entrou no MVP (ADR 0020).
 - Tema escuro: os gêneros já guardam `color_dark`, mas faltam o toggle, os
   tokens de superfície e revisar o contraste das telas.

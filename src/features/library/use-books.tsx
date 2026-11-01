@@ -81,6 +81,7 @@ export function toBook(row: BookRow): Book {
     pagesRead: row.pagesRead,
     isbn: row.isbn,
     coverUri: row.coverUri,
+    updatedAt: row.updatedAt,
   };
 }
 

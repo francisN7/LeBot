@@ -117,6 +117,15 @@ describe('EstanteScreen', () => {
     expect(onOpenBook).toHaveBeenCalledWith('book-hobbit');
   });
 
+  it('abre "Meu ritmo" pelo atalho discreto do cabeçalho', async () => {
+    const onOpenStats = jest.fn();
+    await renderWithProviders(<EstanteScreen onOpenStats={onOpenStats} />);
+
+    await fireEvent.press(screen.getByLabelText('Ver estatísticas de leitura'));
+
+    expect(onOpenStats).toHaveBeenCalledTimes(1);
+  });
+
   it('usa a capa no lugar da lombada quando o livro tem uma', async () => {
     await renderWithProviders(<EstanteScreen />, {
       booksRepository: createInMemoryBooksRepository([

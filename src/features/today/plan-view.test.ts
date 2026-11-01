@@ -16,6 +16,7 @@ function makeBook(overrides: Partial<Book> & { id: string }): Book {
     pagesRead: 0,
     isbn: null,
     coverUri: null,
+    updatedAt: new Date(2026, 0, 1),
     ...overrides,
   };
 }
