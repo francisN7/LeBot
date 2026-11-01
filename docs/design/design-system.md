@@ -337,8 +337,9 @@ it('mostra a estante', async () => {
   (S3); `/generos`, `/generos/novo` e `/generos/[id]/editar` (S3.2). Elas
   passam callbacks (`onBack`, `onEdit`, `onDone`) para a tela, que continua sem
   depender do router nos testes.
-- Livros, gêneros, preferências e sessões de leitura vêm do SQLite via
-  `useBooks`/`useGenres`/`useSettings`/`useReadingSessions`/`useRecentSessions`;
-  não há fixture de dados reais.
-- Ainda é fixture: `queue` (até S8).
+- Livros, gêneros, ordem, preferências e sessões de leitura vêm do SQLite via
+  `useBooks`/`useGenres`/`useQueue`/`useSettings`/`useReadingSessions`/
+  `useRecentSessions`; não há fixture de dados reais.
+- A Ordem usa `react-native-gesture-handler` + Reanimated para arrastar; o
+  `Screen` adota o `ScrollView` do gesture handler.
 - As 4 abas atuais, nesta ordem: Estante, Hoje, Ordem, Ajustes.

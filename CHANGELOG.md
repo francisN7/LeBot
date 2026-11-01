@@ -7,6 +7,13 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 ### Added
 
+- S8: Ordem persistida em `queue_items` (migração aditiva `0005`), com
+  adicionar, remover com confirmação, reordenar arrastando pela alça (RNGH +
+  Reanimated) ou pelas setas ↑/↓ e "Sugerir ordem" que alterna gênero sem perder
+  nem duplicar livro. `useQueue`/`useQueueBookIds` assinam o repositório, então a
+  Hoje passa a usar a sequência real. `Screen` adota o `ScrollView` do gesture
+  handler e o app monta `GestureHandlerRootView`; ADR 0016. 22 testes novos (335
+  na suíte); falta conferir o arrastar no Android.
 - S7.1: registrar leitura retoma livro `paused`/`queued` como `reading` e
   conclui em `finished` (ADR 0015); Hoje ganha "Plano do dia" e "Lido hoje" com
   páginas e hora, meta batida sem fração acima de 100% e botão explícito em cada

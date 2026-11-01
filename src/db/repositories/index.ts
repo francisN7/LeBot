@@ -1,6 +1,7 @@
 import { getDb } from '../client';
 import { type BooksRepository, createBooksRepository } from './books';
 import { createGenresRepository, type GenresRepository } from './genres';
+import { createQueueRepository, type QueueRepository } from './queue';
 import {
   createReadingSessionsRepository,
   type ReadingSessionsRepository,
@@ -9,6 +10,7 @@ import { createSettingsRepository, type SettingsRepository } from './settings';
 
 let booksInstance: BooksRepository | undefined;
 let genresInstance: GenresRepository | undefined;
+let queueInstance: QueueRepository | undefined;
 let readingSessionsInstance: ReadingSessionsRepository | undefined;
 let settingsInstance: SettingsRepository | undefined;
 
@@ -21,6 +23,11 @@ export function getBooksRepository(): BooksRepository {
 export function getGenresRepository(): GenresRepository {
   genresInstance ??= createGenresRepository(getDb());
   return genresInstance;
+}
+
+export function getQueueRepository(): QueueRepository {
+  queueInstance ??= createQueueRepository(getDb());
+  return queueInstance;
 }
 
 export function getReadingSessionsRepository(): ReadingSessionsRepository {
@@ -37,6 +44,7 @@ export function getSettingsRepository(): SettingsRepository {
 export function resetRepositoriesForTests(): void {
   booksInstance = undefined;
   genresInstance = undefined;
+  queueInstance = undefined;
   readingSessionsInstance = undefined;
   settingsInstance = undefined;
 }
@@ -47,6 +55,7 @@ export type {
   GenrePatch,
   GenresRepository,
 } from './genres';
+export type { QueueRepository } from './queue';
 export type {
   CreateReadingSessionInput,
   ReadingSessionRemoval,

@@ -38,8 +38,8 @@ Regras:
 ```
 SQLite (expo-sqlite + Drizzle)
   → repositório (src/db/repositories, síncrono, recebe o db)
-  → hook da feature (useBooks, useGenres, useSettings, useReadingSessions,
-    com refresh após escrita)
+  → hook da feature (useBooks, useGenres, useQueue, useSettings,
+    useReadingSessions, com refresh após escrita)
   → tela
 ```
 
@@ -52,11 +52,13 @@ SQLite (expo-sqlite + Drizzle)
 - `useBooks` avisa todas as telas que usam o mesmo repositório depois de
   escrever (assinaturas em `WeakMap`), então Estante, Ordem e Detalhe não ficam
   com dados velhos ao voltar do formulário. `useGenres` segue o mesmo padrão e
-  expõe `genreById` para nome e cor. `useReadingSessions` avisa o repositório de
-  leitura **e** chama `notifyBooksChanged`, então registrar páginas atualiza o
-  progresso em todas as telas na hora. `useRecentSessions` assina o mesmo
-  repositório e junta a janela de 7 dias com a sessão mais recente de qualquer
-  data (é o que permite a volta leve).
+  expõe `genreById` para nome e cor. `useQueue` usa o mesmo padrão: mover um
+  livro na Ordem atualiza `useQueueBookIds` e, com ele, o plano da Hoje.
+  `useReadingSessions` avisa o repositório de leitura **e** chama
+  `notifyBooksChanged`, então registrar páginas atualiza o progresso em todas as
+  telas na hora. `useRecentSessions` assina o mesmo repositório e junta a janela
+  de 7 dias com a sessão mais recente de qualquer data (é o que permite a volta
+  leve).
 - Erros de escrita sobem como exceção; validação de entrada é Zod no
   repositório.
 
@@ -115,16 +117,32 @@ SQLite (expo-sqlite + Drizzle)
 - Ordem das abas: **Estante, Hoje, Ordem, Ajustes**.
 - **Hoje** manda na ação: mostra o plano do dia, registra leitura pelo botão de
   cada bloco e lista o que já foi lido hoje em "Lido hoje".
-- **Ordem** (`/ordem`, `QueueScreen`) só mostra a sequência que o dono pretende
-  ler depois do livro atual. Nesta sessão ainda é fixture e somente leitura:
-  sem páginas, sem "Começar" e sem registro. A S8 devolve a escrita.
+- **Ordem** (`/ordem`, `QueueScreen`) monta a sequência que o dono pretende ler
+  depois do livro atual: adicionar, remover e reordenar. Não registra leitura;
+  tocar no livro abre o detalhe.
 - Glossário: a **UI diz "Ordem"**; o **código continua em inglês** (`queue`,
   `QueueItem`, `useQueueBookIds`). "Fila" só aparece em docs e sessões
   anteriores à S7.1, como termo histórico.
 - Legenda aprovada: "A sequência é sua: o que ler depois do livro atual."; a
   contagem é "N livros depois do atual" e a seção, "Na ordem".
 - O plano é só de hoje; a Ordem é a sequência guardada e nunca uma previsão de
-  amanhã. Ela muda quando o dono editar (S8).
+  amanhã.
+
+## Ordem (S8)
+
+- `src/features/queue/` tem `QueueScreen`, `QueueRow`, `AddToQueueSheet`,
+  `suggest-order.ts` e `useQueue`.
+- A sequência vive em `queue_items` (posição compacta 0..n-1) e é reescrita numa
+  transação por `move`/`replaceAll` (ADR 0016). Entram todos os livros não
+  concluídos; pausado entra sem mudar de status e fica fora do plano.
+- Reordenar pelo arrastar usa `react-native-gesture-handler` + Reanimated: a
+  alça entrega o deslocamento, a tela soma as alturas medidas das linhas e chama
+  `move`. As setas ↑/↓ fazem o mesmo e são o caminho acessível.
+- "Sugerir ordem" (`suggest-order.ts`) mantém o primeiro livro e alterna gênero,
+  sem perder nem duplicar; aplica direto na Ordem e fica desabilitado quando a
+  sugestão já é a ordem atual.
+- Adicionar/remover/reordenar não toca em `books.status`: registrar leitura
+  continua sendo só na Hoje (S7.1).
 
 ## Plano (S6)
 
@@ -135,8 +153,8 @@ SQLite (expo-sqlite + Drizzle)
   60% a partir de meta 10, alternância de gênero e sugestão paralela) estão em
   [`docs/planner-algorithm.md`](planner-algorithm.md); a decisão, na ADR 0013.
 - `src/features/planner/index.ts` é o barril da feature; a tela Hoje consome o
-  motor desde a S7. A S8 passa a ordem real no lugar da fixture. O motor não
-  grava plano nem conhece a fixture.
+  motor desde a S7. Desde a S8, `useQueueBookIds` entrega a ordem persistida. O
+  motor não grava plano nem conhece a Ordem.
 
 ## Hoje (S7/S7.1)
 
@@ -159,8 +177,8 @@ SQLite (expo-sqlite + Drizzle)
 - O plano **não é persistido**: recalcula a cada abertura (decisão da S7). As
   sessões e `pages_read` são a fonte de verdade do progresso; o motor devolve o
   plano bruto e a UI compara com o que já foi lido hoje.
-- A ordem vem de `useQueueBookIds` (fixture até a S8). A tela não copia a
-  fixture.
+- A ordem vem de `useQueueBookIds`, lida de `queue_items`; reordenar na Ordem
+  atualiza o hook e o plano na próxima montagem.
 - O vazio mostra o mascote e leva para a Ordem ("Ver a ordem").
 - Decisões: ADR 0014 e ADR 0015.
 
@@ -172,7 +190,10 @@ SQLite (expo-sqlite + Drizzle)
 2. abre o banco (falha → tela `DatabaseError`);
 3. aplica as migrações com `useMigrations` (falha → tela `DatabaseError`);
 4. roda o seed só em banco vazio (`seedIfEmpty`);
-5. esconde a splash e monta o `Stack`.
+5. esconde a splash e monta o `Stack` dentro do `GestureHandlerRootView`.
+
+O `GestureHandlerRootView` é necessário para o arrastar da Ordem; o `Screen`
+usa o `ScrollView` do gesture handler para o gesto não brigar com a rolagem.
 
 Nenhum passo apaga dados ou esconde erro de migração.
 
@@ -197,11 +218,11 @@ Nenhum passo apaga dados ou esconde erro de migração.
   [`docs/adr/0014-plano-recalculado-na-hoje.md`](adr/0014-plano-recalculado-na-hoje.md)
 - Status ao registrar leitura:
   [`docs/adr/0015-status-ao-registrar.md`](adr/0015-status-ao-registrar.md)
+- Ordem persistida:
+  [`docs/adr/0016-ordem-persistida.md`](adr/0016-ordem-persistida.md)
 
 ## Pendências conhecidas
 
-- A ordem continua fixture até a S8: a Hoje usa a ordem só para desempatar e
-  escolher o próximo. A Ordem ainda é somente leitura.
 - Os ícones e o splash já são definitivos desde a S4a
   (`assets/images/` + `scripts/build-icons.mjs`), mas só aparecem em build
   nativo; o Expo Go não os exibe.

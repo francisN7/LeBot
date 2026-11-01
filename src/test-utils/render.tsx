@@ -1,10 +1,12 @@
 import { type RenderOptions, render } from '@testing-library/react-native';
 import type { ReactElement, ReactNode } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type {
   BooksRepository,
   GenresRepository,
+  QueueRepository,
   ReadingSessionsRepository,
   SettingsRepository,
 } from '@/db/repositories';
@@ -13,6 +15,7 @@ import {
   BooksRepositoryProvider,
   CoverServiceProvider,
 } from '@/features/library';
+import { QueueRepositoryProvider } from '@/features/queue';
 import { ReadingSessionsRepositoryProvider } from '@/features/reading';
 import { SettingsRepositoryProvider } from '@/features/settings';
 import type { CoverService } from '@/lib/covers';
@@ -21,6 +24,7 @@ import { createFakeCoverService } from './covers';
 import {
   createInMemoryBooksRepository,
   createInMemoryGenresRepository,
+  createInMemoryQueueRepository,
   createInMemoryReadingSessionsRepository,
   createInMemorySettingsRepository,
   testGenreRows,
@@ -34,6 +38,7 @@ const metrics = {
 type RenderWithProvidersOptions = Omit<RenderOptions, 'wrapper'> & {
   booksRepository?: BooksRepository;
   genresRepository?: GenresRepository;
+  queueRepository?: QueueRepository;
   readingRepository?: ReadingSessionsRepository;
   settingsRepository?: SettingsRepository;
   coverService?: CoverService;
@@ -53,6 +58,7 @@ export function renderWithProviders(
         booksRepository.list().filter((book) => book.genreId === genreId)
           .length,
     ),
+    queueRepository = createInMemoryQueueRepository(booksRepository),
     readingRepository = createInMemoryReadingSessionsRepository(
       booksRepository,
     ),
@@ -62,19 +68,23 @@ export function renderWithProviders(
   }: RenderWithProvidersOptions = {},
 ) {
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <SafeAreaProvider initialMetrics={metrics}>
-      <BooksRepositoryProvider repository={booksRepository}>
-        <GenresRepositoryProvider repository={genresRepository}>
-          <ReadingSessionsRepositoryProvider repository={readingRepository}>
-            <SettingsRepositoryProvider repository={settingsRepository}>
-              <CoverServiceProvider service={coverService}>
-                {children}
-              </CoverServiceProvider>
-            </SettingsRepositoryProvider>
-          </ReadingSessionsRepositoryProvider>
-        </GenresRepositoryProvider>
-      </BooksRepositoryProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider initialMetrics={metrics}>
+        <BooksRepositoryProvider repository={booksRepository}>
+          <GenresRepositoryProvider repository={genresRepository}>
+            <QueueRepositoryProvider repository={queueRepository}>
+              <ReadingSessionsRepositoryProvider repository={readingRepository}>
+                <SettingsRepositoryProvider repository={settingsRepository}>
+                  <CoverServiceProvider service={coverService}>
+                    {children}
+                  </CoverServiceProvider>
+                </SettingsRepositoryProvider>
+              </ReadingSessionsRepositoryProvider>
+            </QueueRepositoryProvider>
+          </GenresRepositoryProvider>
+        </BooksRepositoryProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 
   return render(ui, { wrapper, ...options });

@@ -15,6 +15,8 @@ type ButtonProps = {
   disabled?: boolean;
   className?: string;
   testID?: string;
+  /** Nome falado; por padrão é o próprio rótulo visível. */
+  accessibilityLabel?: string;
 };
 
 const surfaceStyles = StyleSheet.create({
@@ -55,9 +57,11 @@ export function Button({
   disabled = false,
   className,
   testID,
+  accessibilityLabel,
 }: ButtonProps) {
   return (
     <Pressable
+      accessibilityLabel={accessibilityLabel ?? label}
       accessibilityRole="button"
       accessibilityState={{ disabled }}
       className={twMerge(

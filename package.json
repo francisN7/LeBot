@@ -73,8 +73,12 @@
   "jest": {
     "preset": "jest-expo",
     "resolver": "react-native-reanimated/jest/resolver",
+    "setupFiles": [
+      "<rootDir>/node_modules/react-native-gesture-handler/jestSetup.js"
+    ],
     "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/src/$1"
+      "^@/(.*)$": "<rootDir>/src/$1",
+      "^react-native-worklets$": "<rootDir>/node_modules/react-native-worklets/src/mock.ts"
     }
   }
 }

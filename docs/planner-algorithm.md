@@ -3,8 +3,8 @@
 O motor da S6 responde uma pergunta só: **quais livros ler hoje e quantas páginas
 em cada um**. Ele é uma função pura (`buildPlan`) em
 `src/features/planner/engine/`: não importa React Native, banco, rede ou IA, não
-lê o relógio global e não usa aleatoriedade. A S7 mostra o plano; a S8 troca a
-fila fictícia pela fila real.
+lê o relógio global e não usa aleatoriedade. A S7 mostra o plano; desde a S8 a
+ordem vem de `queue_items`, não de fixture.
 
 ## Entrada
 

@@ -5,7 +5,13 @@ import type {
   SettingsRepository,
 } from '@/db/repositories';
 import { booksUsingGenre } from '@/db/repositories/genres';
-import type { BookRow, GenreRow, ReadingSessionRow } from '@/db/schema';
+import type { QueueRepository } from '@/db/repositories/queue';
+import type {
+  BookRow,
+  GenreRow,
+  QueueItemRow,
+  ReadingSessionRow,
+} from '@/db/schema';
 import { seedBooks, seedSettings } from '@/db/seed';
 import { normalizeGenreName } from '@/lib/genre-name';
 
@@ -25,6 +31,27 @@ export const testBookRows: BookRow[] = seedBooks.map((book, index) => ({
   createdAt: new Date(baseTime + index * 1_000),
   updatedAt: new Date(baseTime + index * 1_000),
 }));
+
+/**
+ * Ordem inicial dos testes: a mesma sequência que as telas viam antes da S8,
+ * agora gravada como linhas de verdade. É dado de teste, não fixture do app.
+ */
+export const testQueueRows: QueueItemRow[] = [
+  {
+    bookId: 'book-orgulho',
+    position: 0,
+    note: 'Clássico leve para alternar com a não-ficção',
+    createdAt: new Date(baseTime + 10_000),
+    updatedAt: new Date(baseTime + 10_000),
+  },
+  {
+    bookId: 'book-coraline',
+    position: 1,
+    note: 'Retomada curta depois do Hobbit',
+    createdAt: new Date(baseTime + 11_000),
+    updatedAt: new Date(baseTime + 11_000),
+  },
+];
 
 /** Os 6 gêneros de fábrica, iguais aos que a migração `0002` insere. */
 const defaultGenreSeeds: Omit<GenreRow, 'createdAt' | 'updatedAt'>[] = [
@@ -272,6 +299,148 @@ export function createInMemoryGenresRepository(
   };
 
   return repository;
+}
+
+/** Repositório em memória da ordem: mesma transação e mesmas regras do real. */
+export function createInMemoryQueueRepository(
+  booksRepository: BooksRepository,
+  rows: QueueItemRow[] = testQueueRows,
+): QueueRepository {
+  let current = rows.map((row) => ({ ...row }));
+
+  function validBookIds(): Set<string> {
+    return new Set(
+      booksRepository
+        .list()
+        .filter((book) => book.status !== 'finished')
+        .map((book) => book.id),
+    );
+  }
+
+  function visible(): QueueItemRow[] {
+    const valid = validBookIds();
+
+    return current
+      .filter((row) => valid.has(row.bookId))
+      .sort(
+        (first, second) =>
+          first.position - second.position ||
+          first.bookId.localeCompare(second.bookId),
+      );
+  }
+
+  function normalizeIds(bookIds: readonly string[]): string[] {
+    const valid = validBookIds();
+    const seen = new Set<string>();
+
+    return bookIds.filter((bookId) => {
+      if (!valid.has(bookId) || seen.has(bookId)) {
+        return false;
+      }
+
+      seen.add(bookId);
+      return true;
+    });
+  }
+
+  function writeOrder(bookIds: readonly string[]): QueueItemRow[] {
+    const desired = normalizeIds(bookIds);
+    const wanted = new Set(desired);
+    const existing = new Map(current.map((row) => [row.bookId, row] as const));
+    const now = new Date();
+
+    current = current.filter((row) => wanted.has(row.bookId));
+
+    desired.forEach((bookId, position) => {
+      const row = existing.get(bookId);
+
+      if (!row) {
+        current.push({
+          bookId,
+          position,
+          note: null,
+          createdAt: now,
+          updatedAt: now,
+        });
+        return;
+      }
+
+      row.position = position;
+      row.updatedAt = now;
+    });
+
+    return visible();
+  }
+
+  return {
+    list() {
+      return visible();
+    },
+
+    add(bookId, note) {
+      const book = booksRepository.findById(bookId);
+
+      if (!book) {
+        throw new Error('Livro não encontrado');
+      }
+
+      if (book.status === 'finished') {
+        throw new Error('Livro concluído não entra na ordem');
+      }
+
+      const currentIds = visible().map((row) => row.bookId);
+      writeOrder(
+        currentIds.includes(bookId) ? currentIds : [...currentIds, bookId],
+      );
+
+      if (note !== undefined && note !== null) {
+        const row = current.find((item) => item.bookId === bookId);
+
+        if (row) {
+          row.note = note.trim();
+          row.updatedAt = new Date();
+        }
+      }
+
+      const row = current.find((item) => item.bookId === bookId);
+
+      if (!row) {
+        throw new Error('Livro não encontrado');
+      }
+
+      return { ...row };
+    },
+
+    remove(bookId) {
+      const currentIds = visible().map((row) => row.bookId);
+      const next = currentIds.filter((id) => id !== bookId);
+      writeOrder(next);
+      return next.length !== currentIds.length;
+    },
+
+    move(bookId, toPosition) {
+      const currentIds = visible().map((row) => row.bookId);
+      const from = currentIds.indexOf(bookId);
+
+      if (from < 0) {
+        return writeOrder(currentIds);
+      }
+
+      const target = Math.min(
+        Math.max(Number.isFinite(toPosition) ? toPosition : from, 0),
+        currentIds.length - 1,
+      );
+      const next = [...currentIds];
+      next.splice(from, 1);
+      next.splice(target, 0, bookId);
+
+      return writeOrder(next);
+    },
+
+    replaceAll(bookIds) {
+      return writeOrder(bookIds);
+    },
+  };
 }
 
 /** Repositório em memória da leitura: mexe no mesmo repositório de livros. */

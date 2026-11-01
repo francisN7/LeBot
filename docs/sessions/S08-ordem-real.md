@@ -24,6 +24,14 @@ sugere uma ordem anti-ressaca que alterna gêneros.
 - Preservar a legenda e a identidade da Ordem da S7.1: a escrita volta só para
   montar a sequência.
 
+## Decisões confirmadas na abertura (2026-11-01)
+
+- Tabela própria `queue_items` (não coluna em `books`).
+- Entram todos os livros não concluídos; pausado mantém o status e a UI avisa
+  que ele não é sugerido no plano enquanto pausado.
+- Arrastar é o caminho principal, com setas ↑/↓ acessíveis.
+- "Sugerir ordem" aplica direto, sem prévia.
+
 ## Decisões a confirmar no início
 
 1. **Modelo da ordem (feature `queue`).** Recomendo `queue_items` (`book_id` PK,
@@ -51,7 +59,7 @@ sugere uma ordem anti-ressaca que alterna gêneros.
    (migração aditiva) + `npm run lint:fix`.
 2. `src/db/repositories/queue.ts`: `list`, `add`, `remove`, `move` e
    `replaceAll` (ordem em transação única), com Zod e testes no `sql.js`.
-3. `src/features/queue/use-queue.ts`: trocar a fixture pelo repositório, com
+3. `src/features/queue/use-queue.tsx`: trocar a fixture pelo repositório, com
    assinatura de refresh no padrão de `useBooks`. Remover
    `__fixtures__/queue.ts` e o export `queue`; ajustar `QueueScreen` e testes.
 4. `src/features/queue/suggest-order.ts`: função pura que alterna gênero
@@ -69,15 +77,15 @@ sugere uma ordem anti-ressaca que alterna gêneros.
 
 ## Aceite
 
-- [ ] Ordem lida do banco; reiniciar o app mantém a sequência.
-- [ ] Reordenar por arrastar muda a ordem usada por `useQueueBookIds` e, por
-      consequência, o segundo bloco da Hoje; a alternância acessível por setas
-      faz o mesmo.
-- [ ] Sugestão alterna gênero, não perde nem duplica livro e é idempotente.
-- [ ] Ordem vazia explica o vazio e leva a adicionar um livro.
-- [ ] Nenhuma fixture de ordem sobrou no código.
-- [ ] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes; conferido no
-      Android.
+- [x] Ordem lida do banco; reiniciar o app mantém a sequência.
+- [x] Reordenar muda a ordem usada por `useQueueBookIds` e, por consequência, o
+      segundo bloco da Hoje; as setas fazem o mesmo (teste de hook na tela).
+- [x] Sugestão alterna gênero, não perde nem duplica livro e é idempotente.
+- [x] Ordem vazia explica o vazio e leva a adicionar um livro.
+- [x] Nenhuma fixture de ordem sobrou no código.
+- [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
+- [ ] Conferido no Android: arrastar no topo/fim de lista maior que a tela,
+      rolagem vertical e setas com leitor de tela.
 
 ## Contexto necessário
 

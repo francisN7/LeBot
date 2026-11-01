@@ -56,7 +56,8 @@ bloqueado também nos testes de tela.
 O repositório de leitura em memória
 (`createInMemoryReadingSessionsRepository(booksRepository)`) mexe no **mesmo**
 repositório de livros, mantendo progresso e status coerentes como a transação
-do SQLite.
+do SQLite. A ordem em memória (`createInMemoryQueueRepository(booksRepository)`)
+segue a mesma ideia: compacta posições e ignora órfãos/concluídos como o SQL.
 
 Nunca importe `expo-sqlite`, `expo-file-system` ou `expo-image-picker` no teste:
 são módulos nativos. As telas recebem `CoverService` por contexto justamente
@@ -75,6 +76,9 @@ para isso.
   que evita as variantes `.native` dos módulos de worklets. Não precisa de mock;
   se um teste importar Reanimated direto e falhar com `loadUnpackersWithCode`, o
   resolver saiu do lugar.
+- `react-native-gesture-handler` usa o `jestSetup` oficial e o teste global mapeia
+  `react-native-worklets` para o mock do pacote. Sem esse mapa, o RNGH importa o
+  runtime web e a suíte quebra com `getUIRuntimeHolder is not supported on web`.
 
 ## Cobertura da S3
 
@@ -216,8 +220,24 @@ pequena e a barra de progresso em densidades diferentes.
   do atual", posições 1º/2º, chip "Pausado" com aviso, ausência de "Começar",
   páginas e modal, vazio sem ação falsa e toque abrindo o detalhe.
 
-A suíte atual tem 41 arquivos e 313 testes (`npm run test`).
+## Cobertura da S8
+
+- `src/db/repositories/queue.test.ts`: adicionar no fim sem duplicar, recusa de
+  livro inexistente/concluído, status preservado, remoção com compactação,
+  `move` (inclusive fora dos limites) e `replaceAll` (dedupe + órfão/concluído).
+- `src/features/queue/suggest-order.test.ts`: ordem vazia, um livro, mesmo
+  gênero, alternância, sem perda/duplicata, idempotência e imutabilidade.
+- `src/features/queue/QueueScreen.test.tsx`: lista real, vazio com e sem estante,
+  seletor de adicionar, remoção com confirmação, setas reordenando e o hook
+  `useQueueBookIds` mudando junto, além da sugestão aplicada.
+- `src/features/queue/use-queue.test.tsx`: integração Ordem → plano; reordenar
+  muda o primeiro bloco que a Hoje usa.
+- `src/test-utils/repositories.ts` mantém a ordem em memória usada pelas telas;
+  `renderWithProviders` injeta `queueRepository` por padrão.
+
+A suíte atual tem 44 arquivos e 335 testes (`npm run test`).
 
 O que continua manual: conferir a Hoje no Android (toque no botão do bloco,
 modal com o valor do plano e virada do dia), a ordem das abas e a legenda da
-Ordem em tela pequena.
+Ordem em tela pequena; na S8, arrastar uma linha no topo/fim de uma lista maior
+que a tela, a rolagem vertical e as setas com leitor de tela.

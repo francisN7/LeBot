@@ -119,6 +119,27 @@ export const readingSessions = sqliteTable(
 export type ReadingSessionRow = typeof readingSessions.$inferSelect;
 export type NewReadingSessionRow = typeof readingSessions.$inferInsert;
 
+/**
+ * Ordem do dono: o que ler depois do livro atual. `position` é reescrita de
+ * 0..n-1 pelo repositório numa transação; o livro em si não carrega a ordem.
+ */
+export const queueItems = sqliteTable(
+  'queue_items',
+  {
+    /** `books.id` e PK: um livro aparece no máximo uma vez na ordem. */
+    bookId: text('book_id').primaryKey(),
+    position: integer('position').notNull(),
+    /** Nota livre do dono; ainda sem editor na UI (S8). */
+    note: text('note'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (table) => [index('queue_items_position_idx').on(table.position)],
+);
+
+export type QueueItemRow = typeof queueItems.$inferSelect;
+export type NewQueueItemRow = typeof queueItems.$inferInsert;
+
 export const settings = sqliteTable('settings', {
   key: text('key').primaryKey(),
   value: text('value').notNull(),

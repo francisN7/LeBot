@@ -49,6 +49,21 @@ excluir um gênero em uso é bloqueado, e o último gênero nunca sai.
 Sem FK física, pelo mesmo motivo de `books.genre`: a integridade fica no
 repositório de leitura, que recusa livro inexistente.
 
+### `queue_items`
+
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `book_id` | text | PK e `books.id`; um livro entra no máximo uma vez |
+| `position` | integer | 0..n-1, sempre compacta; o repositório reescreve a lista inteira |
+| `note` | text | opcional; ainda sem editor na UI (S8) |
+| `created_at` / `updated_at` | integer | ms desde 1970 |
+
+Índice `queue_items_position_idx`. Sem FK física, pelo mesmo motivo das outras
+tabelas: a integridade fica no repositório. Linhas de livro excluído ou
+`finished` são ignoradas na leitura e removidas na próxima escrita. Entram na
+Ordem todos os livros não concluídos (`reading`, `queued` e `paused`); adicionar
+um pausado **não** muda o status. Ver ADR 0016.
+
 ### Progresso: duas cópias, um dono
 
 - `reading_sessions` é o **histórico**; `books.pages_read` é a coluna que as
@@ -110,6 +125,9 @@ Chaves usadas hoje: `goal.pages`, `reminder.time`, `appearance.theme`,
 - `0004_clever_turbo.sql` é aditiva: `ALTER TABLE reading_sessions ADD
   applied_pages integer`. As linhas existentes ficam com `NULL` e valem como
   `pages` até serem desfeitas.
+- `0005_crazy_vivisector.sql` é aditiva: `CREATE TABLE queue_items` e o índice
+  `queue_items_position_idx`. A Ordem nasce vazia; nenhum livro muda de lugar ou
+  de status na migração.
 
 Para criar uma migração:
 
@@ -129,7 +147,7 @@ primeiro seed.
 
 ## Repositórios
 
-`src/db/repositories/books.ts`, `genres.ts`, `reading-sessions.ts` e
+`src/db/repositories/books.ts`, `genres.ts`, `queue.ts`, `reading-sessions.ts` e
 `settings.ts` expõem funções síncronas (`list`, `findById`, `create`, `update`,
 `remove`; `get`, `all`, `set`, `remove`). Recebem a instância do Drizzle por
 parâmetro, então o mesmo código roda no aparelho (`expo-sqlite`) e nos testes
@@ -147,8 +165,12 @@ parâmetro, então o mesmo código roda no aparelho (`expo-sqlite`) e nos testes
   (teto no total, `finished` automático); `remove` desconta e nunca deixa o
   progresso negativo. `listByBook` ordena do mais recente para o mais antigo;
   `listBetween(from, to)` é a base das estatísticas da S10.
+- Ordem: `list` ignora órfãos e concluídos; `add` acrescenta no fim sem duplicar
+  e recusa livro inexistente/concluído; `remove` compacta as posições; `move` e
+  `replaceAll` reescrevem 0..n-1 numa transação. Nenhuma dessas operações muda o
+  status do livro.
 - Nenhum SQL fora de `src/db/`.
-- As telas acessam via hooks (`useBooks`, `useGenres`, `useSettings`,
+- As telas acessam via hooks (`useBooks`, `useGenres`, `useQueue`, `useSettings`,
   `useReadingSessions`), nunca pelo repositório diretamente.
 
 ## Busca e capa
