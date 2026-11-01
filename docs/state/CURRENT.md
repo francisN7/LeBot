@@ -34,8 +34,8 @@
   dos próximos. Só a S8 devolve escrita à Fila.
 - **Abas:** Estante, Hoje, Fila, Ajustes.
 - **Copy:** Hoje "Seu plano de hoje" / "Plano do dia" / "Lido hoje"; Fila "A
-  ordem dos próximos livros" / "Na ordem"; meta sem fração acima de 100%;
-  blocos com botão explícito "Registrar leitura".
+  ordem dos próximos livros" + "Depois do livro atual" / "Na ordem"; meta sem
+  fração acima de 100%; blocos com botão explícito "Registrar leitura".
 - **Fila agora:** continua fixture e somente leitura; sem páginas, "Começar" ou
   modal. A S8 troca pela fila real.
 - **(i) de ajuda + mascote confuso:** backlog pós-S12.
