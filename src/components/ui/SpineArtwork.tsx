@@ -1,4 +1,4 @@
-import { useEffect, useId } from 'react';
+import { type ComponentType, type ReactNode, useEffect, useId } from 'react';
 import Animated, {
   Easing,
   useAnimatedProps,
@@ -32,6 +32,19 @@ import { SpineFace } from './SpineFace';
 const AnimatedG = Animated.createAnimatedComponent(G);
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
 
+type MatrixProps = { matrix: number[] };
+
+/**
+ * `matrix` é prop nativa do grupo, mas não está no tipo do `G`. O cast existe
+ * para o Reanimated escrever a matriz direto no nativo, sem passar pelo render.
+ */
+const AnimatedMatrixG = Animated.createAnimatedComponent(
+  G,
+) as unknown as ComponentType<{
+  animatedProps?: Partial<MatrixProps>;
+  children?: ReactNode;
+}>;
+
 /** Sistema de coordenadas da lombada B (64×128, 1:2). */
 const VIEW = { height: 128, width: 64 };
 /** O corpo encurta 4 px para a sombra de contato caber no slot. */
@@ -53,37 +66,51 @@ function zPath(cx: number, cy: number, size: number): string {
   return `M${cx - half} ${cy - half} H${cx + half} L${cx - half} ${cy + half} H${cx + half}`;
 }
 
+/** Ponta do tassel: 22 unidades abaixo da fixação, com o balanço em graus. */
+const TASSEL = {
+  body: 10,
+  bodyHesitation: 9.4,
+  bodyRelease: 9.8,
+  bodyOvershoot: -1.6,
+  bodySettle: -1.2,
+  fringe: 12.5,
+  fringeHesitation: 11.6,
+  fringeRelease: 12.3,
+  fringeOvershoot: -2.8,
+  fringeSettle: -2.2,
+  shadow: 5.5,
+  shadowOvershoot: -1,
+  /** Ciclo único, em ms: ataque rápido, hesitação, retorno lento e pausa. */
+  cycle: 4400,
+} as const;
+
+const THREADS = [-3, -1.8, -0.6, 0.6, 1.8, 3];
+
 /**
- * Tassel T1 no canto superior esquerdo: a corda sai do topo (sem argola),
- * encontra o corpo e o pescoço e termina na franja de seis fios. O dourado usa
- * gradiente, aresta escura e sombra para não parecer um recorte colado.
+ * Matriz coluna-maior de rotação em graus em torno de (ox, oy). É a mesma que
+ * o `G` calcula no render — animar `matrix` (prop nativa) evita o
+ * `rotation`/`origin`, que o lado nativo ignora.
  */
-function Tassel({ goldId }: { goldId: string }) {
-  const threads = [-3, -1.8, -0.6, 0.6, 1.8, 3].map((dx, index) => {
-    const x0 = 6 + dx * 0.28;
-    const x1 = 6 + dx;
-    const y1 = 22 + (index % 2) * 1.2;
+function rotationMatrix(angle: number, ox: number, oy: number): number[] {
+  'worklet';
+  const radians = (angle * Math.PI) / 180;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
 
-    return (
-      <G key={dx}>
-        <Path
-          d={`M${x0} 9 L${x1} ${y1}`}
-          stroke="#B87A12"
-          strokeLinecap="round"
-          strokeWidth={1.3}
-        />
-        <Path
-          d={`M${x0} 9 L${x1} ${y1}`}
-          stroke="#FFD98A"
-          strokeLinecap="round"
-          strokeWidth={0.65}
-        />
-      </G>
-    );
-  });
+  return [
+    cos,
+    sin,
+    -sin,
+    cos,
+    ox * (1 - cos) + oy * sin,
+    -ox * sin + oy * (1 - cos),
+  ];
+}
 
+/** A corda sai do topo e encontra o corpo; o clip a corta na silhueta. */
+function TasselCord() {
   return (
-    <G>
+    <>
       <Path
         d="M6 0 V4.6"
         stroke="#B87A12"
@@ -96,6 +123,14 @@ function Tassel({ goldId }: { goldId: string }) {
         strokeLinecap="round"
         strokeWidth={0.6}
       />
+    </>
+  );
+}
+
+/** Corpo e pescoço do tassel, abaixo da corda. */
+function TasselHead({ goldId }: { goldId: string }) {
+  return (
+    <>
       <Rect
         fill={`url(#${goldId})`}
         height={3.2}
@@ -123,8 +158,134 @@ function Tassel({ goldId }: { goldId: string }) {
         x={3.2}
         y={7.4}
       />
-      {threads}
-    </G>
+    </>
+  );
+}
+
+/** Franja de seis fios; gira em torno do pescoço (6, 9). */
+function TasselFringe() {
+  return (
+    <>
+      {THREADS.map((dx, index) => {
+        const x0 = 6 + dx * 0.28;
+        const x1 = 6 + dx;
+        const y1 = 22 + (index % 2) * 1.2;
+
+        return (
+          <G key={dx}>
+            <Path
+              d={`M${x0} 9 L${x1} ${y1}`}
+              stroke="#B87A12"
+              strokeLinecap="round"
+              strokeWidth={1.3}
+            />
+            <Path
+              d={`M${x0} 9 L${x1} ${y1}`}
+              stroke="#FFD98A"
+              strokeLinecap="round"
+              strokeWidth={0.65}
+            />
+          </G>
+        );
+      })}
+    </>
+  );
+}
+
+/** Ciclo do corpo: ataque, hesitação curta, retorno com overshoot e pausa. */
+function bodySwing() {
+  return withRepeat(
+    withSequence(
+      withTiming(TASSEL.body, {
+        duration: 400,
+        easing: Easing.out(Easing.cubic),
+      }),
+      withTiming(TASSEL.bodyHesitation, {
+        duration: 560,
+        easing: Easing.inOut(Easing.quad),
+      }),
+      withTiming(TASSEL.body, {
+        duration: 340,
+        easing: Easing.inOut(Easing.quad),
+      }),
+      withTiming(TASSEL.bodyRelease, {
+        duration: 340,
+        easing: Easing.inOut(Easing.quad),
+      }),
+      withTiming(TASSEL.bodyOvershoot, {
+        duration: 880,
+        easing: Easing.inOut(Easing.quad),
+      }),
+      withTiming(TASSEL.bodySettle, {
+        duration: 440,
+        easing: Easing.inOut(Easing.quad),
+      }),
+      withTiming(0, { duration: 520, easing: Easing.inOut(Easing.quad) }),
+      withDelay(920, withTiming(0, { duration: 0 })),
+    ),
+    -1,
+    false,
+  );
+}
+
+/** A franja chega ~90 ms depois do corpo e passa um pouco do ângulo. */
+function fringeSwing() {
+  return withRepeat(
+    withSequence(
+      withDelay(
+        90,
+        withTiming(TASSEL.fringe, {
+          duration: 400,
+          easing: Easing.out(Easing.cubic),
+        }),
+      ),
+      withTiming(TASSEL.fringeHesitation, {
+        duration: 570,
+        easing: Easing.inOut(Easing.quad),
+      }),
+      withTiming(TASSEL.fringeRelease, {
+        duration: 700,
+        easing: Easing.inOut(Easing.quad),
+      }),
+      withTiming(TASSEL.fringeOvershoot, {
+        duration: 880,
+        easing: Easing.inOut(Easing.quad),
+      }),
+      withTiming(TASSEL.fringeSettle, {
+        duration: 440,
+        easing: Easing.inOut(Easing.quad),
+      }),
+      withTiming(0, { duration: 530, easing: Easing.inOut(Easing.quad) }),
+      withDelay(790, withTiming(0, { duration: 0 })),
+    ),
+    -1,
+    false,
+  );
+}
+
+/** A sombra acompanha o corpo com 55% do ângulo, atrasada ~40 ms. */
+function shadowSwing() {
+  return withRepeat(
+    withSequence(
+      withDelay(
+        40,
+        withTiming(TASSEL.shadow, {
+          duration: 440,
+          easing: Easing.out(Easing.cubic),
+        }),
+      ),
+      withDelay(
+        660,
+        withTiming(TASSEL.shadowOvershoot, {
+          duration: 1540,
+          easing: Easing.inOut(Easing.quad),
+        }),
+      ),
+      withTiming(0, { duration: 528, easing: Easing.inOut(Easing.quad) }),
+      withDelay(1192, withTiming(0, { duration: 0 })),
+    ),
+    -1,
+    false,
   );
 }
 
@@ -143,10 +304,13 @@ export function SpineArtwork({
 }: SpineArtworkProps) {
   const sheen = useSharedValue(-20);
   const asleep = useSharedValue(1);
-  const swing = useSharedValue(-1);
+  const body = useSharedValue(0);
+  const fringe = useSharedValue(0);
+  const shadow = useSharedValue(0);
   const rawId = useId();
   const gradientId = `spine-cyl-${rawId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const clipId = `${gradientId}-clip`;
+  const bodyClipId = `${gradientId}-body-clip`;
   const goldId = `${gradientId}-gold`;
   const shadowFilterId = `${gradientId}-tassel-shadow`;
 
@@ -181,19 +345,28 @@ export function SpineArtwork({
   }, [asleep, expression]);
 
   useEffect(() => {
-    swing.value = withRepeat(
-      withTiming(1, { duration: 1700, easing: Easing.inOut(Easing.quad) }),
-      -1,
-      true,
-    );
-  }, [swing]);
+    body.value = bodySwing();
+    fringe.value = fringeSwing();
+    shadow.value = shadowSwing();
+  }, [body, fringe, shadow]);
 
   const sheenProps = useAnimatedProps(() => ({ x: sheen.value }));
   const zzzProps = useAnimatedProps(() => ({
     opacity: asleep.value,
     translateY: (1 - asleep.value) * -2,
   }));
-  const tasselProps = useAnimatedProps(() => ({ rotation: swing.value * 3 }));
+  const bodyProps = useAnimatedProps<MatrixProps>(() => ({
+    matrix: rotationMatrix(body.value, 6, 0),
+  }));
+  const headProps = useAnimatedProps<MatrixProps>(() => ({
+    matrix: rotationMatrix(body.value, 6, 0),
+  }));
+  const fringeProps = useAnimatedProps<MatrixProps>(() => ({
+    matrix: rotationMatrix(fringe.value, 6, 9),
+  }));
+  const shadowProps = useAnimatedProps<MatrixProps>(() => ({
+    matrix: rotationMatrix(shadow.value, 6, 0),
+  }));
 
   const zzz = [
     { cx: 49, cy: 73, size: 3.4, width: 1.4 },
@@ -227,6 +400,15 @@ export function SpineArtwork({
           <Stop offset="1" stopColor={palette.shadow} stopOpacity={0.26} />
         </LinearGradient>
         <ClipPath id={clipId}>
+          <Rect
+            height={BODY.height}
+            rx={6}
+            width={BODY.width}
+            x={BODY.x}
+            y={BODY.y}
+          />
+        </ClipPath>
+        <ClipPath id={bodyClipId}>
           <Rect
             height={BODY.height}
             rx={6}
@@ -363,22 +545,30 @@ export function SpineArtwork({
         ) : null}
       </G>
 
-      <Ellipse
-        cx={7.6}
-        cy={13}
-        fill={colors.navy}
-        filter={`url(#${shadowFilterId})`}
-        opacity={0.22}
-        rx={2.4}
-        ry={8}
-      />
-      <AnimatedG
-        animatedProps={tasselProps}
-        origin="6, 0"
-        testID={testID ? `${testID}-tassel` : undefined}
-      >
-        <Tassel goldId={goldId} />
-      </AnimatedG>
+      <G testID={testID ? `${testID}-tassel` : undefined}>
+        <AnimatedMatrixG animatedProps={shadowProps}>
+          <Ellipse
+            cx={7.6}
+            cy={13}
+            fill={colors.navy}
+            filter={`url(#${shadowFilterId})`}
+            opacity={0.22}
+            rx={2.4}
+            ry={8}
+          />
+        </AnimatedMatrixG>
+        <G clipPath={`url(#${bodyClipId})`}>
+          <AnimatedMatrixG animatedProps={bodyProps}>
+            <TasselCord />
+          </AnimatedMatrixG>
+        </G>
+        <AnimatedMatrixG animatedProps={headProps}>
+          <TasselHead goldId={goldId} />
+        </AnimatedMatrixG>
+        <AnimatedMatrixG animatedProps={fringeProps}>
+          <TasselFringe />
+        </AnimatedMatrixG>
+      </G>
     </Svg>
   );
 }
