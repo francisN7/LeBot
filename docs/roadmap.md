@@ -28,6 +28,10 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 
 ## Backlog pós-MVP
 
+- Migrar para NativeWind 5 (Tailwind 4) quando a 5.0 for estável e o SDK/RN
+  suportados forem os nossos — resolve o aviso de `ImageBackground` e tira o
+  projeto do par não suportado. Custo medido na ADR 0006 (adendo S4b): uma
+  sessão, quase toda de configuração.
 - Tema escuro: os gêneros já guardam o par claro/escuro (S3.2); falta o toggle,
   os tokens de superfície e revisar contraste em todas as telas.
 - Sync multi-dispositivo (Supabase ou similar).

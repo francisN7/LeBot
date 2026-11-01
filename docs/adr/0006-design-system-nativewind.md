@@ -66,7 +66,19 @@ sintoma — inclusive se o app um dia usar o componente de verdade.
 
 - **Patchear** (`patch-package`/`pnpm patch`) exigiria editar `node_modules` e
   quebraria a cada atualização do par css-interop/NativeWind.
-- **Migrar para NativeWind 5** já é o caminho natural quando o SDK subir
-  (consequências acima); a migração resolve o aviso junto, sem gambiarra.
-- Revisar este adendo na sessão de release (S12): se o NativeWind 5 estiver
-  estável, trocar; senão, manter documentado.
+- **Migrar para NativeWind 5** é o destino, mas fica no backlog pós-MVP
+  (`docs/roadmap.md`), para quando a 5.0 for estável e o SDK/RN compatíveis
+  forem os nossos — **não** é tarefa de release. A migração resolve o aviso
+  junto, sem gambiarra.
+- Gatilho de retomada: NativeWind 5.0 estável **e** compatibilidade declarada
+  com o Expo SDK em uso (a RC atual só foi testada com Expo 57/RN 0.86; em
+  2026-10-31 o `latest` no npm ainda era `4.2.7`).
+
+**Custo medido da migração (S4b, para não superestimar depois):** 86
+`className` em 18 arquivos, 7 componentes usando `tailwind-merge` (já na v3),
+**zero** uso de `cssInterop`, `remapProps`, `vars()` ou `placeholderClassName`.
+O trabalho é de configuração: dependências, `global.css` com `@theme`, o
+`tailwind.config.ts` atual (tokens → CSS), tirar `nativewind/babel` e o
+`jsxImportSource`, e o Metro sem `input`. Depois, diff visual de `rounded-sm`
+(semântica mudou no Tailwind 4) e das sombras (`boxShadow`). Uma sessão deve
+bastar; o risco é o estado RC do pacote, não o tamanho do código.

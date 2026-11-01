@@ -40,7 +40,7 @@
 - Tema escuro: `resolveGenreColor(..., 'dark')` já é aceito, mas a UI usa claro.
 - `cover_uri` é absoluto: o backup (S11) decide entre referência e imagem.
 - Se o NativeWind 5 estabilizar, a migração resolve o aviso de
-  `ImageBackground` de vez (revisar na S12).
+  `ImageBackground` de vez; está no backlog pós-MVP, fora de sessão de release.
 
 ## Arquivos-chave
 
