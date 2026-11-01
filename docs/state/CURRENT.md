@@ -38,9 +38,9 @@
 - Conferir no Android: abertura ao concluir (detalhe e Hoje), teclado
   multilinha, acordeão dos chips, cadastro em Ajustes, selo e alinhamento da
   grade.
-- S11a: decisões fechadas (SVG com faces, lateral fina + tassel, páginas com
-  texto na capa, sombra na grade e no detalhe, piscada em feliz/neutro). Falta
-  confirmar se "grossa" é a profundidade (recomendado) ou a largura total.
+- S11a: decisões fechadas; a lombada sem capa fica mais estreita (60×128;
+  compacta 48×104) e a capa mantém 88×128 (72×104 compacta), com o desenho
+  redesenhado no novo formato. Spec pronta para executar.
 - Galeria de citações no backlog (`reviews.quote` já pronta).
 - S7.2 (opcional): persistir o plano + edição manual.
 - Livro excluído deixa `reading_sessions` órfãs; a resenha sai junto. Limpeza no
