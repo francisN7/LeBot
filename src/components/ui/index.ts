@@ -8,6 +8,6 @@ export { Card } from './Card';
 export { Chip } from './Chip';
 export { ConfirmDialog } from './ConfirmDialog';
 export { Mascot, type MascotState, mascotLabel } from './Mascot';
-export { Screen } from './Screen';
+export { Screen, type ScreenScrollViewRef } from './Screen';
 export { Spine } from './Spine';
 export { TextField } from './TextField';

@@ -139,9 +139,11 @@ SQLite (expo-sqlite + Drizzle)
 - Dois blocos: todos os `reading` no topo, depois `queued` e `paused`. O primeiro
   Lendo é o **principal**, coroado na tela, e é o bloco `active` do plano.
 - Reordenar pelo arrastar usa `react-native-gesture-handler` + Reanimated: a
-  alça (três barras) exige toque longo, entrega o deslocamento, a tela trava o
-  scroll e soma as alturas medidas. Durante o arraste, as linhas entre origem e
-  destino abrem espaço com uma prévia animada; ao soltar, `move` confirma. As
+  alça (três barras) exige toque longo, entrega o deslocamento e bloqueia a
+  rolagem nativa (`blocksExternalGesture` no ref do `ScrollView`); a tela também
+  trava o scroll até o commit e soma as alturas medidas. Durante o arraste, as
+  linhas entre origem e destino abrem espaço com uma prévia animada; ao soltar,
+  `move` confirma. As
   setas ↑/↓ fazem o mesmo e são o caminho acessível; a troca por seta é animada
   com `LinearTransition`, mas o drop da alça confirma sem animação porque a
   prévia já abriu o espaço. `move` não deixa cruzar os blocos.

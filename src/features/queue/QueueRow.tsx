@@ -14,12 +14,26 @@ import Animated, {
 } from 'react-native-reanimated';
 import { twMerge } from 'tailwind-merge';
 
-import { AppText, BookArt, Card, Chip } from '@/components/ui';
+import {
+  AppText,
+  BookArt,
+  Card,
+  Chip,
+  type ScreenScrollViewRef,
+} from '@/components/ui';
 import { labelForStatus, UNKNOWN_GENRE_NAME } from '@/features/library/genre';
 import type { Book } from '@/features/library/types';
 import { colors } from '@/theme';
 
 const DRAG_THRESHOLD = 12;
+
+/**
+ * O RNGH aceita o ref do `ScrollView` em `blocksExternalGesture` (a doc usa
+ * assim), mas o tipo público só cobre refs de gesto/componente.
+ */
+type ExternalGestureRef = Parameters<
+  ReturnType<typeof Gesture.Pan>['blocksExternalGesture']
+>[0];
 
 type QueueRowProps = {
   book: Book;
@@ -45,6 +59,8 @@ type QueueRowProps = {
   onDragMove: (translationY: number) => void;
   onDragEnd: () => void;
   onHeight: (height: number) => void;
+  /** ScrollView da tela; o pan bloqueia a rolagem nativa. */
+  scrollRef: ScreenScrollViewRef;
 };
 
 type RowActionProps = {
@@ -114,10 +130,12 @@ export function QueueRow({
   onDragMove,
   onDragEnd,
   onHeight,
+  scrollRef,
 }: QueueRowProps) {
   const translateY = useSharedValue(0);
   const preview = useSharedValue(0);
   const dragging = useSharedValue(false);
+  const dropped = useSharedValue(false);
   const sheen = useSharedValue(-30);
 
   // Callbacks estáveis: a alça não é recriada quando a tela re-renderiza no
@@ -150,6 +168,17 @@ export function QueueRow({
       : withTiming(previewShift, { duration: 140 });
   }, [instantPreview, preview, previewShift]);
 
+  // O drop só zera o deslocamento depois que a nova ordem entrou em vigor;
+  // zerar antes faria a linha voltar para a posição antiga por um frame.
+  useEffect(() => {
+    if (!instantPreview) {
+      return;
+    }
+
+    translateY.value = 0;
+    dragging.value = false;
+  }, [dragging, instantPreview, translateY]);
+
   useEffect(() => {
     sheen.value = withRepeat(
       withSequence(
@@ -170,8 +199,10 @@ export function QueueRow({
     () =>
       Gesture.Pan()
         .activateAfterLongPress(180)
+        .blocksExternalGesture(scrollRef as unknown as ExternalGestureRef)
         .onStart(() => {
           dragging.value = true;
+          dropped.value = false;
           runOnJS(handleDragStart)();
         })
         .onUpdate((event) => {
@@ -180,38 +211,52 @@ export function QueueRow({
         })
         .onEnd((event) => {
           const offset = event.translationY;
-          translateY.value = 0;
-          dragging.value = false;
 
           if (Math.abs(offset) >= DRAG_THRESHOLD) {
+            dropped.value = true;
             runOnJS(handleDrop)(offset);
+          } else {
+            translateY.value = 0;
           }
         })
         .onFinalize(() => {
-          translateY.value = 0;
           dragging.value = false;
+
+          if (!dropped.value) {
+            translateY.value = 0;
+          }
+
           runOnJS(handleDragEnd)();
         }),
     [
       dragging,
+      dropped,
       handleDragEnd,
       handleDragMove,
       handleDragStart,
       handleDrop,
+      scrollRef,
       translateY,
     ],
   );
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    elevation: dragging.value ? 8 : 0,
-    opacity: dragging.value ? 0.94 : 1,
-    transform: [
-      { translateY: translateY.value + preview.value },
-      { scale: dragging.value ? 1.02 : 1 },
-      { rotate: dragging.value ? '1.2deg' : '0deg' },
-    ],
-    zIndex: dragging.value ? 2 : 0,
-  }));
+  const animatedStyle = useAnimatedStyle(() => {
+    // No commit do drop a ordem já está na posição final: ignorar o
+    // deslocamento evita a linha "voltar" por um frame antes de zerar.
+    const lifted = dragging.value && !instantPreview;
+    const offset = instantPreview ? 0 : translateY.value + preview.value;
+
+    return {
+      elevation: lifted ? 8 : 0,
+      opacity: lifted ? 0.94 : 1,
+      transform: [
+        { translateY: offset },
+        { scale: lifted ? 1.02 : 1 },
+        { rotate: lifted ? '1.2deg' : '0deg' },
+      ],
+      zIndex: lifted ? 2 : 0,
+    };
+  });
 
   const sheenStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: sheen.value }, { rotate: '18deg' }],

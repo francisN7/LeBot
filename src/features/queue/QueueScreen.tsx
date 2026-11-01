@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 
-import { AppText, Button, Card, Screen } from '@/components/ui';
+import {
+  AppText,
+  Button,
+  Card,
+  Screen,
+  type ScreenScrollViewRef,
+} from '@/components/ui';
 import { useGenres } from '@/features/genres';
 import { UNKNOWN_GENRE_NAME } from '@/features/library/genre';
 import type { Book } from '@/features/library/types';
@@ -56,6 +62,7 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
   const [commitDrop, setCommitDrop] = useState(false);
   const dragPreviewRef = useRef<DragPreview | null>(null);
   const heights = useRef(new Map<string, number>());
+  const scrollRef = useRef<ScreenScrollViewRef['current']>(null);
 
   // O drop já está na posição visual final (a prévia abriu o espaço). Uma
   // transição de layout aqui faria a linha "passear" de novo; desligamos só
@@ -268,6 +275,7 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
         onUp={() => move(entry.bookId, index - 1)}
         position={index}
         previewShift={previewShiftFor(index)}
+        scrollRef={scrollRef}
       />
     );
   }
@@ -278,7 +286,10 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
   );
 
   return (
-    <Screen scrollEnabled={draggingId === null}>
+    <Screen
+      scrollEnabled={draggingId === null && !commitDrop}
+      scrollRef={scrollRef}
+    >
       <View className="gap-xs">
         <AppText variant="display">Ordem</AppText>
         <AppText tone="muted">{QUEUE_LEGEND}</AppText>

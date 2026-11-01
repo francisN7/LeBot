@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ComponentRef, ReactNode, RefObject } from 'react';
 import { View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -6,12 +6,19 @@ import { twMerge } from 'tailwind-merge';
 
 import { spacing } from '@/theme';
 
+/** Tipo do `ScrollView` do gesture handler, usado para bloquear o arrastar. */
+export type ScreenScrollViewRef = RefObject<ComponentRef<
+  typeof ScrollView
+> | null>;
+
 type ScreenProps = {
   children: ReactNode;
   /** Desliga o scroll para telas curtas ou com lista virtualizada. */
   scroll?: boolean;
   /** Permite travar a rolagem enquanto uma linha está sendo arrastada. */
   scrollEnabled?: boolean;
+  /** Ref usado pelo gesto de arrastar para bloquear a rolagem nativa. */
+  scrollRef?: ScreenScrollViewRef;
   className?: string;
   contentContainerClassName?: string;
   testID?: string;
@@ -25,6 +32,7 @@ export function Screen({
   children,
   scroll = true,
   scrollEnabled = true,
+  scrollRef,
   className,
   contentContainerClassName,
   testID,
@@ -53,6 +61,7 @@ export function Screen({
       className={twMerge('flex-1 bg-cream', className)}
       contentContainerClassName={twMerge('gap-lg', contentContainerClassName)}
       contentContainerStyle={padding}
+      ref={scrollRef}
       scrollEnabled={scrollEnabled}
       showsVerticalScrollIndicator={false}
       testID={testID}
