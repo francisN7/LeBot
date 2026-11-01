@@ -248,11 +248,33 @@ pequena e a barra de progresso em densidades diferentes.
 O drop via alça ainda tem um glitch de animação ao soltar (as linhas piscam antes
 de se alocar); as setas estão ok. Está registrado no backlog do roadmap.
 
-A suíte atual tem 44 arquivos e 330 testes (`npm run test`).
+## Cobertura da S9
 
-O que continua manual: conferir a Hoje no Android (toque no botão do bloco,
-modal com o valor do plano e virada do dia), a ordem das abas e a legenda da
-Ordem em tela pequena; na S8, segurar a alça (toque longo) e arrastar uma linha
-no topo/fim de uma lista maior que a tela, conferindo a prévia que abre espaço,
-o drop sem animação, a rolagem vertical, a animação das setas e as setas com
-leitor de tela.
+- `src/db/repositories/reviews.test.ts`: round-trip completo, upsert preservando
+  `created_at`, extras sem valor descartados, nota inválida (0, 6, 1,5, −1),
+  livro inexistente, remoção, exclusão do livro em cascata e `stripField`.
+- `src/db/repositories/review-fields.test.ts`: lista vazia, ordem de criação,
+  nome vazio/acima de 40, duplicata sem diferenciar caixa, renomear mantendo o
+  `id`, nome duplicado e exclusão limpando os valores nas resenhas.
+- `src/features/reviews/ReviewFormScreen.test.tsx`: salvar sem nota não grava,
+  nota/texto/citação, edição preenchida, pular, chips em acordeão conservando o
+  texto e aviso quando não há campos criados.
+- `src/features/settings/ReviewFieldsCard.test.tsx`: seção vazia com as quatro
+  sugestões, adicionar digitando, adicionar pela sugestão, duplicata, renomear e
+  excluir com confirmação limpando a resenha.
+- `src/features/library/BookDetailScreen.test.tsx`: card da resenha e edição,
+  ocultar enquanto o livro está em `reading`, CTA em concluído sem resenha,
+  concluir pela leitura abrindo a resenha e exclusão do livro apagando a resenha.
+- `src/features/library/EstanteScreen.test.tsx`: selo de estrelas só em
+  concluído com resenha.
+- `src/test-utils/repositories.ts` ganhou os repositórios em memória de resenhas
+  e campos (com cascata e limpeza); `renderWithProviders` injeta os dois.
+
+O que continua manual: no Android, a abertura da resenha ao concluir pela
+leitura, o teclado nos campos multilinha, a expansão/recolhimento dos chips, o
+cadastro de campos em Ajustes e o selo na Estante. Da S8, a Hoje (toque no botão
+do bloco, modal com o valor do plano e virada do dia), a ordem das abas, a
+legenda da Ordem em tela pequena e o arrastar pela alça (toque longo, prévia que
+abre espaço, rolagem vertical e setas com leitor de tela).
+
+A suíte atual tem 49 arquivos e 384 testes (`npm run test`).

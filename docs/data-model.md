@@ -84,6 +84,37 @@ o que entra/sai da ordem; não há adicionar/remover manual. Ver ADR 0017.
 - Concluir pela edição ou pela roda de status preenche `pages_read` até o total
   no repositório de livros; a tela não manda as páginas (ADR 0018).
 
+### `reviews`
+
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `book_id` | text | PK e `books.id`; uma resenha por livro |
+| `rating` | integer | 1–5 (`reviews_rating_range`) |
+| `text` | text | opcional; texto principal da resenha |
+| `quote` | text | opcional; trecho favorito, pronto para a futura galeria |
+| `extras` | text (JSON) | `{ "<review_fields.id>": "texto" }`; chave sem valor não entra |
+| `created_at` / `updated_at` | integer | ms desde 1970; upsert preserva `created_at` |
+
+Sem FK física. A resenha sobrevive quando o livro volta para `reading`; a UI a
+esconde e a próxima conclusão reaproveita a linha. Valor vazio não vira chave,
+e excluir o campo limpa a chave em todas as resenhas. Excluir o livro apaga a
+resenha na mesma transação (`books.remove`). Salvar é upsert por `book_id`.
+Ver ADR 0019.
+
+### `review_fields`
+
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `id` | text | PK; `field-<base36>` gerado em `src/lib/id.ts` |
+| `name` | text | obrigatório, até 40 caracteres; único por conteúdo (trim, caixa e espaços ignorados) |
+| `sort_order` | integer | ordem dos chips; campo novo entra no fim |
+| `created_at` / `updated_at` | integer | ms desde 1970 |
+
+Índices: `review_fields_name_unique` (nome) e `review_fields_sort_order_idx`.
+São campos **globais**: o dono cria em Ajustes → "Campos de resenha" e cada
+resenha preenche o que quiser. Renomear mantém o `id` e os textos; excluir apaga
+a chave correspondente nos `extras` de todas as resenhas.
+
 ### `genres`
 
 | Coluna | Tipo | Regra |
@@ -131,6 +162,9 @@ Chaves usadas hoje: `goal.pages`, `reminder.time`, `appearance.theme`,
 - `0005_crazy_vivisector.sql` é aditiva: `CREATE TABLE queue_items` e o índice
   `queue_items_position_idx`. A Ordem nasce vazia; nenhum livro muda de lugar ou
   de status na migração.
+- `0006_lame_warbound.sql` é aditiva: `CREATE TABLE reviews` (com o `CHECK` da
+  nota) e `CREATE TABLE review_fields` com os dois índices. Nenhum livro ou
+  resenha existente é reescrito; os campos extras nascem vazios.
 
 Para criar uma migração:
 

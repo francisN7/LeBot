@@ -117,8 +117,26 @@ SQLite (expo-sqlite + Drizzle)
   `reading`; chegar no fim vira `finished` (ADR 0015, que supersede parte da
   ADR 0012). Desfazer não restaura o status anterior; desfazer o fim volta para
   `reading`.
-- Remover um livro ainda deixa as sessões dele órfãs (sem FK). Não afeta o
-  progresso; a limpeza entra junto com conclusão/resenha (S9).
+- Remover um livro ainda deixa as sessões dele órfãs (sem FK). A resenha é
+  apagada na mesma transação; a limpeza das sessões ficou no backlog (S11).
+
+## Resenha (S9)
+
+- Rota `/livro/[id]/resenha` (`ReviewFormScreen`); o detalhe abre por CTA e a
+  sessão de leitura que leva o livro ao fim abre automaticamente. Concluir pela
+  roda ou pela edição mostra o CTA em vez de abrir tela sobre o gesto (ADR 0019).
+- `src/features/reviews/` guarda o formulário, o `ReviewCard`, `RatingStars`
+  (em `components/ui`) e os hooks `useReview`/`useReviews`/`useReviewFields`, com
+  o mesmo padrão de assinatura de `useBooks`.
+- Nota obrigatória (1–5), texto e citação opcionais. Os campos extras globais
+  viram chips abaixo do texto; abrir um chip revela o `TextField` e recolhe o
+  anterior (acordeão), sem perder o texto digitado.
+- Os campos são criados em Ajustes → "Campos de resenha" (criar, renomear,
+  excluir; sugestões prontas). Excluir um campo limpa o valor nas resenhas.
+- Reabrir o livro esconde a resenha sem apagar; a próxima conclusão abre
+  preenchida e salva por upsert. A Estante mostra `★★★★` só em concluído com
+  resenha.
+- `quote` é coluna própria, pensando na futura galeria de citações (backlog).
 
 ## Abas e papéis (S7.1)
 
@@ -242,6 +260,8 @@ Nenhum passo apaga dados ou esconde erro de migração.
   [`docs/adr/0017-ordem-automatica-e-principal.md`](adr/0017-ordem-automatica-e-principal.md)
 - Concluir preenche as páginas lidas:
   [`docs/adr/0018-concluir-preenche-paginas.md`](adr/0018-concluir-preenche-paginas.md)
+- Resenha e campos extras:
+  [`docs/adr/0019-resenha-e-campos-extras.md`](adr/0019-resenha-e-campos-extras.md)
 
 ## Pendências conhecidas
 

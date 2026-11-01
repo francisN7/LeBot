@@ -145,7 +145,7 @@ export function ReviewFormScreen({
               const filled = (extras[field.id] ?? '').trim().length > 0;
 
               return (
-                <View className="max-w-[200px]" key={field.id}>
+                <View key={field.id} style={{ maxWidth: 200 }}>
                   <Chip
                     label={field.name}
                     onPress={() => toggleField(field.id)}

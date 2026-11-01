@@ -9,6 +9,7 @@ import type {
 import { booksUsingGenre } from '@/db/repositories/genres';
 import type { QueueRepository } from '@/db/repositories/queue';
 import {
+  cleanReviewFieldName,
   normalizeReviewFieldName,
   reviewFieldInputSchema,
 } from '@/db/repositories/review-fields';
@@ -698,7 +699,9 @@ export function createInMemoryReviewFieldsRepository(
     },
 
     create(input) {
-      const name = reviewFieldInputSchema.parse(input).name;
+      const name = cleanReviewFieldName(
+        reviewFieldInputSchema.parse(input).name,
+      );
 
       if (findByName(name)) {
         throw new Error('Já existe um campo com este nome');
@@ -725,7 +728,9 @@ export function createInMemoryReviewFieldsRepository(
         return undefined;
       }
 
-      const parsed = reviewFieldInputSchema.parse({ name }).name;
+      const parsed = cleanReviewFieldName(
+        reviewFieldInputSchema.parse({ name }).name,
+      );
 
       if (findByName(parsed, id)) {
         throw new Error('Já existe um campo com este nome');

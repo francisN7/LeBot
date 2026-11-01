@@ -192,6 +192,18 @@ Etiqueta compacta. Com `onPress` vira filtro selecionável (`selected`). Com
 />
 ```
 
+### `RatingStars`
+
+Estrelas da resenha. Com `onChange` vira entrada (cada estrela é um botão com
+rótulo "N de 5 estrelas" e estado selecionado); sem `onChange`, é leitura, com o
+rótulo acessível "Nota: N de 5 estrelas". `size="sm"` é o selo da Estante;
+`md` é o formulário.
+
+```tsx
+<RatingStars onChange={setRating} value={rating} />
+<RatingStars size="sm" value={review.rating} />
+```
+
 ### `StatusWheelTrigger` + `StatusWheelOverlay`
 
 A troca rápida da Estante vive em `src/features/library/`. O `StatusWheelTrigger`
@@ -210,7 +222,9 @@ leitor de tela consegue abrir e escolher sem o gesto.
 Campo de texto com rótulo, dica e erro por campo (borda coral quando há erro).
 Aceita as props do `TextInput` (`keyboardType`, `autoCapitalize`, `value`,
 `onChangeText`…). O rótulo também vira `accessibilityLabel`, então os testes
-usam `getByLabelText('Título')`.
+usam `getByLabelText('Título')`. Com `multiline`, ganha altura mínima e
+`textAlignVertical: 'top'` — é o padrão da resenha, da citação e dos campos
+extras.
 
 ```tsx
 <TextField

@@ -7,6 +7,17 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 ### Added
 
+- S9: conclusão com resenha. Livro concluído pela sessão de leitura abre
+  `/livro/[id]/resenha`; pela roda ou edição, o detalhe mostra o CTA. A resenha
+  tem nota 1–5 obrigatória, texto e citação opcionais, e campos extras globais
+  criados em Ajustes → "Campos de resenha" (com sugestões prontas) que viram
+  chips em acordeão no formulário. Reabrir o livro esconde a resenha sem apagar;
+  concluir de novo abre preenchida e salva por upsert. A Estante mostra `★★★★`
+  em concluído com resenha e excluir o livro apaga a resenha na mesma transação.
+  Tabelas `reviews` (nota com `CHECK`, citação em coluna própria para a futura
+  galeria e extras JSON) e `review_fields`, com migração aditiva `0006` (ADR
+  0019). 34 testes novos (384 na suíte); lint, typecheck, test, doctor e export
+  verdes; conferência no Android pendente.
 - S8a: troca rápida de status na Estante. Segurar o chip (~500 ms) abre uma
   roda radial flutuante na mesma tela, centrada no toque do chip; as quatro
   opções abrem em círculo com mola e a opção sob o dedo ganha destaque. Deslizar

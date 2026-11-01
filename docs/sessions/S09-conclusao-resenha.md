@@ -2,99 +2,97 @@
 
 ## Objetivo
 
-Ao concluir um livro, o dono registra uma resenha (nota e texto), revê no
-detalhe e mantém o histórico mesmo se reabrir o livro depois.
+Ao concluir um livro, o dono registra uma resenha (nota, texto e citação), pode
+preencher campos extras configurados e revê tudo no detalhe. A resenha sobrevive
+se o livro for reaberto.
+
+## Decisões fechadas
+
+1. **Tabela própria `reviews`** (`book_id` PK, `rating` 1–5, `text`, `quote`,
+   `extras` JSON), migração aditiva `0006`. `books` continua sendo a ficha.
+2. **`quote` é coluna fixa**, pensando na galeria de citações que ficou no
+   backlog; não virou campo extra.
+3. **`review_fields`** guarda os campos extras globais (nome, ordem), criados em
+   Ajustes e usados por todas as resenhas.
+4. **Valores em `extras` JSON** por `field_id`, validados com Zod; campo vazio
+   não grava chave. Foi a escolha pensando no backup (S11): uma linha de
+   `reviews` viaja com tudo, sem join, e um import antigo recupera até chaves de
+   campos excluídos.
+5. **Abertura:** concluir pela sessão de leitura abre a resenha; concluir pela
+   roda/edição mostra o CTA no detalhe, sem camada sobre o gesto. Reconcluir
+   abre preenchida.
+6. **Nota obrigatória; texto, citação e extras opcionais.** "Agora não" sai sem
+   bloquear a conclusão. Salvar é upsert.
+7. **Reabrir preserva** a resenha (oculta enquanto não estiver `finished`).
+8. **Exclusão:** excluir o livro apaga a resenha na transação de `books.remove`;
+   excluir um campo limpa a chave nos extras de todas as resenhas.
+9. **Estante:** selo `★★★★` (leitura) só em concluído com resenha.
+10. **Campos na UI:** chips abaixo do texto, em acordeão; abrir um recolhe o
+    anterior sem perder o texto digitado.
+
+## Entregue
+
+- `src/db/schema.ts`: `reviews` e `review_fields` com índices/`CHECK`;
+  `drizzle/0006_lame_warbound.sql` gerada.
+- `src/db/repositories/reviews.ts`: `list`, `findByBook`, `save` (upsert),
+  `remove`, `stripField`; `review-fields.ts`: `list`, `findById`, `create`,
+  `rename`, `remove` (com limpeza nos extras).
+- `src/db/repositories/books.ts`: exclusão apaga a resenha na mesma transação.
+- `src/features/reviews/`: `ReviewFormScreen`, `ReviewCard`, `types.ts` e hooks
+  `useReview`, `useReviews`, `useReviewFields` (com assinatura por repositório).
+- `src/components/ui/RatingStars.tsx` e `TextField` com `multiline`.
+- Rota `/livro/[id]/resenha`; detalhe com card/estado vazio e abertura automática
+  ao concluir pela leitura; selo na Estante.
+- Ajustes: `ReviewFieldsCard` com criar, renomear, excluir e sugestões ("O que
+  melhorar?", "O que não gostei?", "Que repertório me deu?", "Para quem indico?").
+- Repositórios em memória e `renderWithProviders` com as duas injeções novas.
+- Docs: ADR 0019, `architecture.md`, `data-model.md`, `design-system.md`,
+  `testing.md`, `CURRENT.md`, `roadmap.md` e `CHANGELOG.md`.
 
 ## Fora de escopo
 
-- Compartilhar resenha ou exportar para redes → backlog pós-MVP.
+- Compartilhar/exportar resenha para redes → backlog pós-MVP.
 - Estatísticas agregadas de notas → S10.
 - Resenha de livro não concluído.
-- Integração com API externa de sinopse, capa ou citações.
+- Galeria de citações → backlog pós-MVP (coluna `quote` já pronta).
+- API externa de sinopse, capa ou citações.
 - Edição em lote de resenhas.
-
-## Decisões a confirmar na abertura
-
-1. **Onde mora.** Recomendo tabela própria `reviews` (`book_id` PK, `rating`,
-   `text`, `quote`, timestamps) com migração aditiva `0006`, em vez de colunas em
-   `books`: a resenha tem ciclo próprio e o livro continua sendo a ficha.
-2. **Quando abre.** Recomendo abrir a tela de resenha ao concluir pela sessão de
-   leitura (o momento em que o livro chega ao fim). Na roda de status, concluir
-   sem sessão mostra o CTA "Escrever resenha" no detalhe/card, sem abrir outra
-   camada em cima do gesto.
-3. **Nota.** Recomendo 1–5 estrelas obrigatórias e texto opcional. "Salvar"
-   fica desabilitado sem nota; o texto livre pode vir depois.
-4. **Reabrir o livro.** Recomendo preservar a resenha ao voltar o status para
-   `reading` e ocultá-la enquanto o livro não estiver concluído; concluir de novo
-   reaproveita a mesma linha.
-5. **Onde aparece.** Card "Resenha" no detalhe (estrelas + texto + editar) e um
-   selo discreto no card da Estante. Decidir se a Estante mostra a nota.
-6. **Exclusão.** Excluir o livro apaga a resenha na mesma operação, mesmo sem FK
-   (`delete` explícito no repositório). Sessões órfãs continuam no backlog.
-
-## Tarefas
-
-1. **Schema:** `reviews` (`book_id` PK, `rating` 1–5, `text` opcional, `quote`
-   opcional, `created_at`/`updated_at`) + migração `0006`; atualizar
-   `docs/data-model.md`.
-2. **Repositório:** `ReviewsRepository` com `findByBook`, `save` (upsert),
-   `remove` e validação Zod; exclusão do livro limpa a resenha.
-3. **Hook:** `useReview(bookId)` com assinatura para atualizar o detalhe e a
-   Estante sem reiniciar.
-4. **Tela:** formulário de resenha (estrelas, texto, citação opcional) no visual
-   do app; rota `/livro/[id]/resenha` ou modal — decidir na abertura.
-5. **Fluxo:** concluir pela sessão abre a resenha; concluir pela roda/edição
-   mostra o CTA; "Agora não" permite resenhar depois.
-6. **Detalhe:** card com estrelas, texto e ação "Editar resenha"; estado vazio
-   para livro concluído sem resenha.
-7. **Testes:** repositório (round-trip, upsert, rating inválido, exclusão em
-   cascata manual), tela (salvar, editar, pular, reabrir) e fluxo de conclusão.
-8. **Docs:** `architecture.md`, `design-system.md`, `testing.md`, `CURRENT.md`,
-   `roadmap.md`, `CHANGELOG.md`; ADR para a decisão da tabela + reabertura.
 
 ## Aceite
 
-- [ ] Livro concluído permite nota 1–5 e texto; salvar persiste no SQLite.
-- [ ] Reabrir o app mantém a resenha e o detalhe a mostra.
-- [ ] Editar a resenha atualiza a tela na hora.
-- [ ] Concluir por sessão abre a resenha; concluir pela roda oferece o CTA.
-- [ ] "Agora não" não bloqueia a conclusão nem some com o progresso.
-- [ ] Reabrir o livro preserva a resenha (oculta) e concluir de novo a reusa.
-- [ ] Excluir o livro apaga a resenha.
-- [ ] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes; conferido no
-      Android.
+- [x] Livro concluído permite nota 1–5, texto e citação; salvar persiste no SQLite.
+- [x] Reabrir o app mantém a resenha e o detalhe a mostra.
+- [x] Editar a resenha atualiza a tela na hora.
+- [x] Concluir por sessão abre a resenha; concluir pela roda oferece o CTA.
+- [x] "Agora não" não bloqueia a conclusão nem some com o progresso.
+- [x] Reabrir o livro preserva a resenha (oculta) e concluir de novo a reusa.
+- [x] Excluir o livro apaga a resenha.
+- [x] Campos extras podem ser criados, renomeados e excluídos em Ajustes; os
+      valores somem junto com o campo.
+- [x] Chips abrem em acordeão e só os preenchidos aparecem no detalhe.
+- [x] Selo `★★★★` na Estante só em concluído com resenha.
+- [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
+- [ ] Conferido no Android.
 
-## Contexto necessário
+## Contexto necessário para retomar
 
-`AGENTS.md`, `docs/state/CURRENT.md`, esta spec, `src/db/schema.ts`,
-`src/db/repositories/books.ts`, `reading-sessions.ts`,
-`src/features/library/BookDetailScreen.tsx`,
-`src/features/reading/ReadingProgressCard.tsx`,
-`src/features/library/EstanteScreen.tsx`, `use-books.tsx`,
-`docs/data-model.md` e ADRs 0007, 0012, 0015 e 0018.
+`AGENTS.md`, `docs/state/CURRENT.md`, `docs/adr/0019-resenha-e-campos-extras.md`,
+`src/db/schema.ts`, `src/db/repositories/reviews.ts`, `review-fields.ts`,
+`src/features/reviews/`, `src/features/library/BookDetailScreen.tsx`,
+`src/features/settings/ReviewFieldsCard.tsx` e `src/test-utils/repositories.ts`.
 
-## Arquivos prováveis
+## Riscos e mitigação
 
-- `src/db/schema.ts`, `drizzle/0006_*.sql`, `src/db/repositories/reviews.ts`
-- `src/features/reviews/` (tela, formulário, hook) ou dentro de `library`
-- `src/features/library/BookDetailScreen.tsx`, `EstanteScreen.tsx`
-- `src/features/reading/ReadingProgressCard.tsx` / `use-reading-sessions.ts`
-- `src/test-utils/repositories.ts`, `render.tsx`
-- `docs/architecture.md`, `docs/data-model.md`, `docs/design/design-system.md`
-
-## Riscos
-
-- **Conclusão em dois caminhos:** sessão de leitura e roda de status podem
-  disparar a resenha duas vezes; centralizar a abertura em um único ponto.
-- **Resenha obrigatória:** bloquear a conclusão até resenhar irrita; o "Agora
-  não" precisa ser explícito e testado.
-- **Reabrir sem perder texto:** se a resenha ficar oculta, não apague a linha ao
-  voltar para `reading`.
-- **Migração aditiva:** `reviews` é tabela nova; não recriar `books`.
-- **Órfãs:** sem FK, a exclusão explícita no repositório é a única garantia;
-  testar com SQLite real e com o repositório em memória.
-- **Testes de tela:** o fluxo de conclusão mexe em status/progresso; usar o
-  repositório em memória coerente e nunca afirmar sobre frames de animação.
+- **Conclusão em dois caminhos:** só a sessão abre automaticamente; roda/edição
+  usa CTA. O gatilho usa `write.book.status`, devolvido pelo repositório.
+- **Resenha obrigatória:** nunca bloqueia a conclusão; "Agora não" é explícito e
+  testado.
+- **Reabrir sem perder texto:** a linha não é apagada ao voltar para `reading`;
+  a UI só a esconde.
+- **Migração aditiva:** tabelas novas; nenhum livro reescrito.
+- **Órfãs:** livro → resenha na transação; campo → extras na exclusão. Testado
+  no SQLite real e no repositório em memória.
+- **JSON pouco consultável:** aceito; nota e citação ficam em colunas.
 
 ## Próximo depois desta
 

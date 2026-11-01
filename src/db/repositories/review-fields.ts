@@ -29,13 +29,14 @@ export type ReviewFieldsRepository = {
   remove(id: string): boolean;
 };
 
-/** Compara nomes sem caixa e sem espaços repetidos, para evitar duplicata. */
-export function normalizeReviewFieldName(name: string): string {
-  return name.trim().replace(/\s+/g, ' ').toLocaleLowerCase('pt-BR');
+/** Nome como fica gravado: sem espaços nas pontas e sem repetir espaço. */
+export function cleanReviewFieldName(name: string): string {
+  return name.trim().replace(/\s+/g, ' ');
 }
 
-function cleanName(name: string): string {
-  return name.trim().replace(/\s+/g, ' ');
+/** Compara nomes sem caixa e sem espaços repetidos, para evitar duplicata. */
+export function normalizeReviewFieldName(name: string): string {
+  return cleanReviewFieldName(name).toLocaleLowerCase('pt-BR');
 }
 
 export function createReviewFieldsRepository<TRunResult>(
@@ -76,7 +77,9 @@ export function createReviewFieldsRepository<TRunResult>(
     },
 
     create(input) {
-      const name = cleanName(reviewFieldInputSchema.parse(input).name);
+      const name = cleanReviewFieldName(
+        reviewFieldInputSchema.parse(input).name,
+      );
 
       if (findByName(name)) {
         throw new Error(DUPLICATE_REVIEW_FIELD);
@@ -103,7 +106,7 @@ export function createReviewFieldsRepository<TRunResult>(
         return undefined;
       }
 
-      const name = cleanName(
+      const name = cleanReviewFieldName(
         reviewFieldInputSchema.parse({ name: rawName }).name,
       );
 

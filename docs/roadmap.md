@@ -25,7 +25,7 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S7.1 | [x] | Ajustes da revisão | Registrar retoma livro pausado; Hoje antes da Ordem; Fila → Ordem; blocos com ação explícita; conferido no Android | `sessions/S07.1-ajustes-hoje-ordem.md` |
 | S8 | [x] | Ordem real e sugestão anti-ressaca | Ordem automática por status, principal = primeiro Lendo, setas ok; drop via alça com glitch estético no backlog | `sessions/S08-ordem-real.md` |
 | S8a | [x] | Troca rápida de status na Estante | Roda radial por toque longo; prévia do rosto e gravação ao soltar; conferida no Android | `sessions/S08a-troca-rapida-status.md` |
-| S9 | [ ] | Conclusão + resenha | Livro finalizado gera resenha completa | `sessions/S09-conclusao-resenha.md` |
+| S9 | [x] | Conclusão + resenha | Nota/texto/citação, campos extras em Ajustes e selo na Estante; falta conferir no Android | `sessions/S09-conclusao-resenha.md` |
 | S10 | [ ] | Estatísticas e insights | Tela com dados reais | — |
 | S11 | [ ] | Configurações + backup JSON | Meta diária editável, backup JSON com round-trip e estados explícitos para lembrete/tema; escopo fechado na abertura | — |
 | S12 | [ ] | Release interno | APK instalável no Android; ícone, splash e camada adaptativa conferidos no launcher | — |
@@ -43,11 +43,14 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
   por vez — status, gênero, remoção de capa ou exclusão. Remover capa e excluir
   exigem confirmação dupla, com contagem visível de 5 s no segundo passo. O
   toque longo no chip continua sendo a roda de status (S8a).
-- **Ajustes com opções inertes:** Meta diária, Lembrete, Aparência e Backup
-  aparecem como cards sem ação; só “Gerenciar gêneros” funciona. Fechar no S11:
-  meta editável e backup entram; tema escuro segue no backlog; lembrete precisa
-  de `expo-notifications` ou sai da UI até existir. Até lá, marcar “em breve”
-  para não parecer quebrado.
+- **Galeria de citações:** tela própria para reler os trechos salvos nas
+  resenhas, com busca e filtro por livro/gênero. A coluna `reviews.quote` já
+  existe separada justamente para isso (ADR 0019). Pós-MVP.
+- **Ajustes com opções inertes:** Gêneros e Campos de resenha funcionam; Meta
+  diária, Lembrete, Aparência e Backup aparecem como cards sem ação. Fechar no
+  S11: meta editável e backup entram; tema escuro segue no backlog; lembrete
+  precisa de `expo-notifications` ou sai da UI até existir. Até lá, marcar "em
+  breve" para não parecer quebrado.
 - Botão **(i)** de ajuda em cada aba, com explicação curta do papel da tela e o
   LêBot "confuso" atrás do i (interrogação diagonal, como quem inspeciona),
   com animação. Depois da S12. O mascote ainda não tem esse estado: criar um
