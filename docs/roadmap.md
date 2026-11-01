@@ -31,6 +31,9 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 
 ## Backlog pós-MVP
 
+- Atualizar a toolchain para zerar os advisories moderados do `npm audit`
+  (`minimatch`, `glob`, Jest e Expo CLI). **Não** usar `npm audit fix --force`:
+  ele rebaixa o Expo para 51. Reavaliar junto com a próxima atualização de SDK.
 - Migrar para NativeWind 5 (Tailwind 4) quando a 5.0 for estável e o SDK/RN
   suportados forem os nossos — resolve o aviso de `ImageBackground` e tira o
   projeto do par não suportado. Custo medido na ADR 0006 (adendo S4b): uma

@@ -12,12 +12,15 @@ expo-env.d.ts
 /android
 /ios
 .kotlin/
+*.apk
+*.aab
 
 # Metro
 .metro-health-check*
 
 # Credenciais e arquivos de assinatura (nunca commitar)
 *.jks
+*.keystore
 *.p8
 *.p12
 *.key
@@ -32,17 +35,25 @@ credentials.json
 .env.*
 !.env.example
 
-# Logs e temporários
+# Logs, cobertura e temporários
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+*.log
 *.orig.*
 *.tsbuildinfo
+coverage/
 /tmp/
 
 # Sistema
 .DS_Store
 Thumbs.db
+.idea/
 
-# Backups locais do app
+# Bancos e backups locais do app
 backups/
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm

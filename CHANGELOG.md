@@ -14,6 +14,17 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
   UI do plano ficou marcada como S7 (o motor é S6). Os aceites das specs S3 e
   S4c, já entregues, foram marcados.
 
+### Security
+
+- CI: `actions/checkout`, `actions/setup-node` e `gitleaks/gitleaks-action`
+  fixadas por SHA completo, com `persist-credentials: false` no checkout.
+- `.gitignore` cobre keystore, bancos SQLite, logs, cobertura, `.idea/` e builds
+  `.apk`/`.aab`, reduzindo o risco de um `git add -A` publicar dado local.
+- Auditoria do repositório: nenhum segredo, PII ou credencial encontrada no
+  HEAD ou no histórico. Os advisories moderados do `npm audit` são de toolchain
+  e ficam no backlog do roadmap; `npm audit fix --force` rebaixaria o Expo para
+  51 e não deve ser usado.
+
 A S5 está concluída e validada no Android; a próxima sessão é a S6.
 
 ## S5.1 — Progresso não desce abaixo do histórico
