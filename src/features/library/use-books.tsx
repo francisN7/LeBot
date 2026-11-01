@@ -42,6 +42,14 @@ function notify(repository: BooksRepository): void {
   }
 }
 
+/**
+ * Avisa quem usa o livro que o progresso mudou (ex.: `reading` gravou uma
+ * sessão). As telas recarregam sem esperar a próxima navegação.
+ */
+export function notifyBooksChanged(repository: BooksRepository): void {
+  notify(repository);
+}
+
 /** Injeta um repositório (produção usa o padrão; testes usam um fake). */
 export function BooksRepositoryProvider({
   repository,

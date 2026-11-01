@@ -6,6 +6,7 @@ export { labelForStatus, UNKNOWN_GENRE_NAME } from './genre';
 export type { Book, ReadingStatus } from './types';
 export {
   BooksRepositoryProvider,
+  notifyBooksChanged,
   toBook,
   useBooks,
   useBooksRepository,

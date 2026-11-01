@@ -1,10 +1,11 @@
 import type {
   BooksRepository,
   GenresRepository,
+  ReadingSessionsRepository,
   SettingsRepository,
 } from '@/db/repositories';
 import { booksUsingGenre } from '@/db/repositories/genres';
-import type { BookRow, GenreRow } from '@/db/schema';
+import type { BookRow, GenreRow, ReadingSessionRow } from '@/db/schema';
 import { seedBooks, seedSettings } from '@/db/seed';
 import { normalizeGenreName } from '@/lib/genre-name';
 
@@ -271,6 +272,106 @@ export function createInMemoryGenresRepository(
   };
 
   return repository;
+}
+
+/** Repositório em memória da leitura: mexe no mesmo repositório de livros. */
+export function createInMemoryReadingSessionsRepository(
+  booksRepository: BooksRepository,
+  rows: ReadingSessionRow[] = [],
+): ReadingSessionsRepository {
+  let current = rows.map((row) => ({ ...row }));
+  let nextId = 0;
+
+  function sortedDescending(list: ReadingSessionRow[]) {
+    return [...list].sort(
+      (first, second) =>
+        second.readAt.getTime() - first.readAt.getTime() ||
+        second.id.localeCompare(first.id),
+    );
+  }
+
+  return {
+    listByBook(bookId) {
+      return sortedDescending(current.filter((row) => row.bookId === bookId));
+    },
+
+    listBetween(from, to) {
+      return [...current]
+        .filter((row) => row.readAt >= from && row.readAt <= to)
+        .sort(
+          (first, second) =>
+            first.readAt.getTime() - second.readAt.getTime() ||
+            first.id.localeCompare(second.id),
+        );
+    },
+
+    create(input) {
+      if (!Number.isInteger(input.pages) || input.pages <= 0) {
+        throw new Error('Informe pelo menos 1 página');
+      }
+
+      const book = booksRepository.findById(input.bookId);
+
+      if (!book) {
+        throw new Error('Livro não encontrado');
+      }
+
+      const remaining = book.pages - book.pagesRead;
+
+      if (remaining <= 0) {
+        throw new Error('Este livro já está no fim');
+      }
+
+      const now = new Date();
+      const appliedPages = Math.min(input.pages, remaining);
+      const row: ReadingSessionRow = {
+        id: `reading-fake-${nextId++}`,
+        bookId: input.bookId,
+        pages: input.pages,
+        readAt: input.readAt ?? now,
+        createdAt: now,
+        updatedAt: now,
+      };
+      current.push(row);
+
+      const updated = booksRepository.update(book.id, {
+        pagesRead: book.pagesRead + appliedPages,
+        status:
+          book.pagesRead + appliedPages >= book.pages
+            ? 'finished'
+            : book.status,
+      });
+
+      return { session: row, book: updated ?? book, appliedPages };
+    },
+
+    remove(id) {
+      const session = current.find((row) => row.id === id);
+
+      if (!session) {
+        return undefined;
+      }
+
+      current = current.filter((row) => row.id !== id);
+      const book = booksRepository.findById(session.bookId);
+
+      if (!book) {
+        return { session, book: undefined, appliedPages: 0 };
+      }
+
+      const appliedPages = Math.min(session.pages, book.pagesRead);
+      const pagesRead = book.pagesRead - appliedPages;
+      const updated = booksRepository.update(book.id, {
+        pagesRead,
+        status:
+          book.status === 'finished' && pagesRead < book.pages
+            ? 'reading'
+            : book.status,
+      });
+
+      return { session, book: updated, appliedPages };
+    },
+  };
 }
 
 export function createInMemorySettingsRepository(

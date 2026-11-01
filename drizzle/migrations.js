@@ -3,6 +3,7 @@
 import m0000 from './0000_aspiring_unicorn.sql';
 import m0001 from './0001_conscious_hannibal_king.sql';
 import m0002 from './0002_slow_pepper_potts.sql';
+import m0003 from './0003_cloudy_pretty_boy.sql';
 import journal from './meta/_journal.json';
 
 export default {
@@ -11,5 +12,6 @@ export default {
     m0000,
     m0001,
     m0002,
+    m0003,
   },
 };

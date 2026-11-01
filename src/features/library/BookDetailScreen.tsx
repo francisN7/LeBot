@@ -13,6 +13,10 @@ import {
   Spine,
 } from '@/components/ui';
 import { useGenres } from '@/features/genres';
+import { ReadingForm } from '@/features/reading/ReadingForm';
+import { ReadingProgressCard } from '@/features/reading/ReadingProgressCard';
+import type { ReadingSession } from '@/features/reading/types';
+import { useReadingSessions } from '@/features/reading/use-reading-sessions';
 import { hasCover } from '@/lib/covers';
 import { colors } from '@/theme';
 
@@ -35,7 +39,10 @@ export function BookDetailScreen({
   const { books, remove } = useBooks();
   const { genreById } = useGenres();
   const covers = useCoverService();
+  const { sessions, register, undo } = useReadingSessions(bookId);
   const [confirming, setConfirming] = useState(false);
+  const [registering, setRegistering] = useState(false);
+  const [undoing, setUndoing] = useState<ReadingSession | null>(null);
   const found = books.find((item) => item.id === bookId);
 
   if (!found) {
@@ -63,6 +70,14 @@ export function BookDetailScreen({
   function confirmDelete() {
     setConfirming(false);
     void deleteBook();
+  }
+
+  function confirmUndo() {
+    if (undoing) {
+      undo(undoing.id);
+    }
+
+    setUndoing(null);
   }
 
   return (
@@ -119,11 +134,43 @@ export function BookDetailScreen({
         </View>
       </Card>
 
+      <ReadingProgressCard
+        book={book}
+        onRegister={() => setRegistering(true)}
+        onUndo={setUndoing}
+        sessions={sessions}
+      />
+
       <Button label="Editar livro" onPress={onEdit} />
       <Button
         label="Excluir livro"
         onPress={() => setConfirming(true)}
         variant="secondary"
+      />
+
+      <ReadingForm
+        bookTitle={book.title}
+        onCancel={() => setRegistering(false)}
+        onSave={(pages) => {
+          register(pages);
+          setRegistering(false);
+        }}
+        remaining={book.pages - book.pagesRead}
+        visible={registering}
+      />
+
+      <ConfirmDialog
+        cancelLabel="Manter"
+        confirmLabel="Desfazer"
+        message={
+          undoing
+            ? `${undoing.pages} páginas saem do progresso de "${book.title}".`
+            : undefined
+        }
+        onCancel={() => setUndoing(null)}
+        onConfirm={confirmUndo}
+        title="Desfazer registro?"
+        visible={undoing !== null}
       />
 
       <ConfirmDialog

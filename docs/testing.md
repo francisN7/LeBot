@@ -29,9 +29,10 @@ esses testes são assíncronos (`await createTestDatabase()`).
 
 `renderWithProviders` já envolve a tela com `SafeAreaProvider`,
 `BooksRepositoryProvider`, `GenresRepositoryProvider`,
-`SettingsRepositoryProvider` e `CoverServiceProvider`. Por padrão usa os dados
-do seed em memória (livros + 6 gêneros de fábrica) e um `CoverService` fake;
-para cenários específicos:
+`ReadingSessionsRepositoryProvider`, `SettingsRepositoryProvider` e
+`CoverServiceProvider`. Por padrão usa os dados do seed em memória (livros + 6
+gêneros de fábrica), um repositório de leitura ligado ao de livros e um
+`CoverService` fake; para cenários específicos:
 
 ```tsx
 const books = createInMemoryBooksRepository([]);
@@ -51,6 +52,11 @@ O repositório de gêneros em memória recebe a contagem de livros por callback
 (`createInMemoryGenresRepository(rows, countBooks)`); `renderWithProviders`
 liga essa contagem ao repositório de livros, então excluir um gênero em uso é
 bloqueado também nos testes de tela.
+
+O repositório de leitura em memória
+(`createInMemoryReadingSessionsRepository(booksRepository)`) mexe no **mesmo**
+repositório de livros, mantendo progresso e status coerentes como a transação
+do SQLite.
 
 Nunca importe `expo-sqlite`, `expo-file-system` ou `expo-image-picker` no teste:
 são módulos nativos. As telas recebem `CoverService` por contexto justamente
@@ -139,3 +145,19 @@ snapshot de imagem nem de árvore para arte.
   (faixas contíguas, EAN conhecido) e quebra antes de gravar. Conferir com
   `node scripts/build-isbn-ranges.mjs` que o arquivo gerado não muda sem uma
   atualização real da agência.
+
+## Cobertura da S5
+
+- `src/db/repositories/reading-sessions.test.ts`: grava soma, `readAt` padrão,
+  clamp no total com `finished`, livro inexistente/já concluído, Zod de páginas,
+  ordenação, `listBetween`, desfazer (desconta, volta para `reading`, nunca
+  negativo) e sessão órfã.
+- `src/features/reading/ReadingForm.test.tsx`: valor sugerido, salvar, zero/
+  negativo/vazio, +1/+10, aviso de clamp e cancelar.
+- `BookDetailScreen.test.tsx`: card de progresso, registro com atualização na
+  hora, conclusão automática e desfazer com confirmação.
+- `FilaScreen.test.tsx`: "Começar" abre o registro com as páginas do plano,
+  salva e o livro já aparece concluído na parada seguinte.
+
+O que continua manual: teclado numérico do Android, tamanho do modal em tela
+pequena e a barra de progresso em densidades diferentes.

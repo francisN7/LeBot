@@ -5,7 +5,41 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 ## [Unreleased]
 
-Sem mudanças pendentes: a S5 é a próxima sessão.
+Sem mudanças pendentes: a S5 está implementada e só espera a conferência no
+Android do dono; depois dela vem a S6.
+
+## S5 — Registro de leitura e progresso
+
+### Added
+
+- `reading_sessions` (`src/db/schema.ts`, migração aditiva
+  `0003_cloudy_pretty_boy.sql`): histórico de páginas por livro e por dia, com
+  índice em `book_id` e `CHECK (pages > 0)`.
+- `src/db/repositories/reading-sessions.ts`: `create` grava a sessão e soma em
+  `books.pages_read` na mesma transação, com teto no total e `finished`
+  automático; `remove` desconta (nunca abaixo de 0) e devolve o status para
+  `reading` quando o livro deixa de estar concluído. `listByBook` e
+  `listBetween` alimentam a UI e a futura tela de estatísticas.
+- `src/features/reading/`: `useReadingSessions(bookId)`, `ReadingForm` (modal com
+  páginas, +1/+10, aviso de clamp) e `ReadingProgressCard` (barra, páginas
+  lidas, últimas leituras e desfazer).
+- Detalhe do livro ganhou o card "Progresso"; o "Começar" da Fila abre o mesmo
+  registro com as páginas do plano em vez do aviso "Em breve".
+- ADR 0012 (histórico × coluna, clamp com aviso, status automático).
+
+### Changed
+
+- `useBooks` exporta `notifyBooksChanged`; `useReadingSessions` avisa o
+  repositório de livros para o progresso aparecer na hora em todas as telas.
+- `renderWithProviders` injeta `ReadingSessionsRepositoryProvider` e um
+  repositório de leitura em memória ligado ao de livros.
+- `docs/data-model.md`, `docs/architecture.md` e `docs/testing.md` cobrem a
+  tabela, o fluxo e os testes da S5.
+
+### Validated
+
+- `lint`, `typecheck`, 203 testes, `expo-doctor` (20/20) e `expo export`
+  (Android) verdes.
 
 ## S4b — ISBN oficial, avisos do terminal e capa na Fila
 

@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type {
   BooksRepository,
   GenresRepository,
+  ReadingSessionsRepository,
   SettingsRepository,
 } from '@/db/repositories';
 import { GenresRepositoryProvider } from '@/features/genres';
@@ -12,6 +13,7 @@ import {
   BooksRepositoryProvider,
   CoverServiceProvider,
 } from '@/features/library';
+import { ReadingSessionsRepositoryProvider } from '@/features/reading';
 import { SettingsRepositoryProvider } from '@/features/settings';
 import type { CoverService } from '@/lib/covers';
 
@@ -19,6 +21,7 @@ import { createFakeCoverService } from './covers';
 import {
   createInMemoryBooksRepository,
   createInMemoryGenresRepository,
+  createInMemoryReadingSessionsRepository,
   createInMemorySettingsRepository,
   testGenreRows,
 } from './repositories';
@@ -31,6 +34,7 @@ const metrics = {
 type RenderWithProvidersOptions = Omit<RenderOptions, 'wrapper'> & {
   booksRepository?: BooksRepository;
   genresRepository?: GenresRepository;
+  readingRepository?: ReadingSessionsRepository;
   settingsRepository?: SettingsRepository;
   coverService?: CoverService;
 };
@@ -49,6 +53,9 @@ export function renderWithProviders(
         booksRepository.list().filter((book) => book.genreId === genreId)
           .length,
     ),
+    readingRepository = createInMemoryReadingSessionsRepository(
+      booksRepository,
+    ),
     settingsRepository = createInMemorySettingsRepository(),
     coverService = createFakeCoverService(),
     ...options
@@ -58,11 +65,13 @@ export function renderWithProviders(
     <SafeAreaProvider initialMetrics={metrics}>
       <BooksRepositoryProvider repository={booksRepository}>
         <GenresRepositoryProvider repository={genresRepository}>
-          <SettingsRepositoryProvider repository={settingsRepository}>
-            <CoverServiceProvider service={coverService}>
-              {children}
-            </CoverServiceProvider>
-          </SettingsRepositoryProvider>
+          <ReadingSessionsRepositoryProvider repository={readingRepository}>
+            <SettingsRepositoryProvider repository={settingsRepository}>
+              <CoverServiceProvider service={coverService}>
+                {children}
+              </CoverServiceProvider>
+            </SettingsRepositoryProvider>
+          </ReadingSessionsRepositoryProvider>
         </GenresRepositoryProvider>
       </BooksRepositoryProvider>
     </SafeAreaProvider>

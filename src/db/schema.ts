@@ -88,6 +88,31 @@ export const books = sqliteTable(
 export type BookRow = typeof books.$inferSelect;
 export type NewBookRow = typeof books.$inferInsert;
 
+/**
+ * Histórico de leitura: cada registro é o que o dono leu num dia.
+ * `books.pages_read` é a soma dessas sessões, mantida pelo repositório.
+ */
+export const readingSessions = sqliteTable(
+  'reading_sessions',
+  {
+    id: text('id').primaryKey(),
+    /** `books.id`. Sem FK física: a integridade fica no repositório. */
+    bookId: text('book_id').notNull(),
+    pages: integer('pages').notNull(),
+    /** Dia da leitura (não o momento em que o registro foi salvo). */
+    readAt: integer('read_at', { mode: 'timestamp_ms' }).notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (table) => [
+    index('reading_sessions_book_idx').on(table.bookId),
+    check('reading_sessions_pages_positive', sql`${table.pages} > 0`),
+  ],
+);
+
+export type ReadingSessionRow = typeof readingSessions.$inferSelect;
+export type NewReadingSessionRow = typeof readingSessions.$inferInsert;
+
 export const settings = sqliteTable('settings', {
   key: text('key').primaryKey(),
   value: text('value').notNull(),

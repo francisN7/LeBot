@@ -1,9 +1,17 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import {
+  fireEvent,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react-native';
 
-import type { BookRow } from '@/db/schema';
+import type { BookRow, ReadingSessionRow } from '@/db/schema';
 import { createFakeCoverService } from '@/test-utils/covers';
 import { renderWithProviders } from '@/test-utils/render';
-import { createInMemoryBooksRepository } from '@/test-utils/repositories';
+import {
+  createInMemoryBooksRepository,
+  createInMemoryReadingSessionsRepository,
+} from '@/test-utils/repositories';
 
 import { BookDetailScreen } from './BookDetailScreen';
 
@@ -110,5 +118,105 @@ describe('BookDetailScreen', () => {
     );
 
     expect(screen.getByText('Livro não encontrado')).toBeOnTheScreen();
+  });
+
+  it('mostra o progresso e registra leitura na hora', async () => {
+    const row = bookRow();
+    const books = createInMemoryBooksRepository([row]);
+
+    await renderWithProviders(
+      <BookDetailScreen
+        bookId={row.id}
+        onBack={jest.fn()}
+        onEdit={jest.fn()}
+      />,
+      { booksRepository: books },
+    );
+
+    expect(screen.getByText('128 páginas lidas')).toBeOnTheScreen();
+    expect(screen.getByTestId('progresso-barra')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByText('Registrar leitura'));
+    await fireEvent.changeText(screen.getByLabelText('Páginas lidas'), '20');
+    await fireEvent.press(screen.getByText('Salvar'));
+
+    expect(screen.getByText('148 páginas lidas')).toBeOnTheScreen();
+    expect(books.findById(row.id)?.pagesRead).toBe(148);
+    expect(screen.queryByTestId('reading-form')).not.toBeOnTheScreen();
+  });
+
+  it('conclui o livro ao chegar no total', async () => {
+    const row = bookRow({ pagesRead: 300 });
+    const books = createInMemoryBooksRepository([row]);
+
+    await renderWithProviders(
+      <BookDetailScreen
+        bookId={row.id}
+        onBack={jest.fn()}
+        onEdit={jest.fn()}
+      />,
+      { booksRepository: books },
+    );
+
+    await fireEvent.press(screen.getByText('Registrar leitura'));
+    await fireEvent.changeText(screen.getByLabelText('Páginas lidas'), '25');
+
+    expect(
+      screen.getByText(
+        'Só faltam 10 páginas: o progresso para no fim do livro.',
+      ),
+    ).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByText('Salvar'));
+
+    expect(screen.getByText('310 páginas lidas')).toBeOnTheScreen();
+    expect(screen.getByText('Livro concluído.')).toBeOnTheScreen();
+    expect(screen.getByText('Concluído')).toBeOnTheScreen();
+    expect(screen.queryByText('Registrar leitura')).not.toBeOnTheScreen();
+    expect(books.findById(row.id)?.status).toBe('finished');
+  });
+
+  it('lista as últimas leituras e desfaz depois da confirmação', async () => {
+    const row = bookRow({ pagesRead: 148 });
+    const books = createInMemoryBooksRepository([row]);
+    const time = new Date('2026-10-30T10:00:00.000Z');
+    const sessions: ReadingSessionRow[] = [
+      {
+        id: 'reading-1',
+        bookId: row.id,
+        pages: 20,
+        readAt: time,
+        createdAt: time,
+        updatedAt: time,
+      },
+    ];
+
+    await renderWithProviders(
+      <BookDetailScreen
+        bookId={row.id}
+        onBack={jest.fn()}
+        onEdit={jest.fn()}
+      />,
+      {
+        booksRepository: books,
+        readingRepository: createInMemoryReadingSessionsRepository(
+          books,
+          sessions,
+        ),
+      },
+    );
+
+    expect(screen.getByText('30/10 · 20 pág.')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByText('Desfazer'));
+
+    const dialog = screen.getByTestId('confirm-dialog');
+    expect(screen.getByText('Desfazer registro?')).toBeOnTheScreen();
+
+    await fireEvent.press(within(dialog).getByText('Desfazer'));
+
+    expect(screen.getByText('128 páginas lidas')).toBeOnTheScreen();
+    expect(screen.queryByText('30/10 · 20 pág.')).not.toBeOnTheScreen();
+    expect(books.findById(row.id)?.pagesRead).toBe(128);
   });
 });

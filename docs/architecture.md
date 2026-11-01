@@ -48,7 +48,9 @@ SQLite (expo-sqlite + Drizzle)
 - `useBooks` avisa todas as telas que usam o mesmo repositório depois de
   escrever (assinaturas em `WeakMap`), então Estante, Fila e Detalhe não ficam
   com dados velhos ao voltar do formulário. `useGenres` segue o mesmo padrão e
-  expõe `genreById` para nome e cor.
+  expõe `genreById` para nome e cor. `useReadingSessions` avisa o repositório de
+  leitura **e** chama `notifyBooksChanged`, então registrar páginas atualiza o
+  progresso em todas as telas na hora.
 - Erros de escrita sobem como exceção; validação de entrada é Zod no
   repositório.
 
@@ -84,6 +86,22 @@ SQLite (expo-sqlite + Drizzle)
 - Sem FK: excluir gênero em uso e apagar o último gênero são bloqueados no
   repositório. Decisão: ADR 0010.
 
+## Leitura (S5)
+
+- `src/features/reading/` guarda o `ReadingForm` (modal de páginas com +1/+10),
+  o `ReadingProgressCard` (barra, últimas leituras e desfazer) e o
+  `useReadingSessions(bookId)`.
+- Registrar não é uma rota: o card do detalhe e o "Começar" da Fila abrem o
+  mesmo modal. O padrão da Fila já vem de `plannedPages`; o detalhe sugere 1.
+- O repositório escreve sessão + `pages_read` + status numa transação só. A UI
+  nunca soma páginas por conta própria; ela lê `book.pagesRead`, que é
+  recarregado via `notifyBooksChanged`.
+- Sessão acima do restante é aceita e o formulário avisa antes de salvar; o
+  progresso para no total. Ao chegar no fim o status vira `finished` e, ao
+  desfazer, volta para `reading`. Decisão: ADR 0012.
+- Remover um livro ainda deixa as sessões dele órfãs (sem FK). Não afeta o
+  progresso; a limpeza entra junto com conclusão/resenha (S9).
+
 ## Boot
 
 `src/app/_layout.tsx`:
@@ -107,6 +125,8 @@ Nenhum passo apaga dados ou esconde erro de migração.
   [`docs/adr/0009-biblioteca-busca-e-capas.md`](adr/0009-biblioteca-busca-e-capas.md)
 - Gêneros editáveis e cores:
   [`docs/adr/0010-generos-editaveis-e-cores.md`](adr/0010-generos-editaveis-e-cores.md)
+- Progresso de leitura:
+  [`docs/adr/0012-progresso-e-status-automatico.md`](adr/0012-progresso-e-status-automatico.md)
 
 ## Pendências conhecidas
 

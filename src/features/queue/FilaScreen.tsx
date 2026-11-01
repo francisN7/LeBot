@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { Alert, Pressable, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Pressable, View } from 'react-native';
 
 import {
   AppText,
@@ -14,6 +14,8 @@ import { useGenres } from '@/features/genres';
 import { UNKNOWN_GENRE_NAME } from '@/features/library/genre';
 import type { Book } from '@/features/library/types';
 import { useBooks } from '@/features/library/use-books';
+import { ReadingForm } from '@/features/reading/ReadingForm';
+import { useReadingSessions } from '@/features/reading/use-reading-sessions';
 import { hasCover } from '@/lib/covers';
 import { colors, sizes } from '@/theme';
 
@@ -80,6 +82,11 @@ export function FilaScreen({ onOpenBook }: FilaScreenProps = {}) {
   const [nextItem, ...rest] = items;
   const nextBook = nextItem ? booksById.get(nextItem.bookId) : undefined;
   const nextGenre = nextBook ? genreById.get(nextBook.genreId) : undefined;
+  const nextRemaining = nextBook
+    ? Math.max(0, nextBook.pages - nextBook.pagesRead)
+    : 0;
+  const [registering, setRegistering] = useState(false);
+  const { register } = useReadingSessions(nextBook?.id ?? '');
 
   return (
     <Screen>
@@ -114,15 +121,34 @@ export function FilaScreen({ onOpenBook }: FilaScreenProps = {}) {
           </View>
           <View className="flex-row items-center justify-between">
             <Chip label={`${nextItem.plannedPages} páginas hoje`} />
-            <Button
-              label="Começar"
-              size="sm"
-              onPress={() =>
-                Alert.alert('Em breve', 'A sessão de leitura chega na S5.')
-              }
-            />
+            {nextRemaining > 0 ? (
+              <Button
+                label="Começar"
+                size="sm"
+                onPress={() => setRegistering(true)}
+              />
+            ) : (
+              <Chip label="Concluído" selected />
+            )}
           </View>
         </Card>
+      ) : null}
+
+      {nextItem && nextBook ? (
+        <ReadingForm
+          bookTitle={nextBook.title}
+          defaultPages={Math.max(
+            1,
+            Math.min(nextItem.plannedPages, nextRemaining),
+          )}
+          onCancel={() => setRegistering(false)}
+          onSave={(pages) => {
+            register(pages);
+            setRegistering(false);
+          }}
+          remaining={nextRemaining}
+          visible={registering}
+        />
       ) : null}
 
       <View className="gap-sm">

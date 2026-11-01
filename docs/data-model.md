@@ -35,6 +35,30 @@ enquanto o dono digita, mas o valor salvo não tem hífen — ver
 migração precisa ser aditiva. A integridade fica no repositório de gêneros:
 excluir um gênero em uso é bloqueado, e o último gênero nunca sai.
 
+### `reading_sessions`
+
+| Coluna | Tipo | Regra |
+|---|---|---|
+| `id` | text | PK; `reading-<base36>` gerado em `src/lib/id.ts` |
+| `book_id` | text | `books.id`; indexado (`reading_sessions_book_idx`) |
+| `pages` | integer | > 0 (`reading_sessions_pages_positive`); o que foi lido na sessão |
+| `read_at` | integer | dia da leitura (`timestamp_ms`), não o momento do salvamento |
+| `created_at` / `updated_at` | integer | ms desde 1970 |
+
+Sem FK física, pelo mesmo motivo de `books.genre`: a integridade fica no
+repositório de leitura, que recusa livro inexistente.
+
+### Progresso: duas cópias, um dono
+
+- `reading_sessions` é o **histórico**; `books.pages_read` é a coluna que as
+  telas leem (Estante, detalhe, Fila, plano).
+- Só `src/db/repositories/reading-sessions.ts` escreve nas duas, na mesma
+  transação. Nenhuma tela soma sessões por conta própria.
+- Sessão maior que o restante é aceita: o histórico guarda `pages` como foi
+  digitado, mas `pages_read` para no total (`appliedPages` < `pages` avisa a UI).
+- Chegar ao total muda o status para `finished` na mesma transação; desfazer
+  essa sessão volta para `reading` (ADR 0012).
+
 ### `genres`
 
 | Coluna | Tipo | Regra |
@@ -73,6 +97,9 @@ Chaves usadas hoje: `goal.pages`, `reminder.time`, `appearance.theme`,
 - Erro de migração aparece em tela (`DatabaseError`) — não é engolido.
 - `0002_slow_pepper_potts.sql` é aditiva: `CREATE TABLE genres`, dois índices e
   os 6 `INSERT` de fábrica. Nenhum `ALTER`/recreate em `books`.
+- `0003_cloudy_pretty_boy.sql` é aditiva: `CREATE TABLE reading_sessions` e o
+  índice `reading_sessions_book_idx`. Banco da S0–S4 ganha a tabela vazia, sem
+  perder livros nem gêneros.
 
 Para criar uma migração:
 
@@ -92,21 +119,27 @@ primeiro seed.
 
 ## Repositórios
 
-`src/db/repositories/books.ts`, `genres.ts` e `settings.ts` expõem funções
-síncronas (`list`, `findById`, `create`, `update`, `remove`; `get`, `all`,
-`set`, `remove`). Recebem a instância do Drizzle por parâmetro, então o mesmo
-código roda no aparelho (`expo-sqlite`) e nos testes (`sql.js`).
+`src/db/repositories/books.ts`, `genres.ts`, `reading-sessions.ts` e
+`settings.ts` expõem funções síncronas (`list`, `findById`, `create`, `update`,
+`remove`; `get`, `all`, `set`, `remove`). Recebem a instância do Drizzle por
+parâmetro, então o mesmo código roda no aparelho (`expo-sqlite`) e nos testes
+(`sql.js`).
 
-- Entrada validada com Zod (`bookInputSchema`, `genreFields`); `update` valida
-  a linha completa (merge com o valor atual).
+- Entrada validada com Zod (`bookInputSchema`, `genreFields`,
+  `readingSessionInputSchema`); `update` valida a linha completa (merge com o
+  valor atual).
 - ISBN inválido e ISBN repetido são rejeitados com mensagem clara; o valor é
   gravado normalizado.
 - Gênero: nome duplicado (sem acento/caixa), par de cores igual e hex inválido
   são rejeitados. `countBooks` e `nameExists` apoiam as telas; `remove` bloqueia
   gênero em uso e o último gênero.
+- Leitura: `create` grava a sessão e soma em `pages_read` na mesma transação
+  (teto no total, `finished` automático); `remove` desconta e nunca deixa o
+  progresso negativo. `listByBook` ordena do mais recente para o mais antigo;
+  `listBetween(from, to)` é a base das estatísticas da S10.
 - Nenhum SQL fora de `src/db/`.
-- As telas acessam via hooks (`useBooks`, `useGenres`, `useSettings`), nunca
-  pelo repositório diretamente.
+- As telas acessam via hooks (`useBooks`, `useGenres`, `useSettings`,
+  `useReadingSessions`), nunca pelo repositório diretamente.
 
 ## Busca e capa
 

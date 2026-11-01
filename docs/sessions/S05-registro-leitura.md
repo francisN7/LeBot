@@ -49,11 +49,11 @@ plano ainda.
 
 ## Aceite
 
-- [ ] Registrar N páginas atualiza o livro na hora, sem reiniciar o app.
-- [ ] `pages_read` nunca passa de `pages` e nunca fica negativo ao desfazer.
-- [ ] Livro que chega ao fim vira `finished` e aparece assim na Estante.
-- [ ] Migração aplica em banco já existente (S0–S4) sem perder dados.
-- [ ] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
+- [x] Registrar N páginas atualiza o livro na hora, sem reiniciar o app.
+- [x] `pages_read` nunca passa de `pages` e nunca fica negativo ao desfazer.
+- [x] Livro que chega ao fim vira `finished` e aparece assim na Estante.
+- [x] Migração aplica em banco já existente (S0–S4) sem perder dados.
+- [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
 - [ ] Conferido no Android pelo dono.
 
 ## Contexto necessário

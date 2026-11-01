@@ -70,4 +70,33 @@ describe('FilaScreen', () => {
       screen.queryByLabelText('Lombada de Coraline'),
     ).not.toBeOnTheScreen();
   });
+
+  it('abre o registro da próxima parada com as páginas do plano', async () => {
+    const books = createInMemoryBooksRepository();
+
+    await renderWithProviders(<FilaScreen />, { booksRepository: books });
+
+    await fireEvent.press(screen.getByText('Começar'));
+
+    expect(screen.getByDisplayValue('20')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByText('Salvar'));
+
+    expect(books.findById('book-orgulho')?.pagesRead).toBe(20);
+  });
+
+  it('troca o Começar por Concluído quando a próxima parada já foi lida', async () => {
+    const rows = testBookRows.map((row) =>
+      row.id === 'book-orgulho'
+        ? { ...row, pagesRead: row.pages, status: 'finished' as const }
+        : row,
+    );
+
+    await renderWithProviders(<FilaScreen />, {
+      booksRepository: createInMemoryBooksRepository(rows),
+    });
+
+    expect(screen.queryByText('Começar')).not.toBeOnTheScreen();
+    expect(screen.getAllByText('Concluído').length).toBeGreaterThan(0);
+  });
 });
