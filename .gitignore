@@ -44,6 +44,7 @@ yarn-error.*
 *.tsbuildinfo
 coverage/
 /tmp/
+/.temp/
 
 # Sistema
 .DS_Store

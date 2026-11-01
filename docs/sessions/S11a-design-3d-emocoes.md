@@ -1,142 +1,94 @@
-# S11a — Design 3D da lombada e emoções
+# S11a — Lombada B, tassel e capa com profundidade
 
 ## Objetivo
 
-Fazer a lombada e a capa parecerem **objetos com volume**, não retângulos com
-sombra. Refazer o detalhe lateral da capa e dar vida ao selo de emoção, com as
-mesmas expressões da lombada sem capa.
+Fazer a lombada e a capa lerem como **objetos de livro**, com a anatomia da
+capa dura, um tassel de verdade e uma capa que mantém a foto inteira.
 
 ## Diagnóstico
 
-- A lombada atual (`SpineArtwork.tsx`) é um retângulo arredondado com uma faixa
-  escura vertical à direita (`SHADE_PATH`, x 76–100) — **24% da largura**. Isso
-  lê como um livro muito grosso/tijolo, além de ser uma mancha chapada: o olho
-  vê "2D com sombra", não uma face lateral.
-- A capa (`BookCover.tsx`) tenta virar livro com um bloco creme fixo de 7% na
-  borda direita e três linhas horizontais. É estreito demais para parecer
-  páginas e não tem perspectiva nem texto.
-- O selo de emoção da capa (`SpineFace` dentro de `BookCover`) é estático. A
-  lombada pisca (`SpineArtwork` anima `eyesProps`), mas a capa não.
-- O preview de capa no formulário (`BookFormScreen`) não passa `status`, então o
-  selo nem aparece ali.
+- A primeira tentativa (52×128, face lateral chapada e bloco de páginas por cima
+  da foto) foi reprovada na conferência visual: lia como fita/tijolo, o bloco
+  parecia recorte e o tassel era uma ponta escura.
+- A lombada de frente é um **cilindro**: o volume vem do gradiente curvo, das
+  headband/tailband e das nervuras, não de uma faixa lateral.
+- O tassel é **corda + corpo + pescoço + franja**; o “zzz” do sono deve flutuar
+  na diagonal; em “Lendo” os olhos ficam um pouco mais afastados.
+- A capa precisa de profundidade **sobre a própria foto** (sombra e luz), sem
+  cobrir a arte com páginas.
 
-## Decisões fechadas
+## Decisões fechadas (revisão 2, aprovada em 2026-11-01)
 
-1. **Volume no SVG**, com frente e lateral; sem `rotateY`/`perspective` nativo.
-   A face lateral fica em **8–10%** da largura da lombada, com arestas de
-   topo/base em perspectiva.
-2. **Largura confirmada:** a lombada sem capa é mais estreita que a capa. Decisão
-   final:
-   - capa: `cover` 88×128 (2:3, mantém o slot atual) e `coverCompact` 72×104;
-   - lombada: `spine` **52×128** e `spineCompact` **42×104**.
-   A proporção fica ~1:2,5, que lê como um livro grosso — e não como capa. Mais
-   estreito que isso (abaixo de ~46 px) espreme os dois olhos e o tassel; mais
-   largo volta a parecer capa. A altura não muda, então cards, Ordem, Hoje e
-   detalhe mantêm o alinhamento e a arte fica centrada.
-3. **Redesenhar, não comprimir.** O `viewBox` da lombada passa a ser 52×128
-   (compacto 42×104, mesma proporção); olhos, boca e tassel são desenhados para
-   esse formato. Usar o viewBox antigo (100×140) com
-   `preserveAspectRatio="none"` transformaria o rosto num oval.
-4. **Tassel/marcador:** fita fina saindo da base da lombada, com ponta em V, na
-   cor de destaque do gênero. Ela ocupa o rodapé do slot: o corpo do livro
-   encurta alguns pixels e o tassel pendura dentro dos 128/104, sem estourar o
-   card. Sem física; balanço sutil opcional.
-5. **Lateral da capa:** face de páginas em trapézio, **10–12%** da largura, com
-   **linhas que parecem texto** (6–8 níveis de segmentos com larguras variadas,
-   sem tentar escrever palavras reais), vinco escuro na divisa com a foto e
-   canto externo arredondado. O formato final tem que conversar com a lombada
-   sem capa.
-6. **Sombra de contato** curta sob o objeto, na grade e no detalhe, sem aumentar
-   o card.
-7. **Piscada:** só os olhos, em `happy` (Lendo) e `neutral` (Quero ler);
-   `sleepy` já fecha os olhos e `shine` tem estrelas.
-8. **Fonte única de expressão:** `expressionByStatus` para lombada e capa —
-   Lendo = feliz, Quero ler = neutro, Pausado = sonolento, Concluído = brilho.
-   O preview do formulário passa a receber `status` e mostra o selo.
+1. **Lombada B**, 64×128 no cheio e 52×104 no compacto (proporção 1:2 exata).
+   Capa 88×128 / 72×104. Mini-lombada de “Meu ritmo” 30×60.
+2. **Corpo cilíndrico** com gradiente horizontal `edge → base → light → edge` e
+   sombra vertical discreta nas pontas. Sem face lateral.
+3. **Headband/tailband** listradas (7 e 111 px) e **duas nervuras** (52 e
+   103 px), com sombra acima e luz abaixo.
+4. **Etiqueta de título** creme no topo (15–59 × 18–45), **só com o título,
+   centralizado**, em até duas linhas. É uma View do `Spine` com `AppText`, não
+   texto no SVG. O autor/título completo continuam no card abaixo.
+   `showLabel={false}` esconde a etiqueta (mini-lombadas).
+5. **Tassel T1 no canto superior esquerdo**, preso ao headband: argola cortada
+   pelo topo, corda, corpo, pescoço e franja de seis fios dourados com contorno
+   navy. Estático; a argola cortada sugere que sai de dentro.
+6. **Capa S2:** foto inteira + sombra de vinco à esquerda (preto 38%), fio de
+   luz creme (13–20%), sombra de borda à direita (42%) e na base (30%), fio de
+   luz no topo/esquerda. Sem páginas e sem faixa lateral. A fita do gênero
+   continua fita; o selo fica por cima da sombra.
+7. **Rosto compartilhado:** `SpineFace` na lombada e no selo; `happy` com spread
+   10 e as outras expressões com 8; piscada só em `happy`/`neutral`; “zzz” de
+   três letras na diagonal, opacidade 1→0,3 e `translateY` 0→−2 px.
+8. **Sombra de contato** nativa (`contactShadow`) no wrapper; o corpo ocupa 126
+   dos 128 px. O `Pressable` da arte pinta o fundo com a cor do gênero e não
+   desenha borda: o contorno navy vem do SVG. O fallback 2D continua chapado.
 
 ## Tarefas
 
-1. **Paleta:** estender `SpinePalette` (`spine-art.ts`) com `side`, `edge`,
-   `shadow` e paradas do gradiente, derivadas do hex do gênero; manter `ink` e o
-   contraste ≥ 3:1. Testes puros da paleta e do fallback 2D.
-2. **Tamanhos:** separar capa e lombada em `src/theme/sizes.ts`:
-   `cover` 88×128 / `coverCompact` 72×104 / `spine` 52×128 / `spineCompact`
-   42×104. `BookCover` usa `cover`; `BookArt` escolhe o par certo por
-   `hasCover`; `Spine` usa `spine`. Altura não muda.
-3. **Lombada:** redesenhar `SpineArtwork` para o `viewBox` 52×128:
-   - frente com gradiente horizontal (borda escura → base → luz → borda);
-   - lateral direita visível em **8–10%** da largura (~5 px no cheio, ~4 px no
-     compacto), com topo/base em perspectiva (arestas inclinadas);
-   - vinco/charneira à esquerda, sem o filete vertical atual;
-   - faixas de topo/base acompanhando a perspectiva;
-   - **tassel** na base, com ponta em V, na cor de destaque do gênero, com
-     `testID` próprio e balanço sutil opcional;
-   - sombra de contato sob o objeto, dentro do slot;
-   - rosto desenhado para o formato estreito (olhos redondos e próximos, boca
-     curta), com a mesma piscada/brilho/"z".
-   O fallback sem status continua chapado e usa a mesma largura.
-4. **Capa:** refazer a lateral de `BookCover`:
-   - remover o bloco de 7% com três linhas;
-   - desenhar a face de páginas como trapézio creme de **10–12%**, com 6–8
-     níveis de **linhas que parecem texto** (segmentos de larguras variadas),
-     vinco escuro na divisa e canto externo arredondado;
-   - manter fita do gênero, brilho diagonal e selo;
-   - garantir que o selo não encoste na face de páginas;
-   - sombra de contato sob a capa, no mesmo vocabulário da lombada.
-5. **Selo animado:** extrair a boca/olhos animáveis para um componente
-   compartilhado (`SpineFaceArtwork` ou `SpineFace` com `animated`/`blink`),
-   reutilizado pela lombada e pelo selo. A piscada anima só a opacidade dos
-   olhos (1 → 0 → 1, ~70/90 ms) a cada ~2,6 s; boca e acessórios ficam parados.
-6. **Preview do formulário:** passar `status` ao `BookCover` do
-   `BookFormScreen`; o selo acompanha o chip de status escolhido.
-7. **Testes:**
-   - paleta/expressões puras (`spine-art.test.ts`): side/shade, ink, fallback;
-   - dimensões: `BookArt` entrega 52/42 sem capa e 88/72 com capa;
-   - `Spine.test.tsx` / `BookCover.test.tsx`: presença do selo por status,
-     `expressionByStatus` igual nos dois, ausência de selo sem status, tassel na
-     lombada e face de páginas com `testID` na capa;
-   - `BookFormScreen.test.tsx`: preview com selo e troca de expressão ao mudar o
-     chip;
-   - não afirmar sobre frames de animação; validar montagem e props.
-8. **Docs:** `docs/design/assets-3d.md` (formato, faces, largura, movimento),
-   `docs/design/design-system.md` (`Spine`, `BookCover`),
-   `docs/testing.md`, `CURRENT.md`, `roadmap.md`, `CHANGELOG.md` e ADR 0022 para
-   a técnica de volume (SVG com faces × perspectiva nativa).
-
-## Ajustes na execução (2026-11-01)
-
-Decididos com o dono antes de codar:
-
-- A ADR de volume é a **0022** (a 0020 é a das estatísticas).
-- O `FinishedStrip` usa **30×74** (proporção 1:2,46) no lugar de 30×44; a
-  fileira de concluídos fica ~30 px mais alta, mas o rosto não estica.
-- O tassel **balança sempre** (±2,8°, 1,7 s, ida e volta), só com `transform`.
-- A cor do tassel é derivada (`accent` = 45% entre a base e o `ink`); não foi
-  preciso passar uma segunda cor do gênero por `BookArt`/`Spine`.
-- `showLabel` continua **true** por padrão; o padding caiu para `xs`.
-- O selo da capa foi deslocado para a esquerda da face de páginas
-  (`right = página + xs`).
-- A sombra de contato é nativa (`contactShadow`) nos dois objetos, não desenhada
-  dentro do SVG: uma faixa vazia no rodapé faria o livro parecer flutuando.
-- Validação visual: código + testes + export; a conferência no Android fica com
-  o dono.
+1. **Tamanhos:** `cover` 88×128, `coverCompact` 72×104, `spine` 64×128,
+   `spineCompact` 52×104; `BookArt` escolhe o par por `hasCover`; a capa mantém a
+   altura. Mini-lombada 30×60.
+2. **Paleta:** `SpinePalette` com `base`, `edge`, `light`, `shadow`, `highlight`,
+   `ink` e `gradient` (`[edge, base, light, edge]`); remover `side` e `accent`.
+   Contraste do rosto ≥ 3:1; fallback 2D intacto.
+3. **Lombada (`SpineArtwork`):** viewBox 64×128; gradiente/sombra vertical;
+   headband/tailband; nervuras; rosto; “zzz”; tassel T1; sombra de contato
+   nativa no `Spine`. O viewBox compacto é o mesmo, escalado por 52/64.
+4. **Etiqueta (`Spine`):** View creme com borda navy, posição/tamanho
+   proporcionais (15–59 × 18–45), `AppText` com o título centralizado,
+   `numberOfLines={2}`, `ellipsizeMode="tail"`, oculta da árvore de
+   acessibilidade (o `Pressable` já anuncia “Lombada de …”). As telas principais
+   deixam de passar `showLabel={false}`; a mini-lombada mantém `false`.
+5. **Capa (`BookCover`):** remover o bloco de páginas; adicionar a camada S2 de
+   sombra/luz sobre a foto; manter a fita, o brilho diagonal (`animated`), o selo
+   e a sombra de contato. O selo usa `viewBox="14 70 36 32"` do novo rosto.
+6. **Rosto (`SpineFace`):** coordenadas 64×128 (olhos em y=80, boca em 92);
+   `happy` com spread 10, as outras com 8; piscada compartilhada; “zzz” com
+   `testID` próprio.
+7. **Preview do formulário:** manter `status` no `BookCover` do `BookFormScreen`;
+   o selo acompanha o chip.
+8. **Testes:** paleta sem side/accent; `BookArt` 64/52 e 88/72; etiqueta no topo;
+   tassel no topo; “zzz” no pausado; capa com `-depth`; selo por status; preview.
+   Não afirmar sobre frames; validar montagem e props.
+9. **Docs:** `assets-3d.md`, `design-system.md`, `testing.md`, `CURRENT.md`,
+   `roadmap.md`, `CHANGELOG.md`, ADR 0022 e esta spec.
 
 ## Aceite
 
-- [ ] A lombada é visivelmente mais estreita que a capa (52×128 / 42×104
-      compacta), lê como objeto de volume e **não** como livro grosso: face
-      lateral fina, frente com gradiente e tassel visível na base, para os 4
-      status e qualquer cor de gênero.
-- [ ] A lateral da capa parece um bloco de páginas com texto, não uma etiqueta;
-      a foto continua legível e o selo não a cobre. O formato conversa com a
-      lombada sem capa.
-- [ ] O selo da capa pisca os olhos nos estados feliz/neutro e usa as mesmas
-      expressões da lombada nos quatro status.
+- [ ] A lombada B tem 64×128 (52×104 compacta), lê como cilindro com
+      headband/tailband e nervuras, não como fita/tijolo.
+- [ ] O título aparece na etiqueta do topo, centralizado, em até duas linhas;
+      o autor continua no card. A mini-lombada não mostra etiqueta.
+- [ ] O tassel T1 fica no canto superior esquerdo, com argola cortada, corda,
+      corpo, pescoço e franja dourada; é reconhecível como tassel no cheio e no
+      compacto.
+- [ ] Em “Lendo” os olhos estão mais afastados; em “Pausado” o “zzz” flutua na
+      diagonal.
+- [ ] A capa mantém a foto inteira e ganha profundidade S2 (vinco + sombra de
+      borda + luz), sem páginas nem faixa lateral; o selo e a fita continuam.
 - [ ] O preview do formulário mostra o selo do status escolhido.
-- [ ] A altura dos cards/linhas não muda; a lombada mais estreita fica centrada,
-      o toque continua no objeto e a grade/detalhe seguem alinhados. A capa
-      mantém 88/72.
-- [ ] Fallback 2D e contraste do rosto continuam funcionando.
+- [ ] Fallback 2D, contraste do rosto e toque no objeto continuam funcionando;
+      a altura dos cards/linhas não muda e a capa mantém 88/72.
 - [ ] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes; conferido no
       Android.
 
@@ -150,39 +102,33 @@ Decididos com o dono antes de codar:
 
 ## Arquivos prováveis
 
-- `src/components/ui/SpineArtwork.tsx`, `SpineFace.tsx`, `BookCover.tsx`
+- `src/components/ui/SpineArtwork.tsx`, `SpineFace.tsx`, `Spine.tsx`,
+  `BookCover.tsx`, `BookArt.tsx`
 - `src/features/library/spine-art.ts` + testes
 - `src/features/library/BookFormScreen.tsx` + teste
-- `src/components/ui/Spine.test.tsx`, `BookCover.test.tsx`
-- `docs/design/assets-3d.md`, `docs/testing.md`, ADR 0020
+- `src/components/ui/Spine.test.tsx`, `BookCover.test.tsx`, `BookArt.test.tsx`
+- `src/features/stats/FinishedStrip.tsx`
+- `docs/design/assets-3d.md`, `docs/design/design-system.md`, `docs/testing.md`
+- ADR 0022
 
 ## Riscos
 
-- **Parecer 3D de verdade:** duas faces chapadas podem continuar "2D com
-  sombra"; o gradiente e as arestas inclinadas precisam de conferência visual no
-  aparelho, não só no teste.
-- **Tamanho compacto:** a face lateral fina pode virar um risco em 42×104; o
-  tassel e a sombra não podem estourar o slot nem cobrir o rosto. Testar na
-  Ordem e na Hoje.
-- **Rosto oval:** reaproveitar o viewBox 100×140 com a largura de 52 comprime os
-  olhos; o desenho precisa ser refeito no novo formato, não escalado.
-- **Título na lombada estreita:** a etiqueta de 52 px quebra fácil; as telas
-  principais já usam `showLabel={false}`, mas o padrão do componente precisa ser
-  conferido.
-- **Capa × lombada:** a capa continua 88×128; conferir lado a lado que a
-  diferença de largura parece intencional, não um bug de layout.
-- **Cores escuras:** sombra/lateral precisam manter contraste e o rosto legível;
-  não usar preto fixo.
-- **Tassel:** se balançar, usar só `transform`; se atrapalhar o toque ou o
-  card, deixar estático.
-- **Selo pequeno:** a piscada não pode fazer o rosto "sumir" no tamanho de 18–26
-  px; testar no aparelho.
-- **Regressão de toque:** qualquer wrapper novo não pode roubar o `Pressable` da
-  lombada/capa.
-- **Animação duplicada:** a piscada do selo e da lombada deve compartilhar o
-  mesmo componente, para não divergirem com o tempo.
+- **Tassel pequeno:** a argola/corda/franja em 52×104 pode virar um borrão;
+  conferir no aparelho e, se preciso, simplificar a franja no compacto.
+- **Etiqueta legível:** o título em 8/6,5 px pode ficar apertado; testar títulos
+  longos e o truncamento em duas linhas.
+- **Sombra da capa:** em fotos muito escuras a sombra preta some; o fio de luz
+  creme no topo/esquerda é o que mantém a profundidade.
+- **Capa × lombada:** a lombada 64 ainda é mais estreita que a capa 88; conferir
+  lado a lado que a diferença é intencional.
+- **Cores escuras:** as nervuras/faixas usam `edge`/`highlight` derivados; não
+  usar preto/creme fixos.
+- **Acessibilidade:** a etiqueta está fora da árvore; o `Pressable` precisa
+  continuar anunciando “Lombada de <título>”.
+- **Regressão de toque:** o `Pressable` transparente da arte não pode perder o
+  toque; a etiqueta e o SVG são `pointerEvents="none"`.
 
 ## Próximo depois desta
 
-**S12** — release interno, se a S11a ficar depois da S11. Se o dono antecipar a
-S11a, a fila volta para S10/S11 antes do release.
+**S12** — release interno, com a spec em `docs/sessions/S12-release-interno.md`.
+A conferência visual da S11a no Android é o único item pendente.

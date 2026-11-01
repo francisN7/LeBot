@@ -22,8 +22,8 @@ type SpineProps = {
   /** Cor de gênero vinda do banco (`genreById`), nunca uma lista fixa. */
   color: string;
   /**
-   * Status de leitura. Com status a lombada é a arte 3D (rosto por status);
-   * sem status fica o bloco 2D usado como fallback.
+   * Status de leitura. Com status a lombada é a arte B (rosto por status,
+   * headband/tailband, nervuras e tassel); sem status fica o bloco 2D.
    */
   status?: ReadingStatus;
   /** Flutua devagar: reservado para telas com um livro só (detalhe). */
@@ -31,7 +31,10 @@ type SpineProps = {
   width?: number;
   height?: number;
   onPress?: () => void;
-  /** Esconde a etiqueta quando o título já aparece ao lado da lombada. */
+  /**
+   * Etiqueta de título: no topo quando há arte, no rodapé no fallback 2D.
+   * Desligue em tamanhos pequenos (mini-lombadas de "Meu ritmo").
+   */
   showLabel?: boolean;
   className?: string;
   testID?: string;
@@ -40,14 +43,17 @@ type SpineProps = {
 const PRESS_SPRING = { damping: 16, stiffness: 260 };
 
 /**
- * Lombada do livro. A arte é vetorial e paramétrica: a cor vem do gênero e a
- * expressão do rosto do status (`resolveSpineArt`). Sem status, ou com hex
- * inválido, desenha o bloco 2D com etiqueta.
+ * Lombada do livro. A arte é vetorial e paramétrica (`docs/design/assets-3d.md`):
+ * a **cor** vem do gênero e a **expressão** do status (`resolveSpineArt`). Sem
+ * status — ou com hex inválido — fica o bloco 2D chapado, que é o fallback.
  *
- * Movimento: o toque inclina a lombada com mola (livro saindo da prateleira) e
- * `animated` adiciona uma flutuação contínua para a tela de detalhe. A etiqueta
- * de título fica sobre `cream` opaco para o texto pequeno não disputar contraste
- * com o rosto e o brilho.
+ * A arte B tem 64×128 (compacta 52×104): corpo cilíndrico, headband/tailband,
+ * nervuras, rosto e tassel no topo-esquerdo. A etiqueta de título é uma View
+ * (texto real, centralizado), não texto no SVG. O contorno navy vem da própria
+ * arte; o `Pressable` fica transparente para não duplicar a borda.
+ *
+ * Movimento: o toque inclina com mola e `animated` liga a flutuação contínua —
+ * reserve para telas com um livro só (detalhe), não para a grade.
  */
 export function Spine({
   title,
@@ -88,6 +94,44 @@ export function Spine({
     ],
   }));
 
+  const scaleX = width / 64;
+  const scaleY = height / 128;
+  const headLabel = showLabel ? (
+    <View
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+      pointerEvents="none"
+      style={{
+        alignItems: 'center',
+        backgroundColor: colors.cream,
+        borderColor: colors.navy,
+        borderRadius: 2 * scaleX,
+        borderWidth: 1,
+        height: 27 * scaleY,
+        justifyContent: 'center',
+        left: 15 * scaleX,
+        paddingHorizontal: 2 * scaleX,
+        position: 'absolute',
+        top: 18 * scaleY,
+        width: 44 * scaleX,
+      }}
+      testID={testID ? `${testID}-label` : undefined}
+    >
+      <AppText
+        ellipsizeMode="tail"
+        numberOfLines={2}
+        style={{
+          fontSize: 8 * scaleY,
+          lineHeight: 9.5 * scaleY,
+          textAlign: 'center',
+        }}
+        variant="label"
+      >
+        {title || 'Sem título'}
+      </AppText>
+    </View>
+  ) : null;
+
   return (
     <Animated.View
       style={[{ height, width }, contactShadow, motion]}
@@ -96,7 +140,11 @@ export function Spine({
       <Pressable
         accessibilityLabel={`Lombada de ${title}`}
         accessibilityRole={onPress ? 'button' : 'image'}
-        className={twMerge('overflow-hidden border-2 border-navy', className)}
+        className={twMerge(
+          'overflow-hidden',
+          art.kind === 'fallback' ? 'border-2 border-navy' : undefined,
+          className,
+        )}
         disabled={!onPress}
         onPress={onPress}
         onPressIn={() => {
@@ -107,38 +155,47 @@ export function Spine({
         }}
         style={{
           backgroundColor: art.kind === 'art' ? art.palette.base : art.color,
-          borderRadius: radii.sm,
+          borderRadius: art.kind === 'art' ? 0 : radii.sm,
           flex: 1,
         }}
         testID={testID}
       >
         {art.kind === 'art' ? (
-          <View
-            pointerEvents="none"
-            style={StyleSheet.absoluteFill}
-            testID={testID ? `${testID}-art` : undefined}
-          >
-            <SpineArtwork
-              expression={art.expression}
-              palette={art.palette}
-              testID={testID}
-            />
-          </View>
-        ) : (
-          <View
-            className="mx-sm mt-sm h-xs rounded-pill"
-            style={{ backgroundColor: colors.navy, opacity: opacities.decor }}
-          />
-        )}
-        <View className="mt-auto p-xs">
-          {showLabel ? (
-            <View className="rounded-sm bg-cream/95 px-xs py-xs">
-              <AppText ellipsizeMode="tail" numberOfLines={2} variant="label">
-                {title}
-              </AppText>
+          <>
+            <View
+              pointerEvents="none"
+              style={StyleSheet.absoluteFill}
+              testID={testID ? `${testID}-art` : undefined}
+            >
+              <SpineArtwork
+                expression={art.expression}
+                palette={art.palette}
+                testID={testID}
+              />
             </View>
-          ) : null}
-        </View>
+            {headLabel}
+          </>
+        ) : (
+          <>
+            <View
+              className="mx-sm mt-sm h-xs rounded-pill"
+              style={{ backgroundColor: colors.navy, opacity: opacities.decor }}
+            />
+            {showLabel ? (
+              <View className="mt-auto p-xs">
+                <View className="rounded-sm bg-cream/95 px-xs py-xs">
+                  <AppText
+                    ellipsizeMode="tail"
+                    numberOfLines={2}
+                    variant="label"
+                  >
+                    {title}
+                  </AppText>
+                </View>
+              </View>
+            ) : null}
+          </>
+        )}
       </Pressable>
     </Animated.View>
   );

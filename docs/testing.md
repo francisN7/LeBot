@@ -368,25 +368,28 @@ testados sem SQLite nativo.
 
 ## Cobertura da S11a
 
-- `src/features/library/spine-art.test.ts`: lateral/vinco/sombra mais escuros
-  que a base, luz/brilho mais claros, gradiente de quatro paradas, tassel entre
-  base e rosto, faces escuras mesmo com gênero escuro, expressão por status,
-  rosto navy/creme e fallback 2D sem status/hex/cor.
-- `src/components/ui/BookArt.test.tsx`: lombada 52×128 e 42×104 sem capa; capa
+- `src/features/library/spine-art.test.ts`: vinco/sombra mais escuros que a
+  base, luz/brilho mais claros, gradiente de quatro paradas, bordas escuras mesmo
+  com gênero escuro, expressão por status, rosto navy/creme e fallback 2D sem
+  status/hex/cor.
+- `src/components/ui/BookArt.test.tsx`: lombada 64×128 e 52×104 sem capa; capa
   88×128 e 72×104 com capa; mesma altura dentro de cada par. A dimensão é lida
   do wrapper `-frame` com `StyleSheet.flatten`, sem snapshot.
-- `src/components/ui/Spine.test.tsx`: arte 3D, rosto por status (feliz, neutro,
-  sonolento, brilho), tassel na base, fallback 2D sem status, etiqueta oculta e
-  `onPress`. O SVG é decorativo (`accessibilityElementsHidden`); por isso as
-  consultas de face/tassel usam `{ includeHiddenElements: true }`.
-- `src/components/ui/BookCover.test.tsx`: face de páginas (`-pages`), selo por
-  status nos quatro estados e ausência de selo sem status.
+- `src/components/ui/Spine.test.tsx`: arte 3D, etiqueta de título no topo,
+  rosto por status (feliz, neutro, sonolento, brilho), “zzz” no pausado, tassel
+  no topo, fallback 2D sem status, etiqueta oculta e `onPress`. O SVG é
+  decorativo (`accessibilityElementsHidden`) e a etiqueta também fica fora da
+  árvore de acessibilidade (o `Pressable` já anuncia "Lombada de …"); por isso
+  as consultas de face/tassel/zzz/etiqueta usam `{ includeHiddenElements: true }`.
+- `src/components/ui/BookCover.test.tsx`: camada de profundidade (`-depth`), selo
+  por status nos quatro estados e ausência de selo sem status.
 - `src/features/library/BookFormScreen.test.tsx`: o preview mostra o selo do
   status escolhido — neutro por padrão e brilho depois de tocar em "Concluído".
 
-O que continua manual: no Android, o volume da lateral (5 px no cheio, ~4 px no
-compacto), o tassel em 42×104, o rosto no selo de 18–26 px, a face de páginas
-sobre fotos claras, a sombra de contato e o alinhamento da grade com lombadas de
-52 px. A piscada do selo não é afirmada por frames; validamos montagem e props.
+O que continua manual: no Android, o volume do cilindro em 64/52 px, o tassel no
+topo (argola/corda/franja) no compacto, o “zzz” diagonal, o título centralizado
+em 8/6,5 px, o rosto no selo de 18–26 px, a sombra S2 sobre fotos claras e
+escuras e o alinhamento da grade com lombadas de 64 px. A piscada do selo não é
+afirmada por frames; validamos montagem e props.
 
 A suíte atual tem 65 arquivos e 505 testes (`npm run test`).

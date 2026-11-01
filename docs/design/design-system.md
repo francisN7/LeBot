@@ -56,8 +56,8 @@ Arquivos de configuração: `babel.config.js` (`jsxImportSource: nativewind`),
 ### Tamanhos e opacidade (`src/theme/sizes.ts`)
 
 - `sizes.cover` = 88×128 e `sizes.coverCompact` = 72×104 (capa com foto).
-- `sizes.spine` = 52×128 e `sizes.spineCompact` = 42×104 (lombada sem capa,
-  mais estreita que a capa e com a mesma altura).
+- `sizes.spine` = 64×128 e `sizes.spineCompact` = 52×104 (lombada sem capa,
+  proporção 1:2; mais estreita que a capa e com a mesma altura).
 - `sizes.bookmark` = 18×28 (fita sobre a capa); `sizes.genreSwatch` = 48×32
   (par de cores na lista/formulário de gênero).
 - `sizes.chart` = prateleira de "Meu ritmo": `plotHeight` 96, `barMinHeight` 6,
@@ -245,19 +245,26 @@ Lombada do livro. A arte é vetorial e paramétrica (`docs/design/assets-3d.md`)
 a **cor** vem do gênero (`genreById.get(book.genreId)?.colorLight`, com
 `navyMuted` quando o gênero não existe mais) e a **expressão** do status de
 leitura. Sem `status` — ou com hex inválido — fica o bloco 2D chapado, que é o
-fallback. Com `onPress` vira botão acessível; use `showLabel={false}` quando o
-título já aparece ao lado (Ordem, detalhe e cards da Estante). Quando o livro tem
-capa, o card usa `BookCover` no lugar da lombada.
+fallback. Com `onPress` vira botão acessível. Quando o livro tem capa, o card usa
+`BookCover` no lugar da lombada.
 
-Desde a S11a a lombada tem 52×128 (42×104 compacta), mais estreita que a capa:
-frente em gradiente, face lateral de ~10% da largura, vinco à esquerda, faixas
-de topo/base em leve diagonal, tassel na base e sombra de contato curta. O
-viewBox é 52×128; o rosto foi desenhado para esse formato, não comprimido. A
-piscada vive em `SpineFace` e é a mesma do selo da capa.
+Desde a S11a a lombada é a **B**, com 64×128 (52×104 compacta) e proporção 1:2:
+corpo cilíndrico em gradiente, headband/tailband listradas, duas nervuras,
+etiqueta de título no topo (só o título, centralizado, em até duas linhas),
+rosto do status e tassel T1 no canto superior esquerdo — argola, corda, corpo,
+pescoço e franja dourada. O viewBox é 64×128; o rosto foi desenhado para esse
+formato, não comprimido. A piscada vive em `SpineFace` e é a mesma do selo da
+capa. O `Pressable` pinta o fundo com a cor do gênero e não desenha borda: o
+contorno navy vem da arte.
 
-Movimento: o toque inclina com mola, o tassel balança de leve e `animated` liga a
-flutuação contínua — reserve para telas com um livro só (detalhe), não para a
-grade.
+`showLabel` controla a etiqueta: no topo quando há arte e no rodapé no fallback
+2D. O padrão é ligado; as telas principais mostram o título na lombada mesmo com
+o título do card abaixo. Desligue só em tamanhos pequenos, como a mini-lombada
+de "Meu ritmo" (30×60).
+
+Movimento: o toque inclina com mola e `animated` liga a flutuação contínua —
+reserve para telas com um livro só (detalhe), não para a grade. O tassel é
+estático; o “zzz” do sono flutua na diagonal.
 
 ```tsx
 <Spine
@@ -268,9 +275,8 @@ grade.
 />
 ```
 
-O desenho do rosto e das faixas fica em `SpineArtwork` (interno); a etiqueta de
-título continua sobre `cream/95` para o texto pequeno não perder contraste
-(padding `xs`, porque a lombada é estreita).
+O desenho do rosto, das faixas e do tassel fica em `SpineArtwork` (interno); a
+etiqueta é uma View com `AppText` para o título real e centralizado.
 
 ### `Mascot`
 
@@ -294,11 +300,13 @@ rótulo fica no wrapper (`Capa de <título>`), então a imagem não é lida duas
 vezes pelo leitor de tela. Aceita `onPress` e `accessibilityLabel` próprio (o
 preview do formulário usa "Capa escolhida").
 
-Desde a S4c a capa é tratada como livro físico; a S11a trocou a etiqueta de 7%
-por um **bloco de páginas em trapézio** de 11% da largura, com oito níveis de
-segmentos que leem como texto, vinco na divisa e sombra de contato curta. O
-selo com o rosto do status fica no canto inferior direito, deslocado para a
-esquerda da face de páginas. `animated` faz o brilho atravessar (use no detalhe).
+Desde a S4c a capa é tratada como livro físico; a revisão da S11a tirou o bloco
+de páginas e mantém a **foto inteira**. A profundidade S2 é uma camada de sombra
+sobre a própria capa: vinco de lombada à esquerda (preto 38%), fio de luz creme
+em 13–20%, sombra de borda à direita (42%) e na base (30%), e um fio de luz no
+topo/esquerda. As cores da capa continuam no fundo. O selo com o rosto do status
+fica no canto inferior direito (`right: xs`), sobre a sombra, e a fita do gênero
+continua no topo esquerdo. `animated` faz o brilho atravessar (use no detalhe).
 O selo usa `SpineFace` (mesma piscada da lombada) e só aparece com `status`; o
 preview do formulário passa o status escolhido e acompanha o chip.
 
@@ -358,10 +366,10 @@ cartão ou no vazio).
   Cada coluna é acessível com o intervalo e o total por extenso.
 - **Gêneros:** `GenreBars` em barras horizontais na cor do gênero, ordenadas por
   páginas, top 5 + "Outros". Cada linha mostra "N páginas · M concluídos".
-- **Concluídos:** `FinishedStrip` com mini-lombadas (`Spine` 30×74, sem rótulo,
-  status `finished`) clicáveis e o mês abreviado embaixo. O 30×74 mantém a
-  proporção 1:2,46 da lombada nova (o antigo 30×44 esticava o rosto). Sem
-  concluídos, o card não aparece.
+- **Concluídos:** `FinishedStrip` com mini-lombadas (`Spine` 30×60, sem rótulo,
+  status `finished`) clicáveis e o mês abreviado embaixo. O 30×60 mantém a
+  proporção 1:2 da lombada nova (o 30×44 esticava o rosto). Sem concluídos, o
+  card não aparece.
 - **Notas:** `RatingSummary` com média, `RatingStars` de leitura e distribuição
   5→1 em barrinhas douradas. Média e distribuição são de todas as resenhas; o
   cartão diz isso. Tocar numa nota troca o cartão pelos títulos daquela nota

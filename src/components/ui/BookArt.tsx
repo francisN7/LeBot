@@ -49,5 +49,5 @@ export function BookArt({
     return <BookCover {...common} genreColor={genreColor} uri={coverUri} />;
   }
 
-  return <Spine {...common} color={genreColor} showLabel={false} />;
+  return <Spine {...common} color={genreColor} />;
 }

@@ -26,21 +26,17 @@ export type SpineExpression = 'happy' | 'sleepy' | 'shine' | 'neutral';
 export type SpinePalette = {
   /** Frente da lombada: a cor do gênero. */
   base: string;
-  /** Face lateral direita, mais escura: dá o volume. */
-  side: string;
-  /** Vinco/charneira à esquerda e arestas de topo/base. */
+  /** Vinco/charneira, borda do cilindro e arestas de topo/base. */
   edge: string;
   /** Luz do gradiente da frente. */
   light: string;
-  /** Sombra de contato e sombra projetada pela lateral. */
+  /** Sombra de contato e sombra projetada nas pontas. */
   shadow: string;
   /** Faixas do topo/base e brilho que varre a lombada. */
   highlight: string;
-  /** Fita do tassel na base, derivada da cor e do rosto. */
-  accent: string;
   /** Rosto e linhas. Vira creme quando o fundo é escuro. */
   ink: string;
-  /** Paradas do gradiente da frente: vinco → base → luz → lateral. */
+  /** Paradas do gradiente da frente: borda → base → luz → borda. */
   gradient: readonly [string, string, string, string];
 };
 
@@ -76,22 +72,19 @@ function paletteFor(base: string): SpinePalette {
     contrastRatio(base, colors.navy) >= MIN_CONTRAST
       ? colors.navy
       : colors.cream;
-  const side = mixHex(base, shadeWith, dark ? 0.45 : 0.4);
   const edge = mixHex(base, shadeWith, dark ? 0.28 : 0.2);
   const light = mixHex(base, colors.cream, dark ? 0.2 : 0.16);
 
   return {
     base,
-    side,
     edge,
     light,
     shadow: mixHex(base, shadeWith, 0.55),
     highlight: dark
       ? mixHex(base, colors.cream, 0.28)
       : mixHex(base, colors.cream, 0.6),
-    accent: mixHex(base, ink, 0.45),
     ink,
-    gradient: [edge, base, light, side],
+    gradient: [edge, base, light, edge],
   };
 }
 

@@ -270,7 +270,6 @@ export function EstanteScreen({
                         <Spine
                           color={genreColor}
                           onPress={() => onOpenBook?.(book.id)}
-                          showLabel={false}
                           status={displayStatus}
                           testID={`lombada-${book.id}`}
                           title={book.title}

@@ -6,8 +6,9 @@ export const sizes = {
    */
   cover: { width: 88, height: 128 },
   coverCompact: { width: 72, height: 104 },
-  spine: { width: 52, height: 128 },
-  spineCompact: { width: 42, height: 104 },
+  /** Lombada de frente: 1:2 exato (64×128 e 52×104), sem esticar o rosto. */
+  spine: { width: 64, height: 128 },
+  spineCompact: { width: 52, height: 104 },
   /** Fita de gênero sobre a capa (canto superior esquerdo). */
   bookmark: { width: 18, height: 28 },
   /** Amostra do par de cores na lista e no formulário de gênero. */

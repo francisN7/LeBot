@@ -35,10 +35,10 @@ describe('resolveSpineArt', () => {
     );
   });
 
-  it('deriva lateral, vinco e sombra mais escuros que a base', () => {
+  it('deriva vinco e sombra mais escuros que a base', () => {
     const { palette } = artOf({ color: colors.gold, status: 'reading' });
 
-    for (const shade of [palette.side, palette.edge, palette.shadow]) {
+    for (const shade of [palette.edge, palette.shadow]) {
       expect(shade).not.toBe(palette.base);
       expect(relativeLuminance(shade)).toBeLessThan(
         relativeLuminance(palette.base),
@@ -66,24 +66,17 @@ describe('resolveSpineArt', () => {
       palette.edge,
       palette.base,
       palette.light,
-      palette.side,
+      palette.edge,
     ]);
   });
 
-  it('deriva o tassel entre a base e o rosto', () => {
-    const { palette } = artOf({ color: colors.gold, status: 'reading' });
-
-    expect(palette.accent).not.toBe(palette.base);
-    expect(palette.accent).not.toBe(palette.ink);
-  });
-
-  it('escurece as faces mesmo quando o gênero já é escuro', () => {
+  it('escurece as bordas mesmo quando o gênero já é escuro', () => {
     const { palette } = artOf({ color: colors.navy, status: 'reading' });
 
-    expect(relativeLuminance(palette.side)).toBeLessThan(
+    expect(relativeLuminance(palette.edge)).toBeLessThan(
       relativeLuminance(palette.base),
     );
-    expect(relativeLuminance(palette.edge)).toBeLessThan(
+    expect(relativeLuminance(palette.shadow)).toBeLessThan(
       relativeLuminance(palette.base),
     );
   });
@@ -105,7 +98,7 @@ describe('resolveSpineArt', () => {
     const escuro = artOf({ color: '#B3A7FF', status: 'reading' }).palette;
 
     expect(escuro.base).not.toBe(claro.base);
-    expect(escuro.side).not.toBe(claro.side);
+    expect(escuro.edge).not.toBe(claro.edge);
   });
 
   it('cai na lombada 2D sem status', () => {

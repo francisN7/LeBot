@@ -15,7 +15,7 @@ describe('BookCover', () => {
 
     expect(screen.getByLabelText('Capa de O Hobbit')).toBeOnTheScreen();
     expect(screen.getByTestId('capa-hobbit-bookmark')).toBeOnTheScreen();
-    expect(screen.getByTestId('capa-hobbit-pages')).toBeOnTheScreen();
+    expect(screen.getByTestId('capa-hobbit-depth')).toBeOnTheScreen();
   });
 
   it('vira botão quando tem onPress', async () => {

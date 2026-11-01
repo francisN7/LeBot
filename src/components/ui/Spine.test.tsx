@@ -35,6 +35,9 @@ describe('Spine', () => {
     );
 
     expect(screen.getByTestId('lombada-art')).toBeOnTheScreen();
+    expect(
+      screen.getByTestId('lombada-label', { includeHiddenElements: true }),
+    ).toBeOnTheScreen();
   });
 
   it.each([
@@ -59,7 +62,7 @@ describe('Spine', () => {
     ).toBeOnTheScreen();
   });
 
-  it('mostra o tassel na base da lombada', async () => {
+  it('mostra o tassel no topo da lombada', async () => {
     await renderWithProviders(
       <Spine
         color={colors.teal}
@@ -71,6 +74,21 @@ describe('Spine', () => {
 
     expect(
       screen.getByTestId('lombada-tassel', { includeHiddenElements: true }),
+    ).toBeOnTheScreen();
+  });
+
+  it('mostra o zzz flutuante no status pausado', async () => {
+    await renderWithProviders(
+      <Spine
+        color={colors.teal}
+        status="paused"
+        testID="lombada"
+        title="Sapiens"
+      />,
+    );
+
+    expect(
+      screen.getByTestId('lombada-zzz', { includeHiddenElements: true }),
     ).toBeOnTheScreen();
   });
 

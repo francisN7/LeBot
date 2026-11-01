@@ -12,6 +12,10 @@ import type { SpineExpression } from '@/features/library/spine-art';
 
 const AnimatedG = Animated.createAnimatedComponent(G);
 
+/** Rosto no sistema de coordenadas da lombada B (64×128). */
+const EYE_Y = 80;
+const EYE_R = 4.8;
+
 function star(cx: number, cy: number, radius: number): string {
   const waist = radius * 0.3;
 
@@ -29,8 +33,9 @@ function star(cx: number, cy: number, radius: number): string {
 }
 
 /**
- * Olhos no sistema de coordenadas da lombada estreita (52×128).
- * Ficam num grupo separado para a piscada poder animar só eles.
+ * Olhos no sistema de coordenadas da lombada B (64×128).
+ * Ficam num grupo separado para a piscada poder animar só eles; em `happy` os
+ * olhos abrem um pouco mais para o rosto não parecer apertado.
  */
 function SpineEyes({
   expression,
@@ -39,17 +44,21 @@ function SpineEyes({
   expression: SpineExpression;
   ink: string;
 }) {
+  const spread = expression === 'happy' ? 10 : 8;
+  const left = 32 - spread;
+  const right = 32 + spread;
+
   if (expression === 'sleepy') {
     return (
       <>
         <Path
-          d="M12 56 H21"
+          d={`M${left - 4.5} ${EYE_Y} H${left + 4.5}`}
           stroke={ink}
           strokeLinecap="round"
           strokeWidth={3.2}
         />
         <Path
-          d="M26 56 H35"
+          d={`M${right - 4.5} ${EYE_Y} H${right + 4.5}`}
           stroke={ink}
           strokeLinecap="round"
           strokeWidth={3.2}
@@ -61,8 +70,8 @@ function SpineEyes({
   if (expression === 'shine') {
     return (
       <>
-        <Path d={star(16.5, 56, 6.5)} fill={ink} />
-        <Path d={star(30.5, 56, 6.5)} fill={ink} />
+        <Path d={star(left, EYE_Y, 7)} fill={ink} />
+        <Path d={star(right, EYE_Y, 7)} fill={ink} />
       </>
     );
   }
@@ -71,18 +80,18 @@ function SpineEyes({
     return (
       <>
         <Path
-          d="M11 56 Q16.5 49.5 22 56"
+          d={`M${left - 6} ${EYE_Y} Q${left} ${EYE_Y - 7.5} ${left + 6} ${EYE_Y}`}
           fill="none"
           stroke={ink}
           strokeLinecap="round"
-          strokeWidth={3.6}
+          strokeWidth={3.8}
         />
         <Path
-          d="M25 56 Q30.5 49.5 36 56"
+          d={`M${right - 6} ${EYE_Y} Q${right} ${EYE_Y - 7.5} ${right + 6} ${EYE_Y}`}
           fill="none"
           stroke={ink}
           strokeLinecap="round"
-          strokeWidth={3.6}
+          strokeWidth={3.8}
         />
       </>
     );
@@ -90,8 +99,8 @@ function SpineEyes({
 
   return (
     <>
-      <Circle cx={16.5} cy={56} fill={ink} r={4.4} />
-      <Circle cx={30.5} cy={56} fill={ink} r={4.4} />
+      <Circle cx={left} cy={EYE_Y} fill={ink} r={EYE_R} />
+      <Circle cx={right} cy={EYE_Y} fill={ink} r={EYE_R} />
     </>
   );
 }
@@ -107,7 +116,7 @@ function SpineMouth({
   if (expression === 'happy') {
     return (
       <Path
-        d="M17.5 68 Q23.5 75 29.5 68"
+        d="M26 92 Q32 99 38 92"
         fill="none"
         stroke={ink}
         strokeLinecap="round"
@@ -119,7 +128,7 @@ function SpineMouth({
   if (expression === 'sleepy') {
     return (
       <Path
-        d="M20 69 Q23.5 71.5 27 69"
+        d="M28.5 93 Q32 95.5 35.5 93"
         fill="none"
         stroke={ink}
         strokeLinecap="round"
@@ -131,7 +140,7 @@ function SpineMouth({
   if (expression === 'shine') {
     return (
       <Path
-        d="M17.5 69 Q23.5 77 29.5 69"
+        d="M26 93 Q32 101 38 93"
         fill="none"
         stroke={ink}
         strokeLinecap="round"
@@ -140,7 +149,7 @@ function SpineMouth({
     );
   }
 
-  return <Rect fill={ink} height={3.6} rx={1.8} width={8} x={19.5} y={68} />;
+  return <Rect fill={ink} height={3.6} rx={1.8} width={8} x={28} y={92} />;
 }
 
 /**

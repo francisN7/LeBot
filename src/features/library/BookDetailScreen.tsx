@@ -111,7 +111,6 @@ export function BookDetailScreen({
             <Spine
               animated
               color={genre?.colorLight ?? colors.navyMuted}
-              showLabel={false}
               status={book.status}
               testID="detalhe-lombada"
               title={book.title}

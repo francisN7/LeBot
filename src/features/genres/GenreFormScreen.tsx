@@ -249,7 +249,6 @@ export function GenreFormScreen({
         <View className="flex-row items-center gap-md">
           <Spine
             color={previewColor(form)}
-            showLabel={false}
             title={form.name.trim() || 'Prévia'}
           />
           <View className="flex-1 gap-sm">
