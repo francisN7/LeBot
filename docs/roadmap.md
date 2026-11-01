@@ -5,6 +5,9 @@ Status: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da próxima sessão é escrita no fim da sessão anterior.
 
 > A S4c foi implementada antes da S4b por decisão do dono; a tabela segue a numeração das sessões, e não a ordem em que foram executadas.
+>
+> Antes da S6, uma auditoria de documentação conferiu README, AGENTS e docs
+> vivos contra o código da S5 (sem antecipar o motor do plano).
 
 | Sessão | Status | Entrega | Critério de aceite | Spec |
 |---|---|---|---|---|

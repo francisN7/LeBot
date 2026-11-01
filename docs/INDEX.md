@@ -18,7 +18,9 @@
 | `docs/data-model.md` | schema e relações | ✅ |
 | `docs/planner-algorithm.md` | regras do plano diário | S6 |
 | `docs/design/design-system.md` | tokens e componentes | ✅ |
-| `docs/design/assets-3d.md` | lombadas e mascote | ✅ |
+| `docs/design/assets-3d.md` | lombadas, mascote, ícone e movimento | ✅ |
+| `docs/sessions/_TEMPLATE.md` | estrutura de uma spec nova | ✅ |
+| `brand/README.md` | origem e regras da arte-fonte | ✅ |
 | `docs/learn/expo-for-react-devs.md` | dúvidas de Expo/React Native | OK |
 | `docs/testing.md` | como testar | ✅ |
 | `docs/security-privacy.md` | dados, permissões e LGPD | OK |

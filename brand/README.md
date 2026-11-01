@@ -1,6 +1,6 @@
 # Brand — arquivos-fonte
 
-Arte original do LêBot. **Não vai para o bundle do app**; exports finais vivem em `assets/` e `src/assets/`.
+Arte original do LêBot. **Não vai para o bundle do app**; exports finais vivem em `assets/images/` (ícone, splash e camada adaptativa) e a arte de runtime é vetorial em `src/components/ui/`.
 
 ## Originais
 
@@ -12,7 +12,8 @@ Arte original do LêBot. **Não vai para o bundle do app**; exports finais vivem
 ## Regras
 
 - Nomes ASCII, minúsculos, sem acento ou espaço.
-- Não editar os originais: criar export em `src/assets/` ou `assets/`.
+- Não editar os originais: criar export em `assets/images/` com
+  `node scripts/build-icons.mjs`.
 - Remover EXIF/metadados dos exports.
 - Guia visual completo: `docs/brand.md`.
 

@@ -2,14 +2,16 @@
 
 ## Sessão
 
-- **Atual:** S5 concluída e validada no Android (registro de leitura + piso do
-  progresso).
-- **Última concluída:** S5.
+- **Atual:** auditoria de documentação concluída; S5 concluída e validada no
+  Android (registro de leitura + piso do progresso).
+- **Última concluída:** S5 + auditoria de docs.
 - **Próxima:** S6 (`docs/sessions/S06-motor-plano.md`), motor puro do plano
   diário.
 
 ## Pronto (S5 — registro de leitura + piso)
 
+- Docs vivos revisados contra o código: README, AGENTS, INDEX, arquitetura,
+  testing, design e brand; `src/assets/` saiu e ícones/splash não são placeholder.
 - `reading_sessions` em `src/db/schema.ts` + migrações aditivas
   `0003_cloudy_pretty_boy.sql` (índice em `book_id`, `pages > 0`) e
   `0004_clever_turbo.sql` (`applied_pages`; `NULL` antigo vale como `pages`).

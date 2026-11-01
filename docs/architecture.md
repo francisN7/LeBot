@@ -1,7 +1,8 @@
 # Arquitetura
 
-Esqueleto criado na S0; persistência entrou na S2 e a biblioteca completa
-(cadastro, busca, capa) na S3. Cresce conforme as sessões entregam camadas.
+Esqueleto criado na S0; persistência entrou na S2, a biblioteca na S3, os
+gêneros na S3.2 e a identidade 3D na S4. O registro de leitura chegou na S5; o
+motor do plano é a S6. Cresce conforme as sessões entregam camadas.
 
 ## Camadas
 
@@ -10,8 +11,10 @@ src/app/          rotas (Expo Router) — só orquestram telas
 src/features/*/   UI + hooks + serviços de uma feature
 src/db/           schema Drizzle, client, migrações, seed e repositórios
 src/lib/          funções puras, sem React Native
-src/components/ui componentes genéricos e arte vetorial (Screen, AppText, Button, Card, Chip, ConfirmDialog, Spine, SpineArtwork, Mascot, TextField, BookCover, Bookmark)
+src/components/ui componentes genéricos e arte vetorial (Screen, AppText, Button, Card, Chip, ConfirmDialog, BackButton, Spine, SpineArtwork, SpineFace, Mascot, TextField, BookCover, Bookmark)
 src/theme/        tokens (cor, espaçamento, raio, tipografia, tamanhos)
+src/test-utils/   banco sql.js, repositórios em memória e providers de teste
+scripts/          geradores (ícone/splash e faixas do ISBN)
 drizzle/          SQL gerado pelo drizzle-kit (+ bundle das migrações)
 types/            declarações globais versionadas (`expo/types`, `*.sql`)
 ```
@@ -20,7 +23,7 @@ Regras:
 
 1. Tela não fala SQL: chama repositório, exposto por hook da feature.
 2. Repositório não conhece React.
-3. Motor do plano (`src/features/planner/engine/`) é puro e testável fora do
+3. Motor do plano (`src/features/planner/engine/`, S6) é puro e testável fora do
    React Native.
 4. `src/app/` só compõe: sem regra de negócio, sem acesso a dados.
 5. Sem `any`; validação de borda com Zod.
@@ -35,7 +38,8 @@ Regras:
 ```
 SQLite (expo-sqlite + Drizzle)
   → repositório (src/db/repositories, síncrono, recebe o db)
-  → hook da feature (useBooks, useGenres, useSettings, com refresh após escrita)
+  → hook da feature (useBooks, useGenres, useSettings, useReadingSessions,
+    com refresh após escrita)
   → tela
 ```
 
@@ -125,14 +129,20 @@ Nenhum passo apaga dados ou esconde erro de migração.
   [`docs/adr/0009-biblioteca-busca-e-capas.md`](adr/0009-biblioteca-busca-e-capas.md)
 - Gêneros editáveis e cores:
   [`docs/adr/0010-generos-editaveis-e-cores.md`](adr/0010-generos-editaveis-e-cores.md)
+- Arte vetorial paramétrica:
+  [`docs/adr/0011-arte-vetorial-parametrica.md`](adr/0011-arte-vetorial-parametrica.md)
 - Progresso de leitura:
   [`docs/adr/0012-progresso-e-status-automatico.md`](adr/0012-progresso-e-status-automatico.md)
 
 ## Pendências conhecidas
 
-- Ícones e splash ainda são placeholders do template do Expo até a S4.
 - A tela Hoje ainda usa o plano fictício: só a meta diária vem de `settings`.
-  Plano persistido entra na S6/S7; a fila continua manual até a S8.
+  O motor entra na S6 (funções puras) e o plano na UI/persistência na S7; a
+  fila continua manual até a S8. O botão "Começar sessão" da Hoje ainda mostra
+  "Em breve".
+- Os ícones e o splash já são definitivos desde a S4a
+  (`assets/images/` + `scripts/build-icons.mjs`), mas só aparecem em build
+  nativo; o Expo Go não os exibe.
 - `cover_uri` guarda caminho absoluto do aparelho: o backup JSON (S11) não pode
   reutilizá-lo em outro device.
 - Tema escuro: os gêneros já guardam `color_dark`, mas faltam o toggle, os

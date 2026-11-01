@@ -42,12 +42,12 @@ tela de detalhe com animação contínua (lá existe um livro só).
 
 ## Aceite
 
-- [ ] Lombada inclina e volta com mola ao toque; capa idem.
-- [ ] Estante entra em cascata ao trocar filtro/busca.
-- [ ] Detalhe tem flutuação contínua e a micro-animação do status.
-- [ ] Capa personalizada usa bloco de páginas, brilho e selo do status.
-- [ ] Mascote pulsa os acessórios e troca de estado com fade.
-- [ ] Nenhuma animação contínua na grade além de piscada/brilho do status.
+- [x] Lombada inclina e volta com mola ao toque; capa idem.
+- [x] Estante entra em cascata ao trocar filtro/busca.
+- [x] Detalhe tem flutuação contínua e a micro-animação do status.
+- [x] Capa personalizada usa bloco de páginas, brilho e selo do status.
+- [x] Mascote pulsa os acessórios e troca de estado com fade.
+- [x] Nenhuma animação contínua na grade além de piscada/brilho do status.
 - [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
 - [x] Conferido no Android pelo dono. Ícone e splash só aparecem em build
       nativo (Expo Go mostra a tela dele); conferir no APK da S12.

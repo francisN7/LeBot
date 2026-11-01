@@ -54,14 +54,14 @@ no SQLite, com ISBN e capa escolhida da galeria.
 
 ## Aceite
 
-- [ ] Títulos e textos `display` sem corte de descendentes no Android.
-- [ ] Cadastrar livro pela UI → aparece na Estante e sobrevive ao reiniciar.
-- [ ] Buscar por título, autor ou ISBN encontra o livro.
-- [ ] Editar qualquer campo persiste a mudança e atualiza `updated_at`.
-- [ ] Excluir pede confirmação, remove capa do disco e some da Estante/Fila.
-- [ ] ISBN inválido bloqueia o salvar com mensagem clara.
-- [ ] Nenhum SQL fora de `src/db/`; nenhum `any`.
-- [ ] `npm run lint`, `npm run typecheck`, `npm run test` e `npm run doctor`
+- [x] Títulos e textos `display` sem corte de descendentes no Android.
+- [x] Cadastrar livro pela UI → aparece na Estante e sobrevive ao reiniciar.
+- [x] Buscar por título, autor ou ISBN encontra o livro.
+- [x] Editar qualquer campo persiste a mudança e atualiza `updated_at`.
+- [x] Excluir pede confirmação, remove capa do disco e some da Estante/Fila.
+- [x] ISBN inválido bloqueia o salvar com mensagem clara.
+- [x] Nenhum SQL fora de `src/db/`; nenhum `any`.
+- [x] `npm run lint`, `npm run typecheck`, `npm run test` e `npm run doctor`
       verdes; `expo export --platform android` conclui.
 
 ## Contexto necessário

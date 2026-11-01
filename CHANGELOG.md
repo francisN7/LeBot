@@ -5,8 +5,16 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 ## [Unreleased]
 
-Sem mudanças pendentes: a S5 está concluída e validada no Android; a próxima é
-a S6.
+### Changed
+
+- Auditoria de documentação: `README.md`, `AGENTS.md`, `docs/INDEX.md`,
+  `docs/architecture.md`, `docs/data-model.md`, `docs/testing.md`,
+  `docs/design/*`, `docs/brand.md` e `brand/README.md` alinhados ao código da
+  S5. Saíram referências a `src/assets/` e ao ícone/splash como placeholder; a
+  UI do plano ficou marcada como S7 (o motor é S6). Os aceites das specs S3 e
+  S4c, já entregues, foram marcados.
+
+A S5 está concluída e validada no Android; a próxima sessão é a S6.
 
 ## S5.1 — Progresso não desce abaixo do histórico
 

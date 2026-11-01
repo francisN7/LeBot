@@ -21,7 +21,7 @@ Sistema de identidade da Estante e da Hoje. Fonte da verdade visual:
 | Lombada compacta | `sizes.spineCompact` — 72×104 | Fila (próxima parada e "Depois") |
 | Mascote pequeno | 72 px de largura | Card "LêBot diz" na Hoje |
 | Mascote médio | 96 px | Estado vazio da Estante |
-| Mascote grande | 120 px (padrão) | Onboarding e estados de destaque |
+| Mascote grande | 120 px (padrão) | estados de destaque; nenhuma tela usa hoje |
 | Fita de gênero | `sizes.bookmark` — 18×28 | Sobre a capa |
 
 O desenho usa `viewBox` fixo (100×140 na lombada, 120×130 no mascote) e escala

@@ -47,7 +47,7 @@ Nome: LêBot. Personalidade: otimista, levemente nerd, nunca culpabiliza o leito
 
 | Estado | Quando usar |
 |---|---|
-| neutro | telas padrão e onboarding |
+| neutro | telas padrão e estados vazios |
 | lendo | sessão de leitura ativa |
 | feliz | meta do dia batida, streak |
 | sonolento | livro pausado, dia de descanso |

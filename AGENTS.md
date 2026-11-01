@@ -36,17 +36,22 @@ App mobile pessoal para catalogar livros, organizar a fila de leitura e gerar um
 ## Estrutura
 
 - `src/app/` — rotas (Expo Router), sem lógica de negócio.
-- `src/features/<nome>/` — UI, hooks e serviços da feature; expõe `index.ts`.
+- `src/features/<nome>/` — UI, hooks e serviços da feature; expõe `index.ts`
+  (`library`, `genres`, `queue`, `reading`, `settings`, `today`).
+- `src/features/planner/engine/` — algoritmo puro do plano, sem React Native
+  (criado na S6).
 - `src/db/` — schema, client, migrações, seed e repositórios.
 - `drizzle/` — SQL das migrações gerado pelo `drizzle-kit` (não editar à mão).
-- `src/components/ui/` — componentes genéricos.
+- `src/components/ui/` — componentes genéricos e arte vetorial.
 - `src/theme/` — tokens de design.
 - `src/lib/` — utilitários puros.
-- `src/features/planner/engine/` — algoritmo puro, sem React Native.
+- `src/test-utils/` — banco `sql.js` e repositórios em memória para testes.
+- `scripts/` — geradores de ícone/splash e da tabela de faixas do ISBN.
 - `types/` — declarações globais versionadas (`expo/types`, `*.sql`).
 - `brand/` — arte-fonte (não vai para o bundle).
-- `assets/` — ícone/splash referenciados no `app.config.ts`.
-- `src/assets/` — imagens importadas pelos componentes.
+- `assets/images/` — ícone, splash e camada adaptativa referenciados no
+  `app.config.ts`.
+- `docs/` — estado, roadmap, specs, ADRs e documentação de referência.
 
 ## Convenções
 
@@ -55,6 +60,8 @@ App mobile pessoal para catalogar livros, organizar a fila de leitura e gerar um
 - Sem `any`. Validação de borda com Zod.
 - Telas não falam SQL: sempre via repositório.
 - Lógica de plano é determinística e testada; nada de IA no MVP.
+- Arquivos gerados (`src/lib/isbn-ranges.ts`, `drizzle/*.sql` e
+  `drizzle/migrations.js`) não são editados à mão.
 - Commits pequenos, um por sessão.
 
 ## Comandos
@@ -63,14 +70,18 @@ App mobile pessoal para catalogar livros, organizar a fila de leitura e gerar um
 npm run start        # Expo
 npm run android      # app no Android
 npm run lint         # Biome
+npm run lint:fix     # Biome com correção automática
 npm run typecheck
 npm run test
+npm run test:watch
 npm run doctor       # expo-doctor
+npx expo export --platform android --output-dir dist   # bundle de verificação
 npx drizzle-kit generate   # nova migração depois de mudar src/db/schema.ts
-node scripts/build-icons.mjs   # regera ícone/splash a partir de brand/source/mark.svg
+node scripts/build-icons.mjs        # regera ícone/splash de brand/source/mark.svg
+node scripts/build-isbn-ranges.mjs  # regera src/lib/isbn-ranges.ts do XML oficial
 ```
 
-> Ajustar se os scripts mudarem (revisado na S0).
+> Ajustar se os scripts mudarem (revisado na auditoria de documentação).
 
 ## Dependências
 

@@ -146,7 +146,7 @@ snapshot de imagem nem de árvore para arte.
   `node scripts/build-isbn-ranges.mjs` que o arquivo gerado não muda sem uma
   atualização real da agência.
 
-## Cobertura da S5
+## Cobertura da S5 + S5.1
 
 - `src/db/repositories/reading-sessions.test.ts`: grava soma, `readAt` padrão,
   clamp no total com `finished`, livro inexistente/já concluído, Zod de páginas,
@@ -162,6 +162,8 @@ snapshot de imagem nem de árvore para arte.
   páginas já registradas e recusa baixar `pages_read` abaixo delas.
 - `src/db/repositories/books.test.ts`: a guarda do repositório repete a regra
   mesmo que a UI seja contornada.
+
+A suíte atual tem 35 arquivos e 207 testes (`npm run test`).
 
 O que continua manual: teclado numérico do Android, tamanho do modal em tela
 pequena e a barra de progresso em densidades diferentes.
