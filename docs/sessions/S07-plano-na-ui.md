@@ -91,6 +91,7 @@ avançar.
 
 ## Próximo depois desta
 
-- Se persistência/edição ficar para depois: **S7.1** — plano persistido e
-  edição manual.
-- Caso contrário: **S8** — fila real e ordem anti-ressaca.
+- **S7.1** — ajustes da revisão: status ao registrar, Hoje antes da Ordem,
+  Fila → Ordem e blocos com ação explícita.
+  (`docs/sessions/S07.1-ajustes-hoje-ordem.md`)
+- Depois: **S8** — Ordem real e sugestão anti-ressaca.
