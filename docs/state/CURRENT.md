@@ -2,38 +2,37 @@
 
 ## Sessão
 
-- **Atual:** nenhuma; S11a concluída em 2026-11-01, com o **balanço do tassel
-  pendente**.
+- **Atual:** S11b em andamento — modelos prontos; falta o dono aprovar um e rodar
+  o lab no Android.
 - **Última concluída:** S11a (lombada B + etiqueta + capa S2), conferida no
-  Android. O desenho foi aprovado; o tassel **não animou**.
-- **Próxima:** **S11b — tassel animado**, spec em
-  `docs/sessions/S11b-tassel-animado.md`; depois S12 (release interno).
+  Android; o tassel **não animou**.
+- **Próxima:** implementar o modelo aprovado com a técnica que animar; depois
+  S12 (release interno).
+
+## Pronto (S11b, parcial)
+
+- Pesquisa (6 referências) e princípios para 64/52 px em
+  `.temp/s11b-tassel/pesquisa.md` (fora do git).
+- **Diagnóstico:** `rotation`/`origin` animados no `G` são descartados;
+  detalhe em Armadilhas.
+- **3 modelos animados** em `.temp/s11b-tassel/modelos.html`: A brisa (−4,5°),
+  B follow-through (−7°, franja −9,5°) e C rajada (−10°), em 3 gêneros × 64/52.
+- **Lab temporário** `src/app/dev-tassel.tsx`: G+rotation (atual), G+matrix e
+  View+SVG do tassel. Lint e typecheck verdes.
 
 ## Pronto (S11a)
 
-- Lombada **B**: 64×128 (`spine`) e 52×104 (`spineCompact`), 1:2; capa 88×128 /
-  72×104; mini-lombada 30×60. Corpo cilíndrico, headband/tailband e duas
-  nervuras. `Pressable` transparente: o contorno navy é o do SVG, sem retângulo
-  de fundo nos cantos.
-- Etiqueta centralizada (11–53 × 19–38), baixa, só o título, Fredoka 600 com
-  `fitSpineTitle` (7→5; depois ellipsis). As telas principais mostram; a
-  mini-lombada usa `showLabel={false}`.
-- Tassel T1 no canto superior esquerdo: sem argola, corda saindo do topo,
-  corpo/pescoço/franja em gradiente dourado, aresta escura e sombra desfocada.
-  O balanço foi tentado com `AnimatedG`/`rotation` e **não animou no Android**;
-  a S11b vai pesquisar/modelar/aprovar/refazer.
-- Rosto: olhos de “Lendo” mais afastados (10; outras 8), piscada compartilhada e
-  “zzz” diagonal flutuante no pausado.
-- Capa **S2**: foto inteira, vinco de lombada e sombra de borda sobre a foto,
-  sem páginas/faixa lateral; fita e selo continuam.
-- `SpinePalette` com `edge`, `light`, `shadow`, `highlight`, `gradient`;
-  `side`/`accent` saíram. 510 testes em 66 arquivos; lint, typecheck, test,
-  doctor e export verdes. Sem migração. ADR 0022.
+- Lombada **B** 64×128 (52×104), capa 88×128 (72×104), mini-lombada 30×60;
+  etiqueta centralizada (11–53 × 19–38, `fitSpineTitle` 7→5), tassel T1 sem
+  argola, capa **S2** com sombra sobre a foto e rosto com “zzz” diagonal.
+  `SpinePalette` sem `side`/`accent`; ADR 0022.
+- 510 testes em 66 arquivos; lint, typecheck, test, doctor e export verdes.
 
 ## Decisões abertas
 
-- **S11b:** pesquisar referência real, diagnosticar o `AnimatedG`, montar 3
-  modelos para a esquerda e aprovar um; só depois implementar.
+- **S11b:** aprovar A, B ou C (ou ajustar amplitude/ritmo); no Android, dizer
+  qual técnica do lab anima. Se `matrix` animar, fica; senão, View + SVG.
+- Compacto: manter a amplitude ×0,85 dos modelos ou igualar ao cheio.
 - S12: decidir build local (prebuild + Gradle) × EAS antes do APK.
 - Backlog: galeria de citações, `finished_at`, grid ajustável, animações do
   mascote, tema escuro e temas extras.
@@ -49,29 +48,26 @@
 - `docs/design/assets-3d.md`, `docs/design/design-system.md`, ADR 0022
 - `docs/sessions/S11a-design-3d-emocoes.md`,
   `docs/sessions/S11b-tassel-animado.md`, `docs/sessions/S12-release-interno.md`
-- `.temp/` (vazio; reservado para os modelos da S11b; ignorado)
+- `.temp/s11b-tassel/` (`pesquisa.md`, `modelos.html`; ignorado)
+- `src/app/dev-tassel.tsx` (lab da S11b; **apagar no fim da sessão**)
 
 ## Armadilhas
 
-- **Tassel não animou** com `AnimatedG` + `rotation`/Reanimated no Android. O
-  `swing`/`AnimatedG` está no código, mas não é confiável: a S11b deve testar um
-  protótipo mínimo no aparelho antes dos modelos. Não repita a mesma técnica sem
-  diagnóstico.
+- **Tassel:** `rotation`/`origin` do `G` viram `matrix` só no render;
+  `animatedProps` não passam por ali. Animar `matrix` ou usar `Animated.View`.
+  O `translateY` do “zzz” também é ignorado; só o `opacity` vale.
 - O `Pressable` da arte é transparente; o fundo na cor do gênero virava um
   retângulo nos cantos. Não volte a preencher o fundo.
 - A etiqueta é uma View, fora da árvore de acessibilidade (o `Pressable` anuncia
-  “Lombada de …”); em teste, consulte com `{ includeHiddenElements: true }`.
-  Título: 11–53 × 19–38, `fitSpineTitle` (7→5), depois ellipsis.
-- `showLabel={false}` esconde a etiqueta; as telas principais não passam false
-  (só a mini-lombada).
+  “Lombada de …”); em teste, use `{ includeHiddenElements: true }`. Título:
+  11–53 × 19–38, `fitSpineTitle` (7→5), ellipsis; `showLabel={false}` só na mini.
 - O tassel não tem argola; a corda começa em y=0, cortada pelo topo. A sombra é
-  um `Ellipse` desfocado. Não volte ao contorno navy de “sticker”.
+  um `Ellipse` desfocado; não volte ao contorno navy de “sticker”. O viewBox é
+  64×128 (olhos em y=80, boca em 92); a mini-lombada 30×60 mantém 1:2.
 - A capa S2 é sombra sobre a foto; não volte ao bloco de páginas/faixa lateral.
   O selo usa `viewBox="14 70 36 32"`.
-- O viewBox é 64×128; o rosto tem olhos em y=80 e boca em 92. A mini-lombada
-  30×60 mantém 1:2.
-- `.temp/` está no `.gitignore`; os mockups da S11a foram apagados e o
-  diretório ficou reservado para a S11b.
+- `.temp/` está no `.gitignore`; agora guarda os modelos da S11b. O lab
+  `src/app/dev-tassel.tsx` é temporário e sai antes do commit final.
 
 ## Como rodar
 
@@ -80,3 +76,5 @@ npm run lint && npm run typecheck && npm run test
 npm run doctor
 npx expo export --platform android --output-dir dist
 ```
+
+Lab da S11b: `npm run start` e abrir a rota `/dev-tassel`.
