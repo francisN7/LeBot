@@ -222,20 +222,22 @@ pequena e a barra de progresso em densidades diferentes.
 
 ## Cobertura da S8
 
-- `src/db/repositories/queue.test.ts`: adicionar no fim sem duplicar, recusa de
-  livro inexistente/concluído, status preservado, remoção com compactação,
-  `move` (inclusive fora dos limites) e `replaceAll` (dedupe + órfão/concluído).
+- `src/db/repositories/queue.test.ts`: inclusão automática de todo livro não
+  concluído, `sync` materializando, blocos Lendo/Depois, bloqueio de cruzar
+  blocos, `replaceAll`, livro novo em Lendo no fim do bloco e mudanças de status.
 - `src/features/queue/suggest-order.test.ts`: ordem vazia, um livro, mesmo
   gênero, alternância, sem perda/duplicata, idempotência e imutabilidade.
-- `src/features/queue/QueueScreen.test.tsx`: lista real, vazio com e sem estante,
-  seletor de adicionar, remoção com confirmação, setas reordenando e o hook
-  `useQueueBookIds` mudando junto, além da sugestão aplicada.
+- `src/features/queue/QueueScreen.test.tsx`: lista automática, principal coroado,
+  blocos "Lendo agora"/"Depois", setas bloqueadas entre blocos, ausência de
+  adicionar/remover, vazio e sugestão dentro de cada bloco.
 - `src/features/queue/use-queue.test.tsx`: integração Ordem → plano; reordenar
-  muda o primeiro bloco que a Hoje usa.
-- `src/test-utils/repositories.ts` mantém a ordem em memória usada pelas telas;
-  `renderWithProviders` injeta `queueRepository` por padrão.
+  os Lendo troca o principal e o primeiro bloco da Hoje.
+- `src/features/today/HojeScreen.test.tsx`: dois Lendo dividem a meta (11 + 7) e
+  registrar em pausado não toma a frente.
+- `src/test-utils/repositories.ts` mantém a ordem em memória e o `sync` usados
+  pelas telas; `renderWithProviders` injeta `queueRepository` por padrão.
 
-A suíte atual tem 44 arquivos e 335 testes (`npm run test`).
+A suíte atual tem 44 arquivos e 330 testes (`npm run test`).
 
 O que continua manual: conferir a Hoje no Android (toque no botão do bloco,
 modal com o valor do plano e virada do dia), a ordem das abas e a legenda da

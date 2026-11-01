@@ -2,9 +2,10 @@
 
 ## Objetivo
 
-A Ordem deixa de ser fixture: o dono coloca livros na ordem, reordena, a sequência
-persiste no aparelho e a tela Hoje passa a montar o plano nessa ordem. Um botão
-sugere uma ordem anti-ressaca que alterna gêneros.
+A Ordem deixa de ser fixture: todo livro não concluído entra automaticamente,
+o dono só reordena, a sequência persiste no aparelho e a tela Hoje passa a montar
+o plano nessa ordem. O primeiro Lendo é o principal. Um botão sugere uma ordem
+anti-ressaca que alterna gêneros dentro de cada bloco.
 
 > A S7.1 já deixou a Ordem somente leitura (sem registrar e sem páginas) e a Hoje
 > como a única tela de registro. Aqui a Ordem ganha escrita de novo — só para
@@ -24,91 +25,90 @@ sugere uma ordem anti-ressaca que alterna gêneros.
 - Preservar a legenda e a identidade da Ordem da S7.1: a escrita volta só para
   montar a sequência.
 
-## Decisões confirmadas na abertura (2026-11-01)
+## Decisões confirmadas na abertura (2026-11-01, revisadas na conferência)
 
 - Tabela própria `queue_items` (não coluna em `books`).
-- Entram todos os livros não concluídos; pausado mantém o status e a UI avisa
-  que ele não é sugerido no plano enquanto pausado.
+- Ordem automática: entram todos os livros não concluídos; o status é a
+  entrada/saída, sem adicionar/remover. Pausado mantém o status e avisa que fica
+  fora do plano.
+- Dois blocos: todos os `reading` no topo ("Lendo agora"), depois
+  `queued`/`paused` ("Depois"). Arrastar/setas não cruzam os blocos.
+- O primeiro Lendo é o principal (coroa) e o bloco `active` do plano. Livro que
+  passa a Lendo entra no fim de "Lendo agora".
 - Arrastar é o caminho principal, com setas ↑/↓ acessíveis.
-- "Sugerir ordem" aplica direto, sem prévia.
+- "Sugerir ordem" aplica direto, alternando gênero dentro de cada bloco.
+- Registro de leitura fica só na Hoje (S7.1); a Ordem não ganha "Começar" nem
+  modal, e o toque no item abre o detalhe.
 
-## Decisões a confirmar no início
-
-1. **Modelo da ordem (feature `queue`).** Recomendo `queue_items` (`book_id` PK,
-   `position`, `note` opcional, timestamps) + migração aditiva `0005`. A
-   alternativa é uma coluna `queue_position` em `books`, que mistura ordem com o
-   livro e dificulta reordenar em transação única.
-2. **O que entra na Ordem.** Opções: (a) só livros `queued`; (b) qualquer livro
-   não concluído, com o status decidindo o que o motor vê; (c) qualquer livro
-   `queued` ou `paused`. Recomendo (b): a Ordem é a intenção do dono, e o motor já
-   ignora `paused`/`finished`. Confirmar o que acontece ao adicionar um livro
-   `paused` (volta para `queued`?) e ao removê-lo.
-3. **Reordenar:** arrastar é o caminho principal (decidido pelo dono em
-   2026-11-01, dentro da própria S8); setas ↑/↓ ficam como alternativa
-   acessível. Medir o custo com `react-native-gesture-handler` + Reanimated
-   antes de fechar a interação.
-4. **"Sugerir ordem":** aplicar direto na Ordem (reversível reordenando) ou
-   mostrar uma prévia antes de gravar. Recomendo aplicar direto, com o botão
-   desabilitado quando a ordem sugerida já é a atual.
-5. **Registro de leitura:** fica só na Hoje (S7.1). A Ordem não ganha "Começar"
-   nem modal de volta; o toque no item abre o detalhe do livro.
+> A abertura da S8 recomendava inclusão manual e "ativo" pela sessão mais
+> recente; a conferência de 2026-11-01 substituiu por ordem automática e
+> principal = primeiro Lendo. Ver ADR 0017.
 
 ## Tarefas
 
 1. `src/db/schema.ts`: tabela da ordem escolhida + `npx drizzle-kit generate`
    (migração aditiva) + `npm run lint:fix`.
-2. `src/db/repositories/queue.ts`: `list`, `add`, `remove`, `move` e
-   `replaceAll` (ordem em transação única), com Zod e testes no `sql.js`.
+2. `src/db/repositories/queue.ts`: `list`, `sync`, `move` e `replaceAll` (ordem
+   em transação única, dois blocos), com Zod e testes no `sql.js`.
 3. `src/features/queue/use-queue.tsx`: trocar a fixture pelo repositório, com
-   assinatura de refresh no padrão de `useBooks`. Remover
+   `sync` quando a estante muda e assinatura no padrão de `useBooks`. Remover
    `__fixtures__/queue.ts` e o export `queue`; ajustar `QueueScreen` e testes.
 4. `src/features/queue/suggest-order.ts`: função pura que alterna gênero
    (mesma regra do motor), preserva todos os livros e é determinística; testes
    de borda (um livro, todos do mesmo gênero, ordem vazia, gêneros repetidos).
-5. `QueueScreen`: lista real, adicionar (do detalhe/estante ou de um seletor na
-   própria Ordem), remover com confirmação, arrastar para reordenar (com setas
-   ↑/↓ como alternativa acessível) e "Sugerir ordem". Textos e estados vazios.
-   Sem registro de leitura.
-6. Hoje: nenhuma mudança de tela; conferir que reordenar muda os blocos na
-   próxima abertura. Teste de integração Ordem → Hoje se a navegação permitir.
+5. `QueueScreen`: lista automática nos blocos "Lendo agora"/"Depois", principal
+   coroado, arrastar para reordenar (setas ↑/↓ acessíveis) sem cruzar blocos e
+   "Sugerir ordem" por bloco. Sem adicionar/remover e sem registro de leitura.
+6. Motor e Hoje: principal = primeiro Lendo da ordem; dois Lendo dividem a meta
+   (11 + 7 no cenário Hobbit + Sapiens). Teste de integração Ordem → Hoje.
 7. Atualizar `docs/architecture.md`, `docs/data-model.md`, `docs/testing.md`,
-   `docs/state/CURRENT.md`, `docs/roadmap.md` e `CHANGELOG.md`; ADR nova para o
-   modelo da ordem.
+   `docs/planner-algorithm.md`, `docs/state/CURRENT.md`, `docs/roadmap.md` e
+   `CHANGELOG.md`; ADR 0016 (tabela) e ADR 0017 (modelo automático).
 
 ## Aceite
 
-- [x] Ordem lida do banco; reiniciar o app mantém a sequência.
-- [x] Reordenar muda a ordem usada por `useQueueBookIds` e, por consequência, o
-      segundo bloco da Hoje; as setas fazem o mesmo (teste de hook na tela).
-- [x] Sugestão alterna gênero, não perde nem duplica livro e é idempotente.
-- [x] Ordem vazia explica o vazio e leva a adicionar um livro.
+- [x] Ordem automática: todo livro não concluído entra; reiniciar mantém a
+      sequência e o status é a entrada/saída.
+- [x] Dois blocos: Lendo no topo, queued/paused abaixo; arrastar/setas não
+      cruzam. O primeiro Lendo é o principal.
+- [x] Reordenar os Lendo troca o principal e o primeiro bloco da Hoje; dois
+      Lendo dividem a meta (Hobbit 11 + Sapiens 7).
+- [x] Sugestão alterna gênero por bloco, não perde nem duplica livro e é
+      idempotente.
+- [x] Ordem vazia explica que concluídos não entram; sem ação falsa.
 - [x] Nenhuma fixture de ordem sobrou no código.
 - [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
-- [ ] Conferido no Android: arrastar no topo/fim de lista maior que a tela,
-      rolagem vertical e setas com leitor de tela.
+- [ ] Conferido no Android: Hobbit 11 + Sapiens 7 na Hoje, coroa no primeiro
+      Lendo, bloqueio de Quero ler no topo, arrastar no topo/fim de lista maior
+      que a tela, rolagem vertical e setas com leitor de tela.
 
 ## Contexto necessário
 
 `AGENTS.md`, `docs/state/CURRENT.md`, esta spec, `docs/data-model.md`,
-`docs/planner-algorithm.md`, ADR 0013, ADR 0014,
+`docs/planner-algorithm.md`, ADR 0013, ADR 0014, ADR 0017,
 `src/features/queue/`, `src/features/today/use-daily-plan.ts`,
 `src/features/planner/engine/selection.ts` e `src/db/schema.ts`.
 
 ## Arquivos prováveis
 
 - `src/db/schema.ts` + `drizzle/0005_*.sql`
-- `src/db/repositories/queue.ts` (novo) e `queues` no barril
-- `src/features/queue/QueueScreen.tsx`, `use-queue.ts`, `suggest-order.ts`
-- `src/components/ui/QueueRow.tsx` (se a linha arrastável justificar um
-  componente próprio) e o gesto com `react-native-gesture-handler`
+- `src/db/repositories/queue.ts` (novo) e `queue` no barril
+- `src/features/queue/QueueScreen.tsx`, `QueueRow.tsx`, `use-queue.tsx`,
+  `suggest-order.ts`
+- `src/features/planner/engine/selection.ts` e `plan.ts` (principal)
 - `src/test-utils/repositories.ts` (ordem em memória)
-- `src/features/library/BookDetailScreen.tsx` (se "adicionar à ordem" entrar ali)
+- `src/app/_layout.tsx` e `src/components/ui/Screen.tsx` (gesture handler)
 
 ## Riscos
 
 - **Ordem sem posição única:** gravar posições com buracos ou empates quebra o
   determinismo da Hoje. `move` e `replaceAll` reescrevem a lista inteira numa
   transação.
+- **Blocos:** `reading` precisa ficar todo acima de `queued`/`paused`. `move` e
+  o arrastar têm que bloquear a travessia, senão o principal deixa de ser o
+  primeiro Lendo.
+- **Ordem automática × status:** `sync` precisa rodar quando a estante muda (novo
+  livro, status, exclusão); sem isso a Ordem fica velha até reabrir o app.
 - **Livro excluído:** `queue_items` sem FK (padrão do projeto) precisa ignorar
   ids órfãos na leitura, como a Ordem faz hoje.
 - **Ciclo de import:** `queue` não pode importar `today`; a Hoje é quem depende

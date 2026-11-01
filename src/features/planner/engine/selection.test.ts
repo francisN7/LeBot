@@ -8,8 +8,6 @@ import {
 } from './selection';
 import type { PlannerBook, PlannerSession } from './types';
 
-const today = new Date(2026, 9, 31, 12, 0);
-
 function book(
   overrides: Partial<PlannerBook> & Pick<PlannerBook, 'id'>,
 ): PlannerBook {
@@ -119,43 +117,12 @@ describe('orderByQueue', () => {
 });
 
 describe('selectActiveBook', () => {
-  it('escolhe o lendo com a sessão mais recente', () => {
+  it('escolhe o primeiro lendo da ordem recebida', () => {
     const a = book({ id: 'a' });
     const b = book({ id: 'b', genreId: 'romance' });
-    const active = selectActiveBook({
-      books: [a, b],
-      sessions: [session('a', 2), session('b', 1)],
-      today,
-    });
 
-    expect(active?.id).toBe('b');
-  });
-
-  it('aceita sessão de hoje e de 6 dias atrás', () => {
-    expect(
-      selectActiveBook({
-        books: [book({ id: 'a' })],
-        sessions: [session('a', 0)],
-        today,
-      })?.id,
-    ).toBe('a');
-    expect(
-      selectActiveBook({
-        books: [book({ id: 'a' })],
-        sessions: [{ bookId: 'a', readAt: new Date(2026, 9, 25, 23, 59) }],
-        today,
-      })?.id,
-    ).toBe('a');
-  });
-
-  it('recusa a sessão de 7 dias atrás', () => {
-    expect(
-      selectActiveBook({
-        books: [book({ id: 'a' })],
-        sessions: [session('a', 7)],
-        today,
-      }),
-    ).toBeUndefined();
+    expect(selectActiveBook([a, b])?.id).toBe('a');
+    expect(selectActiveBook([b, a])?.id).toBe('b');
   });
 
   it('ignora quero ler, pausado e concluído', () => {
@@ -164,42 +131,24 @@ describe('selectActiveBook', () => {
       book({ id: 'b', status: 'paused' }),
       book({ id: 'c', status: 'finished' }),
     ];
-    const sessions = [session('a'), session('b'), session('c')];
 
-    expect(selectActiveBook({ books, sessions, today })).toBeUndefined();
+    expect(selectActiveBook(books)).toBeUndefined();
   });
 
-  it('ignora lendo sem sessão', () => {
-    expect(
-      selectActiveBook({
-        books: [book({ id: 'a' })],
-        sessions: [],
-        today,
-      }),
-    ).toBeUndefined();
-  });
-
-  it('ignora sessão no futuro', () => {
-    expect(
-      selectActiveBook({
-        books: [book({ id: 'a' })],
-        sessions: [{ bookId: 'a', readAt: new Date(2026, 10, 1) }],
-        today,
-      }),
-    ).toBeUndefined();
-  });
-
-  it('desempata pela ordem recebida', () => {
-    const a = book({ id: 'a' });
-    const b = book({ id: 'b', genreId: 'romance' });
-    const readAt = new Date(2026, 9, 30, 12);
-    const sessions = [
-      { bookId: 'a', readAt },
-      { bookId: 'b', readAt },
+  it('pula lendo sem páginas restantes', () => {
+    const books = [
+      book({ id: 'a', pages: 100, pagesRead: 100 }),
+      book({ id: 'b' }),
     ];
 
-    expect(selectActiveBook({ books: [a, b], sessions, today })?.id).toBe('a');
-    expect(selectActiveBook({ books: [b, a], sessions, today })?.id).toBe('b');
+    expect(selectActiveBook(books)?.id).toBe('b');
+  });
+
+  it('devolve undefined sem livro lendo', () => {
+    expect(selectActiveBook([])).toBeUndefined();
+    expect(
+      selectActiveBook([book({ id: 'a', status: 'queued' })]),
+    ).toBeUndefined();
   });
 });
 

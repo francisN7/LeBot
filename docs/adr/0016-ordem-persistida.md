@@ -77,3 +77,11 @@ o detalhe.
   caminho principal.
 - **Guardar a ordem em `settings` como JSON:** sem schema, sem transação e sem
   tipo no banco.
+
+## Adendo (2026-11-01, S8 — revisão)
+
+Na conferência da S8, o dono redefiniu o modelo: a Ordem passa a incluir
+automaticamente todo livro não concluído (status manda), sem adicionar/remover, e
+o principal é o **primeiro Lendo da ordem**, não mais o de sessão mais recente.
+A tabela, a transação e a migração `0005` continuam válidas; a inclusão manual e
+a escolha do ativo foram substituídas pela ADR 0017.

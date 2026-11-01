@@ -2,11 +2,7 @@ import { asc } from 'drizzle-orm';
 
 import type { CreateBookInput } from '@/db/repositories/books';
 import { createBooksRepository } from '@/db/repositories/books';
-import {
-  createQueueRepository,
-  QUEUE_BOOK_FINISHED,
-  QUEUE_BOOK_NOT_FOUND,
-} from '@/db/repositories/queue';
+import { createQueueRepository } from '@/db/repositories/queue';
 import { queueItems } from '@/db/schema';
 import { createTestDatabase } from '@/test-utils/sqlite';
 
@@ -15,7 +11,7 @@ const baseBook: CreateBookInput = {
   title: 'O Hobbit',
   author: 'J. R. R. Tolkien',
   genreId: 'fantasy',
-  status: 'queued',
+  status: 'reading',
   pages: 100,
 };
 
@@ -29,6 +25,7 @@ async function setup() {
     id: 'book-2',
     title: 'Sapiens',
     genreId: 'nonfiction',
+    status: 'queued',
   });
   books.create({
     ...baseBook,
@@ -44,11 +41,22 @@ async function setup() {
     genreId: 'children',
     status: 'finished',
   });
+  books.create({
+    ...baseBook,
+    id: 'book-5',
+    title: 'Orgulho e Preconceito',
+    genreId: 'classic',
+    status: 'reading',
+  });
 
   return { db, books, repository: createQueueRepository(db) };
 }
 
-function positions(db: Awaited<ReturnType<typeof setup>>['db']) {
+function ids(rows: { bookId: string }[]): string[] {
+  return rows.map((row) => row.bookId);
+}
+
+function stored(db: Awaited<ReturnType<typeof setup>>['db']) {
   return db
     .select({ bookId: queueItems.bookId, position: queueItems.position })
     .from(queueItems)
@@ -57,120 +65,151 @@ function positions(db: Awaited<ReturnType<typeof setup>>['db']) {
 }
 
 describe('queue repository', () => {
-  it('adiciona no fim e não duplica o mesmo livro', async () => {
+  it('inclui todo livro não concluído, com Lendo no bloco de cima', async () => {
     const { repository } = await setup();
 
-    repository.add('book-1');
-    repository.add('book-2');
-    const duplicate = repository.add('book-1');
-
-    expect(duplicate.bookId).toBe('book-1');
-    expect(repository.list().map((row) => row.bookId)).toEqual([
+    expect(ids(repository.list())).toEqual([
       'book-1',
+      'book-5',
       'book-2',
+      'book-3',
     ]);
+    expect(repository.list().map((row) => row.position)).toEqual([0, 1, 2, 3]);
   });
 
-  it('recusa livro inexistente e concluído', async () => {
-    const { repository } = await setup();
-
-    expect(() => repository.add('book-unknown')).toThrow(QUEUE_BOOK_NOT_FOUND);
-    expect(() => repository.add('book-4')).toThrow(QUEUE_BOOK_FINISHED);
-    expect(repository.list()).toHaveLength(0);
-  });
-
-  it('não muda o status do livro ao entrar na ordem', async () => {
-    const { books, repository } = await setup();
-
-    repository.add('book-3');
-
-    expect(books.findById('book-3')?.status).toBe('paused');
-  });
-
-  it('remove e compacta as posições', async () => {
+  it('sync materializa a ordem e respeita os blocos', async () => {
     const { db, repository } = await setup();
-    repository.add('book-1');
-    repository.add('book-2');
-    repository.add('book-3');
 
-    expect(repository.remove('book-2')).toBe(true);
-    expect(repository.remove('book-2')).toBe(false);
-    expect(positions(db)).toEqual([
+    repository.sync();
+
+    expect(stored(db)).toEqual([
       { bookId: 'book-1', position: 0 },
-      { bookId: 'book-3', position: 1 },
+      { bookId: 'book-5', position: 1 },
+      { bookId: 'book-2', position: 2 },
+      { bookId: 'book-3', position: 3 },
     ]);
   });
 
-  it('move para posição e reescreve a lista compacta', async () => {
-    const { db, repository } = await setup();
-    repository.add('book-1');
-    repository.add('book-2');
-    repository.add('book-3');
-
-    expect(repository.move('book-3', 0).map((row) => row.bookId)).toEqual([
-      'book-3',
-      'book-1',
-      'book-2',
-    ]);
-    expect(repository.move('book-3', 2).map((row) => row.bookId)).toEqual([
-      'book-1',
-      'book-2',
-      'book-3',
-    ]);
-    expect(positions(db).map((row) => row.position)).toEqual([0, 1, 2]);
-  });
-
-  it('limita a posição ao início e ao fim da lista', async () => {
-    const { repository } = await setup();
-    repository.add('book-1');
-    repository.add('book-2');
-
-    expect(repository.move('book-2', -10).map((row) => row.bookId)).toEqual([
-      'book-2',
-      'book-1',
-    ]);
-    expect(repository.move('book-2', 99).map((row) => row.bookId)).toEqual([
-      'book-1',
-      'book-2',
-    ]);
-  });
-
-  it('substitui a ordem inteira, sem duplicar nem aceitar concluído', async () => {
-    const { db, repository } = await setup();
-    repository.add('book-1');
-    repository.add('book-2');
-
-    const rows = repository.replaceAll([
-      'book-3',
-      'book-1',
-      'book-3',
-      'book-4',
-      'book-unknown',
-    ]);
-
-    expect(rows.map((row) => row.bookId)).toEqual(['book-3', 'book-1']);
-    expect(positions(db)).toEqual([
-      { bookId: 'book-3', position: 0 },
-      { bookId: 'book-1', position: 1 },
-    ]);
-  });
-
-  it('ignora livro concluído ou excluído na leitura', async () => {
+  it('ignora livro concluído e livro excluído', async () => {
     const { books, repository } = await setup();
-    repository.add('book-1');
-    repository.add('book-2');
-    repository.add('book-3');
 
     books.update('book-2', { status: 'finished' });
     books.remove('book-3');
 
-    expect(repository.list().map((row) => row.bookId)).toEqual(['book-1']);
+    expect(ids(repository.list())).toEqual(['book-1', 'book-5']);
   });
 
-  it('guarda a nota opcional sem mudar a posição', async () => {
+  it('move dentro do bloco Lendo e troca o principal', async () => {
     const { repository } = await setup();
-    repository.add('book-1', '  ler no fim de semana  ');
 
-    expect(repository.list()[0]?.note).toBe('ler no fim de semana');
+    expect(ids(repository.move('book-5', 0))).toEqual([
+      'book-5',
+      'book-1',
+      'book-2',
+      'book-3',
+    ]);
+    expect(ids(repository.move('book-1', 0))).toEqual([
+      'book-1',
+      'book-5',
+      'book-2',
+      'book-3',
+    ]);
+  });
+
+  it('não deixa Lendo descer para o bloco de baixo', async () => {
+    const { repository } = await setup();
+
+    expect(ids(repository.move('book-1', 3))).toEqual([
+      'book-5',
+      'book-1',
+      'book-2',
+      'book-3',
+    ]);
+  });
+
+  it('não deixa Quero ler subir para o bloco Lendo', async () => {
+    const { repository } = await setup();
+
+    expect(ids(repository.move('book-3', 0))).toEqual([
+      'book-1',
+      'book-5',
+      'book-3',
+      'book-2',
+    ]);
+    expect(ids(repository.move('book-2', 0))).toEqual([
+      'book-1',
+      'book-5',
+      'book-2',
+      'book-3',
+    ]);
+  });
+
+  it('substitui a ordem mantendo Lendo primeiro', async () => {
+    const { repository } = await setup();
+
+    expect(
+      ids(
+        repository.replaceAll([
+          'book-3',
+          'book-5',
+          'book-2',
+          'book-1',
+          'book-4',
+          'book-unknown',
+        ]),
+      ),
+    ).toEqual(['book-5', 'book-1', 'book-3', 'book-2']);
+  });
+
+  it('livro novo em Lendo entra no fim do bloco de cima', async () => {
+    const { books, repository } = await setup();
+    repository.sync();
+
+    books.create({
+      ...baseBook,
+      id: 'book-6',
+      title: 'Duna',
+      genreId: 'scifi',
+      status: 'reading',
+    });
+    repository.sync();
+
+    expect(ids(repository.list())).toEqual([
+      'book-1',
+      'book-5',
+      'book-6',
+      'book-2',
+      'book-3',
+    ]);
+  });
+
+  it('mudar Quero ler para Lendo põe no fim do bloco de cima', async () => {
+    const { books, repository } = await setup();
+    repository.sync();
+
+    books.update('book-2', { status: 'reading' });
+    repository.sync();
+
+    expect(ids(repository.list())).toEqual([
+      'book-1',
+      'book-5',
+      'book-2',
+      'book-3',
+    ]);
+  });
+
+  it('mudar Lendo para Quero ler tira do bloco de cima', async () => {
+    const { books, repository } = await setup();
+    repository.sync();
+
+    books.update('book-1', { status: 'queued' });
+    repository.sync();
+
+    expect(ids(repository.list())).toEqual([
+      'book-5',
+      'book-1',
+      'book-2',
+      'book-3',
+    ]);
   });
 });

@@ -117,41 +117,45 @@ SQLite (expo-sqlite + Drizzle)
 - Ordem das abas: **Estante, Hoje, Ordem, Ajustes**.
 - **Hoje** manda na ação: mostra o plano do dia, registra leitura pelo botão de
   cada bloco e lista o que já foi lido hoje em "Lido hoje".
-- **Ordem** (`/ordem`, `QueueScreen`) monta a sequência que o dono pretende ler
-  depois do livro atual: adicionar, remover e reordenar. Não registra leitura;
+- **Ordem** (`/ordem`, `QueueScreen`) mostra todo livro não concluído e deixa o
+  dono reordenar os blocos; o status é quem entra/sai. Não registra leitura;
   tocar no livro abre o detalhe.
 - Glossário: a **UI diz "Ordem"**; o **código continua em inglês** (`queue`,
   `QueueItem`, `useQueueBookIds`). "Fila" só aparece em docs e sessões
   anteriores à S7.1, como termo histórico.
 - Legenda aprovada: "A sequência é sua: o que ler depois do livro atual."; a
-  contagem é "N livros depois do atual" e a seção, "Na ordem".
+  contagem é "N livros depois do atual" (ou "N livros na ordem" sem principal) e
+  a seção, "Na ordem".
 - O plano é só de hoje; a Ordem é a sequência guardada e nunca uma previsão de
   amanhã.
 
 ## Ordem (S8)
 
-- `src/features/queue/` tem `QueueScreen`, `QueueRow`, `AddToQueueSheet`,
-  `suggest-order.ts` e `useQueue`.
-- A sequência vive em `queue_items` (posição compacta 0..n-1) e é reescrita numa
-  transação por `move`/`replaceAll` (ADR 0016). Entram todos os livros não
-  concluídos; pausado entra sem mudar de status e fica fora do plano.
+- `src/features/queue/` tem `QueueScreen`, `QueueRow`, `suggest-order.ts` e
+  `useQueue`.
+- A Ordem é automática: `sync` materializa todo livro não concluído em
+  `queue_items`; o status é a entrada/saída. Pausado aparece com aviso e fica
+  fora do plano. Não há adicionar/remover manual (ADR 0017).
+- Dois blocos: todos os `reading` no topo, depois `queued` e `paused`. O primeiro
+  Lendo é o **principal**, coroado na tela, e é o bloco `active` do plano.
 - Reordenar pelo arrastar usa `react-native-gesture-handler` + Reanimated: a
   alça entrega o deslocamento, a tela soma as alturas medidas das linhas e chama
-  `move`. As setas ↑/↓ fazem o mesmo e são o caminho acessível.
-- "Sugerir ordem" (`suggest-order.ts`) mantém o primeiro livro e alterna gênero,
-  sem perder nem duplicar; aplica direto na Ordem e fica desabilitado quando a
-  sugestão já é a ordem atual.
-- Adicionar/remover/reordenar não toca em `books.status`: registrar leitura
-  continua sendo só na Hoje (S7.1).
+  `move`. As setas ↑/↓ fazem o mesmo e são o caminho acessível. `move` não deixa
+  cruzar os blocos.
+- "Sugerir ordem" (`suggest-order.ts`) alterna gênero dentro de cada bloco; o
+  primeiro Lendo não muda, então o principal é preservado.
+- Reordenar não toca em `books.status`: registrar leitura continua sendo só na
+  Hoje (S7.1).
 
 ## Plano (S6)
 
 - O motor vive em `src/features/planner/engine/` e é puro: `buildPlan(input)`
   recebe dia, meta, livros, sessões e a ordem do dono; devolve os blocos do dia.
   Nada de React Native, banco, relógio global ou IA.
-- Regras (meta 3–200, volta leve após 3 dias, ativo em 7 dias, teto flexível de
-  60% a partir de meta 10, alternância de gênero e sugestão paralela) estão em
-  [`docs/planner-algorithm.md`](planner-algorithm.md); a decisão, na ADR 0013.
+- Regras (meta 3–200, volta leve após 3 dias, principal = primeiro Lendo, teto
+  flexível de 60% a partir de meta 10, alternância de gênero e sugestão paralela)
+  estão em [`docs/planner-algorithm.md`](planner-algorithm.md); a decisão do
+  plano é a ADR 0013 e a do principal é a ADR 0017.
 - `src/features/planner/index.ts` é o barril da feature; a tela Hoje consome o
   motor desde a S7. Desde a S8, `useQueueBookIds` entrega a ordem persistida. O
   motor não grava plano nem conhece a Ordem.
@@ -161,6 +165,8 @@ SQLite (expo-sqlite + Drizzle)
 - `src/features/today/use-daily-plan.ts` monta o `PlannerInput` com `useBooks`,
   `useSettings`, `useRecentSessions` e `useQueueBookIds`, chama `buildPlan` e
   entrega o plano já cruzado com o dia (`buildPlanView`).
+- O bloco ativo é o primeiro Lendo da Ordem (ADR 0017); sem nenhum Lendo, não há
+  principal e o primeiro elegível leva o dia inteiro.
 - `plan-view.ts` é puro: soma as páginas de hoje por livro, marca
   feito/agora/depois, monta `sessionsToday` (título, páginas aplicadas e hora
   local), escolhe a mensagem e o mascote. O motor continua sendo a única fonte
@@ -220,6 +226,8 @@ Nenhum passo apaga dados ou esconde erro de migração.
   [`docs/adr/0015-status-ao-registrar.md`](adr/0015-status-ao-registrar.md)
 - Ordem persistida:
   [`docs/adr/0016-ordem-persistida.md`](adr/0016-ordem-persistida.md)
+- Ordem automática e principal:
+  [`docs/adr/0017-ordem-automatica-e-principal.md`](adr/0017-ordem-automatica-e-principal.md)
 
 ## Pendências conhecidas
 

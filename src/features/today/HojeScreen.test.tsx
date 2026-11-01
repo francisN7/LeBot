@@ -5,6 +5,7 @@ import {
   createInMemoryBooksRepository,
   createInMemoryReadingSessionsRepository,
   createInMemorySettingsRepository,
+  testBookRows,
 } from '@/test-utils/repositories';
 
 import { formatTodayLabel } from './format';
@@ -33,7 +34,7 @@ function seededRepositories() {
 }
 
 describe('HojeScreen', () => {
-  it('mostra a meta e os blocos do plano real, com o Pretendo Ler marcado', async () => {
+  it('mostra a meta e divide entre os dois livros Lendo', async () => {
     const { books, reading } = seededRepositories();
     reading.create({ bookId: 'book-hobbit', pages: 1, readAt: new Date() });
 
@@ -50,10 +51,10 @@ describe('HojeScreen', () => {
     expect(screen.getByText('1 de 18 páginas hoje')).toBeOnTheScreen();
     expect(screen.getByText('Plano do dia')).toBeOnTheScreen();
     expect(screen.getAllByText('O Hobbit').length).toBeGreaterThan(0);
-    expect(screen.getByText('Orgulho e Preconceito')).toBeOnTheScreen();
+    expect(screen.getByText('Sapiens')).toBeOnTheScreen();
     expect(screen.getByText('Fantasia · 11 páginas')).toBeOnTheScreen();
-    expect(screen.getByText('Clássico · 7 páginas')).toBeOnTheScreen();
-    expect(screen.getByText('sugestão')).toBeOnTheScreen();
+    expect(screen.getByText('Não-ficção · 7 páginas')).toBeOnTheScreen();
+    expect(screen.queryByText('sugestão')).not.toBeOnTheScreen();
     expect(screen.getByText('Agora')).toBeOnTheScreen();
     expect(screen.getByText('Depois')).toBeOnTheScreen();
     expect(screen.getAllByText('Registrar leitura').length).toBeGreaterThan(0);
@@ -144,7 +145,7 @@ describe('HojeScreen', () => {
     );
   });
 
-  it('retoma Coraline pausada ao registrar e ela vira o livro ativo', async () => {
+  it('registrar em Coraline pausada muda o status, mas ela não toma a frente', async () => {
     const { books, reading } = seededRepositories();
     reading.create({ bookId: 'book-coraline', pages: 10, readAt: new Date() });
 
@@ -155,17 +156,19 @@ describe('HojeScreen', () => {
 
     expect(books.findById('book-coraline')?.status).toBe('reading');
     expect(screen.getAllByText('Coraline').length).toBeGreaterThan(0);
-    expect(screen.getByText('Terror · 11 páginas')).toBeOnTheScreen();
+    expect(screen.queryByText('Terror · 11 páginas')).not.toBeOnTheScreen();
     expect(screen.getByText('10 de 18 páginas hoje')).toBeOnTheScreen();
     expect(screen.getByText('Agora')).toBeOnTheScreen();
   });
 
   it('marca "sugestão" no Pretendo Ler mesmo quando ele é o bloco principal', async () => {
-    const { books, reading } = seededRepositories();
+    const books = createInMemoryBooksRepository(
+      testBookRows.filter((row) => row.id === 'book-orgulho'),
+    );
 
     await renderWithProviders(<HojeScreen />, {
       booksRepository: books,
-      readingRepository: reading,
+      readingRepository: createInMemoryReadingSessionsRepository(books),
     });
 
     expect(screen.getByText('Clássico · 18 páginas')).toBeOnTheScreen();

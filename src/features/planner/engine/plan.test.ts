@@ -474,12 +474,12 @@ describe('buildPlan — elegibilidade', () => {
     ]);
   });
 
-  it('sessão em quero ler não vira ativo', () => {
+  it('quero ler antes do lendo não vira principal', () => {
     const naFila = book({ id: 'a', status: 'queued' });
     const lendo = book({ id: 'b', genreId: 'romance' });
     const result = plan({
       books: [naFila, lendo],
-      sessions: [session('a', 1), session('b', 2)],
+      queueBookIds: ['a', 'b'],
     });
 
     expect(result.entries[0]).toMatchObject({
@@ -488,7 +488,7 @@ describe('buildPlan — elegibilidade', () => {
     });
   });
 
-  it('sessão de 7 dias não é ativa, mas não força volta leve', () => {
+  it('lendo sem sessão recente continua principal', () => {
     const antigo = book({ id: 'antigo' });
     const proximo = book({
       id: 'proximo',
@@ -503,38 +503,15 @@ describe('buildPlan — elegibilidade', () => {
     expect(result.lightDay).toBe(false);
     expect(result.entries[0]).toMatchObject({
       bookId: 'antigo',
-      source: 'queue',
-    });
-  });
-
-  it('sessão de 6 dias ainda é ativa', () => {
-    const ativo = book({ id: 'ativo' });
-    const proximo = book({
-      id: 'proximo',
-      genreId: 'romance',
-      status: 'queued',
-    });
-    const result = plan({
-      books: [ativo, proximo],
-      sessions: [session('ativo', 6), session('fantasma', 0)],
-    });
-
-    expect(result.entries[0]).toMatchObject({
-      bookId: 'ativo',
       source: 'active',
     });
   });
 
-  it('desempata o ativo pela ordem da fila', () => {
+  it('o primeiro lendo da fila é o principal', () => {
     const a = book({ id: 'a' });
     const b = book({ id: 'b', genreId: 'romance' });
-    const readAt = new Date(2026, 9, 30, 12);
     const result = plan({
       books: [a, b],
-      sessions: [
-        { bookId: 'a', readAt },
-        { bookId: 'b', readAt },
-      ],
       queueBookIds: ['b', 'a'],
     });
 

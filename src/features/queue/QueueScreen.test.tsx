@@ -34,26 +34,33 @@ function QueueProbe() {
 }
 
 describe('QueueScreen', () => {
-  it('mostra a ordem com posição, nota e status', async () => {
+  it('inclui os livros não concluídos e coroa o primeiro Lendo', async () => {
     await renderWithProviders(<QueueScreen />);
 
     expect(screen.getByText('Ordem')).toBeOnTheScreen();
     expect(
       screen.getByText('A sequência é sua: o que ler depois do livro atual.'),
     ).toBeOnTheScreen();
-    expect(screen.getByText('2 livros depois do atual')).toBeOnTheScreen();
+    expect(screen.getByText('3 livros depois do atual')).toBeOnTheScreen();
     expect(screen.getByText('Na ordem')).toBeOnTheScreen();
-    expect(screen.getByText('1º na ordem')).toBeOnTheScreen();
-    expect(screen.getByText('2º na ordem')).toBeOnTheScreen();
+    expect(screen.getByText('Lendo agora')).toBeOnTheScreen();
+    expect(screen.getByText('Depois')).toBeOnTheScreen();
+    expect(screen.getByText('♛ 1º na ordem')).toBeOnTheScreen();
+    expect(screen.getByText('Principal')).toBeOnTheScreen();
+    expect(screen.getByText('O Hobbit')).toBeOnTheScreen();
+    expect(screen.getByText('Sapiens')).toBeOnTheScreen();
     expect(screen.getByText('Orgulho e Preconceito')).toBeOnTheScreen();
     expect(screen.getByText('Coraline')).toBeOnTheScreen();
-    expect(screen.getByText('Jane Austen · Clássico')).toBeOnTheScreen();
+    expect(screen.getByText('Pausado')).toBeOnTheScreen();
     expect(
-      screen.getByText('Clássico leve para alternar com a não-ficção'),
+      screen.queryByText('Clássico leve para alternar com a não-ficção'),
+    ).not.toBeOnTheScreen();
+    expect(
+      screen.getByText('fora do plano enquanto estiver pausado'),
     ).toBeOnTheScreen();
     expect(
       screen.getByText(
-        'Arraste pela alça ou use as setas. A sequência também vale para o plano da Hoje.',
+        'O primeiro Lendo é o principal. Quero ler e Pausado ficam abaixo; para subir, mude o status na Estante.',
       ),
     ).toBeOnTheScreen();
   });
@@ -69,13 +76,13 @@ describe('QueueScreen', () => {
     expect(screen.queryByTestId('reading-form')).not.toBeOnTheScreen();
   });
 
-  it('marca o livro pausado e avisa que ele está fora do plano', async () => {
+  it('não oferece adicionar nem remover: status é a entrada', async () => {
     await renderWithProviders(<QueueScreen />);
 
-    expect(screen.getByText('Pausado')).toBeOnTheScreen();
+    expect(screen.queryByLabelText('Adicionar livro')).not.toBeOnTheScreen();
     expect(
-      screen.getByText('fora do plano enquanto estiver pausado'),
-    ).toBeOnTheScreen();
+      screen.queryByLabelText('Remover Coraline da ordem'),
+    ).not.toBeOnTheScreen();
   });
 
   it('abre o detalhe ao tocar num livro da ordem', async () => {
@@ -96,7 +103,7 @@ describe('QueueScreen', () => {
       booksRepository: createInMemoryBooksRepository(withoutCoraline),
     });
 
-    expect(screen.getByText('1 livro depois do atual')).toBeOnTheScreen();
+    expect(screen.getByText('2 livros depois do atual')).toBeOnTheScreen();
     expect(screen.queryByText('Coraline')).not.toBeOnTheScreen();
   });
 
@@ -129,29 +136,7 @@ describe('QueueScreen', () => {
     ).not.toBeOnTheScreen();
   });
 
-  it('explica a ordem vazia e leva a adicionar um livro', async () => {
-    const books = createInMemoryBooksRepository();
-
-    await renderWithProviders(<QueueScreen />, {
-      booksRepository: books,
-      queueRepository: createInMemoryQueueRepository(books, []),
-    });
-
-    expect(screen.getByText('Sua ordem está vazia')).toBeOnTheScreen();
-    expect(
-      screen.getByText(
-        'Você ainda não escolheu o que vem depois do livro atual.',
-      ),
-    ).toBeOnTheScreen();
-    expect(screen.getByText('0 livros depois do atual')).toBeOnTheScreen();
-    expect(screen.queryByText('Na ordem')).not.toBeOnTheScreen();
-
-    await fireEvent.press(screen.getByLabelText('Adicionar livro'));
-
-    expect(screen.getByTestId('add-queue')).toBeOnTheScreen();
-  });
-
-  it('explica a estante vazia sem oferecer ação falsa', async () => {
+  it('explica a ordem vazia sem oferecer ação falsa', async () => {
     const books = createInMemoryBooksRepository([]);
 
     await renderWithProviders(<QueueScreen />, {
@@ -159,62 +144,51 @@ describe('QueueScreen', () => {
       queueRepository: createInMemoryQueueRepository(books, []),
     });
 
-    expect(screen.getByText('Sua estante ainda está vazia')).toBeOnTheScreen();
+    expect(screen.getByText('Nenhum livro na ordem')).toBeOnTheScreen();
     expect(
-      screen.getByText('Cadastre um livro na Estante para começar a ordem.'),
+      screen.getByText(
+        'Concluídos não entram. Cadastre um livro ou mude o status na Estante.',
+      ),
     ).toBeOnTheScreen();
+    expect(screen.getByText('0 livros na ordem')).toBeOnTheScreen();
+    expect(screen.queryByText('Na ordem')).not.toBeOnTheScreen();
     expect(screen.queryByLabelText('Adicionar livro')).not.toBeOnTheScreen();
   });
 
-  it('adiciona um livro pelo seletor da própria ordem', async () => {
+  it('bloqueia Quero ler no topo e Lendo descendo para o bloco de baixo', async () => {
     await renderWithProviders(<QueueScreen />);
 
-    await fireEvent.press(screen.getByLabelText('Adicionar livro'));
-    await fireEvent.press(screen.getByLabelText('Adicionar Sapiens'));
-    await fireEvent.press(screen.getByLabelText('Fechar'));
-
-    expect(screen.getByText('3 livros depois do atual')).toBeOnTheScreen();
-    expect(screen.getByText('Sapiens')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Subir Orgulho e Preconceito')).toBeDisabled();
+    expect(screen.getByLabelText('Descer Sapiens')).toBeDisabled();
+    expect(screen.getByLabelText('Subir Sapiens')).toBeEnabled();
+    expect(screen.getByLabelText('Descer O Hobbit')).toBeEnabled();
   });
 
-  it('remove com confirmação e mantém o livro na estante', async () => {
-    await renderWithProviders(<QueueScreen />);
-
-    await fireEvent.press(screen.getByLabelText('Remover Coraline da ordem'));
-
-    expect(screen.getByText('Remover da ordem?')).toBeOnTheScreen();
-    expect(
-      screen.getByText('"Coraline" sai da sequência, mas continua na estante.'),
-    ).toBeOnTheScreen();
-
-    // O botão de confirmar usa o rótulo "Remover", não o padrão.
-    await fireEvent.press(screen.getByLabelText('Remover'));
-    expect(screen.queryByText('Coraline')).not.toBeOnTheScreen();
-    expect(screen.getByText('1 livro depois do atual')).toBeOnTheScreen();
-  });
-
-  it('reordena pelas setas e avisa quem usa a ordem', async () => {
+  it('reordena os Lendo e troca o principal pelas setas', async () => {
     await renderWithProviders(<QueueProbe />);
 
     expect(screen.getByTestId('queue-ids')).toHaveTextContent(
-      'book-orgulho,book-coraline',
+      'book-hobbit,book-sapiens,book-orgulho,book-coraline',
     );
 
-    await fireEvent.press(
-      screen.getByLabelText('Descer Orgulho e Preconceito'),
-    );
+    await fireEvent.press(screen.getByLabelText('Descer O Hobbit'));
 
     expect(screen.getByTestId('queue-ids')).toHaveTextContent(
-      'book-coraline,book-orgulho',
+      'book-sapiens,book-hobbit,book-orgulho,book-coraline',
     );
     expect(
-      within(screen.getByTestId('queue-item-book-orgulho')).getByText(
+      within(screen.getByTestId('queue-item-book-sapiens')).getByText(
+        '♛ 1º na ordem',
+      ),
+    ).toBeOnTheScreen();
+    expect(
+      within(screen.getByTestId('queue-item-book-hobbit')).getByText(
         '2º na ordem',
       ),
     ).toBeOnTheScreen();
   });
 
-  it('aplica a sugestão anti-ressaca alternando gêneros', async () => {
+  it('aplica a sugestão dentro de cada bloco', async () => {
     const base = testBookRows[0];
 
     if (!base) {

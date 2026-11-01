@@ -59,10 +59,11 @@ repositório de leitura, que recusa livro inexistente.
 | `created_at` / `updated_at` | integer | ms desde 1970 |
 
 Índice `queue_items_position_idx`. Sem FK física, pelo mesmo motivo das outras
-tabelas: a integridade fica no repositório. Linhas de livro excluído ou
-`finished` são ignoradas na leitura e removidas na próxima escrita. Entram na
-Ordem todos os livros não concluídos (`reading`, `queued` e `paused`); adicionar
-um pausado **não** muda o status. Ver ADR 0016.
+tabelas: a integridade fica no repositório. A Ordem é automática: `sync`
+materializa todo livro não concluído (`reading`, `queued` e `paused`) e remove
+linhas de livro concluído/excluído. `position` é reescrita em dois blocos:
+`reading` primeiro (o primeiro é o principal), depois os demais. Mudar o status é
+o que entra/sai da ordem; não há adicionar/remover manual. Ver ADR 0017.
 
 ### Progresso: duas cópias, um dono
 
@@ -165,10 +166,10 @@ parâmetro, então o mesmo código roda no aparelho (`expo-sqlite`) e nos testes
   (teto no total, `finished` automático); `remove` desconta e nunca deixa o
   progresso negativo. `listByBook` ordena do mais recente para o mais antigo;
   `listBetween(from, to)` é a base das estatísticas da S10.
-- Ordem: `list` ignora órfãos e concluídos; `add` acrescenta no fim sem duplicar
-  e recusa livro inexistente/concluído; `remove` compacta as posições; `move` e
-  `replaceAll` reescrevem 0..n-1 numa transação. Nenhuma dessas operações muda o
-  status do livro.
+- Ordem: `sync` materializa todo livro não concluído em dois blocos (`reading`
+  primeiro, depois os demais) e limpa concluído/órfão; `list` deriva a ordem se
+  faltar linha; `move` só anda dentro do bloco do livro; `replaceAll` reescreve
+  0..n-1 numa transação mantendo os blocos. Nenhuma operação muda o status.
 - Nenhum SQL fora de `src/db/`.
 - As telas acessam via hooks (`useBooks`, `useGenres`, `useQueue`, `useSettings`,
   `useReadingSessions`), nunca pelo repositório diretamente.

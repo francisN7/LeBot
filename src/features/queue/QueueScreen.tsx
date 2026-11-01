@@ -1,14 +1,13 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef } from 'react';
 import { View } from 'react-native';
 
-import { AppText, Button, Card, ConfirmDialog, Screen } from '@/components/ui';
+import { AppText, Button, Card, Screen } from '@/components/ui';
 import { useGenres } from '@/features/genres';
 import { UNKNOWN_GENRE_NAME } from '@/features/library/genre';
 import type { Book } from '@/features/library/types';
 import { useBooks } from '@/features/library/use-books';
 import { colors, spacing } from '@/theme';
 
-import { AddToQueueSheet } from './AddToQueueSheet';
 import { QueueRow } from './QueueRow';
 import { suggestOrder } from './suggest-order';
 import { useQueue } from './use-queue';
@@ -17,7 +16,11 @@ import { useQueue } from './use-queue';
 export const QUEUE_LEGEND =
   'A sequência é sua: o que ler depois do livro atual.';
 
-function countLabel(count: number): string {
+function countLabel(count: number, hasPrincipal: boolean): string {
+  if (!hasPrincipal) {
+    return count === 1 ? '1 livro na ordem' : `${count} livros na ordem`;
+  }
+
   return count === 1
     ? '1 livro depois do atual'
     : `${count} livros depois do atual`;
@@ -34,15 +37,14 @@ type QueueEntry = {
 };
 
 /**
- * Ordem do dono: a sequência guardada para depois do livro atual. Montar e
- * reordenar acontece aqui; registrar leitura continua sendo papel da Hoje.
+ * Ordem automática: todo livro não concluído entra. Os `Lendo` formam o bloco
+ * de cima, com o primeiro coroado como principal; `Quero ler` e `Pausado` ficam
+ * abaixo. Registrar leitura continua sendo papel da Hoje.
  */
 export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
   const { books } = useBooks();
   const { genreById } = useGenres();
-  const { items, add, remove, move, replaceAll } = useQueue();
-  const [adding, setAdding] = useState(false);
-  const [removing, setRemoving] = useState<Book | null>(null);
+  const { items, move, replaceAll } = useQueue();
   const heights = useRef(new Map<string, number>());
 
   const booksById = useMemo(
@@ -50,8 +52,6 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
     [books],
   );
 
-  // O repositório já ignora órfãos/concluídos; a tela repete a checagem para
-  // não depender da ordem de atualização entre `useBooks` e `useQueue`.
   const entries = useMemo<QueueEntry[]>(
     () =>
       items.flatMap((item) => {
@@ -64,29 +64,26 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
     [booksById, items],
   );
 
-  const queuedIds = useMemo(
-    () => new Set(entries.map((entry) => entry.bookId)),
+  const readingCount = useMemo(
+    () => entries.filter((entry) => entry.book.status === 'reading').length,
     [entries],
   );
 
-  const candidates = useMemo(
-    () =>
-      books.filter(
-        (book) => book.status !== 'finished' && !queuedIds.has(book.id),
-      ),
-    [books, queuedIds],
-  );
-
-  const suggestion = useMemo(
-    () =>
-      suggestOrder(
-        entries.map((entry) => ({
-          id: entry.bookId,
-          genreId: entry.book.genreId,
-        })),
-      ),
+  const principalId = useMemo(
+    () => entries.find((entry) => entry.book.status === 'reading')?.bookId,
     [entries],
   );
+
+  const suggestion = useMemo(() => {
+    const reading = entries
+      .filter((entry) => entry.book.status === 'reading')
+      .map((entry) => ({ id: entry.bookId, genreId: entry.book.genreId }));
+    const others = entries
+      .filter((entry) => entry.book.status !== 'reading')
+      .map((entry) => ({ id: entry.bookId, genreId: entry.book.genreId }));
+
+    return [...suggestOrder(reading), ...suggestOrder(others)];
+  }, [entries]);
 
   const suggestionIsCurrent =
     suggestion.length === entries.length &&
@@ -142,6 +139,11 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
       }
     }
 
+    const reading = entries[from]?.book.status === 'reading';
+    target = reading
+      ? Math.min(target, readingCount - 1)
+      : Math.max(target, readingCount);
+
     if (target !== from) {
       move(bookId, target);
     }
@@ -151,13 +153,36 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
     replaceAll(suggestion.map((item) => item.id));
   }
 
-  function confirmRemove() {
-    if (removing) {
-      remove(removing.id);
-    }
+  function renderEntry(entry: QueueEntry, index: number) {
+    const genre = genreById.get(entry.book.genreId);
+    const reading = entry.book.status === 'reading';
+    const groupStart = reading ? 0 : readingCount;
+    const groupEnd = reading ? readingCount - 1 : entries.length - 1;
 
-    setRemoving(null);
+    return (
+      <QueueRow
+        book={entry.book}
+        canMoveDown={index < groupEnd}
+        canMoveUp={index > groupStart}
+        genreColor={genre?.colorLight ?? colors.navyMuted}
+        genreName={genre?.name ?? UNKNOWN_GENRE_NAME}
+        isPrincipal={entry.bookId === principalId}
+        key={entry.bookId}
+        note={entry.note}
+        onDown={() => move(entry.bookId, index + 1)}
+        onDrop={(offset) => handleDrop(entry.bookId, offset)}
+        onHeight={(height) => heights.current.set(entry.bookId, height)}
+        onOpen={() => onOpenBook?.(entry.bookId)}
+        onUp={() => move(entry.bookId, index - 1)}
+        position={index}
+      />
+    );
   }
+
+  const afterPrincipal = Math.max(
+    0,
+    entries.length - (readingCount > 0 ? 1 : 0),
+  );
 
   return (
     <Screen>
@@ -165,18 +190,12 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
         <AppText variant="display">Ordem</AppText>
         <AppText tone="muted">{QUEUE_LEGEND}</AppText>
         <AppText tone="muted" variant="caption">
-          {countLabel(entries.length)}
+          {countLabel(afterPrincipal, readingCount > 0)}
         </AppText>
       </View>
 
       {entries.length > 0 ? (
         <View className="flex-row flex-wrap gap-sm">
-          <Button
-            label="Adicionar livro"
-            onPress={() => setAdding(true)}
-            size="sm"
-            variant="secondary"
-          />
           <Button
             disabled={entries.length < 2 || suggestionIsCurrent}
             label="Sugerir ordem"
@@ -189,80 +208,38 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
 
       {entries.length === 0 ? (
         <Card className="items-center gap-xs">
-          <AppText variant="subtitle">
-            {books.length === 0
-              ? 'Sua estante ainda está vazia'
-              : candidates.length === 0
-                ? 'Nenhum livro disponível'
-                : 'Sua ordem está vazia'}
-          </AppText>
+          <AppText variant="subtitle">Nenhum livro na ordem</AppText>
           <AppText tone="muted" variant="caption">
-            {books.length === 0
-              ? 'Cadastre um livro na Estante para começar a ordem.'
-              : candidates.length === 0
-                ? 'Concluídos não entram na ordem. Cadastre ou retome um livro na Estante.'
-                : 'Você ainda não escolheu o que vem depois do livro atual.'}
+            Concluídos não entram. Cadastre um livro ou mude o status na
+            Estante.
           </AppText>
-          {books.length === 0 || candidates.length === 0 ? null : (
-            <Button
-              label="Adicionar livro"
-              onPress={() => setAdding(true)}
-              size="sm"
-            />
-          )}
         </Card>
       ) : (
         <View className="gap-sm">
           <AppText variant="subtitle">Na ordem</AppText>
-          {entries.map((entry, index) => {
-            const genre = genreById.get(entry.book.genreId);
-
-            return (
-              <QueueRow
-                book={entry.book}
-                genreColor={genre?.colorLight ?? colors.navyMuted}
-                genreName={genre?.name ?? UNKNOWN_GENRE_NAME}
-                key={entry.bookId}
-                note={entry.note}
-                onDown={() => move(entry.bookId, index + 1)}
-                onDrop={(offset) => handleDrop(entry.bookId, offset)}
-                onHeight={(height) => heights.current.set(entry.bookId, height)}
-                onOpen={() => onOpenBook?.(entry.bookId)}
-                onRemove={() => setRemoving(entry.book)}
-                onUp={() => move(entry.bookId, index - 1)}
-                position={index}
-                total={entries.length}
-              />
-            );
-          })}
+          {readingCount > 0 ? (
+            <AppText tone="muted" variant="label">
+              Lendo agora
+            </AppText>
+          ) : null}
+          {entries
+            .slice(0, readingCount)
+            .map((entry, index) => renderEntry(entry, index))}
+          {entries.length > readingCount ? (
+            <AppText tone="muted" variant="label">
+              Depois
+            </AppText>
+          ) : null}
+          {entries
+            .slice(readingCount)
+            .map((entry, index) => renderEntry(entry, readingCount + index))}
         </View>
       )}
 
       <AppText tone="muted" variant="caption">
-        Arraste pela alça ou use as setas. A sequência também vale para o plano
-        da Hoje.
+        O primeiro Lendo é o principal. Quero ler e Pausado ficam abaixo; para
+        subir, mude o status na Estante.
       </AppText>
-
-      <AddToQueueSheet
-        books={candidates}
-        genreNameById={genreById}
-        onAdd={add}
-        onClose={() => setAdding(false)}
-        visible={adding}
-      />
-
-      <ConfirmDialog
-        confirmLabel="Remover"
-        message={
-          removing
-            ? `"${removing.title}" sai da sequência, mas continua na estante.`
-            : undefined
-        }
-        onCancel={() => setRemoving(null)}
-        onConfirm={confirmRemove}
-        title="Remover da ordem?"
-        visible={removing !== null}
-      />
     </Screen>
   );
 }

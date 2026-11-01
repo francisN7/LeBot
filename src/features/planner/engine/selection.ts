@@ -1,5 +1,3 @@
-import { ACTIVE_WINDOW_DAYS } from './constants';
-import { daysBetween } from './day';
 import type { PlannerBook, PlannerSession } from './types';
 
 /** Páginas restantes, nunca negativas. */
@@ -17,25 +15,6 @@ export function isEligible(book: PlannerBook): boolean {
     (book.status === 'reading' || book.status === 'queued') &&
     remainingPages(book) > 0
   );
-}
-
-function latestSessionByBook(
-  sessions: readonly PlannerSession[],
-): Map<string, Date> {
-  const latest = new Map<string, Date>();
-
-  for (const session of sessions) {
-    if (Number.isNaN(session.readAt.getTime())) {
-      continue;
-    }
-
-    const current = latest.get(session.bookId);
-    if (!current || session.readAt.getTime() > current.getTime()) {
-      latest.set(session.bookId, session.readAt);
-    }
-  }
-
-  return latest;
 }
 
 /** Sessão mais recente do histórico, de qualquer livro. */
@@ -88,48 +67,15 @@ export function orderByQueue(
     .map(({ book }) => book);
 }
 
-type ActiveBookInput = {
-  /** Já na ordem da fila; empates ficam com o primeiro. */
-  books: readonly PlannerBook[];
-  sessions: readonly PlannerSession[];
-  today: Date;
-};
-
 /**
- * Livro `reading` com a sessão mais recente nos últimos 7 dias (hoje + 6).
- * Sem sessão recente, não há ativo: a fila decide.
+ * Principal da Ordem: o primeiro livro `reading` com páginas restantes na
+ * ordem recebida. O histórico não decide mais o principal; reordenar os Lendo
+ * troca quem recebe o teto de 60%. Sem nenhum Lendo, não há principal.
  */
-export function selectActiveBook({
-  books,
-  sessions,
-  today,
-}: ActiveBookInput): PlannerBook | undefined {
-  const latest = latestSessionByBook(sessions);
-  let active: PlannerBook | undefined;
-  let activeAt = Number.NEGATIVE_INFINITY;
-
-  for (const book of books) {
-    if (book.status !== 'reading' || !isEligible(book)) {
-      continue;
-    }
-
-    const readAt = latest.get(book.id);
-    if (!readAt) {
-      continue;
-    }
-
-    const days = daysBetween(readAt, today);
-    if (days < 0 || days >= ACTIVE_WINDOW_DAYS) {
-      continue;
-    }
-
-    if (readAt.getTime() > activeAt) {
-      active = book;
-      activeAt = readAt.getTime();
-    }
-  }
-
-  return active;
+export function selectActiveBook(
+  books: readonly PlannerBook[],
+): PlannerBook | undefined {
+  return books.find((book) => book.status === 'reading' && isEligible(book));
 }
 
 /**

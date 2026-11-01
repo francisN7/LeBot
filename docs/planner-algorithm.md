@@ -52,12 +52,11 @@ Entram `reading` e `queued` com páginas restantes (`pages - pagesRead > 0`).
 **`paused` e `finished` nunca entram.** Pausar é uma decisão do dono; o motor não
 insiste.
 
-### 4. Livro ativo: o "Lendo" que você leu de verdade
+### 4. Principal: o primeiro Lendo da Ordem
 
-Entre os livros `reading`, o ativo é o que tem a **sessão mais recente nos
-últimos 7 dias de calendário** (hoje + 6 anteriores). Empate: primeiro na ordem
-da fila. Sem sessão nessa janela, não há ativo — um livro largado há uma semana
-não ocupa a frente do plano.
+O principal é o **primeiro livro `reading` na ordem recebida**. A Ordem coloca
+todos os Lendo no topo; reordenar os Lendo troca o principal. O histórico de
+sessões **não** escolhe o principal. Sem nenhum `reading`, não há principal.
 
 ### 5. Volta leve: meta a 70% depois de 3 dias
 
@@ -65,12 +64,12 @@ Se a **última sessão de qualquer livro** foi há **3 dias ou mais**, o dia é
 "volta leve": a meta cai para 70% (mínimo de 1 página). Sem nenhuma sessão no
 histórico, não é volta leve: usuário novo recebe a meta normal. A redução usa a
 mesma regra de arredondamento e vale para a meta efetiva do dia. **O chamador
-precisa passar a última sessão mesmo que ela seja mais antiga que a janela do
-ativo**; um recorte de 7 dias esconderia uma volta de 30 dias.
+precisa passar a última sessão mesmo que ela seja muito antiga**; um recorte de
+7 dias esconderia uma volta de 30 dias.
 
-### 6. Ordem: ativo, fila, resto
+### 6. Ordem: principal, fila, resto
 
-1. o livro ativo, quando existe;
+1. o principal (primeiro `reading`), quando existe;
 2. os ids de `queueBookIds`, na ordem recebida;
 3. os demais elegíveis, na ordem de `books`.
 
@@ -79,23 +78,23 @@ não está na fila ainda pode entrar no plano como alternativa.
 
 ### 7. Teto de 60%: preferência, não parede
 
-Com livro ativo e meta do dia **≥ 10**, cada livro recebe no máximo 60% da meta
+Com principal e meta do dia **≥ 10**, cada livro recebe no máximo 60% da meta
 (arredondado pela regra abaixo). Se a soma dos outros livros não fechar a meta,
-o último bloco (ou o ativo) pode passar dos 60% até o restante dele. Assim:
+o último bloco (ou o principal) pode passar dos 60% até o restante dele. Assim:
 
 - meta 18 com dois livros saudáveis → **11 + 7**;
 - meta 18 com um livro só → **18** (o teto não deixa o dia pela metade);
-- meta 18, ativo com 3 páginas restantes, próximo com 300 → **3 + 15**.
+- meta 18, principal com 3 páginas restantes, próximo com 300 → **3 + 15**.
 
 Com meta **< 10** o teto não se aplica: o primeiro livro leva o dia inteiro. Com
-meta ≥ 10 e sem ativo, o primeiro da fila também leva o dia inteiro (até
-acabar) — não há por que dividir a estreia de um livro.
+meta ≥ 10 e sem principal (nenhum Lendo na Ordem), o primeiro elegível também
+leva o dia inteiro (até acabar).
 
 ### 8. Alternância de gênero
 
 Quando o plano tem mais de um livro, o próximo é o **primeiro da ordem com
 gênero diferente** do anterior. Só repete gênero se não houver outra opção. O
-ativo é sempre o primeiro bloco.
+principal é sempre o primeiro bloco.
 
 ### 9. Arredondamento com corte em 0,7
 
@@ -122,8 +121,8 @@ da meta, o plano é parcial (não é erro e não vira `no-books`).
 
 ### 11. Sugestão paralela, sem cobrança
 
-Quando há livro ativo, os blocos seguintes vêm com `suggestion: true`: são a
-leitura paralela que alterna o gênero, não uma obrigação. Sem livro ativo, o
+Quando há principal, os blocos seguintes vêm com `suggestion: true`: são a
+leitura paralela que alterna o gênero, não uma obrigação. Sem principal, o
 primeiro da fila é o **plano** (`suggestion: false`), não uma sugestão. Desde a
 S7.1 a UI mostra o selo "sugestão" para bloco `queued` (Pretendo Ler), mesmo
 quando ele é o plano do dia; livro `reading` nunca leva o selo. O flag
@@ -137,7 +136,8 @@ tela poder explicar o dia.
 
 ## Exemplos
 
-Todos com `goalPages = 18`, dia 2026-10-31 e sessão do ativo hoje, salvo aviso.
+Todos com `goalPages = 18`, dia 2026-10-31 e sem sessão recente (dia normal),
+salvo aviso.
 
 | Cenário | Plano | Observação |
 |---|---|---|

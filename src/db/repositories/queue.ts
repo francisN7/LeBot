@@ -4,28 +4,32 @@ import { z } from 'zod';
 import { books, type QueueItemRow, queueItems } from '../schema';
 import type { AppDatabase } from '../types';
 
-export const QUEUE_BOOK_NOT_FOUND = 'Livro não encontrado';
-export const QUEUE_BOOK_FINISHED = 'Livro concluído não entra na ordem';
-
 export const queueBookIdSchema = z.string().trim().min(1, 'Escolha um livro');
 
 const replaceAllSchema = z.array(queueBookIdSchema);
 const positionSchema = z.number().int();
 
 /**
- * Ordem persistida: um livro por linha, posição compacta de 0..n-1.
- * Diferente da leitura, adicionar à ordem não muda o status do livro.
+ * Ordem automática: todo livro não concluído entra. Os `reading` formam o bloco
+ * de cima (o primeiro é o principal); `queued` e `paused` ficam abaixo. O dono
+ * só reordena dentro dos blocos — status é o que coloca o livro na ordem.
  */
 export type QueueRepository = {
-  /** Livros na ordem; ignora linhas órfãs ou de livro concluído. */
+  /** Ordem atual, incluindo livros ainda sem linha gravada. */
   list(): QueueItemRow[];
-  /** Acrescenta no fim; repetir um livro já presente não o duplica. */
-  add(bookId: string, note?: string | null): QueueItemRow;
-  remove(bookId: string): boolean;
-  /** Move para `toPosition` (0..n-1), reescrevendo a lista inteira. */
+  /** Materializa a ordem (insere quem falta e remove concluído/órfão). */
+  sync(): QueueItemRow[];
+  /** Move dentro do bloco do livro; a tela não deixa cruzar os blocos. */
   move(bookId: string, toPosition: number): QueueItemRow[];
-  /** Substitui a ordem inteira, numa transação. */
+  /** Substitui a ordem dos livros informados, mantendo os blocos. */
   replaceAll(bookIds: readonly string[]): QueueItemRow[];
+};
+
+type ValidBook = {
+  id: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 function orderedRows<TRunResult>(db: AppDatabase<TRunResult>): QueueItemRow[] {
@@ -36,56 +40,97 @@ function orderedRows<TRunResult>(db: AppDatabase<TRunResult>): QueueItemRow[] {
     .all();
 }
 
-/** Ids válidos: livro existente e ainda não concluído. */
-function validBookIds<TRunResult>(db: AppDatabase<TRunResult>): Set<string> {
-  const rows = db
-    .select({ id: books.id, status: books.status })
+/** Livros que podem aparecer: existem e ainda não foram concluídos. */
+function validBooks<TRunResult>(db: AppDatabase<TRunResult>): ValidBook[] {
+  return db
+    .select({
+      id: books.id,
+      status: books.status,
+      createdAt: books.createdAt,
+      updatedAt: books.updatedAt,
+    })
     .from(books)
-    .all();
-
-  return new Set(
-    rows.filter((row) => row.status !== 'finished').map((row) => row.id),
-  );
+    .all()
+    .filter((book) => book.status !== 'finished')
+    .sort(
+      (first, second) =>
+        first.createdAt.getTime() - second.createdAt.getTime() ||
+        first.id.localeCompare(second.id),
+    );
 }
 
-/** Lista visível: sem órfão e sem livro concluído (posição pode ter buraco). */
-function visibleRows<TRunResult>(db: AppDatabase<TRunResult>): QueueItemRow[] {
-  const valid = validBookIds(db);
-
-  return orderedRows(db).filter((row) => valid.has(row.bookId));
+function isReading(book: ValidBook | undefined): boolean {
+  return book?.status === 'reading';
 }
 
-/** Remove repetidos preservando a primeira ocorrência e descarta inválidos. */
-function normalizeIds<TRunResult>(
+function virtualRow(book: ValidBook): QueueItemRow {
+  return {
+    bookId: book.id,
+    position: 0,
+    note: null,
+    createdAt: book.createdAt,
+    updatedAt: book.updatedAt,
+  };
+}
+
+/**
+ * Ordem derivada: linhas gravadas primeiro (na posição delas), depois os livros
+ * que ainda não têm linha, por criação. Os dois blocos são separados por status.
+ * Não grava nada; `sync` e as escritas materializam.
+ */
+function deriveRows<TRunResult>(db: AppDatabase<TRunResult>): QueueItemRow[] {
+  const valid = validBooks(db);
+  const validById = new Map(valid.map((book) => [book.id, book] as const));
+  const stored = orderedRows(db).filter((row) => validById.has(row.bookId));
+  const storedIds = new Set(stored.map((row) => row.bookId));
+  const missing = valid.filter((book) => !storedIds.has(book.id));
+
+  function group(reading: boolean): QueueItemRow[] {
+    return [
+      ...stored.filter(
+        (row) => isReading(validById.get(row.bookId)) === reading,
+      ),
+      ...missing.filter((book) => isReading(book) === reading).map(virtualRow),
+    ];
+  }
+
+  return [...group(true), ...group(false)].map((row, position) => ({
+    ...row,
+    position,
+  }));
+}
+
+/**
+ * Reescreve `position` de 0..n-1 e apaga o que não é livro válido. A ordem
+ * recebida é reorganizada em dois blocos: todos os `reading` primeiro (na ordem
+ * dada), depois os demais. Livros válidos que não vieram entram no fim do bloco.
+ */
+function writeOrder<TRunResult>(
   db: AppDatabase<TRunResult>,
   bookIds: readonly string[],
-): string[] {
-  const valid = validBookIds(db);
+): QueueItemRow[] {
+  const valid = validBooks(db);
+  const validById = new Map(valid.map((book) => [book.id, book] as const));
   const seen = new Set<string>();
-
-  return bookIds.filter((bookId) => {
-    if (!valid.has(bookId) || seen.has(bookId)) {
+  const provided = bookIds.filter((bookId) => {
+    if (!validById.has(bookId) || seen.has(bookId)) {
       return false;
     }
 
     seen.add(bookId);
     return true;
   });
-}
+  const missing = valid.filter((book) => !seen.has(book.id));
+  const combined = [...provided, ...missing.map((book) => book.id)];
+  const finalIds = [
+    ...combined.filter((bookId) => isReading(validById.get(bookId))),
+    ...combined.filter((bookId) => !isReading(validById.get(bookId))),
+  ];
 
-/**
- * Reescreve `position` de 0..n-1 e apaga o que não está em `bookIds`.
- * Sempre dentro de transação: a ordem nunca fica com empate entre duas listas.
- */
-function writeOrder<TRunResult>(
-  db: AppDatabase<TRunResult>,
-  bookIds: readonly string[],
-): QueueItemRow[] {
-  const desired = normalizeIds(db, bookIds);
   const existing = new Map(
     orderedRows(db).map((row) => [row.bookId, row] as const),
   );
-  const wanted = new Set(desired);
+  const wanted = new Set(finalIds);
   const now = new Date();
 
   for (const row of existing.values()) {
@@ -94,17 +139,18 @@ function writeOrder<TRunResult>(
     }
   }
 
-  desired.forEach((bookId, position) => {
+  finalIds.forEach((bookId, position) => {
     const current = existing.get(bookId);
 
     if (!current) {
+      const book = validById.get(bookId);
       db.insert(queueItems)
         .values({
           bookId,
           position,
           note: null,
-          createdAt: now,
-          updatedAt: now,
+          createdAt: book?.createdAt ?? now,
+          updatedAt: book?.updatedAt ?? now,
         })
         .run();
       return;
@@ -118,68 +164,32 @@ function writeOrder<TRunResult>(
     }
   });
 
-  return orderedRows(db).filter((row) => wanted.has(row.bookId));
+  return deriveRows(db);
 }
 
 export function createQueueRepository<TRunResult>(
   db: AppDatabase<TRunResult>,
 ): QueueRepository {
+  function statusById<TRunResult>(
+    database: AppDatabase<TRunResult>,
+  ): Map<string, string> {
+    return new Map(
+      validBooks(database).map((book) => [book.id, book.status] as const),
+    );
+  }
+
   return {
     list() {
-      return visibleRows(db);
+      return deriveRows(db);
     },
 
-    add(bookId, note) {
-      const parsedId = queueBookIdSchema.parse(bookId);
-      const parsedNote =
-        note === undefined || note === null ? null : note.trim();
-
-      return db.transaction((tx) => {
-        const book = tx
-          .select({ id: books.id, status: books.status })
-          .from(books)
-          .where(eq(books.id, parsedId))
-          .get();
-
-        if (!book) {
-          throw new Error(QUEUE_BOOK_NOT_FOUND);
-        }
-
-        if (book.status === 'finished') {
-          throw new Error(QUEUE_BOOK_FINISHED);
-        }
-
-        const current = visibleRows(tx).map((row) => row.bookId);
-        const rows = writeOrder(
+    sync() {
+      return db.transaction((tx) =>
+        writeOrder(
           tx,
-          current.includes(parsedId) ? current : [...current, parsedId],
-        );
-
-        if (parsedNote !== null) {
-          tx.update(queueItems)
-            .set({ note: parsedNote, updatedAt: new Date() })
-            .where(eq(queueItems.bookId, parsedId))
-            .run();
-        }
-
-        const row = rows.find((item) => item.bookId === parsedId);
-        if (!row) {
-          throw new Error(QUEUE_BOOK_NOT_FOUND);
-        }
-
-        return parsedNote === null ? row : { ...row, note: parsedNote };
-      });
-    },
-
-    remove(bookId) {
-      const parsedId = queueBookIdSchema.parse(bookId);
-
-      return db.transaction((tx) => {
-        const current = visibleRows(tx).map((row) => row.bookId);
-        const next = current.filter((id) => id !== parsedId);
-        writeOrder(tx, next);
-        return next.length !== current.length;
-      });
+          deriveRows(tx).map((row) => row.bookId),
+        ),
+      );
     },
 
     move(bookId, toPosition) {
@@ -187,18 +197,26 @@ export function createQueueRepository<TRunResult>(
       const parsedPosition = positionSchema.parse(toPosition);
 
       return db.transaction((tx) => {
-        const current = visibleRows(tx).map((row) => row.bookId);
-        const from = current.indexOf(parsedId);
+        const current = deriveRows(tx);
+        const status = statusById(tx);
+        const from = current.findIndex((row) => row.bookId === parsedId);
 
         if (from < 0) {
-          return writeOrder(tx, current);
+          return writeOrder(
+            tx,
+            current.map((row) => row.bookId),
+          );
         }
 
-        const target = Math.min(
-          Math.max(parsedPosition, 0),
-          current.length - 1,
-        );
-        const next = [...current];
+        const readingCount = current.filter(
+          (row) => status.get(row.bookId) === 'reading',
+        ).length;
+        const reading = status.get(parsedId) === 'reading';
+        const min = reading ? 0 : readingCount;
+        const max = reading ? readingCount - 1 : current.length - 1;
+        const target = Math.min(Math.max(parsedPosition, min), max);
+        const ids = current.map((row) => row.bookId);
+        const next = [...ids];
         next.splice(from, 1);
         next.splice(target, 0, parsedId);
 

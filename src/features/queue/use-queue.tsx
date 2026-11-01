@@ -10,6 +10,7 @@ import {
 
 import { getQueueRepository, type QueueRepository } from '@/db/repositories';
 import type { QueueItemRow } from '@/db/schema';
+import { useBooks } from '@/features/library/use-books';
 
 import { toQueueItem } from './types';
 
@@ -58,36 +59,26 @@ export function useQueueRepository(): QueueRepository {
 }
 
 /**
- * Ordem do dono com as escritas que a tela usa. Adicionar, remover e reordenar
- * não tocam no status do livro: quem registra leitura é a Hoje (S7.1).
+ * Ordem automática por status com as escritas que a tela usa. `sync` materializa
+ * livros novos/removidos quando a estante muda; reordenar não toca no status.
  */
 export function useQueue() {
   const repository = useQueueRepository();
-  const [rows, setRows] = useState<QueueItemRow[]>(() => repository.list());
+  const { books } = useBooks();
+  const [rows, setRows] = useState<QueueItemRow[]>(() => repository.sync());
 
   const refresh = useCallback(() => {
     setRows(repository.list());
   }, [repository]);
 
   useEffect(() => subscribe(repository, refresh), [repository, refresh]);
-
-  const add = useCallback(
-    (bookId: string) => {
-      const row = repository.add(bookId);
-      notify(repository);
-      return row;
-    },
-    [repository],
-  );
-
-  const remove = useCallback(
-    (bookId: string) => {
-      const removed = repository.remove(bookId);
-      notify(repository);
-      return removed;
-    },
-    [repository],
-  );
+  // O repositório lê os livros do banco; `books` é o gatilho para re-sincronizar
+  // quando um status muda (entrada/saída/bloco do topo).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: books é o gatilho
+  useEffect(() => {
+    repository.sync();
+    refresh();
+  }, [books, repository, refresh]);
 
   const move = useCallback(
     (bookId: string, toPosition: number) => {
@@ -110,7 +101,7 @@ export function useQueue() {
   const items = useMemo(() => rows.map(toQueueItem), [rows]);
   const bookIds = useMemo(() => items.map((item) => item.bookId), [items]);
 
-  return { items, bookIds, add, remove, move, replaceAll, refresh, repository };
+  return { items, bookIds, move, replaceAll, refresh, repository };
 }
 
 /**

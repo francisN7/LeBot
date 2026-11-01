@@ -18,12 +18,13 @@ type QueueRowProps = {
   genreName: string;
   genreColor: string;
   position: number;
-  total: number;
+  isPrincipal: boolean;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
   note: string | null;
   onOpen: () => void;
   onUp: () => void;
   onDown: () => void;
-  onRemove: () => void;
   /** Deslocamento vertical solto pelo arrastar; a tela decide a posição. */
   onDrop: (translationY: number) => void;
   onHeight: (height: number) => void;
@@ -70,12 +71,13 @@ export function QueueRow({
   genreName,
   genreColor,
   position,
-  total,
+  isPrincipal,
+  canMoveUp,
+  canMoveDown,
   note,
   onOpen,
   onUp,
   onDown,
-  onRemove,
   onDrop,
   onHeight,
 }: QueueRowProps) {
@@ -110,8 +112,9 @@ export function QueueRow({
     zIndex: dragging.value ? 2 : 0,
   }));
 
-  const chipLabel =
-    book.status === 'reading' || book.status === 'paused'
+  const chipLabel = isPrincipal
+    ? 'Principal'
+    : book.status === 'reading' || book.status === 'paused'
       ? labelForStatus(book.status)
       : null;
 
@@ -133,7 +136,7 @@ export function QueueRow({
           <BookArt book={book} genreColor={genreColor} />
           <View className="flex-1 gap-xs">
             <AppText variant="caption" tone="muted">
-              {`${position + 1}º na ordem`}
+              {`${isPrincipal ? '♛ ' : ''}${position + 1}º na ordem`}
             </AppText>
             <AppText numberOfLines={1} variant="bodyStrong">
               {book.title}
@@ -146,7 +149,9 @@ export function QueueRow({
                 {note}
               </AppText>
             ) : null}
-            {chipLabel ? <Chip label={chipLabel} /> : null}
+            {chipLabel ? (
+              <Chip label={chipLabel} selected={isPrincipal} />
+            ) : null}
             {book.status === 'paused' ? (
               <AppText tone="muted" variant="caption">
                 fora do plano enquanto estiver pausado
@@ -158,24 +163,19 @@ export function QueueRow({
         <View className="gap-xs">
           <View className="flex-row gap-xs">
             <RowAction
-              disabled={position === 0}
+              disabled={!canMoveUp}
               label={`Subir ${book.title}`}
               onPress={onUp}
               symbol="↑"
             />
             <RowAction
-              disabled={position >= total - 1}
+              disabled={!canMoveDown}
               label={`Descer ${book.title}`}
               onPress={onDown}
               symbol="↓"
             />
           </View>
-          <View className="flex-row gap-xs">
-            <RowAction
-              label={`Remover ${book.title} da ordem`}
-              onPress={onRemove}
-              symbol="✕"
-            />
+          <View className="items-center">
             <GestureDetector gesture={gesture}>
               <View
                 accessibilityHint="Use as setas para mover"

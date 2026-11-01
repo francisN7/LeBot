@@ -97,11 +97,7 @@ export function buildPlan(input: PlannerInput): Plan {
 
   const ordered = orderByQueue(input.books, input.queueBookIds ?? []);
   const eligible = ordered.filter(isEligible);
-  const active = selectActiveBook({
-    books: ordered,
-    sessions: input.sessions,
-    today: input.today,
-  });
+  const active = selectActiveBook(ordered);
 
   const base = {
     date: toLocalDayKey(input.today),

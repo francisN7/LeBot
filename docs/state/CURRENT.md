@@ -10,19 +10,19 @@
 ## Pronto (S8)
 
 - `queue_items` (`book_id` PK, `position`, `note`, timestamps) com migração
-  aditiva `0005`; a Ordem nasce vazia no aparelho.
-- `src/db/repositories/queue.ts`: `list`, `add`, `remove`, `move` e `replaceAll`
-  em transação, posições 0..n-1; ignora órfão/concluído e recusa concluído.
-  Adicionar pausado não muda o status (ADR 0016).
-- `useQueue`/`useQueueBookIds` assinam o repositório: reordenar atualiza a Hoje.
-- Ordem real: seletor para adicionar, remover com confirmação, arrastar pela
-  alça (RNGH + Reanimated) e setas ↑/↓ acessíveis.
-- "Sugerir ordem" (`suggest-order.ts`): mantém o primeiro, alterna gênero, é
-  determinística/idempotente e aplica direto; desabilita quando já é a ordem.
-- `Screen` usa o `ScrollView` do gesture handler e o root monta
-  `GestureHandlerRootView`; o Jest usa o `jestSetup` do RNGH e mapeia
-  `react-native-worklets` para o mock.
-- 335 testes (44 arquivos); lint, typecheck/test/doctor/export verdes.
+  aditiva `0005`; a Ordem nasce vazia e o `sync` materializa os livros.
+- Ordem automática: todo livro não concluído entra; `reading` forma o bloco
+  "Lendo agora", `queued`/`paused` ficam em "Depois". Status é a entrada/saída,
+  sem adicionar/remover (ADR 0017).
+- O primeiro Lendo é o principal (coroa/"Principal") e o bloco `active` do
+  plano; o motor não usa mais a sessão mais recente para escolher o ativo.
+- Arrastar/setas não cruzam os blocos; o livro novo em Lendo entra no fim de
+  "Lendo agora". "Sugerir ordem" alterna gênero dentro de cada bloco.
+- Repositório com `list`/`sync`/`move`/`replaceAll` em transação; os hooks
+  sincronizam quando a estante muda e reordenar atualiza a Hoje.
+- `Screen` usa o `ScrollView` do RNGH e o root monta `GestureHandlerRootView`;
+  no Jest, `react-native-worklets` é mapeado para o mock.
+- 330 testes (44 arquivos); lint, typecheck/test/doctor/export verdes.
 
 ## Decisões abertas
 
@@ -35,17 +35,20 @@
 ## Arquivos-chave
 
 - `src/db/schema.ts`, `src/db/repositories/queue.ts`, `drizzle/0005_*.sql`
-- `src/features/queue/` (`QueueScreen`, `QueueRow`, `AddToQueueSheet`,
-  `use-queue`, `suggest-order`)
+- `src/features/queue/` (`QueueScreen`, `QueueRow`, `use-queue`,
+  `suggest-order`)
 - `src/test-utils/repositories.ts` (`createInMemoryQueueRepository`)
 - `src/features/today/use-daily-plan.ts`, `planner/engine/selection.ts`
-- `src/components/ui/Screen.tsx`, `src/app/_layout.tsx`, ADR 0016
+- `src/components/ui/Screen.tsx`, `src/app/_layout.tsx`, ADR 0017
 
 ## Armadilhas
 
-- Posição nunca com empate/buraco: `move` e `replaceAll` reescrevem a lista
-  inteira numa transação, não só a linha movida.
-- `list()` ignora excluído/concluído, mas a linha só sai na próxima escrita.
+- A ordem tem dois blocos: `reading` no topo (na ordem manual) e o resto abaixo.
+  `move` nunca deixa cruzar; não normalize a lista só por posição.
+- `sync` é o que materializa livro novo/status mudado. Ele roda no `useQueue`
+  quando `books` muda; não remova esse gatilho.
+- Posição nunca com empate/buraco: `move`/`replaceAll` reescrevem a lista toda;
+  `list()` deriva se faltar linha e concluído/órfão só sai na próxima escrita.
 - Arrastar entrega o deslocamento; a tela usa as alturas de `onLayout`. Sem
   altura, o gesto não move (as setas funcionam).
 - `Screen` precisa do `ScrollView` do RNGH e o app do `GestureHandlerRootView`.
@@ -53,17 +56,16 @@
   `getUIRuntimeHolder is not supported on web`.
 - A Ordem não registra leitura nem muda status; o toque abre o detalhe.
 - O motor devolve o plano **bruto**; `buildPlanView` compara com o lido hoje.
-- Ativo = `reading` com sessão em 0–6 dias; volta leve = ≥ 3 dias. Registrar em
-  pausado/`queued` muda o status para `reading` (ADR 0015).
-- Corte 0,7; conta inteira (`percentOf`). Teto de 60% só com ativo e meta ≥ 10;
-  meta < 10 é um livro só.
+- Principal = primeiro Lendo da ordem; sem Lendo, não há principal e o primeiro
+  elegível leva o dia inteiro. Volta leve ainda usa a última sessão (≥ 3 dias).
+- Corte 0,7; conta inteira (`percentOf`). Teto de 60% só com principal e meta
+  ≥ 10; meta < 10 é um livro só.
 - `pages_read` tem `CHECK`: só o repositório de leitura escreve, chamando
   `notifyBooksChanged`.
 - RNTL 14 é assíncrono; passe `booksRepository`, `queueRepository` e
   `readingRepository` ao `renderWithProviders`.
 - Rota tipada: `.expo/types/router.d.ts` é gerado; renomeou rota? rode
-  `npx expo start --offline` antes do typecheck. Import entre features: caminho
-  direto, nunca o barril (require cycle).
+  `npx expo start --offline`. Import entre features: caminho direto, não o barril.
 - `isbn-ranges.ts`, `drizzle/*.sql` e `drizzle/migrations.js` são gerados; rode
   `npm run lint:fix` depois de `drizzle-kit generate`.
 
