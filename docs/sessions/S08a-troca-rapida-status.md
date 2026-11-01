@@ -68,8 +68,8 @@ refletem a mudança na hora.
 - [x] Registro em livro `paused`/`queued` continua mudando para `reading` pela
       Hoje/detalhe; a roda é só uma edição manual.
 - [x] A roda é operável por leitor de tela (ação no chip + opções botão).
-- [ ] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes; conferido no
-      Android.
+- [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes; conferido no
+      Android em 2026-11-01.
 
 ## Contexto necessário
 

@@ -18,7 +18,7 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
   são botões no leitor de tela. Concluir agora preenche as páginas lidas no
   repositório de livros (formulário e roda), com a mesma regra no repositório em
   memória (ADR 0018). 20 testes novos (350 na suíte); lint, typecheck, test,
-  doctor e export verdes; falta a conferência no Android.
+  doctor e export verdes; conferido no Android em 2026-11-01.
 - S8: Ordem automática e persistida em `queue_items` (migração aditiva `0005`):
   todo livro não concluído entra; `reading` forma o bloco "Lendo agora", com o
   primeiro coroado como principal, e `queued`/`paused` ficam em "Depois" com

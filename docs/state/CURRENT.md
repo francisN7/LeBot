@@ -2,8 +2,8 @@
 
 ## Sessão
 
-- **Atual:** S8a implementada em 2026-11-01; falta conferir no Android.
-- **Última concluída:** S8 (conferida no Android; glitch estético no backlog).
+- **Atual:** nenhuma sessão aberta; S8a encerrada em 2026-11-01.
+- **Última concluída:** S8a (roda radial conferida no Android).
 - **Próxima:** S9 (conclusão + resenha), depois S10 (estatísticas).
 
 ## Pronto (S8a)
@@ -22,7 +22,7 @@
 - Concluir preenche as páginas lidas no repositório de livros (formulário e
   roda), com a mesma regra no repositório em memória (ADR 0018).
 - 20 testes novos (350 em 45 arquivos); lint, typecheck, test, doctor e export
-  verdes. Falta a conferência no Android.
+  verdes; conferida no Android em 2026-11-01.
 
 ## Pronto (S8)
 
