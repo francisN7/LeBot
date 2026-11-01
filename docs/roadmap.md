@@ -14,7 +14,7 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S3 | [x] | Biblioteca (cadastro, ISBN, capas) | Cadastrar → achar → editar | `sessions/S03-biblioteca.md` |
 | S3.2 | [x] | Gêneros personalizados + cores por tema | Criar/editar/excluir gênero com par claro/escuro; conferido no Android | `sessions/S03.2-generos.md` |
 | S4a | [x] | Identidade 3D vetorial (mascote + lombadas) | Estante com identidade própria, lombada por gênero+status e qualquer hex | `sessions/S04a-identidade-3d.md` |
-| S4b | [~] | ISBN oficial + avisos + capa na Fila | Máscara pela tabela oficial; require cycle cortado; aviso do `ImageBackground` decidido; capa na Fila — falta conferir no Android | `sessions/S04b-isbn-avisos-fila.md` |
+| S4b | [x] | ISBN oficial + avisos + capa na Fila | Máscara pela tabela oficial; require cycle cortado; aviso do `ImageBackground` decidido; capa na Fila; conferido no Android | `sessions/S04b-isbn-avisos-fila.md` |
 | S4c | [x] | Movimento e vida | Mola no toque, cascata na grade, detalhe com animação contínua e capa tratada como livro | `sessions/S04c-movimento.md` |
 | S5 | [ ] | Registro de leitura | Registrar sessão e ver progresso | `sessions/S05-registro-leitura.md` |
 | S6 | [ ] | Motor do plano (funções puras) | 25+ testes e algoritmo documentado | — |

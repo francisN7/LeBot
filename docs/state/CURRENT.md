@@ -2,7 +2,7 @@
 
 ## Sessão
 
-- **Atual:** S4b implementada; falta só a conferência no Android pelo dono.
+- **Atual:** nenhuma aberta (S4b concluída e validada no Android).
 - **Última concluída:** S4b (ISBN oficial, avisos do terminal, capa na Fila).
 - **Próxima:** S5 (`docs/sessions/S05-registro-leitura.md`): registrar sessão de
   leitura e ver progresso.
@@ -11,8 +11,7 @@
 
 - `src/lib/isbn-ranges.ts` gerado por `node scripts/build-isbn-ranges.mjs [xml]`
   do `export_rangemessage.xml` (287 grupos, 1889 faixas, serial e data no
-  cabeçalho). O script baixa o XML quando não recebe caminho; quebra se a agência
-  mandar faixas com lacuna.
+  cabeçalho); o script baixa o XML sem caminho e quebra se houver lacuna.
 - `formatIsbnInput` resolve grupo (prefixo mais longo), registrante (faixa
   exata com 7 dígitos) e publicação; com pouco dígito só entra hífen quando as
   faixas candidatas concordam — nada de "pulo". ISBN-10 usa o grupo do 978.

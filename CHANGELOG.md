@@ -36,6 +36,11 @@ Sem mudanças pendentes: a S5 é a próxima sessão.
   tocado pelo `react-native-css-interop` do NativeWind 4) e decisão registrada
   na ADR 0006 — aceitar e documentar, sem `LogBox.ignoreLogs`.
 
+### Verified
+
+- Conferido no Android pelo dono: capa × lombada na Fila, máscara do ISBN e o
+  layout da linha em "Depois".
+
 ## S4c — Movimento e vida
 
 ### Added

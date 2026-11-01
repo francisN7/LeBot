@@ -49,7 +49,7 @@ tabela oficial da International ISBN Agency, require cycle e aviso de
 - [x] Fila mostra a capa real na próxima parada e em "Depois", caindo na
       lombada quando não há capa.
 - [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
-- [ ] Conferido no Android pelo dono.
+- [x] Conferido no Android pelo dono.
 
 ## Contexto necessário
 
