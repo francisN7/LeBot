@@ -383,8 +383,9 @@ function SpineArtworkBase({
   const originX = ((TASSEL_ORIGIN.x - TASSEL_BOX.x) * width) / VIEW.width;
   const fringeOriginY =
     ((FRINGE_ORIGIN.y - TASSEL_BOX.y) * height) / VIEW.height;
-  const tasselOrigin: [number, number] = [originX, 0];
-  const fringeOrigin: [number, number] = [originX, fringeOriginY];
+  // `transformOrigin` no formato de array exige x, y e z (RN 0.88).
+  const tasselOrigin: [number, number, number] = [originX, 0, 0];
+  const fringeOrigin: [number, number, number] = [originX, fringeOriginY, 0];
 
   const glossClip = {
     ...boxStyle(BODY),
