@@ -13,8 +13,9 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
   `Animated.View` + `rotate`, com a corda começando em `y=2.1` (sem `bodyClip`) e
   sombra em gradiente radial, sem `FeGaussianBlur`. A grade virou `FlatList`
   virtualizada (`numColumns={2}`, header com busca/filtros e lote inicial de 6),
-  o que mantém a Estante leve mesmo com milhares de livros. Baseline em dev com
-  5 livros: UI 11 / JS 56 fps; a medição final fica no APK da S12. ADR 0024.
+  o que mantém a Estante leve mesmo com milhares de livros. Em dev com 5 livros,
+  a medição foi de **UI/JS 11/56 → 84/84 fps** (Layout 1 ms, RAM ~343 MB); a
+  confirmação no release fica no APK da S12. ADR 0024.
 
 ### Fixed
 

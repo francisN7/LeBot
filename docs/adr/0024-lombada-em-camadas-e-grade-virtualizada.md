@@ -82,9 +82,10 @@ A Estante troca o `ScrollView` + `flex-wrap` por um `FlatList`
   as camadas não tocadas não são redesenhadas. O ganho principal vem daí.
 - Cada lombada montada passa a ter ~7–9 views nativas em vez de um SVG grande.
   Com a grade virtualizada, só a janela visível existe; a troca é favorável.
-- Medição de referência: **UI 11 / JS 56 fps em dev com 5 livros** (baseline).
-  A confirmação de 60 fps no aparelho fica para a medição final no APK da S12 —
-  dev build exagera a queda e não serve como aceite.
+- Medição: baseline **UI 11 / JS 56 fps** em dev com 5 livros; depois da S11c,
+  **UI 84 / JS 84 fps**, Layout 1 ms e RAM 342,75 MB no mesmo aparelho. A
+  confirmação no APK e com a estante cheia fica na S12 — dev build exagera a
+  queda e não serve como aceite final.
 - `renderToHardwareTextureAndroid`/`shouldRasterizeIOS` **não** foram ligados:
   cache de textura troca fps por RAM e precisa de medição. Fica como próxima
   alavanca se o aparelho ainda não chegar a 60.

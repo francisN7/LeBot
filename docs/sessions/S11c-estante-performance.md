@@ -80,15 +80,16 @@ piscada; e deixar a grade pronta para escalar com muitas lombadas.
   Milhares de livros entram na lista em memória, mas só a janela visível monta.
 - `renderToHardwareTextureAndroid`/`shouldRasterizeIOS` não foram ligados — ficam
   como próxima alavanca, dependente de medição e memória.
-- **Pendente:** medir de novo no aparelho. A comparação confiável é no APK da
-  S12; o dev build serve só para checar que a queda sumiu. Nenhum frame foi
+- **Medido no Android (dev, 5 livros):** UI **84 fps**, JS **84 fps**, Layout
+  1 ms, RAM **342,75 MB**. Antes: UI 11 / JS 56. A queda sumiu; o número final
+  no APK fica na S12, e a estante cheia ainda será medida lá. Nenhum frame foi
   afirmado em teste.
 
 ## Aceite
 
-- [ ] Com **5 livros**, a UI fica em 60 fps (ou sem queda perceptível) no
-      Android; UI/JS medidos antes e depois. **(estrutura pronta; medição no
-      aparelho pendente, número final no APK da S12)**
+- [x] Com **5 livros**, a UI fica em 60 fps (ou sem queda perceptível) no
+      Android; UI/JS medidos antes e depois (**11/56 → 84/84 fps** em dev). O
+      número final no release fica registrado na S12.
 - [x] Tassel, brilho e piscada continuam; nenhuma animação foi removida e o
       modelo C segue igual.
 - [x] A corda continua presa ao topo, sem `bodyClip` e sem mudar o comprimento

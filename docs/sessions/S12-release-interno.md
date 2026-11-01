@@ -37,8 +37,9 @@ documentado em `docs/release.md`.
    de pasta/arquivo do `expo-file-system` é o ponto mais sensível no release.
 5. **Medir a Estante no release** com 5 livros e com a estante cheia (duplicar o
    seed no aparelho): UI/JS a 60 fps ou sem queda perceptível, com tassel,
-   brilho e piscada. É o aceite que ficou pendente da S11c; registrar UI/JS em
-   `CURRENT.md` antes e depois.
+   brilho e piscada. O dev já mediu **84/84 fps** com 5 livros (S11c); aqui é a
+   confirmação no APK e o caso de estante cheia. Registrar UI/JS em
+   `CURRENT.md`.
 6. **Documentar `docs/release.md`:** pré-requisitos, comandos do build escolhido,
    onde ficam as credenciais, como instalar, como subir a versão
    (`version`/`versionCode`) e o que **nunca** entra no Git.

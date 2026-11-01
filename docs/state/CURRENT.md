@@ -2,16 +2,19 @@
 
 ## Sessão
 
-- **Atual:** nenhuma; S11c concluída em 2026-11-01 (implementação).
+- **Atual:** nenhuma; S11c concluída em 2026-11-01.
 - **Última concluída:** S11c — Estante em camadas e grade virtualizada. O corpo
   da lombada ficou estático; brilho, piscada, “zzz” e tassel viraram camadas
-  pequenas; a grade virou `FlatList` virtualizada (ADR 0024).
-- **Próxima:** S12 — release interno. Antes do commit final, medir UI/JS no
-  aparelho com 5 livros e com estante cheia; o número de aceite é no APK.
+  pequenas; a grade virou `FlatList` virtualizada (ADR 0024). Medido no Android
+  em dev com 5 livros: **UI 84 / JS 84 fps**, Layout 1 ms, RAM ~343 MB (baseline
+  era UI 11 / JS 56); a queda sumiu.
+- **Próxima:** S12 — release interno. Confirmar os fps no APK (número final) e
+  medir com estante cheia.
 
 ## Pronto (S11c)
 
-- Baseline registrado em dev com 5 livros: **UI 11 fps / JS 56 fps**.
+- Baseline em dev com 5 livros: **UI 11 fps / JS 56 fps**. Depois: **UI 84 /
+  JS 84 fps**, Layout 1 ms, RAM 342,75 MB — acima de 60 e sem queda perceptível.
 - `SpineArtwork`: corpo/faixas/nervuras num `Svg` estático; brilho numa `View`
   recortada com `translateX`; piscada em overlay de opacidade; “zzz” em `Svg`
   próprio (opacidade); tassel em três `Animated.View` recortadas com `rotate` e
@@ -30,9 +33,9 @@
 
 ## Decisões abertas
 
-- **Medição:** confirmar 60 fps no aparelho (dev e APK da S12). Se ainda cair,
-  a próxima alavanca é `renderToHardwareTextureAndroid`/`shouldRasterizeIOS`,
-  conferindo memória.
+- **Medição final:** confirmar no APK da S12 e medir com a estante cheia. No dev
+  a queda já sumiu; se o release ainda cair, a próxima alavanca é
+  `renderToHardwareTextureAndroid`/`shouldRasterizeIOS`, conferindo memória.
 - S12: decidir build local (prebuild + Gradle) × EAS antes do APK.
 - Backlog: galeria de citações, `finished_at`, grid ajustável, animações do
   mascote, `useReducedMotion`, tema escuro e temas extras.

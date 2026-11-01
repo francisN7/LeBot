@@ -414,7 +414,8 @@ montagem e props.
   virtualizada (o elemento do cabeçalho tem referência circular).
 - `src/components/ui/Spine.test.tsx` continua afirmando face, tassel e “zzz”;
   as camadas separadas mantêm os mesmos `testID`s e não mudam a acessibilidade.
-- Não há teste de frames: a validação de 60 fps é manual, no aparelho (dev para
-  comparar e APK da S12 para o número final).
+- Não há teste de frames: a validação de 60 fps é manual, no aparelho. Em dev
+  com 5 livros, a Estante foi de UI/JS 11/56 para **84/84 fps**; o APK da S12
+  confirma no release e com a estante cheia.
 
 A suíte atual tem 66 arquivos e 511 testes (`npm run test`).
