@@ -15,6 +15,8 @@ const appVersion = Constants.expoConfig?.version ?? '0.1.0';
 
 type AjustesScreenProps = {
   onOpenGenres?: () => void;
+  /** S11b: atalho temporário para o lab do tassel (só em dev). */
+  onOpenTasselLab?: () => void;
 };
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -26,7 +28,10 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-export function AjustesScreen({ onOpenGenres }: AjustesScreenProps = {}) {
+export function AjustesScreen({
+  onOpenGenres,
+  onOpenTasselLab,
+}: AjustesScreenProps = {}) {
   const { genres } = useGenres();
   const { bump } = useDataVersion();
 
@@ -86,6 +91,14 @@ export function AjustesScreen({ onOpenGenres }: AjustesScreenProps = {}) {
           <AppText tone="muted" variant="caption">
             Feito para quem quer ler mais sem ressaca literária.
           </AppText>
+          {onOpenTasselLab ? (
+            <Button
+              label="Lab do tassel (dev)"
+              onPress={onOpenTasselLab}
+              size="sm"
+              variant="secondary"
+            />
+          ) : null}
         </Card>
       </Section>
     </Screen>
