@@ -79,9 +79,9 @@ anti-ressaca que alterna gêneros dentro de cada bloco.
 - [x] Nenhuma fixture de ordem sobrou no código.
 - [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
 - [ ] Conferido no Android: Hobbit 11 + Sapiens 7 na Hoje, coroa no primeiro
-      Lendo, bloqueio de Quero ler no topo, toque longo na alça e arrastar no
-      topo/fim de lista maior que a tela, rolagem vertical, animação das setas e
-      setas com leitor de tela.
+      Lendo, bloqueio de Quero ler no topo, toque longo na alça, prévia de troca
+      durante o arraste, lista maior que a tela, rolagem vertical, animação das
+      setas e setas com leitor de tela.
 
 ## Contexto necessário
 

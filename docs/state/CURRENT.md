@@ -16,9 +16,9 @@
   sem adicionar/remover (ADR 0017).
 - O primeiro Lendo é o principal (coroa/"Principal") e o bloco `active` do
   plano; o motor não usa mais a sessão mais recente para escolher o ativo.
-- Arrastar (toque longo na alça de 3 barras, com brilho) ou setas animadas não
-  cruzam os blocos; novo Lendo entra no fim de "Lendo agora". "Sugerir ordem"
-  alterna gênero por bloco.
+- Arrastar (toque longo na alça de 3 barras, com brilho e prévia de troca) ou
+  setas animadas; não cruza blocos. Novo Lendo entra no fim de "Lendo agora" e
+  "Sugerir ordem" alterna gênero por bloco.
 - Repositório com `list`/`sync`/`move`/`replaceAll` em transação; os hooks
   sincronizam quando a estante muda e reordenar atualiza a Hoje.
 - `Screen` usa o `ScrollView` do RNGH e o root monta `GestureHandlerRootView`;
@@ -50,8 +50,8 @@
   quando `books` muda; não remova esse gatilho.
 - Posição nunca com empate/buraco: `move`/`replaceAll` reescrevem a lista toda;
   `list()` deriva se faltar linha e concluído/órfão só sai na próxima escrita.
-- Arrastar exige toque longo na alça; a tela trava o scroll e usa as alturas de
-  `onLayout`. Sem altura, o gesto não move (as setas funcionam).
+- Arrastar exige toque longo; a tela trava o scroll, calcula a prévia do alvo
+  com as alturas de `onLayout` e confirma com `move` ao soltar.
 - `Screen` precisa do `ScrollView` do RNGH e o app do `GestureHandlerRootView`;
   no Jest, `react-native-worklets` vai para o mock (senão o RNGH quebra).
 - A Ordem não registra leitura nem muda status; o toque abre o detalhe.

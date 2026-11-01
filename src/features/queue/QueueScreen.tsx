@@ -36,6 +36,12 @@ type QueueEntry = {
   book: Book;
 };
 
+type DragPreview = {
+  from: number;
+  target: number;
+  height: number;
+};
+
 /**
  * Ordem automática: todo livro não concluído entra. Os `Lendo` formam o bloco
  * de cima, com o primeiro coroado como principal; `Quero ler` e `Pausado` ficam
@@ -46,6 +52,8 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
   const { genreById } = useGenres();
   const { items, move, replaceAll } = useQueue();
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragPreview, setDragPreview] = useState<DragPreview | null>(null);
+  const dragPreviewRef = useRef<DragPreview | null>(null);
   const heights = useRef(new Map<string, number>());
 
   const booksById = useMemo(
@@ -90,11 +98,14 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
     suggestion.length === entries.length &&
     suggestion.every((item, index) => item.id === entries[index]?.bookId);
 
-  function handleDrop(bookId: string, translationY: number) {
+  function targetFor(
+    bookId: string,
+    translationY: number,
+  ): { from: number; target: number } | null {
     const from = entries.findIndex((entry) => entry.bookId === bookId);
 
     if (from < 0) {
-      return;
+      return null;
     }
 
     let target = from;
@@ -145,9 +156,63 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
       ? Math.min(target, readingCount - 1)
       : Math.max(target, readingCount);
 
-    if (target !== from) {
-      move(bookId, target);
+    return { from, target };
+  }
+
+  function clearDragPreview() {
+    dragPreviewRef.current = null;
+    setDragPreview(null);
+  }
+
+  function handleDragMove(bookId: string, translationY: number) {
+    const result = targetFor(bookId, translationY);
+
+    if (!result) {
+      return;
     }
+
+    const height = heights.current.get(bookId) ?? 0;
+    const current = dragPreviewRef.current;
+
+    if (
+      current &&
+      current.from === result.from &&
+      current.target === result.target &&
+      current.height === height
+    ) {
+      return;
+    }
+
+    const next = { ...result, height };
+    dragPreviewRef.current = next;
+    setDragPreview(next);
+  }
+
+  function handleDrop(bookId: string, translationY: number) {
+    const result = targetFor(bookId, translationY);
+    clearDragPreview();
+
+    if (result && result.target !== result.from) {
+      move(bookId, result.target);
+    }
+  }
+
+  function previewShiftFor(index: number): number {
+    if (!dragPreview || dragPreview.from === index) {
+      return 0;
+    }
+
+    const distance = dragPreview.height + spacing.sm;
+
+    if (dragPreview.from < index && index <= dragPreview.target) {
+      return -distance;
+    }
+
+    if (dragPreview.from > index && index >= dragPreview.target) {
+      return distance;
+    }
+
+    return 0;
   }
 
   function applySuggestion() {
@@ -171,13 +236,21 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
         key={entry.bookId}
         note={entry.note}
         onDown={() => move(entry.bookId, index + 1)}
-        onDragEnd={() => setDraggingId(null)}
-        onDragStart={() => setDraggingId(entry.bookId)}
+        onDragEnd={() => {
+          setDraggingId(null);
+          clearDragPreview();
+        }}
+        onDragMove={(offset) => handleDragMove(entry.bookId, offset)}
+        onDragStart={() => {
+          clearDragPreview();
+          setDraggingId(entry.bookId);
+        }}
         onDrop={(offset) => handleDrop(entry.bookId, offset)}
         onHeight={(height) => heights.current.set(entry.bookId, height)}
         onOpen={() => onOpenBook?.(entry.bookId)}
         onUp={() => move(entry.bookId, index - 1)}
         position={index}
+        previewShift={previewShiftFor(index)}
       />
     );
   }

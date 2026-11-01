@@ -30,12 +30,15 @@ type QueueRowProps = {
   canMoveUp: boolean;
   canMoveDown: boolean;
   note: string | null;
+  /** Deslocamento que abre o espaço do destino enquanto outra linha arrasta. */
+  previewShift?: number;
   onOpen: () => void;
   onUp: () => void;
   onDown: () => void;
   /** Deslocamento vertical solto pelo arrastar; a tela decide a posição. */
   onDrop: (translationY: number) => void;
   onDragStart: () => void;
+  onDragMove: (translationY: number) => void;
   onDragEnd: () => void;
   onHeight: (height: number) => void;
 };
@@ -50,11 +53,11 @@ type RowActionProps = {
 const styles = StyleSheet.create({
   sheen: {
     position: 'absolute',
-    width: 4,
-    height: 30,
+    width: 3,
+    height: 12,
     borderRadius: 2,
     backgroundColor: colors.pink,
-    opacity: 0.55,
+    opacity: 0.5,
   },
 });
 
@@ -96,15 +99,18 @@ export function QueueRow({
   canMoveUp,
   canMoveDown,
   note,
+  previewShift = 0,
   onOpen,
   onUp,
   onDown,
   onDrop,
   onDragStart,
+  onDragMove,
   onDragEnd,
   onHeight,
 }: QueueRowProps) {
   const translateY = useSharedValue(0);
+  const preview = useSharedValue(0);
   const dragging = useSharedValue(false);
   const sheen = useSharedValue(-30);
 
@@ -112,9 +118,11 @@ export function QueueRow({
   // início do arrastar (o scroll é travado por estado).
   const dropRef = useRef(onDrop);
   const dragStartRef = useRef(onDragStart);
+  const dragMoveRef = useRef(onDragMove);
   const dragEndRef = useRef(onDragEnd);
   dropRef.current = onDrop;
   dragStartRef.current = onDragStart;
+  dragMoveRef.current = onDragMove;
   dragEndRef.current = onDragEnd;
 
   const handleDrop = useCallback((offset: number) => {
@@ -123,21 +131,28 @@ export function QueueRow({
   const handleDragStart = useCallback(() => {
     dragStartRef.current();
   }, []);
+  const handleDragMove = useCallback((offset: number) => {
+    dragMoveRef.current(offset);
+  }, []);
   const handleDragEnd = useCallback(() => {
     dragEndRef.current();
   }, []);
 
   useEffect(() => {
+    preview.value = withTiming(previewShift, { duration: 140 });
+  }, [preview, previewShift]);
+
+  useEffect(() => {
     sheen.value = withRepeat(
       withSequence(
         withDelay(
-          1800,
-          withTiming(30, {
-            duration: 1000,
+          2200,
+          withTiming(22, {
+            duration: 700,
             easing: Easing.inOut(Easing.quad),
           }),
         ),
-        withTiming(-30, { duration: 0 }),
+        withTiming(-22, { duration: 0 }),
       ),
       -1,
     );
@@ -153,6 +168,7 @@ export function QueueRow({
         })
         .onUpdate((event) => {
           translateY.value = event.translationY;
+          runOnJS(handleDragMove)(event.translationY);
         })
         .onEnd((event) => {
           const offset = event.translationY;
@@ -168,15 +184,23 @@ export function QueueRow({
           dragging.value = false;
           runOnJS(handleDragEnd)();
         }),
-    [dragging, handleDragEnd, handleDragStart, handleDrop, translateY],
+    [
+      dragging,
+      handleDragEnd,
+      handleDragMove,
+      handleDragStart,
+      handleDrop,
+      translateY,
+    ],
   );
 
   const animatedStyle = useAnimatedStyle(() => ({
     elevation: dragging.value ? 8 : 0,
     opacity: dragging.value ? 0.94 : 1,
     transform: [
-      { translateY: translateY.value },
-      { scale: dragging.value ? 1.01 : 1 },
+      { translateY: translateY.value + preview.value },
+      { scale: dragging.value ? 1.02 : 1 },
+      { rotate: dragging.value ? '1.2deg' : '0deg' },
     ],
     zIndex: dragging.value ? 2 : 0,
   }));
@@ -241,13 +265,13 @@ export function QueueRow({
                 accessibilityHint="Segure e arraste para reordenar. As setas também movem."
                 accessibilityLabel={`Arrastar ${book.title}`}
                 accessible
-                className="h-7 w-11 items-center justify-center overflow-hidden"
-                hitSlop={8}
+                className="h-5 w-9 items-center justify-center overflow-hidden"
+                hitSlop={10}
               >
-                <View className="gap-1">
-                  <View className="h-[3px] w-7 rounded-full bg-navy" />
-                  <View className="h-[3px] w-7 rounded-full bg-navy" />
-                  <View className="h-[3px] w-7 rounded-full bg-navy" />
+                <View className="gap-[3px]">
+                  <View className="h-[2px] w-6 rounded-full bg-navy" />
+                  <View className="h-[2px] w-6 rounded-full bg-navy" />
+                  <View className="h-[2px] w-6 rounded-full bg-navy" />
                 </View>
                 <Animated.View
                   pointerEvents="none"
