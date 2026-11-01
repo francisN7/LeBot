@@ -161,6 +161,41 @@ describe('reading sessions repository', () => {
     expect(found.map((row) => row.pages)).toEqual([5, 7]);
   });
 
+  it('devolve a sessão mais recente de qualquer livro', async () => {
+    const { books: booksRepository, repository } = await setup();
+
+    expect(repository.latest()).toBeUndefined();
+
+    booksRepository.create({
+      id: 'book-2',
+      title: 'Sapiens',
+      author: 'Yuval Noah Harari',
+      genreId: 'nonfiction',
+      status: 'reading',
+      pages: 400,
+      pagesRead: 0,
+    });
+
+    repository.create({
+      bookId: 'book-1',
+      pages: 5,
+      readAt: new Date('2026-10-01T12:00:00.000Z'),
+    });
+    repository.create({
+      bookId: 'book-2',
+      pages: 9,
+      readAt: new Date('2026-09-20T12:00:00.000Z'),
+    });
+    repository.create({
+      bookId: 'book-1',
+      pages: 7,
+      readAt: new Date('2026-10-03T12:00:00.000Z'),
+    });
+
+    expect(repository.latest()?.pages).toBe(7);
+    expect(repository.latest()?.bookId).toBe('book-1');
+  });
+
   it('desfaz a sessão e desconta do progresso', async () => {
     const { books, repository } = await setup();
     const write = repository.create({ bookId: 'book-1', pages: 20 });

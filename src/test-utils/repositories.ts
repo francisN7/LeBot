@@ -305,6 +305,10 @@ export function createInMemoryReadingSessionsRepository(
         );
     },
 
+    latest() {
+      return sortedDescending(current)[0];
+    },
+
     create(input) {
       if (!Number.isInteger(input.pages) || input.pages <= 0) {
         throw new Error('Informe pelo menos 1 página');

@@ -11,7 +11,7 @@ src/app/          rotas (Expo Router) — só orquestram telas
 src/features/*/   UI + hooks + serviços de uma feature
 src/db/           schema Drizzle, client, migrações, seed e repositórios
 src/lib/          funções puras, sem React Native
-src/components/ui componentes genéricos e arte vetorial (Screen, AppText, Button, Card, Chip, ConfirmDialog, BackButton, Spine, SpineArtwork, SpineFace, Mascot, TextField, BookCover, Bookmark)
+src/components/ui componentes genéricos e arte vetorial (Screen, AppText, Button, Card, Chip, ConfirmDialog, BackButton, Spine, SpineArtwork, SpineFace, Mascot, TextField, BookCover, Bookmark, BookArt)
 src/theme/        tokens (cor, espaçamento, raio, tipografia, tamanhos)
 src/test-utils/   banco sql.js, repositórios em memória e providers de teste
 scripts/          geradores (ícone/splash e faixas do ISBN)
@@ -54,7 +54,9 @@ SQLite (expo-sqlite + Drizzle)
   com dados velhos ao voltar do formulário. `useGenres` segue o mesmo padrão e
   expõe `genreById` para nome e cor. `useReadingSessions` avisa o repositório de
   leitura **e** chama `notifyBooksChanged`, então registrar páginas atualiza o
-  progresso em todas as telas na hora.
+  progresso em todas as telas na hora. `useRecentSessions` assina o mesmo
+  repositório e junta a janela de 7 dias com a sessão mais recente de qualquer
+  data (é o que permite a volta leve).
 - Erros de escrita sobem como exceção; validação de entrada é Zod no
   repositório.
 
@@ -114,9 +116,26 @@ SQLite (expo-sqlite + Drizzle)
 - Regras (meta 3–200, volta leve após 3 dias, ativo em 7 dias, teto flexível de
   60% a partir de meta 10, alternância de gênero e sugestão paralela) estão em
   [`docs/planner-algorithm.md`](planner-algorithm.md); a decisão, na ADR 0013.
-- `src/features/planner/index.ts` é o barril da feature; a S7 consome o motor na
-  tela Hoje. A S8 passa a fila real no lugar da fixture. O motor não grava plano
-  nem conhece a fixture.
+- `src/features/planner/index.ts` é o barril da feature; a tela Hoje consome o
+  motor desde a S7. A S8 passa a fila real no lugar da fixture. O motor não grava
+  plano nem conhece a fixture.
+
+## Hoje (S7)
+
+- `src/features/today/use-daily-plan.ts` monta o `PlannerInput` com `useBooks`,
+  `useSettings`, `useRecentSessions` e `useQueueBookIds`, chama `buildPlan` e
+  entrega o plano já cruzado com o dia (`buildPlanView`).
+- `plan-view.ts` é puro: soma as páginas de hoje por livro, marca
+  feito/agora/depois, escolhe a mensagem e o mascote. O motor continua sendo a
+  única fonte da meta e dos blocos; a tela não repete regra.
+- O plano **não é persistido**: recalcula a cada abertura (decisão da S7). As
+  sessões e `pages_read` são a fonte de verdade do progresso; o motor devolve o
+  plano bruto e a UI compara com o que já foi lido hoje.
+- A ordem da fila vem de `useQueueBookIds` (fixture até a S8). A tela não copia
+  a fixture.
+- Toque num bloco abre o `ReadingForm` com as páginas do bloco e o restante do
+  livro. O vazio mostra o mascote e leva para a Fila.
+- Decisão: ADR 0014.
 
 ## Boot
 
@@ -147,13 +166,13 @@ Nenhum passo apaga dados ou esconde erro de migração.
   [`docs/adr/0012-progresso-e-status-automatico.md`](adr/0012-progresso-e-status-automatico.md)
 - Motor do plano:
   [`docs/adr/0013-motor-do-plano.md`](adr/0013-motor-do-plano.md)
+- Plano recalculado na Hoje:
+  [`docs/adr/0014-plano-recalculado-na-hoje.md`](adr/0014-plano-recalculado-na-hoje.md)
 
 ## Pendências conhecidas
 
-- A tela Hoje ainda usa o plano fictício: só a meta diária vem de `settings`.
-  O motor existe desde a S6; a S7 consome na UI e decide sobre persistência. A
-  fila continua manual até a S8. O botão "Começar sessão" da Hoje ainda mostra
-  "Em breve".
+- A fila continua manual até a S8: a Hoje usa a fixture só para a ordem dos
+  blocos. O "Começar" da Fila ainda usa `plannedPages` da fixture.
 - Os ícones e o splash já são definitivos desde a S4a
   (`assets/images/` + `scripts/build-icons.mjs`), mas só aparecem em build
   nativo; o Expo Go não os exibe.

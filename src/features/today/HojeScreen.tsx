@@ -1,78 +1,151 @@
-import { Alert, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-import { AppText, Button, Card, Chip, Mascot, Screen } from '@/components/ui';
-import { useSettings } from '@/features/settings';
-import { dailyPlan } from './__fixtures__/daily-plan';
-import type { PlanBlockStatus } from './types';
+import {
+  AppText,
+  BookArt,
+  Button,
+  Card,
+  Chip,
+  Mascot,
+  Screen,
+} from '@/components/ui';
+import { UNKNOWN_GENRE_NAME } from '@/features/library/genre';
+import { CAP_MIN_GOAL_PAGES, LIGHT_DAY_PERCENT } from '@/features/planner';
+import { ReadingForm } from '@/features/reading/ReadingForm';
+import { useReadingSessions } from '@/features/reading/use-reading-sessions';
+import { colors } from '@/theme';
+
+import type { PlanBlock, PlanBlockStatus } from './types';
+import { useDailyPlan } from './use-daily-plan';
 
 const blockStatusLabel: Record<PlanBlockStatus, string> = {
   done: 'Feito',
-  next: 'Agora',
+  now: 'Agora',
   later: 'Depois',
 };
 
-export function HojeScreen() {
-  const { values } = useSettings();
-  const goal =
-    Number(values['goal.pages'] ?? dailyPlan.pages) || dailyPlan.pages;
+type HojeScreenProps = {
+  /** Vazio: a tela leva para a Fila (rota dona da navegação). */
+  onOpenQueue?: () => void;
+};
+
+/**
+ * Plano real do dia: meta, blocos por livro e registro a partir do bloco.
+ * A tela não recalcula nada: só mostra `useDailyPlan` e chama `buildPlan` por
+ * trás dele.
+ */
+export function HojeScreen({ onOpenQueue }: HojeScreenProps = {}) {
+  const { view, genreById } = useDailyPlan();
+  const [selected, setSelected] = useState<PlanBlock | null>(null);
+  const { register } = useReadingSessions(selected?.book.id ?? '');
+
+  const remaining = selected
+    ? Math.max(1, selected.book.pages - selected.book.pagesRead)
+    : 1;
 
   return (
     <Screen>
       <View className="gap-xs">
         <AppText variant="display">Hoje</AppText>
-        <AppText tone="muted">{dailyPlan.dateLabel}</AppText>
+        <AppText tone="muted">{view.dateLabel}</AppText>
       </View>
 
       <Animated.View entering={FadeInDown.delay(40).duration(260)}>
         <Card className="items-center gap-xs bg-pink">
           <AppText variant="label">Meta do dia</AppText>
-          <AppText variant="display">{goal} páginas</AppText>
+          <AppText variant="display">{view.goal} páginas</AppText>
           <AppText variant="caption">
-            cerca de {dailyPlan.minutes} minutos de leitura
+            {view.pagesToday} de {view.goal} páginas hoje
           </AppText>
-        </Card>
-      </Animated.View>
-
-      <Animated.View entering={FadeInDown.delay(120).duration(260)}>
-        <Card className="flex-row items-center gap-md">
-          <Mascot size={72} state="thinking" />
-          <View className="flex-1 gap-xs">
-            <AppText variant="label" tone="accent">
-              LêBot diz
+          {view.lightDay ? (
+            <AppText variant="caption" tone="accent">
+              Volta leve: hoje vale {LIGHT_DAY_PERCENT}% da meta de{' '}
+              {view.baseGoal}.
             </AppText>
-            <AppText variant="subtitle">{dailyPlan.message}</AppText>
+          ) : null}
+          {view.goal < CAP_MIN_GOAL_PAGES ? (
             <AppText variant="caption" tone="muted">
-              Sequência de {dailyPlan.streak} dias. Sem pressão: se hoje não
-              der, a gente ajusta.
+              Com {view.goal} páginas, o dia costuma render um livro só.
             </AppText>
-          </View>
+          ) : null}
         </Card>
       </Animated.View>
 
-      <View className="gap-sm">
-        <AppText variant="subtitle">Blocos de leitura</AppText>
-        {dailyPlan.blocks.map((block) => (
-          <Card className="flex-row items-center gap-md" key={block.id}>
+      {view.empty ? null : (
+        <Animated.View entering={FadeInDown.delay(120).duration(260)}>
+          <Card className="flex-row items-center gap-md">
+            <Mascot size={72} state={view.mascot} />
             <View className="flex-1 gap-xs">
-              <AppText variant="bodyStrong">{block.label}</AppText>
-              <AppText variant="caption" tone="muted">
-                {block.pages} páginas
+              <AppText variant="label" tone="accent">
+                LêBot diz
               </AppText>
+              <AppText variant="subtitle">{view.message}</AppText>
             </View>
-            <Chip
-              label={blockStatusLabel[block.status]}
-              selected={block.status === 'next'}
-            />
           </Card>
-        ))}
-      </View>
+        </Animated.View>
+      )}
 
-      <Button
-        label="Começar sessão"
-        onPress={() =>
-          Alert.alert('Em breve', 'O registro de leitura chega na S5.')
-        }
+      {view.empty ? (
+        <Card className="items-center gap-sm">
+          <Mascot size={96} state={view.mascot} />
+          <AppText variant="subtitle">Nada para ler hoje</AppText>
+          <AppText variant="caption" tone="muted">
+            Nenhum livro em leitura ou na fila com páginas restantes.
+          </AppText>
+          <Button label="Ver a fila" onPress={() => onOpenQueue?.()} />
+        </Card>
+      ) : (
+        <View className="gap-sm">
+          <AppText variant="subtitle">Blocos de leitura</AppText>
+          {view.blocks.map((block) => {
+            const genre = genreById.get(block.book.genreId);
+
+            return (
+              <Pressable
+                accessibilityLabel={`Registrar leitura de ${block.book.title}`}
+                accessibilityRole="button"
+                className="active:opacity-80"
+                key={block.book.id}
+                onPress={() => setSelected(block)}
+              >
+                <Card className="flex-row items-center gap-md">
+                  <BookArt
+                    book={block.book}
+                    genreColor={genre?.colorLight ?? colors.navyMuted}
+                  />
+                  <View className="flex-1 gap-xs">
+                    <AppText variant="bodyStrong">{block.book.title}</AppText>
+                    <AppText variant="caption" tone="muted">
+                      {`${genre?.name ?? UNKNOWN_GENRE_NAME} · ${block.pages} páginas`}
+                    </AppText>
+                    <View className="flex-row flex-wrap gap-xs">
+                      <Chip
+                        label={blockStatusLabel[block.status]}
+                        selected={block.status === 'now'}
+                      />
+                      {block.suggestion ? <Chip label="sugestão" /> : null}
+                      {block.finishes ? <Chip label="fecha o livro" /> : null}
+                    </View>
+                  </View>
+                </Card>
+              </Pressable>
+            );
+          })}
+        </View>
+      )}
+
+      <ReadingForm
+        bookTitle={selected?.book.title ?? ''}
+        defaultPages={Math.min(selected?.pages ?? 1, remaining)}
+        onCancel={() => setSelected(null)}
+        onSave={(pages) => {
+          register(pages);
+          setSelected(null);
+        }}
+        remaining={remaining}
+        visible={selected !== null}
       />
     </Screen>
   );

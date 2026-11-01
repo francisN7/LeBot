@@ -1,3 +1,5 @@
-export { dailyPlan } from './__fixtures__/daily-plan';
+export { formatTodayLabel } from './format';
 export { HojeScreen } from './HojeScreen';
-export type { DailyPlan, PlanBlock, PlanBlockStatus } from './types';
+export { buildPlanView, FALLBACK_GOAL_PAGES, readGoalPages } from './plan-view';
+export type { DailyPlanView, PlanBlock, PlanBlockStatus } from './types';
+export { useDailyPlan } from './use-daily-plan';

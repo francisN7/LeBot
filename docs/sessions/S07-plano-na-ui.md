@@ -17,20 +17,13 @@ avançar.
 - Mudar as regras do motor: qualquer ajuste vai para `docs/planner-algorithm.md`,
   para o motor e para os testes da S6.
 
-## Decisões a confirmar no início
+## Decisões tomadas na abertura (2026-10-31)
 
-1. **Persistir o plano do dia?** O motor é determinístico. Opções:
-   - **(a) recalcular a cada abertura** (sem tabela); edição manual não
-     sobrevive ao dia;
-   - **(b) gravar `daily_plans` + blocos** para congelar o dia e permitir
-     edição;
-   - **(c) recalcular, mas guardar um "plano aprovado" em `settings`.**
-   Recomendo (a) nesta sessão; persistência/edição vira **S7.1** se for
-   prioridade. A spec da S6 previa persistência na S7 — confirmar com o dono.
-2. **Edição manual:** trocar livro/páginas, remover bloco ou apenas
-   "recalcular"?
-3. **Sugestão paralela:** mostrar os blocos `suggestion` abaixo dos principais,
-   com rótulo "sugestão", ou esconder atrás de um toque?
+1. **Plano recalculado a cada abertura**, sem tabela nova. Edição manual fica
+   para uma S7.1, se virar prioridade (ADR 0014).
+2. **Sem edição manual nesta sessão:** só registro a partir do bloco.
+3. **Sugestão na mesma lista**, abaixo dos blocos principais e com o selo
+   "sugestão".
 
 ## Tarefas
 
@@ -58,13 +51,13 @@ avançar.
 
 ## Aceite
 
-- [ ] Hoje mostra o plano real; nenhum `dailyPlan` fictício sobrou.
-- [ ] Meta, volta leve e sugestão vêm do motor; a UI não duplica as regras.
-- [ ] Registrar um bloco atualiza o progresso e o estado do dia na hora, sem
+- [x] Hoje mostra o plano real; nenhum `dailyPlan` fictício sobrou.
+- [x] Meta, volta leve e sugestão vêm do motor; a UI não duplica as regras.
+- [x] Registrar um bloco atualiza o progresso e o estado do dia na hora, sem
       reiniciar.
-- [ ] Sem livros, a tela explica o vazio e leva à Fila.
+- [x] Sem livros, a tela explica o vazio e leva à Fila.
 - [ ] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes; conferido no
-      Android.
+      Android. (Verde no build local; Android ainda não conferido pelo dono.)
 
 ## Contexto necessário
 

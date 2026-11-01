@@ -8,6 +8,8 @@ export {
 } from './types';
 export {
   ReadingSessionsRepositoryProvider,
+  subscribeToReadingSessions,
   useReadingSessions,
   useReadingSessionsRepository,
 } from './use-reading-sessions';
+export { useRecentSessions } from './use-recent-sessions';

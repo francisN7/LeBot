@@ -180,7 +180,25 @@ O motor do plano é testado como função pura, sem banco e sem React Native:
   3–200, meta < 10, volta leve, elegibilidade, invariantes (soma nunca passa da
   meta nem do restante) e determinismo.
 
-A suíte atual tem 39 arquivos e 282 testes (`npm run test`).
-
 O que continua manual: teclado numérico do Android, tamanho do modal em tela
 pequena e a barra de progresso em densidades diferentes.
+
+## Cobertura da S7
+
+- `src/features/today/plan-view.test.ts`: meta lida de `settings` (vazio, texto
+  e número; o motor limita 3–200), bloco principal como `agora` e sugestão como
+  `depois`, páginas de hoje marcando `feito`, sessão de outro dia ignorada,
+  livro concluído, plano vazio, meta batida e volta leve. Também cobre o rótulo
+  de data em PT-BR sem depender do locale.
+- `src/features/today/HojeScreen.test.tsx`: plano real com ativo + sugestão,
+  volta leve com a última sessão fora da janela de 7 dias, meta < 10, vazio com
+  CTA para a Fila e registro a partir do bloco atualizando o progresso na hora.
+- `src/db/repositories/reading-sessions.test.ts`: `latest()` devolve a sessão
+  mais recente de qualquer livro (e `undefined` sem histórico).
+- `FilaScreen.test.tsx` continua verde depois de extrair `BookArt` (capa ×
+  lombada), então a arte compartilhada não regrediu.
+
+A suíte atual tem 40 arquivos e 295 testes (`npm run test`).
+
+O que continua manual: conferir a Hoje no Android (toque no bloco, modal com o
+valor do plano e virada do dia).

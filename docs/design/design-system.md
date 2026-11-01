@@ -338,7 +338,7 @@ it('mostra a estante', async () => {
   passam callbacks (`onBack`, `onEdit`, `onDone`) para a tela, que continua sem
   depender do router nos testes.
 - Livros, gêneros, preferências e sessões de leitura vêm do SQLite via
-  `useBooks`/`useGenres`/`useSettings`/`useReadingSessions`; não há fixture de
-  dados reais.
-- Ainda são fixtures: `queue` (até S8) e `daily-plan` (até S7).
+  `useBooks`/`useGenres`/`useSettings`/`useReadingSessions`/`useRecentSessions`;
+  não há fixture de dados reais.
+- Ainda é fixture: `queue` (até S8).
 - As 4 abas atuais: Estante, Fila, Hoje, Ajustes.

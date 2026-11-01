@@ -40,6 +40,14 @@ function subscribe(
   };
 }
 
+/** Avisa um hook sempre que uma sessão é gravada ou desfeita no repositório. */
+export function subscribeToReadingSessions(
+  repository: ReadingSessionsRepository,
+  listener: () => void,
+): () => void {
+  return subscribe(repository, listener);
+}
+
 function notify(repository: ReadingSessionsRepository): void {
   for (const listener of subscribers.get(repository) ?? []) {
     listener();

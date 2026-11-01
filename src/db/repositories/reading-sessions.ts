@@ -50,6 +50,8 @@ export type ReadingSessionsRepository = {
   listByBook(bookId: string): ReadingSessionRow[];
   /** Sessões com `readAt` entre `from` e `to`, inclusive. */
   listBetween(from: Date, to: Date): ReadingSessionRow[];
+  /** Sessão mais recente de qualquer livro; `undefined` quando não há nenhuma. */
+  latest(): ReadingSessionRow | undefined;
   create(input: CreateReadingSessionInput): ReadingSessionWrite;
   remove(id: string): ReadingSessionRemoval | undefined;
 };
@@ -79,6 +81,15 @@ export function createReadingSessionsRepository<TRunResult>(
         )
         .orderBy(asc(readingSessions.readAt), asc(readingSessions.id))
         .all();
+    },
+
+    latest() {
+      return db
+        .select()
+        .from(readingSessions)
+        .orderBy(desc(readingSessions.readAt), desc(readingSessions.id))
+        .limit(1)
+        .get();
     },
 
     create(input) {

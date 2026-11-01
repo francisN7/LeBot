@@ -1,69 +1,19 @@
 import { useMemo, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
-import {
-  AppText,
-  BookCover,
-  Button,
-  Card,
-  Chip,
-  Screen,
-  Spine,
-} from '@/components/ui';
+import { AppText, BookArt, Button, Card, Chip, Screen } from '@/components/ui';
 import { useGenres } from '@/features/genres';
 import { UNKNOWN_GENRE_NAME } from '@/features/library/genre';
-import type { Book } from '@/features/library/types';
 import { useBooks } from '@/features/library/use-books';
 import { ReadingForm } from '@/features/reading/ReadingForm';
 import { useReadingSessions } from '@/features/reading/use-reading-sessions';
-import { hasCover } from '@/lib/covers';
-import { colors, sizes } from '@/theme';
+import { colors } from '@/theme';
 
 import { queue } from './__fixtures__/queue';
 
 type FilaScreenProps = {
   onOpenBook?: (bookId: string) => void;
 };
-
-type QueueBookArtProps = {
-  book: Book;
-  genreColor: string;
-  onPress?: () => void;
-};
-
-/**
- * Capa real quando existe, lombada quando não. Compacta (72×104) porque divide
- * a linha com título, nota e páginas. A fita do gênero vem da própria capa.
- */
-function QueueBookArt({ book, genreColor, onPress }: QueueBookArtProps) {
-  const { height, width } = sizes.spineCompact;
-
-  if (hasCover(book.coverUri)) {
-    return (
-      <BookCover
-        genreColor={genreColor}
-        height={height}
-        onPress={onPress}
-        status={book.status}
-        title={book.title}
-        uri={book.coverUri}
-        width={width}
-      />
-    );
-  }
-
-  return (
-    <Spine
-      color={genreColor}
-      height={height}
-      onPress={onPress}
-      showLabel={false}
-      status={book.status}
-      title={book.title}
-      width={width}
-    />
-  );
-}
 
 export function FilaScreen({ onOpenBook }: FilaScreenProps = {}) {
   const { books } = useBooks();
@@ -106,7 +56,7 @@ export function FilaScreen({ onOpenBook }: FilaScreenProps = {}) {
             Próxima parada
           </AppText>
           <View className="flex-row gap-md">
-            <QueueBookArt
+            <BookArt
               book={nextBook}
               genreColor={nextGenre?.colorLight ?? colors.navyMuted}
               onPress={() => onOpenBook?.(nextBook.id)}
@@ -170,7 +120,7 @@ export function FilaScreen({ onOpenBook }: FilaScreenProps = {}) {
               onPress={() => onOpenBook?.(book.id)}
             >
               <Card className="flex-row items-center gap-md">
-                <QueueBookArt
+                <BookArt
                   book={book}
                   genreColor={genre?.colorLight ?? colors.navyMuted}
                   onPress={() => onOpenBook?.(book.id)}

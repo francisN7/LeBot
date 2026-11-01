@@ -2,63 +2,73 @@
 
 ## Sessão
 
-- **Atual:** S6 concluída; motor puro do plano diário entregue e testado.
-- **Última concluída:** S6. Antes: S5 + auditoria de docs + hardening de CI.
-- **Próxima:** S7 (`docs/sessions/S07-plano-na-ui.md`), consumir `buildPlan` na
-  tela Hoje.
+- **Atual:** S7 concluída. A tela Hoje mostra o plano real do motor.
+- **Última concluída:** S7. Antes: S6 + auditoria de docs + hardening de CI.
+- **Próxima:** S8 (`docs/sessions/S08-fila-real.md`), trocar a fixture da Fila por
+  uma fila persistida e reordenável.
 
-## Pronto (S6 — motor do plano)
+## Pronto (S7 — plano na UI)
 
-- `src/features/planner/engine/`: `buildPlan` puro (sem React Native, banco,
-  relógio global ou IA), com `types`, `constants`, `day`, `rounding` e
-  `selection`; barril em `src/features/planner/index.ts`.
-- Regras confirmadas pelo dono: meta 3–200 (inválida → 3); meta < 10 não divide
-  o dia; livro ativo = `reading` com sessão nos últimos 7 dias (hoje + 6); sem
-  ativo, a fila decide; volta leve (última sessão há 3+ dias) reduz a meta a
-  70%; `paused`/`finished` nunca entram; teto de 60% só com ativo e meta ≥ 10,
-  flexível quando não há outro livro; alternância de gênero; arredondamento com
-  corte em 0,7 (fração > 0,7 sobe); plano bruto (não desconta o lido hoje).
-- Saída: `Plan` com `date`, `baseGoal`, `goal`, `pages`, `entries` (`source`,
-  `finishes`, `suggestion`), `lightDay` e `emptyReason`.
-- `queueBookIds` é a ordem da fila: a S7 passa a fixture atual e a S8 a fila
-  real. O motor não conhece fixture.
-- 75 testes novos (282 na suíte); `docs/planner-algorithm.md` e ADR 0013.
-- `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
+- `useDailyPlan` monta `PlannerInput` com `useBooks`, `useSettings`,
+  `useRecentSessions(7, hoje)` e `useQueueBookIds`, chama `buildPlan` e entrega
+  `plan` + `view`.
+- `plan-view.ts` (puro): lê a meta (vazio/inválido → 18; fora de 3–200 o
+  `clampGoal` limita), soma as páginas de hoje por livro, marca
+  feito/agora/depois, escolhe mensagem e mascote. Nenhuma regra do plano é
+  duplicada na UI.
+- `useRecentSessions`: janela de 7 dias (`listBetween`) **mais** `latest()` do
+  repositório, então a volta leve funciona mesmo com a última sessão há meses.
+- Hoje: cartão da meta com progresso do dia e aviso de volta leve/meta < 10,
+  cartão do LêBot, blocos com `BookArt` (capa ou lombada), gênero, páginas,
+  selo "sugestão"/"fecha o livro" e chip Feito/Agora/Depois. Toque no bloco abre
+  o `ReadingForm` com as páginas do bloco. Vazio: mascote + "Ver a fila".
+- Plano **não é persistido**; recalcula a cada abertura (ADR 0014). Sem edição
+  manual nesta sessão.
+- `BookArt` saiu da Fila para `src/components/ui/` e as duas telas usam o mesmo.
+- `src/features/today/__fixtures__/daily-plan.ts` foi apagado.
+- 13 testes novos (295 na suíte, 40 arquivos); `lint`, `typecheck`, `test`,
+  `doctor` e `expo export` verdes. **Android ainda não conferido pelo dono.**
 
 ## Decisões abertas
 
-- S7: persistir o plano do dia + edição manual ou recalcular a cada abertura —
-  decidir no início da sessão (spec S07).
+- S7.1 (opcional): persistir o plano do dia + edição manual, se virar
+  prioridade. Hoje o dia é recalculado e não sobrevive a edição.
+- S8: modelo da fila (`queue_items` × coluna em `books`), o que entra nela e
+  como reordenar (setas × arrastar) — decidir na abertura (spec S08).
 - Excluir livro deixa `reading_sessions` órfãs (sem FK). Limpeza na S9/S11.
 - `queued`/`paused` não viram `reading` ao registrar páginas; só `reading` vira
   `finished`. Ajustar na S9 se incomodar.
 
 ## Arquivos-chave
 
-- `src/features/planner/engine/` (`plan.ts`, `selection.ts`, `rounding.ts`,
-  `day.ts`, `types.ts`, `constants.ts`)
-- `src/features/planner/index.ts`
-- `docs/planner-algorithm.md`, `docs/adr/0013-motor-do-plano.md`
-- `src/features/planner/engine/*.test.ts`
+- `src/features/today/` (`use-daily-plan.ts`, `plan-view.ts`, `HojeScreen.tsx`)
+- `src/features/reading/use-recent-sessions.ts`
+- `src/features/queue/use-queue.ts`
+- `src/components/ui/BookArt.tsx`
+- `src/features/planner/engine/`, `docs/planner-algorithm.md`,
+  `docs/adr/0013-motor-do-plano.md`, `docs/adr/0014-plano-recalculado-na-hoje.md`
 
 ## Armadilhas
 
-- O corte de arredondamento é 0,7, não 0,5; a conta é inteira (`percentOf`),
-  não float.
-- A janela do ativo é 0–6 dias de calendário; 7 dias já não é ativo. A volta
-  leve é ≥ 3 dias e usa a última sessão de qualquer livro.
-- O teto de 60% é preferência: só vale com ativo e meta ≥ 10; o último bloco
-  pode completar a meta. Meta < 10 é um livro só.
-- `suggestion: true` só aparece com ativo; sem ativo, a fila é o plano.
-- O plano é bruto: não desconta as páginas lidas hoje. A UI (S7) compara.
-- O motor não lê o relógio: `today` entra por parâmetro e o dia é local.
+- O motor devolve o plano **bruto**: não desconta o lido hoje. Quem compara é
+  `buildPlanView`; depois de registrar, o bloco vira "Feito" sem o motor mudar.
+- A janela do ativo é 0–6 dias de calendário; a volta leve é ≥ 3 dias e usa a
+  última sessão de **qualquer** livro. Por isso `useRecentSessions` junta
+  `listBetween` + `latest`; um `listBetween` de 7 dias sozinho perde a volta
+  leve.
+- `today` em `useDailyPlan` vira `dayStart` por ano/mês/dia: as dependências
+  ficam estáveis durante o dia e o plano vira sozinho à meia-noite.
+- O corte de arredondamento é 0,7 (não 0,5); a conta é inteira (`percentOf`).
+- O teto de 60% é preferência: só vale com ativo e meta ≥ 10; meta < 10 é um
+  livro só. `suggestion: true` só aparece com ativo.
 - `pages_read` tem `CHECK` no banco: só o repositório de leitura escreve nele,
-  na mesma transação da sessão; sessão acima do restante guarda `pages` cheio e
-  `appliedPages` menor.
+  na mesma transação da sessão.
 - `create` recusa livro já concluído (`BOOK_ALREADY_FINISHED`). Registrar chama
-  `notifyBooksChanged`, então Estante, detalhe, Fila e plano atualizam juntos.
+  `notifyBooksChanged` e notifica as sessões, então Hoje, Estante, detalhe e
+  Fila atualizam juntos.
 - RNTL 14 é assíncrono: `await render(...)` e `await fireEvent.press(...)`.
-  `renderWithProviders` injeta o repositório de leitura ligado ao de livros.
+  `renderWithProviders` aceita `readingRepository` criado sobre o mesmo
+  `booksRepository`; para cenários com sessões, crie os dois e passe ambos.
 - Import entre features: caminho direto, nunca o barril, para não recriar
   require cycle.
 - `isbn-ranges.ts`, `drizzle/*.sql` e `drizzle/migrations.js` são gerados: não

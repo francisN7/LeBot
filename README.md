@@ -3,9 +3,10 @@
 App mobile pessoal para catalogar livros, organizar a fila de leitura e receber
 um plano diário que evita ressaca literária.
 
-> **Status:** em desenvolvimento. S6 concluída: cadastro, busca, gêneros
-> personalizados, capas, identidade 3D, registro de leitura com progresso e o
-> motor do plano diário (funções puras, 75 testes). A UI do plano chega na S7.
+> **Status:** em desenvolvimento. S7 concluída: cadastro, busca, gêneros
+> personalizados, capas, identidade 3D, registro de leitura com progresso, motor
+> do plano diário e a tela Hoje mostrando o plano real. A fila persistida chega
+> na S8.
 
 ## O que é
 
@@ -16,7 +17,7 @@ um plano diário que evita ressaca literária.
 - **Sem culpa:** livro abandonado é escolha válida, não falha.
 
 O plano é calculado por um motor determinístico e testado (S6) e exibido na tela
-Hoje a partir da S7. Nada de IA no MVP.
+Hoje desde a S7. Nada de IA no MVP.
 
 ## Stack
 

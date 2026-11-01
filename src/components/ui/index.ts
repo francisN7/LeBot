@@ -1,5 +1,6 @@
 export { AppText, type TextTone, type TextVariant } from './AppText';
 export { BackButton } from './BackButton';
+export { BookArt } from './BookArt';
 export { BookCover } from './BookCover';
 export { Bookmark } from './Bookmark';
 export { Button, type ButtonSize, type ButtonVariant } from './Button';

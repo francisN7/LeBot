@@ -7,6 +7,12 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 ### Added
 
+- S7: tela Hoje com o plano real do motor: meta com volta leve, blocos por
+  livro (capa/lombada, gênero, páginas e estado feito/agora/depois), sugestão
+  com selo, registro a partir do bloco e vazio com CTA para a Fila. Plano
+  recalculado a cada abertura (ADR 0014), `useRecentSessions` com janela de 7
+  dias + sessão mais recente, `latest()` no repositório de sessões e `BookArt`
+  compartilhado com a Fila. 13 testes novos (295 na suíte).
 - S6: motor puro do plano diário em `src/features/planner/engine/`
   (`buildPlan`), com meta 3–200, volta leve após 3 dias, livro ativo em 7 dias,
   teto flexível de 60% a partir de meta 10, alternância de gênero e sugestão
