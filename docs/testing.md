@@ -139,8 +139,8 @@ snapshot de imagem nem de árvore para arte.
 
 - `src/lib/isbn.test.ts`: grupos da tabela oficial (`978-0`, `978-85`, `978-3`,
   `979-10`) e a digitação parcial que não "pula" (`978-0-3` → `978-0-306`).
-- `FilaScreen.test.tsx`: próxima parada e "Depois" com capa real
-  (`Capa de <título>`) e com fallback de lombada (`Lombada de <título>`).
+- `QueueScreen.test.tsx`: a ordem com capa real (`Capa de <título>`) e com
+  fallback de lombada (`Lombada de <título>`).
 - `scripts/build-isbn-ranges.mjs` não tem teste próprio: ele valida o XML
   (faixas contíguas, EAN conhecido) e quebra antes de gravar. Conferir com
   `node scripts/build-isbn-ranges.mjs` que o arquivo gerado não muda sem uma
@@ -152,12 +152,12 @@ snapshot de imagem nem de árvore para arte.
   clamp no total com `finished`, livro inexistente/já concluído, Zod de páginas,
   ordenação, `listBetween`, desfazer (desconta, volta para `reading`, nunca
   negativo) e sessão órfã.
-- `src/features/reading/ReadingForm.test.tsx`: valor sugerido, salvar, zero/
-  negativo/vazio, +1/+10, aviso de clamp e cancelar.
+- `ReadingForm.test.tsx`: valor sugerido, salvar, zero/negativo/vazio, +1/+10,
+  aviso de clamp e cancelar.
 - `BookDetailScreen.test.tsx`: card de progresso, registro com atualização na
   hora, conclusão automática e desfazer com confirmação.
-- `FilaScreen.test.tsx`: "Começar" abre o registro com as páginas do plano,
-  salva e o livro já aparece concluído na parada seguinte.
+- O registro pela antiga Fila saiu na S7.1: a Ordem não escreve mais; quem
+  registra é a Hoje ou o detalhe.
 - `src/features/library/BookFormScreen.test.tsx`: o formulário mostra as
   páginas já registradas e recusa baixar `pages_read` abaixo delas.
 - `src/db/repositories/books.test.ts`: a guarda do repositório repete a regra
@@ -173,8 +173,8 @@ O motor do plano é testado como função pura, sem banco e sem React Native:
   21 × 70% → 14), extremos inteiros e entrada inválida.
 - `src/features/planner/engine/selection.test.ts`: restante nunca negativo,
   elegibilidade (pausado/concluído fora), sessão mais recente, ordem da fila,
-  ativo de 6 dias (entra) e 7 dias (não entra), empate pela fila, sessão futura
-  e alternância de gênero.
+  ativo de 6 dias (entra) e 7 dias (não entra), empate pela ordem do dono,
+  sessão futura e alternância de gênero.
 - `src/features/planner/engine/plan.test.ts`: dia normal (ativo + sugestão), livro
   perto do fim, um livro só, plano parcial, fila sem ativo, alternância, meta
   3–200, meta < 10, volta leve, elegibilidade, invariantes (soma nunca passa da
@@ -192,13 +192,30 @@ pequena e a barra de progresso em densidades diferentes.
   de data em PT-BR sem depender do locale.
 - `src/features/today/HojeScreen.test.tsx`: plano real com ativo + sugestão,
   volta leve com a última sessão fora da janela de 7 dias, meta < 10, vazio com
-  CTA para a Fila e registro a partir do bloco atualizando o progresso na hora.
+  CTA para a Ordem e registro a partir do bloco atualizando o progresso na hora.
 - `src/db/repositories/reading-sessions.test.ts`: `latest()` devolve a sessão
   mais recente de qualquer livro (e `undefined` sem histórico).
-- `FilaScreen.test.tsx` continua verde depois de extrair `BookArt` (capa ×
+- `QueueScreen.test.tsx` continua verde depois de extrair `BookArt` (capa ×
   lombada), então a arte compartilhada não regrediu.
 
-A suíte atual tem 40 arquivos e 295 testes (`npm run test`).
+## Cobertura da S7.1
 
-O que continua manual: conferir a Hoje no Android (toque no bloco, modal com o
-valor do plano e virada do dia).
+- `src/db/repositories/reading-sessions.test.ts`: sessão em livro `paused` ou
+  `queued` vira `reading`; sessão que conclui vira `finished` mesmo vindo de
+  pausado; desfazer não restaura o status anterior.
+- `src/features/today/HojeScreen.test.tsx`: Coraline pausada com sessão de hoje
+  vira o livro ativo do plano e seu status muda; "Plano do dia" e "Lido hoje"
+  com páginas e hora; meta batida sem fração acima de 100%; botão explícito
+  "Registrar leitura" e "Registrar mais"; CTA "Ver a ordem".
+- `src/features/today/plan-view.test.ts` + `format.test.ts`: `sessionsToday` em
+  ordem cronológica com `HH:mm`, sessão órfã contando na meta sem entrar na lista
+  e data inválida.
+- `QueueScreen.test.tsx`: título e legenda da Ordem, contagem "N livros depois
+  do atual", posições 1º/2º, chip "Pausado" com aviso, ausência de "Começar",
+  páginas e modal, vazio sem ação falsa e toque abrindo o detalhe.
+
+A suíte atual tem 41 arquivos e 311 testes (`npm run test`).
+
+O que continua manual: conferir a Hoje no Android (toque no botão do bloco,
+modal com o valor do plano e virada do dia), a ordem das abas e a legenda da
+Ordem em tela pequena.

@@ -221,6 +221,40 @@ describe('reading sessions repository', () => {
     expect(removal?.book?.status).toBe('reading');
   });
 
+  it('retoma livro pausado ao registrar leitura', async () => {
+    const { books, repository } = await setup({ status: 'paused' });
+
+    const write = repository.create({ bookId: 'book-1', pages: 5 });
+
+    expect(write.book.status).toBe('reading');
+    expect(books.findById('book-1')?.status).toBe('reading');
+  });
+
+  it('retoma livro da ordem (queued) ao registrar leitura', async () => {
+    const { repository } = await setup({ status: 'queued' });
+
+    const write = repository.create({ bookId: 'book-1', pages: 5 });
+
+    expect(write.book.status).toBe('reading');
+  });
+
+  it('não restaura o status anterior ao desfazer a sessão', async () => {
+    const { repository } = await setup({ status: 'paused' });
+    const write = repository.create({ bookId: 'book-1', pages: 5 });
+
+    const removal = repository.remove(write.session.id);
+
+    expect(removal?.book?.status).toBe('reading');
+  });
+
+  it('conclui o livro mesmo quando ele estava pausado', async () => {
+    const { repository } = await setup({ status: 'paused', pagesRead: 90 });
+
+    const write = repository.create({ bookId: 'book-1', pages: 10 });
+
+    expect(write.book.status).toBe('finished');
+  });
+
   it('nunca deixa o progresso negativo ao desfazer', async () => {
     const { db, repository } = await setup({ pagesRead: 90 });
     const write = repository.create({ bookId: 'book-1', pages: 10 });

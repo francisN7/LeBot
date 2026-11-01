@@ -41,7 +41,7 @@ type SpineArtworkProps = {
  * A vida vem de três animações discretas, todas no eixo do UI thread:
  * piscada (olhos), brilho que atravessa a lombada e o "z" pulsando no sono.
  * O viewBox é fixo (100×140), então o mesmo desenho serve ao tamanho cheio e
- * ao compacto da Fila.
+ * ao compacto da Ordem.
  */
 export function SpineArtwork({
   expression,

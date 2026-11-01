@@ -124,6 +124,47 @@ describe('buildPlanView', () => {
     expect(view.blocks[0]).toMatchObject({ status: 'now' });
   });
 
+  it('monta "Lido hoje" em ordem cronológica com hora local', () => {
+    const early = new Date(2026, 9, 31, 8, 5);
+    const late = new Date(2026, 9, 31, 21, 40);
+
+    const view = buildPlanView({
+      plan,
+      books,
+      sessions: [session('proximo', 7, late), session('ativo', 11, early)],
+      today,
+    });
+
+    expect(view.sessionsToday).toEqual([
+      {
+        id: expect.any(String),
+        bookId: 'ativo',
+        bookTitle: 'O Hobbit',
+        appliedPages: 11,
+        timeLabel: '08:05',
+      },
+      {
+        id: expect.any(String),
+        bookId: 'proximo',
+        bookTitle: 'Orgulho e Preconceito',
+        appliedPages: 7,
+        timeLabel: '21:40',
+      },
+    ]);
+  });
+
+  it('conta sessão órfã na meta, mas não lista sem livro', () => {
+    const view = buildPlanView({
+      plan,
+      books,
+      sessions: [session('livro-sumiu', 5, today)],
+      today,
+    });
+
+    expect(view.pagesToday).toBe(5);
+    expect(view.sessionsToday).toEqual([]);
+  });
+
   it('considera feito o bloco de um livro que chegou ao fim', () => {
     const finished = books.map((book) =>
       book.id === 'proximo'

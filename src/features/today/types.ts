@@ -16,16 +16,29 @@ export type PlanBlock = {
   status: PlanBlockStatus;
 };
 
+/** Sessão de hoje já pronta para a lista "Lido hoje". */
+export type TodaySession = {
+  id: string;
+  bookId: string;
+  bookTitle: string;
+  /** Páginas que entraram no progresso. */
+  appliedPages: number;
+  /** Hora local no formato `HH:mm`. */
+  timeLabel: string;
+};
+
 /** Plano do dia já cruzado com os livros e as sessões de hoje. */
 export type DailyPlanView = {
   dateLabel: string;
   goal: number;
   baseGoal: number;
   lightDay: boolean;
-  /** Nenhum livro elegível: a tela mostra o vazio e leva à Fila. */
+  /** Nenhum livro elegível: a tela mostra o vazio e leva à Ordem. */
   empty: boolean;
   /** Páginas registradas hoje, de todos os livros. */
   pagesToday: number;
+  /** Sessões de hoje em ordem cronológica, com o título do livro. */
+  sessionsToday: TodaySession[];
   blocks: PlanBlock[];
   message: string;
   mascot: MascotState;

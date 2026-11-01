@@ -22,7 +22,7 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S5 | [x] | Registro de leitura | Registrar sessão e ver progresso na hora; piso do progresso travado; conferido no Android | `sessions/S05-registro-leitura.md` |
 | S6 | [x] | Motor do plano (funções puras) | Meta 3–200, volta leve, ativo em 7 dias, teto flexível e 75 testes; algoritmo documentado | `sessions/S06-motor-plano.md` |
 | S7 | [x] | Plano na UI + tela Hoje | Plano real na Hoje, sugestão com selo e registro a partir do bloco; revisão no Android gerou a S7.1 | `sessions/S07-plano-na-ui.md` |
-| S7.1 | [ ] | Ajustes da revisão | Registrar retoma livro pausado; Hoje antes da Ordem; Fila → Ordem; blocos com ação explícita | `sessions/S07.1-ajustes-hoje-ordem.md` |
+| S7.1 | [~] | Ajustes da revisão | Registrar retoma livro pausado; Hoje antes da Ordem; Fila → Ordem; blocos com ação explícita. Código pronto; falta conferir no Android | `sessions/S07.1-ajustes-hoje-ordem.md` |
 | S8 | [ ] | Ordem real e sugestão anti-ressaca | Sequência persistida, adicionar/remover/reordenar e sugestão automática | `sessions/S08-ordem-real.md` |
 | S9 | [ ] | Conclusão + resenha | Livro finalizado gera resenha completa | — |
 | S10 | [ ] | Estatísticas e insights | Tela com dados reais | — |

@@ -52,7 +52,7 @@ repositório de leitura, que recusa livro inexistente.
 ### Progresso: duas cópias, um dono
 
 - `reading_sessions` é o **histórico**; `books.pages_read` é a coluna que as
-  telas leem (Estante, detalhe, Fila, plano).
+  telas leem (Estante, detalhe, Ordem, plano).
 - Só `src/db/repositories/reading-sessions.ts` escreve nas duas, na mesma
   transação. Nenhuma tela soma sessões por conta própria.
 - Sessão maior que o restante é aceita: o histórico guarda `pages` como foi
@@ -61,8 +61,10 @@ repositório de leitura, que recusa livro inexistente.
   valor, não o digitado.
 - O formulário do livro e o repositório impedem `pages_read` abaixo da soma de
   `applied_pages` das sessões: para reduzir, é preciso desfazer os registros.
-- Chegar ao total muda o status para `finished` na mesma transação; desfazer
-  essa sessão volta para `reading` (ADR 0012).
+- Registrar em livro `queued` ou `paused` coloca o livro em `reading` na mesma
+  transação; é a regra de "quem registra está lendo" (ADR 0015). Chegar ao total
+  muda o status para `finished`. Desfazer não restaura o status anterior (ele
+  não é guardado) e desfazer o fim volta para `reading` (ADR 0012).
 
 ### `genres`
 

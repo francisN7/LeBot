@@ -1,6 +1,6 @@
 import type { QueueItem } from '../types';
 
-/** Fila fictícia da S1: ordem manual, sem motor anti-ressaca ainda. */
+/** Ordem fictícia da S1: sequência manual, sem motor anti-ressaca ainda. */
 export const queue: QueueItem[] = [
   {
     bookId: 'book-orgulho',

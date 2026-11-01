@@ -50,7 +50,7 @@ SQLite (expo-sqlite + Drizzle)
 - O hook usa o repositório injetado por contexto quando existe (testes) e cai
   no real quando não existe (app).
 - `useBooks` avisa todas as telas que usam o mesmo repositório depois de
-  escrever (assinaturas em `WeakMap`), então Estante, Fila e Detalhe não ficam
+  escrever (assinaturas em `WeakMap`), então Estante, Ordem e Detalhe não ficam
   com dados velhos ao voltar do formulário. `useGenres` segue o mesmo padrão e
   expõe `genreById` para nome e cor. `useReadingSessions` avisa o repositório de
   leitura **e** chama `notifyBooksChanged`, então registrar páginas atualiza o
@@ -88,7 +88,7 @@ SQLite (expo-sqlite + Drizzle)
   contraste, em `src/lib/genre-color.ts`. `resolveGenreColor` já aceita `dark`,
   mas a UI segue no claro.
 - O livro guarda só `genreId`; nome e cor são resolvidos por `genreById` na
-  Estante, Fila, Detalhe e Formulário.
+  Estante, Ordem, Detalhe e Formulário.
 - Sem FK: excluir gênero em uso e apagar o último gênero são bloqueados no
   repositório. Decisão: ADR 0010.
 
@@ -97,45 +97,68 @@ SQLite (expo-sqlite + Drizzle)
 - `src/features/reading/` guarda o `ReadingForm` (modal de páginas com +1/+10),
   o `ReadingProgressCard` (barra, últimas leituras e desfazer) e o
   `useReadingSessions(bookId)`.
-- Registrar não é uma rota: o card do detalhe e o "Começar" da Fila abrem o
-  mesmo modal. O padrão da Fila já vem de `plannedPages`; o detalhe sugere 1.
+- Registrar não é uma rota: o card do detalhe e o botão do bloco da Hoje abrem
+  o mesmo modal. O padrão da Hoje vem das páginas do bloco; o detalhe sugere 1.
 - O repositório escreve sessão + `pages_read` + status numa transação só. A UI
   nunca soma páginas por conta própria; ela lê `book.pagesRead`, que é
   recarregado via `notifyBooksChanged`.
 - Sessão acima do restante é aceita e o formulário avisa antes de salvar; o
-  progresso para no total. Ao chegar no fim o status vira `finished` e, ao
-  desfazer, volta para `reading`. Decisão: ADR 0012.
+  progresso para no total. Registrar em `queued` ou `paused` coloca o livro em
+  `reading`; chegar no fim vira `finished` (ADR 0015, que supersede parte da
+  ADR 0012). Desfazer não restaura o status anterior; desfazer o fim volta para
+  `reading`.
 - Remover um livro ainda deixa as sessões dele órfãs (sem FK). Não afeta o
   progresso; a limpeza entra junto com conclusão/resenha (S9).
+
+## Abas e papéis (S7.1)
+
+- Ordem das abas: **Estante, Hoje, Ordem, Ajustes**.
+- **Hoje** manda na ação: mostra o plano do dia, registra leitura pelo botão de
+  cada bloco e lista o que já foi lido hoje em "Lido hoje".
+- **Ordem** (`/ordem`, `QueueScreen`) só mostra a sequência que o dono pretende
+  ler depois do livro atual. Nesta sessão ainda é fixture e somente leitura:
+  sem páginas, sem "Começar" e sem registro. A S8 devolve a escrita.
+- Glossário: a **UI diz "Ordem"**; o **código continua em inglês** (`queue`,
+  `QueueItem`, `useQueueBookIds`). "Fila" só aparece em docs e sessões
+  anteriores à S7.1, como termo histórico.
+- Legenda aprovada: "A sequência é sua: o que ler depois do livro atual."; a
+  contagem é "N livros depois do atual" e a seção, "Na ordem".
+- O plano é só de hoje; a Ordem é a sequência guardada e nunca uma previsão de
+  amanhã. Ela muda quando o dono editar (S8).
 
 ## Plano (S6)
 
 - O motor vive em `src/features/planner/engine/` e é puro: `buildPlan(input)`
-  recebe dia, meta, livros, sessões e a ordem da fila; devolve os blocos do dia.
+  recebe dia, meta, livros, sessões e a ordem do dono; devolve os blocos do dia.
   Nada de React Native, banco, relógio global ou IA.
 - Regras (meta 3–200, volta leve após 3 dias, ativo em 7 dias, teto flexível de
   60% a partir de meta 10, alternância de gênero e sugestão paralela) estão em
   [`docs/planner-algorithm.md`](planner-algorithm.md); a decisão, na ADR 0013.
 - `src/features/planner/index.ts` é o barril da feature; a tela Hoje consome o
-  motor desde a S7. A S8 passa a fila real no lugar da fixture. O motor não grava
-  plano nem conhece a fixture.
+  motor desde a S7. A S8 passa a ordem real no lugar da fixture. O motor não
+  grava plano nem conhece a fixture.
 
-## Hoje (S7)
+## Hoje (S7/S7.1)
 
 - `src/features/today/use-daily-plan.ts` monta o `PlannerInput` com `useBooks`,
   `useSettings`, `useRecentSessions` e `useQueueBookIds`, chama `buildPlan` e
   entrega o plano já cruzado com o dia (`buildPlanView`).
 - `plan-view.ts` é puro: soma as páginas de hoje por livro, marca
-  feito/agora/depois, escolhe a mensagem e o mascote. O motor continua sendo a
-  única fonte da meta e dos blocos; a tela não repete regra.
+  feito/agora/depois, monta `sessionsToday` (título, páginas aplicadas e hora
+  local), escolhe a mensagem e o mascote. O motor continua sendo a única fonte
+  da meta e dos blocos; a tela não repete regra.
+- Seções: "Plano do dia" e "Lido hoje", sob o subtítulo "Seu plano de hoje".
+  Meta batida aparece como "Meta batida · N páginas hoje", nunca como fração
+  acima de 100%. "Lido hoje" fica vazio com "Nada registrado hoje ainda.".
+- Cada bloco tem botão explícito: "Registrar leitura" (primário no "Agora",
+  secundário nos demais) ou "Registrar mais" quando o bloco já foi feito.
 - O plano **não é persistido**: recalcula a cada abertura (decisão da S7). As
   sessões e `pages_read` são a fonte de verdade do progresso; o motor devolve o
   plano bruto e a UI compara com o que já foi lido hoje.
-- A ordem da fila vem de `useQueueBookIds` (fixture até a S8). A tela não copia
-  a fixture.
-- Toque num bloco abre o `ReadingForm` com as páginas do bloco e o restante do
-  livro. O vazio mostra o mascote e leva para a Fila.
-- Decisão: ADR 0014.
+- A ordem vem de `useQueueBookIds` (fixture até a S8). A tela não copia a
+  fixture.
+- O vazio mostra o mascote e leva para a Ordem ("Ver a ordem").
+- Decisões: ADR 0014 e ADR 0015.
 
 ## Boot
 
@@ -173,8 +196,8 @@ Nenhum passo apaga dados ou esconde erro de migração.
 
 ## Pendências conhecidas
 
-- A fila continua manual até a S8: a Hoje usa a fixture só para a ordem dos
-  blocos. O "Começar" da Fila ainda usa `plannedPages` da fixture.
+- A ordem continua fixture até a S8: a Hoje usa a ordem só para desempatar e
+  escolher o próximo. A Ordem ainda é somente leitura.
 - Os ícones e o splash já são definitivos desde a S4a
   (`assets/images/` + `scripts/build-icons.mjs`), mas só aparecem em build
   nativo; o Expo Go não os exibe.

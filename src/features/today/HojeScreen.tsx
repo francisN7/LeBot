@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import {
@@ -27,9 +27,13 @@ const blockStatusLabel: Record<PlanBlockStatus, string> = {
 };
 
 type HojeScreenProps = {
-  /** Vazio: a tela leva para a Fila (rota dona da navegação). */
+  /** Vazio: a tela leva para a Ordem (rota dona da navegação). */
   onOpenQueue?: () => void;
 };
+
+function pagesLabel(pages: number): string {
+  return pages === 1 ? '1 página' : `${pages} páginas`;
+}
 
 /**
  * Plano real do dia: meta, blocos por livro e registro a partir do bloco.
@@ -49,7 +53,7 @@ export function HojeScreen({ onOpenQueue }: HojeScreenProps = {}) {
     <Screen>
       <View className="gap-xs">
         <AppText variant="display">Hoje</AppText>
-        <AppText tone="muted">{view.dateLabel}</AppText>
+        <AppText tone="muted">{`Seu plano de hoje · ${view.dateLabel}`}</AppText>
       </View>
 
       <Animated.View entering={FadeInDown.delay(40).duration(260)}>
@@ -57,7 +61,9 @@ export function HojeScreen({ onOpenQueue }: HojeScreenProps = {}) {
           <AppText variant="label">Meta do dia</AppText>
           <AppText variant="display">{view.goal} páginas</AppText>
           <AppText variant="caption">
-            {view.pagesToday} de {view.goal} páginas hoje
+            {view.pagesToday >= view.goal
+              ? `Meta batida · ${pagesLabel(view.pagesToday)} hoje`
+              : `${view.pagesToday} de ${view.goal} páginas hoje`}
           </AppText>
           {view.lightDay ? (
             <AppText variant="caption" tone="accent">
@@ -92,25 +98,20 @@ export function HojeScreen({ onOpenQueue }: HojeScreenProps = {}) {
           <Mascot size={96} state={view.mascot} />
           <AppText variant="subtitle">Nada para ler hoje</AppText>
           <AppText variant="caption" tone="muted">
-            Nenhum livro em leitura ou na fila com páginas restantes.
+            Nenhum livro em leitura ou na ordem com páginas restantes.
           </AppText>
-          <Button label="Ver a fila" onPress={() => onOpenQueue?.()} />
+          <Button label="Ver a ordem" onPress={() => onOpenQueue?.()} />
         </Card>
       ) : (
         <View className="gap-sm">
-          <AppText variant="subtitle">Blocos de leitura</AppText>
+          <AppText variant="subtitle">Plano do dia</AppText>
           {view.blocks.map((block) => {
             const genre = genreById.get(block.book.genreId);
+            const done = block.status === 'done';
 
             return (
-              <Pressable
-                accessibilityLabel={`Registrar leitura de ${block.book.title}`}
-                accessibilityRole="button"
-                className="active:opacity-80"
-                key={block.book.id}
-                onPress={() => setSelected(block)}
-              >
-                <Card className="flex-row items-center gap-md">
+              <Card className="gap-sm" key={block.book.id}>
+                <View className="flex-row items-center gap-md">
                   <BookArt
                     book={block.book}
                     genreColor={genre?.colorLight ?? colors.navyMuted}
@@ -129,12 +130,45 @@ export function HojeScreen({ onOpenQueue }: HojeScreenProps = {}) {
                       {block.finishes ? <Chip label="fecha o livro" /> : null}
                     </View>
                   </View>
-                </Card>
-              </Pressable>
+                </View>
+                <Button
+                  label={done ? 'Registrar mais' : 'Registrar leitura'}
+                  onPress={() => setSelected(block)}
+                  size="sm"
+                  testID={`register-${block.book.id}`}
+                  variant={block.status === 'now' ? 'primary' : 'secondary'}
+                />
+              </Card>
             );
           })}
         </View>
       )}
+
+      <View className="gap-sm">
+        <AppText variant="subtitle">Lido hoje</AppText>
+        {view.sessionsToday.length === 0 ? (
+          <AppText variant="caption" tone="muted">
+            Nada registrado hoje ainda.
+          </AppText>
+        ) : (
+          view.sessionsToday.map((entry) => (
+            <Card
+              className="flex-row items-center justify-between gap-md"
+              key={entry.id}
+            >
+              <View className="flex-1 gap-xs">
+                <AppText variant="bodyStrong">{entry.bookTitle}</AppText>
+                <AppText variant="caption" tone="muted">
+                  {pagesLabel(entry.appliedPages)}
+                </AppText>
+              </View>
+              <AppText variant="caption" tone="muted">
+                {entry.timeLabel}
+              </AppText>
+            </Card>
+          ))
+        )}
+      </View>
 
       <ReadingForm
         bookTitle={selected?.book.title ?? ''}

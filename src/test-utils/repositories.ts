@@ -341,10 +341,9 @@ export function createInMemoryReadingSessionsRepository(
 
       const updated = booksRepository.update(book.id, {
         pagesRead: book.pagesRead + appliedPages,
+        // Mesma regra do repositório real (ADR 0015).
         status:
-          book.pagesRead + appliedPages >= book.pages
-            ? 'finished'
-            : book.status,
+          book.pagesRead + appliedPages >= book.pages ? 'finished' : 'reading',
       });
 
       return { session: row, book: updated ?? book, appliedPages };

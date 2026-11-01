@@ -18,7 +18,7 @@ Sistema de identidade da Estante e da Hoje. Fonte da verdade visual:
 | Peça | Token/tamanho | Onde |
 |---|---|---|
 | Lombada cheia | `sizes.spine` — 88×128 | Estante, detalhe |
-| Lombada compacta | `sizes.spineCompact` — 72×104 | Fila (próxima parada e "Depois") |
+| Lombada compacta | `sizes.spineCompact` — 72×104 | Ordem, blocos da Hoje |
 | Mascote pequeno | 72 px de largura | Card "LêBot diz" na Hoje |
 | Mascote médio | 96 px | Estado vazio da Estante |
 | Mascote grande | 120 px (padrão) | estados de destaque; nenhuma tela usa hoje |

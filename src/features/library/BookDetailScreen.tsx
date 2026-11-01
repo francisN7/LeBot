@@ -176,7 +176,7 @@ export function BookDetailScreen({
       <ConfirmDialog
         cancelLabel="Cancelar"
         confirmLabel="Excluir"
-        message={`"${book.title}" sai da estante e da fila. A capa também é apagada.`}
+        message={`"${book.title}" sai da estante e da ordem. A capa também é apagada.`}
         onCancel={() => setConfirming(false)}
         onConfirm={confirmDelete}
         title="Excluir livro?"

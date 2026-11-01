@@ -2,8 +2,13 @@ import type { Book } from '@/features/library/types';
 import type { Plan } from '@/features/planner';
 import type { ReadingSession } from '@/features/reading/types';
 
-import { formatTodayLabel } from './format';
-import type { DailyPlanView, PlanBlock, PlanBlockStatus } from './types';
+import { formatReadTime, formatTodayLabel } from './format';
+import type {
+  DailyPlanView,
+  PlanBlock,
+  PlanBlockStatus,
+  TodaySession,
+} from './types';
 
 /** Valor usado quando `goal.pages` ainda não existe em `settings`. */
 export const FALLBACK_GOAL_PAGES = 18;
@@ -50,6 +55,7 @@ export function buildPlanView({
 }: BuildPlanViewInput): DailyPlanView {
   const booksById = new Map(books.map((book) => [book.id, book]));
   const pagesTodayByBook = new Map<string, number>();
+  const logged: { session: ReadingSession; book: Book }[] = [];
   let pagesToday = 0;
 
   for (const session of sessions) {
@@ -62,7 +68,28 @@ export function buildPlanView({
       session.bookId,
       (pagesTodayByBook.get(session.bookId) ?? 0) + session.appliedPages,
     );
+
+    // Sessão órfã (livro excluído) conta na meta, mas não tem o que listar.
+    const book = booksById.get(session.bookId);
+
+    if (book) {
+      logged.push({ session, book });
+    }
   }
+
+  const sessionsToday: TodaySession[] = logged
+    .sort(
+      (first, second) =>
+        first.session.readAt.getTime() - second.session.readAt.getTime() ||
+        first.session.id.localeCompare(second.session.id),
+    )
+    .map(({ session, book }) => ({
+      id: session.id,
+      bookId: book.id,
+      bookTitle: book.title,
+      appliedPages: session.appliedPages,
+      timeLabel: formatReadTime(session.readAt),
+    }));
 
   const blocks: PlanBlock[] = [];
 
@@ -111,7 +138,8 @@ export function buildPlanView({
   let message = 'Sem blocos para hoje.';
 
   if (plan.emptyReason === 'no-books') {
-    message = 'Nenhum livro com páginas restantes. Ajuste a fila ou comece um.';
+    message =
+      'Nenhum livro com páginas restantes. Ajuste a ordem ou comece um.';
   } else if (allDone) {
     message = 'Meta do dia batida. O resto é bônus.';
   } else if (plan.lightDay) {
@@ -135,6 +163,7 @@ export function buildPlanView({
     lightDay: plan.lightDay,
     empty: plan.emptyReason !== null,
     pagesToday,
+    sessionsToday,
     blocks: withStatus,
     message,
     mascot,

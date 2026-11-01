@@ -14,7 +14,7 @@ type BookArtProps = {
 };
 
 /**
- * Capa real quando existe, lombada 3D quando não. A Fila e a tela Hoje
+ * Capa real quando existe, lombada 3D quando não. A Ordem e a tela Hoje
  * mostram o mesmo objeto, então a escolha vive num lugar só.
  */
 export function BookArt({

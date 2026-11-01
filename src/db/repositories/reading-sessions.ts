@@ -136,8 +136,9 @@ export function createReadingSessionsRepository<TRunResult>(
           .update(books)
           .set({
             pagesRead,
-            // Chegar ao fim é a exceção automática (ADR 0007); a UI avisa.
-            status: finished ? 'finished' : book.status,
+            // Quem registra leitura está lendo: sai de `queued`/`paused`
+            // (ADR 0015). Chegar ao fim conclui o livro (ADR 0007).
+            status: finished ? 'finished' : 'reading',
             updatedAt: now,
           })
           .where(eq(books.id, book.id))

@@ -9,6 +9,10 @@ sugere uma ordem anti-ressaca que alterna gêneros.
 > A S7.1 já deixou a Ordem somente leitura (sem registrar e sem páginas) e a Hoje
 > como a única tela de registro. Aqui a Ordem ganha escrita de novo — só para
 > montar e ordenar a sequência, nunca para registrar leitura.
+>
+> A legenda ("A sequência é sua: o que ler depois do livro atual.") e a contagem
+> ("N livros depois do atual") ficam; a S8 acrescenta adicionar, remover e
+> reordenar.
 
 ## Fora de escopo
 

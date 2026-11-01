@@ -12,7 +12,7 @@ export default function HojeRoute() {
     <HojeScreen
       onOpenQueue={() => {
         if (allowNavigation()) {
-          router.push('/fila');
+          router.push('/ordem');
         }
       }}
     />

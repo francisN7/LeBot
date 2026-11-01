@@ -1,15 +1,15 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
-import { FilaScreen } from '@/features/queue';
+import { QueueScreen } from '@/features/queue';
 import { createNavigationGuard } from '@/lib/navigation';
 
-export default function FilaRoute() {
+export default function OrdemRoute() {
   const router = useRouter();
   const [allowNavigation] = useState(() => createNavigationGuard());
 
   return (
-    <FilaScreen
+    <QueueScreen
       onOpenBook={(id) => {
         if (!allowNavigation()) {
           return;

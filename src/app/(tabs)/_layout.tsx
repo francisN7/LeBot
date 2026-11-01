@@ -70,20 +70,20 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="fila"
-        options={{
-          title: 'Fila',
-          tabBarIcon: (props) => (
-            <TabBarIcon active="list" inactive="list-outline" {...props} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="hoje"
         options={{
           title: 'Hoje',
           tabBarIcon: (props) => (
             <TabBarIcon active="today" inactive="today-outline" {...props} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="ordem"
+        options={{
+          title: 'Ordem',
+          tabBarIcon: (props) => (
+            <TabBarIcon active="list" inactive="list-outline" {...props} />
           ),
         }}
       />

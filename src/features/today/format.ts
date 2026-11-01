@@ -31,3 +31,14 @@ export function formatTodayLabel(date: Date): string {
 
   return `${weekdayNames[date.getDay()]}, ${date.getDate()} de ${monthNames[date.getMonth()]}`;
 }
+
+/** Hora local da sessão em `HH:mm`, sem depender do locale do aparelho. */
+export function formatReadTime(date: Date): string {
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}

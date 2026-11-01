@@ -206,7 +206,7 @@ a **cor** vem do gênero (`genreById.get(book.genreId)?.colorLight`, com
 `navyMuted` quando o gênero não existe mais) e a **expressão** do status de
 leitura. Sem `status` — ou com hex inválido — fica o bloco 2D chapado, que é o
 fallback. Com `onPress` vira botão acessível; use `showLabel={false}` quando o
-título já aparece ao lado (Fila, detalhe e cards da Estante). Quando o livro tem
+título já aparece ao lado (Ordem, detalhe e cards da Estante). Quando o livro tem
 capa, o card usa `BookCover` no lugar da lombada.
 
 Movimento: o toque inclina com mola e `animated` liga a flutuação contínua —
@@ -341,4 +341,4 @@ it('mostra a estante', async () => {
   `useBooks`/`useGenres`/`useSettings`/`useReadingSessions`/`useRecentSessions`;
   não há fixture de dados reais.
 - Ainda é fixture: `queue` (até S8).
-- As 4 abas atuais: Estante, Fila, Hoje, Ajustes.
+- As 4 abas atuais, nesta ordem: Estante, Hoje, Ordem, Ajustes.

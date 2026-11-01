@@ -75,7 +75,7 @@ export function useReadingSessionsRepository(): ReadingSessionsRepository {
 }
 
 /**
- * Sessões de um livro e as escritas que o detalhe e a Fila usam.
+ * Sessões de um livro e as escritas que o detalhe e a Hoje usam.
  * Toda escrita avisa `useBooks`, então o progresso aparece na hora.
  */
 export function useReadingSessions(bookId: string) {

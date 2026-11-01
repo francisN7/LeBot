@@ -1,19 +1,20 @@
 # LêBot
 
-App mobile pessoal para catalogar livros, organizar a fila de leitura e receber
+App mobile pessoal para catalogar livros, organizar a ordem de leitura e receber
 um plano diário que evita ressaca literária.
 
-> **Status:** em desenvolvimento. S7 concluída: cadastro, busca, gêneros
+> **Status:** em desenvolvimento. S7.1 concluída: cadastro, busca, gêneros
 > personalizados, capas, identidade 3D, registro de leitura com progresso, motor
-> do plano diário e a tela Hoje mostrando o plano real. A fila persistida chega
-> na S8.
+> do plano diário, tela Hoje mostrando o plano e registrando a leitura, e a aba
+> Ordem com a sequência do dono. A ordem persistida chega na S8.
 
 ## O que é
 
 - **Estante:** catálogo dos seus livros, com capa, gênero e status.
-- **Fila:** ordem de leitura pensada para alternar ritmos e não cansar.
-- **Hoje:** plano do dia com poucas páginas por vez e ajuste quando a vida
-  acontece.
+- **Hoje:** plano do dia com poucas páginas por vez, registro da leitura e o
+  que já foi lido hoje.
+- **Ordem:** a sequência é sua: o que ler depois do livro atual, sem registrar
+  leitura aqui.
 - **Sem culpa:** livro abandonado é escolha válida, não falha.
 
 O plano é calculado por um motor determinístico e testado (S6) e exibido na tela
