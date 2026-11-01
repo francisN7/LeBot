@@ -47,6 +47,17 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
   por vez — status, gênero, remoção de capa ou exclusão. Remover capa e excluir
   exigem confirmação dupla, com contagem visível de 5 s no segundo passo. O
   toque longo no chip continua sendo a roda de status (S8a).
+- **Grid ajustável na Estante:** um seletor com quadradinhos lado a lado (2
+  quadrados = 2 livros por linha, 3 = 3, 4 = 4) redimensiona as capas/lombadas
+  e a quantidade por linha. A escolha fica em `settings` e vale na próxima
+  abertura; 3 por linha é o padrão atual. Definir se o botão mora no cabeçalho
+  ou junto dos filtros e se 2 por linha usa a lombada grande.
+- **Refinamento de animações:** o mascote hoje praticamente só flutua e as
+  mesmas animações se repetem em todas as telas. Dar continuidade de vida
+  (respiração, piscada e acessórios com variação), gestos mais expressivos por
+  estado e transições próprias por tela — sem exagerar no movimento nem
+  atrapalhar leitores de tela. Reaproveitar os componentes de `src/components/ui`
+  com Reanimated, como a S4c fez.
 - **Galeria de citações:** tela própria para reler os trechos salvos nas
   resenhas, com busca e filtro por livro/gênero. A coluna `reviews.quote` já
   existe separada justamente para isso (ADR 0019). Pós-MVP.
@@ -71,6 +82,11 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
   sessão, quase toda de configuração.
 - Tema escuro: os gêneros já guardam o par claro/escuro (S3.2); falta o toggle,
   os tokens de superfície e revisar contraste em todas as telas.
+- **Mais temas além do claro/escuro:** paletas alternativas (ex.: papel
+  amarelado, alto contraste, cores sazonais) escolhidas em Aparência, cada uma
+  com tokens de superfície, texto, contorno e par de cores por gênero. Depende
+  do tema escuro e do toggle de Aparência (S11); o seletor deve deixar claro
+  qual é o padrão e não quebrar o contraste das lombadas.
 - Sync multi-dispositivo (Supabase ou similar).
 - Compartilhar resenhas.
 - Importação Goodreads.
