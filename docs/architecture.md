@@ -139,9 +139,10 @@ SQLite (expo-sqlite + Drizzle)
 - Dois blocos: todos os `reading` no topo, depois `queued` e `paused`. O primeiro
   Lendo é o **principal**, coroado na tela, e é o bloco `active` do plano.
 - Reordenar pelo arrastar usa `react-native-gesture-handler` + Reanimated: a
-  alça entrega o deslocamento, a tela soma as alturas medidas das linhas e chama
-  `move`. As setas ↑/↓ fazem o mesmo e são o caminho acessível. `move` não deixa
-  cruzar os blocos.
+  alça (três barras) exige toque longo, entrega o deslocamento, a tela trava o
+  scroll e soma as alturas medidas para chamar `move`. As setas ↑/↓ fazem o
+  mesmo e são o caminho acessível; a troca de posição é animada com
+  `LinearTransition`. `move` não deixa cruzar os blocos.
 - "Sugerir ordem" (`suggest-order.ts`) alterna gênero dentro de cada bloco; o
   primeiro Lendo não muda, então o principal é preservado.
 - Reordenar não toca em `books.status`: registrar leitura continua sendo só na

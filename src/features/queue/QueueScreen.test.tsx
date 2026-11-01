@@ -47,6 +47,10 @@ describe('QueueScreen', () => {
     expect(screen.getByText('Depois')).toBeOnTheScreen();
     expect(screen.getByText('♛ 1º na ordem')).toBeOnTheScreen();
     expect(screen.getByText('Principal')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Arrastar O Hobbit')).toHaveProp(
+      'accessibilityHint',
+      'Segure e arraste para reordenar. As setas também movem.',
+    );
     expect(screen.getByText('O Hobbit')).toBeOnTheScreen();
     expect(screen.getByText('Sapiens')).toBeOnTheScreen();
     expect(screen.getByText('Orgulho e Preconceito')).toBeOnTheScreen();
@@ -62,6 +66,9 @@ describe('QueueScreen', () => {
       screen.getByText(
         'O primeiro Lendo é o principal. Quero ler e Pausado ficam abaixo; para subir, mude o status na Estante.',
       ),
+    ).toBeOnTheScreen();
+    expect(
+      screen.getByText('Segure a alça e arraste, ou use as setas.'),
     ).toBeOnTheScreen();
   });
 

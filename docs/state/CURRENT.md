@@ -16,8 +16,9 @@
   sem adicionar/remover (ADR 0017).
 - O primeiro Lendo é o principal (coroa/"Principal") e o bloco `active` do
   plano; o motor não usa mais a sessão mais recente para escolher o ativo.
-- Arrastar/setas não cruzam os blocos; o livro novo em Lendo entra no fim de
-  "Lendo agora". "Sugerir ordem" alterna gênero dentro de cada bloco.
+- Arrastar (toque longo na alça de 3 barras, com brilho) ou setas animadas não
+  cruzam os blocos; novo Lendo entra no fim de "Lendo agora". "Sugerir ordem"
+  alterna gênero por bloco.
 - Repositório com `list`/`sync`/`move`/`replaceAll` em transação; os hooks
   sincronizam quando a estante muda e reordenar atualiza a Hoje.
 - `Screen` usa o `ScrollView` do RNGH e o root monta `GestureHandlerRootView`;
@@ -49,11 +50,10 @@
   quando `books` muda; não remova esse gatilho.
 - Posição nunca com empate/buraco: `move`/`replaceAll` reescrevem a lista toda;
   `list()` deriva se faltar linha e concluído/órfão só sai na próxima escrita.
-- Arrastar entrega o deslocamento; a tela usa as alturas de `onLayout`. Sem
-  altura, o gesto não move (as setas funcionam).
-- `Screen` precisa do `ScrollView` do RNGH e o app do `GestureHandlerRootView`.
-- Jest: `react-native-worklets` no mock; sem isso o RNGH quebra com
-  `getUIRuntimeHolder is not supported on web`.
+- Arrastar exige toque longo na alça; a tela trava o scroll e usa as alturas de
+  `onLayout`. Sem altura, o gesto não move (as setas funcionam).
+- `Screen` precisa do `ScrollView` do RNGH e o app do `GestureHandlerRootView`;
+  no Jest, `react-native-worklets` vai para o mock (senão o RNGH quebra).
 - A Ordem não registra leitura nem muda status; o toque abre o detalhe.
 - O motor devolve o plano **bruto**; `buildPlanView` compara com o lido hoje.
 - Principal = primeiro Lendo da ordem; sem Lendo, não há principal e o primeiro

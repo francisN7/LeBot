@@ -10,6 +10,8 @@ type ScreenProps = {
   children: ReactNode;
   /** Desliga o scroll para telas curtas ou com lista virtualizada. */
   scroll?: boolean;
+  /** Permite travar a rolagem enquanto uma linha está sendo arrastada. */
+  scrollEnabled?: boolean;
   className?: string;
   contentContainerClassName?: string;
   testID?: string;
@@ -22,6 +24,7 @@ type ScreenProps = {
 export function Screen({
   children,
   scroll = true,
+  scrollEnabled = true,
   className,
   contentContainerClassName,
   testID,
@@ -50,6 +53,7 @@ export function Screen({
       className={twMerge('flex-1 bg-cream', className)}
       contentContainerClassName={twMerge('gap-lg', contentContainerClassName)}
       contentContainerStyle={padding}
+      scrollEnabled={scrollEnabled}
       showsVerticalScrollIndicator={false}
       testID={testID}
     >

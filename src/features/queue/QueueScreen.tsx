@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 
 import { AppText, Button, Card, Screen } from '@/components/ui';
@@ -45,6 +45,7 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
   const { books } = useBooks();
   const { genreById } = useGenres();
   const { items, move, replaceAll } = useQueue();
+  const [draggingId, setDraggingId] = useState<string | null>(null);
   const heights = useRef(new Map<string, number>());
 
   const booksById = useMemo(
@@ -170,6 +171,8 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
         key={entry.bookId}
         note={entry.note}
         onDown={() => move(entry.bookId, index + 1)}
+        onDragEnd={() => setDraggingId(null)}
+        onDragStart={() => setDraggingId(entry.bookId)}
         onDrop={(offset) => handleDrop(entry.bookId, offset)}
         onHeight={(height) => heights.current.set(entry.bookId, height)}
         onOpen={() => onOpenBook?.(entry.bookId)}
@@ -185,7 +188,7 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
   );
 
   return (
-    <Screen>
+    <Screen scrollEnabled={draggingId === null}>
       <View className="gap-xs">
         <AppText variant="display">Ordem</AppText>
         <AppText tone="muted">{QUEUE_LEGEND}</AppText>
@@ -236,10 +239,15 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
         </View>
       )}
 
-      <AppText tone="muted" variant="caption">
-        O primeiro Lendo é o principal. Quero ler e Pausado ficam abaixo; para
-        subir, mude o status na Estante.
-      </AppText>
+      <View className="gap-xs">
+        <AppText tone="muted" variant="caption">
+          O primeiro Lendo é o principal. Quero ler e Pausado ficam abaixo; para
+          subir, mude o status na Estante.
+        </AppText>
+        <AppText tone="muted" variant="caption">
+          Segure a alça e arraste, ou use as setas.
+        </AppText>
+      </View>
     </Screen>
   );
 }
