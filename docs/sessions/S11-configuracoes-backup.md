@@ -132,5 +132,5 @@ mudou em relação ao plano original:
   Hoje sem reiniciar. Depois de restaurar, a versão de dados remonta a navegação
   e todos os hooks releem o banco.
 - Sem migração. 49 testes novos (486 em 64 arquivos); lint, typecheck, test,
-  doctor e export verdes. Falta a conferência manual no Android da escolha de
-  pasta e de arquivo, da restauração de capas e do modal em tela pequena.
+  doctor e export verdes. Conferido no Android em 2026-11-01: escolha de pasta
+  e de arquivo, restauração de capas e modal funcionando.

@@ -35,7 +35,7 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
   arquivo usam `Directory.pickDirectoryAsync`/`File.pickFileAsync` do
   `expo-file-system`, sem `expo-sharing`/`expo-document-picker`. Sem migração
   (ADR 0021). 49 testes novos (486 em 64 arquivos); lint, typecheck, test,
-  doctor e export verdes.
+  doctor e export verdes; conferido no Android em 2026-11-01.
 - S10: "Meu ritmo" (estatísticas). A Estante ganha um atalho discreto abaixo do
   título que abre `/estatisticas`. Períodos civis no dia local: 1 semana (últimos
   7 dias, uma barra por dia), 1 mês (mês corrente do dia 1 até hoje, blocos de 7

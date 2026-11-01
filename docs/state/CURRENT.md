@@ -2,9 +2,8 @@
 
 ## Sessão
 
-- **Atual:** nenhuma; S11 concluída em 2026-11-01, com conferência manual no
-  Android pendente.
-- **Última concluída:** S11 (configurações + backup ZIP).
+- **Atual:** nenhuma; S11 concluída e conferida no Android em 2026-11-01.
+- **Última concluída:** S11 (configurações + backup ZIP), conferida no Android.
 - **Próxima:** S11a (design 3D da lombada e emoções), spec em
   `docs/sessions/S11a-design-3d-emocoes.md`; depois S12 (release interno).
 
@@ -38,8 +37,6 @@
 
 ## Decisões abertas
 
-- Conferir no Android: escolher a pasta e salvar o ZIP, escolher o arquivo,
-  restaurar capas, teclado da meta e modal em tela pequena.
 - Backlog: galeria de citações, `finished_at`, grid ajustável na Estante,
   refinamento das animações do mascote, tema escuro e temas extras.
 

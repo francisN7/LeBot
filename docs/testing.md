@@ -362,8 +362,8 @@ mini-lombadas, o drill-down das notas, a linha do tempo e o estado vazio.
 
 O que continua manual: no Android, escolher a pasta e salvar o ZIP, escolher o
 arquivo no seletor, restaurar as capas, o teclado numérico da meta e o modal em
-tela pequena. O `backup/service.ts` é a camada nativa e não entra no Jest; o
-`backup/format.ts`, o `archive.ts` e o repositório são testados sem SQLite
-nativo.
+tela pequena — conferido em 2026-11-01. O `backup/service.ts` é a camada nativa
+e não entra no Jest; o `backup/format.ts`, o `archive.ts` e o repositório são
+testados sem SQLite nativo.
 
 A suíte atual tem 64 arquivos e 486 testes (`npm run test`).
