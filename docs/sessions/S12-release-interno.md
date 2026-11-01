@@ -23,7 +23,7 @@ documentado em `docs/release.md`.
    - **local:** `npx expo prebuild --platform android` + Gradle, com um keystore
      de release fora do repositório; ou
    - **EAS:** `eas.json` com o perfil `preview`/`internal` e credenciais no EAS.
-   Registrar a escolha numa ADR curta (0023) se ela não for óbvia.
+   Registrar a escolha numa ADR curta (0024) se ela não for óbvia.
 2. **Buildar o APK** e instalar com `adb install -r <arquivo>.apk` num aparelho
    ou emulador Android. Conferir que o app abre com o banco real (SQLite) e não
    só no Expo Go.

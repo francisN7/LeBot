@@ -253,8 +253,8 @@ corpo cilíndrico em gradiente, headband/tailband listradas, duas nervuras,
 etiqueta de título no topo (centralizada, 11–53 × 19–38; **só o título**, em até
 duas linhas, Fredoka 600 com tamanho dinâmico de 7 a 5 e ellipsis depois disso),
 rosto do status e tassel T1 no canto superior esquerdo — corda saindo do topo,
-corpo, pescoço e franja dourada com sombra; o balanço para a esquerda é a S11b
-(a tentativa anterior não animou no Android). O viewBox é 64×128;
+corpo, pescoço e franja dourada com sombra, balançando para a esquerda (modelo C,
+`matrix` animada; ADR 0023). O viewBox é 64×128;
 o rosto foi desenhado para esse formato, não comprimido. A piscada vive em
 `SpineFace` e é a mesma do selo da capa. O `Pressable` da arte é transparente: o
 contorno navy vem do SVG, sem retângulo de fundo nos cantos.
@@ -265,9 +265,9 @@ o título do card abaixo. Desligue só em tamanhos pequenos, como a mini-lombada
 de "Meu ritmo" (30×60).
 
 Movimento: o toque inclina com mola e `animated` liga a flutuação contínua —
-reserve para telas com um livro só (detalhe), não para a grade. O balanço do
-tassel é a **S11b** (a tentativa com `AnimatedG`/`rotation` não animou no
-Android); o “zzz” do sono flutua na diagonal.
+reserve para telas com um livro só (detalhe), não para a grade. O tassel balança
+para a esquerda com `matrix` animada (ADR 0023); o “zzz” do sono pisca na
+diagonal.
 
 ```tsx
 <Spine

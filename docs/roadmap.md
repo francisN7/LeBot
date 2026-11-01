@@ -33,7 +33,7 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S10 | [x] | Estatísticas e insights | "Meu ritmo" na Estante com períodos civis (semana/mês/3 meses/ano), linha do tempo em "Ver tudo" e notas com drill-down; conferido no Android | `sessions/S10-estatisticas.md` |
 | S11 | [x] | Configurações + backup ZIP | Meta diária editável, backup `.zip` com JSON + capas (pasta escolhida no export), "Em breve" em lembrete/tema, fila saneada e remontagem após restaurar; 486 testes; conferido no Android | `sessions/S11-configuracoes-backup.md` |
 | S11a | [x] | Design 3D da lombada e emoções | Lombada B (64 px) com etiqueta centralizada e dinâmica, tassel no topo e capa S2 com sombra sobre a foto; conferido no Android. O balanço do tassel não animou e foi para a S11b | `sessions/S11a-design-3d-emocoes.md` |
-| S11b | [ ] | Tassel animado | Pesquisa + 3 modelos aprovados + balanço para a esquerda como vento, no cheio e no compacto; conferido no Android | `sessions/S11b-tassel-animado.md` |
+| S11b | [x] | Tassel animado | Balanço C para a esquerda (`matrix` no `G`), corda presa ao topo e franja com follow-through, no cheio e no compacto; conferido no Android | `sessions/S11b-tassel-animado.md` |
 | S12 | [ ] | Release interno | APK instalável no Android; ícone, splash e camada adaptativa conferidos no launcher | `sessions/S12-release-interno.md` |
 | S13 | [ ] | Documentação final + limpeza | Sub-sessões no padrão Xa/Xb; backlog reordenado pela prioridade do dono; itens descartados removidos dos docs; docs revisados e changelog fechado | `sessions/S13-documentacao-final.md` |
 

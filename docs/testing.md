@@ -380,7 +380,8 @@ testados sem SQLite nativo.
   ellipsis); vazio usa o máximo; a largura disponível é considerada.
 - `src/components/ui/Spine.test.tsx`: arte 3D, etiqueta de título no topo,
   rosto por status (feliz, neutro, sonolento, brilho), “zzz” no pausado, tassel
-  no topo, fallback 2D sem status, etiqueta oculta e `onPress`. O SVG é
+  no topo (a `matrix` animada não é afirmada por frames), fallback 2D sem status,
+  etiqueta oculta e `onPress`. O SVG é
   decorativo (`accessibilityElementsHidden`) e a etiqueta também fica fora da
   árvore de acessibilidade (o `Pressable` já anuncia "Lombada de …"); por isso
   as consultas de face/tassel/zzz/etiqueta usam `{ includeHiddenElements: true }`.
@@ -390,8 +391,9 @@ testados sem SQLite nativo.
   status escolhido — neutro por padrão e brilho depois de tocar em "Concluído".
 
 O que continua manual: no Android, o volume do cilindro em 64/52 px, o tassel no
-topo (corda/franja e sombra) no compacto, o **balanço do tassel** (S11b; a
-tentativa com `AnimatedG`/`rotation` não animou), o “zzz” diagonal, o título
+topo (corda/franja e sombra) no compacto, o **balanço do tassel** para a esquerda
+no cheio e no compacto (a `matrix` animada foi confirmada no aparelho, ADR
+0023), o “zzz” diagonal, o título
 centralizado em 5–7 px (com títulos longos e ellipsis), o rosto no selo de
 18–26 px, a sombra S2 sobre fotos claras e escuras e o alinhamento da grade com
 lombadas de 64 px. A piscada do selo não é afirmada por frames; validamos

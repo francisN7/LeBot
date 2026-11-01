@@ -84,13 +84,18 @@ faixas foram desenhados para esse formato, senão o rosto vira um oval.
 - **Tassel T1:** no **canto superior esquerdo**, sem argola. A corda começa em
   y=0 (cortada pelo topo, parece sair de dentro), encontra corpo e pescoço e
   termina na franja de seis fios. O dourado tem gradiente, aresta escura e uma
-  sombra desfocada no corpo. O balanço para a esquerda fica na **S11b** (a
-  tentativa com `AnimatedG`/`rotation` não animou no Android). É um tassel de
-  verdade, não uma ponta de fita nem um recorte com contorno navy.
+  sombra desfocada no corpo. Desde a **S11b** ele balança para a esquerda
+  (modelo C): ataque de ~400 ms até 10°, franja a 12,5° cerca de 90 ms depois,
+  sombra a 55% e retorno lento com overshoot de 1,6°, em ciclo de 4,4 s. A corda
+  é cortada pela silhueta do corpo (`bodyClip`) para não soltar do canto; a
+  franja pode passar da borda. É um tassel de verdade, não uma ponta de fita nem
+  um recorte com contorno navy.
 - **Rosto:** olhos em `happy` um pouco mais afastados (spread 10) para o “Lendo”
   não parecer apertado; as outras expressões usam 8.
 - **“zzz”:** três letras em diagonal no canto direito (49/73, 53/67 e 57/60),
-  com opacidade 1 → 0,3 e `translateY` de 0 → −2 px; só em `sleepy`.
+  com opacidade 1 → 0,3; só em `sleepy`. O `translateY` não chega ao nativo no
+  `G` animado (ADR 0023), então a diagonal é a posição fixa das letras e o
+  “flutuar” é o fade.
 - **Sombra de contato:** `contactShadow` no wrapper; o corpo ocupa 126 dos
   128 px. O `Pressable` da arte é transparente (o fundo na cor do gênero virava
   um retângulo nos cantos); o contorno navy vem do SVG.
@@ -147,8 +152,8 @@ contínuo, porque há um livro só).
 | Lombada | mola de escala 0,97 e inclinação −2° no toque | grade e detalhe |
 | Lombada | piscada: olhos somem por 70 ms a cada ~2,9 s | `happy`, `neutral` |
 | Lombada | brilho varre o corpo a cada ~3,3 s | todas |
-| Lombada | "zzz" flutua na diagonal: opacidade 1→0,3 e −2 px | `sleepy` |
-| Lombada | tassel: balanço para a esquerda na S11b (a tentativa anterior não animou) | todas |
+| Lombada | "zzz" pisca na diagonal: opacidade 1→0,3 | `sleepy` |
+| Lombada | tassel: 10° à esquerda, franja a 12,5° ~90 ms depois, ciclo de 4,4 s | todas |
 | Lombada | flutuação de 3% e −2,4 px, ida e volta em 4,4 s | só `animated` (detalhe) |
 | Capa | mola de escala 0,97 e inclinação −1,5° no toque | grade e detalhe |
 | Capa | brilho diagonal atravessa a capa em 1,7 s | só `animated` (detalhe) |
@@ -160,9 +165,9 @@ contínuo, porque há um livro só).
 | Mascote | fade de 200 ms ao trocar de estado | sempre |
 
 A piscada da lombada e a do selo vivem no mesmo `SpineFace`; não duplique os
-tempos em outro componente. O tassel está visualmente pronto; o balanço para a
-esquerda é a **S11b** (a tentativa com `AnimatedG`/`rotation` não animou no
-Android). Todas as animações usam `transform` e `opacity`, no UI thread; nenhuma
+tempos em outro componente. O balanço do tassel anima `matrix` no `G` (ADR
+0023), no UI thread — `rotation`/`origin` animados não chegam ao nativo no
+Android. Todas as animações usam `transform` e `opacity`, no UI thread; nenhuma
 mexe em layout. Sem `useReducedMotion` por enquanto — fica no backlog de
 acessibilidade.
 

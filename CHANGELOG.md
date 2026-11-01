@@ -18,6 +18,12 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 ### Added
 
+- S11b: o tassel da lombada balança para a esquerda (modelo C): ataque de ~400 ms
+  até 10°, franja a 12,5° cerca de 90 ms depois, sombra a 55% e retorno lento com
+  overshoot, em ciclo de 4,4 s. A técnica é `matrix` animada no `G` — o
+  `rotation`/`origin` animado era ignorado pelo Android. A corda é cortada pela
+  silhueta do corpo para não soltar do canto, e a franja pode passar da borda. A
+  amplitude é a mesma no cheio e no compacto; ADR 0023.
 - S11a: lombada B e capa com profundidade por sombra. A lombada sem capa ficou
   64×128 (52×104 compacta, 1:2), com corpo cilíndrico, headband/tailband
   listradas, duas nervuras e etiqueta de título centralizada (11–53 × 19–38, só
