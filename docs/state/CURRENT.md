@@ -8,8 +8,7 @@
 - **Próxima:** S8 (`docs/sessions/S08-ordem-real.md`): Ordem persistida,
   adicionar/remover/reordenar por arrastar e sugestão anti-ressaca. O arrastar
   entrou na própria S8 (não há mais S8.1).
-- **Depois:** S8a (`S08a-troca-rapida-status.md`), S8b
-  (`S08b-multisselecao-estante.md`) e S9 (conclusão + resenha).
+- **Depois:** S8a (`S08a-troca-rapida-status.md`) e S9 (conclusão + resenha).
 
 ## Pronto (S7.1)
 
@@ -34,8 +33,8 @@
   abertura (spec S08).
 - S8a: onde a roda aparece, quando grava e o que fazer com livro que tem capa
   (sem rosto de lombada) — decidir na abertura.
-- S8b: como entrar no modo de seleção e a confirmação dupla com espera de 5 s —
-  decidir na abertura. A espera vale para excluir **e** remover capa.
+- Multisseleção da Estante está no backlog pós-MVP (não é sessão): se virar
+  sessão, a decisão de entrada no modo e a espera de 5 s são definidas lá.
 - S7.2 (opcional): persistir o plano + edição manual.
 - Excluir livro deixa `reading_sessions` órfãs (sem FK). Limpeza na S9/S11.
 

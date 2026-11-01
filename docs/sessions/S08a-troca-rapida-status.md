@@ -9,7 +9,7 @@ refletem a mudança na hora.
 
 ## Fora de escopo
 
-- Multisseleção e edição em lote → **S8b**.
+- Multisseleção e edição em lote → **backlog pós-MVP** (não é sessão).
 - Editar título, autor, gênero, páginas ou capa por esse caminho.
 - Redesenhar a arte da lombada ou criar expressões novas.
 - Haptics: `expo-haptics` não está instalado; fica para depois, se o dono pedir.
@@ -106,4 +106,4 @@ refletem a mudança na hora.
 
 ## Próximo depois desta
 
-**S8b** — multisseleção na Estante.
+**S9** — conclusão + resenha.

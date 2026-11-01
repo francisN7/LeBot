@@ -25,7 +25,6 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S7.1 | [x] | Ajustes da revisão | Registrar retoma livro pausado; Hoje antes da Ordem; Fila → Ordem; blocos com ação explícita; conferido no Android | `sessions/S07.1-ajustes-hoje-ordem.md` |
 | S8 | [ ] | Ordem real e sugestão anti-ressaca | Sequência persistida, adicionar/remover/reordenar por arrastar e sugestão automática | `sessions/S08-ordem-real.md` |
 | S8a | [ ] | Troca rápida de status na Estante | Segurar o chip de status abre uma roda; o rosto da lombada muda em tempo real ao deslizar e o status persiste ao soltar | `sessions/S08a-troca-rapida-status.md` |
-| S8b | [ ] | Multisseleção na Estante | Selecionar vários livros e aplicar status, gênero, remoção de capa ou exclusão em lote; ações destrutivas pedem confirmação dupla com espera visível de 5 s | `sessions/S08b-multisselecao-estante.md` |
 | S9 | [ ] | Conclusão + resenha | Livro finalizado gera resenha completa | — |
 | S10 | [ ] | Estatísticas e insights | Tela com dados reais | — |
 | S11 | [ ] | Configurações + backup JSON | Round-trip de export/import testado | — |
@@ -37,6 +36,10 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 > A ordem abaixo é provisória: a S13 reordena pela prioridade do dono e remove
 > o que não entra mais.
 
+- **Multisseleção na Estante:** selecionar vários livros e aplicar uma edição
+  por vez — status, gênero, remoção de capa ou exclusão. Remover capa e excluir
+  exigem confirmação dupla, com contagem visível de 5 s no segundo passo. O
+  toque longo no chip continua sendo a roda de status (S8a).
 - Botão **(i)** de ajuda em cada aba, com explicação curta do papel da tela e o
   LêBot "confuso" atrás do i (interrogação diagonal, como quem inspeciona),
   com animação. Depois da S12. O mascote ainda não tem esse estado: criar um

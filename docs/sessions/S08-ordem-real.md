@@ -117,5 +117,4 @@ sugere uma ordem anti-ressaca que alterna gêneros.
 ## Próximo depois desta
 
 - **S8a** — roda de troca rápida de status na Estante (`S08a-troca-rapida-status.md`).
-- **S8b** — multisseleção na Estante (`S08b-multisselecao-estante.md`).
 - Depois: **S9** — conclusão + resenha.
