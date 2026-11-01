@@ -84,8 +84,9 @@ faixas foram desenhados para esse formato, senão o rosto vira um oval.
 - **Tassel T1:** no **canto superior esquerdo**, sem argola. A corda começa em
   y=0 (cortada pelo topo, parece sair de dentro), encontra corpo e pescoço e
   termina na franja de seis fios. O dourado tem gradiente, aresta escura e uma
-  sombra desfocada no corpo; balança ±3° em 1,7 s em torno de (6, 0). É um
-  tassel de verdade, não uma ponta de fita nem um recorte com contorno navy.
+  sombra desfocada no corpo. O balanço para a esquerda fica na **S11b** (a
+  tentativa com `AnimatedG`/`rotation` não animou no Android). É um tassel de
+  verdade, não uma ponta de fita nem um recorte com contorno navy.
 - **Rosto:** olhos em `happy` um pouco mais afastados (spread 10) para o “Lendo”
   não parecer apertado; as outras expressões usam 8.
 - **“zzz”:** três letras em diagonal no canto direito (49/73, 53/67 e 57/60),
@@ -147,7 +148,7 @@ contínuo, porque há um livro só).
 | Lombada | piscada: olhos somem por 70 ms a cada ~2,9 s | `happy`, `neutral` |
 | Lombada | brilho varre o corpo a cada ~3,3 s | todas |
 | Lombada | "zzz" flutua na diagonal: opacidade 1→0,3 e −2 px | `sleepy` |
-| Lombada | tassel balança ±3° em 1,7 s, ida e volta | todas |
+| Lombada | tassel: balanço para a esquerda na S11b (a tentativa anterior não animou) | todas |
 | Lombada | flutuação de 3% e −2,4 px, ida e volta em 4,4 s | só `animated` (detalhe) |
 | Capa | mola de escala 0,97 e inclinação −1,5° no toque | grade e detalhe |
 | Capa | brilho diagonal atravessa a capa em 1,7 s | só `animated` (detalhe) |
@@ -159,10 +160,11 @@ contínuo, porque há um livro só).
 | Mascote | fade de 200 ms ao trocar de estado | sempre |
 
 A piscada da lombada e a do selo vivem no mesmo `SpineFace`; não duplique os
-tempos em outro componente. O tassel balança ±3° em torno do topo; a sombra
-dele fica no corpo. Todas as animações usam `transform` e `opacity`, no UI
-thread; nenhuma mexe em layout. Sem `useReducedMotion` por enquanto — fica no
-backlog de acessibilidade.
+tempos em outro componente. O tassel está visualmente pronto; o balanço para a
+esquerda é a **S11b** (a tentativa com `AnimatedG`/`rotation` não animou no
+Android). Todas as animações usam `transform` e `opacity`, no UI thread; nenhuma
+mexe em layout. Sem `useReducedMotion` por enquanto — fica no backlog de
+acessibilidade.
 
 ## Capa personalizada como livro
 

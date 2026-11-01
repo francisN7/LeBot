@@ -6,6 +6,8 @@ Gerar um **APK instalável** do LêBot, instalar no Android fora do Expo Go e
 conferir ícone, splash e camada adaptativa no launcher — com o processo
 documentado em `docs/release.md`.
 
+> Pré-requisito: S11a (lombada/capa) e S11b (tassel animado) concluídas.
+
 ## Fora de escopo
 
 - Publicação na Play Store, ficha da loja, screenshots e política de privacidade

@@ -36,7 +36,8 @@ matriz de assets, sem transformação 3D nativa e com o toque no `Pressable`.
 4. **Tassel T1 no canto superior esquerdo**, sem argola: a corda sai do topo
    (cortada pela borda, parece vir de dentro), encontra corpo e pescoço e
    termina na franja de seis fios. O dourado usa gradiente, aresta escura e
-   sombra desfocada no corpo; o grupo balança ±3° em 1,7 s em torno do topo.
+   sombra desfocada no corpo. O desenho está pronto; a animação do balanço não
+   animou no Android e fica para a S11b.
 5. **Rosto compartilhado (`SpineFace`)** entre a lombada e o selo da capa. Em
    `happy` os olhos abrem um pouco mais (spread 10); as outras expressões usam 8.
    No `sleepy`, um “zzz” de três letras flutua na diagonal.
@@ -62,7 +63,9 @@ matriz de assets, sem transformação 3D nativa e com o toque no `Pressable`.
   ellipsis; o custo é mais um nó por lombada.
 - A mini-lombada 30×60 reduz a altura da fileira de concluídos em relação ao
   30×74 da primeira tentativa.
-- O tassel balança ±3° e usa gradiente/sombra; não é um adesivo estático.
+- O tassel está visualmente pronto e usa gradiente/sombra; o balanço para a
+  esquerda é a S11b (a tentativa com `AnimatedG`/`rotation` não animou no
+  Android).
 - A conferência continua visual no aparelho; não há snapshot de imagem.
 
 ## Alternativas descartadas
@@ -76,3 +79,11 @@ matriz de assets, sem transformação 3D nativa e com o toque no `Pressable`.
 - **`rotateY`/perspective nativo:** transforma o container, não as faces; mais
   frágil no Android e no teste.
 - **Lombada de 46 px ou menos:** espreme os olhos e a etiqueta.
+
+## Adendo S11a (2026-11-01) — balanço pendente
+
+A S11a fechou com o desenho e a capa aprovados, mas o balanço do tassel **não
+foi observado no Android**: o `AnimatedG` do `react-native-svg` com `rotation`
+animado pelo Reanimated não produziu movimento perceptível. A **S11b** vai
+pesquisar a técnica, montar modelos, aprovar a intensidade e implementar o
+movimento para a esquerda. Até lá, o tassel fica estático na prática.

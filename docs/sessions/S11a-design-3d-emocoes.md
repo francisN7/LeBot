@@ -33,7 +33,8 @@ capa dura, um tassel de verdade e uma capa que mantém a foto inteira.
 5. **Tassel T1 no canto superior esquerdo**, sem argola: a corda sai do topo
    (cortada pela borda, parece vir de dentro), encontra corpo e pescoço e
    termina na franja de seis fios. O dourado usa gradiente, aresta escura e
-   sombra desfocada no corpo; o grupo balança ±3° em 1,7 s em torno do topo.
+   sombra desfocada no corpo. O desenho está pronto; o balanço não animou no
+   Android e fica para a S11b.
 6. **Capa S2:** foto inteira + sombra de vinco à esquerda (preto 38%), fio de
    luz creme (13–20%), sombra de borda à direita (42%) e na base (30%), fio de
    luz no topo/esquerda. Sem páginas e sem faixa lateral. A fita do gênero
@@ -87,8 +88,9 @@ capa dura, um tassel de verdade e uma capa que mantém a foto inteira.
       7 a 5 e ellipsis no limite; o autor continua no card. A mini-lombada não
       mostra etiqueta.
 - [ ] O tassel T1 fica no canto superior esquerdo, **sem argola**, com a corda
-      saindo do topo, corpo/pescoço/franja em gradiente dourado, sombra e
-      balanço de ±3°; é reconhecível no cheio e no compacto.
+      saindo do topo, corpo/pescoço/franja em gradiente dourado e sombra; é
+      reconhecível no cheio e no compacto. O **balanço** foi movido para a S11b
+      (a tentativa com `AnimatedG`/`rotation` não animou no Android).
 - [ ] A lombada não tem retângulo de fundo: o `Pressable` é transparente e o
       contorno navy é o do corpo; os cantos arredondados aparecem limpos.
 - [ ] Em “Lendo” os olhos estão mais afastados; em “Pausado” o “zzz” flutua na
@@ -139,5 +141,7 @@ capa dura, um tassel de verdade e uma capa que mantém a foto inteira.
 
 ## Próximo depois desta
 
-**S12** — release interno, com a spec em `docs/sessions/S12-release-interno.md`.
+**S11b** — tassel animado (pesquisa, modelos, aprovação e balanço para a
+esquerda como vento), com a spec em
+`docs/sessions/S11b-tassel-animado.md`; depois **S12** — release interno.
 A conferência visual da S11a no Android é o único item pendente.

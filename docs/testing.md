@@ -390,7 +390,8 @@ testados sem SQLite nativo.
   status escolhido — neutro por padrão e brilho depois de tocar em "Concluído".
 
 O que continua manual: no Android, o volume do cilindro em 64/52 px, o tassel no
-topo (corda/franja, sombra e balanço) no compacto, o “zzz” diagonal, o título
+topo (corda/franja e sombra) no compacto, o **balanço do tassel** (S11b; a
+tentativa com `AnimatedG`/`rotation` não animou), o “zzz” diagonal, o título
 centralizado em 5–7 px (com títulos longos e ellipsis), o rosto no selo de
 18–26 px, a sombra S2 sobre fotos claras e escuras e o alinhamento da grade com
 lombadas de 64 px. A piscada do selo não é afirmada por frames; validamos
