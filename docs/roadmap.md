@@ -8,7 +8,8 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 >
 > A S11a saiu depois da S11 e antes do release interno. O desenho foi aprovado,
 > mas o balanço do tassel não animou no Android; isso virou a **S11b**, que entra
-> antes da S12.
+> antes da S12. A **S11c** entrou depois da S11b para resolver a Estante travada
+> (~10 fps) antes do release.
 >
 > Antes da S6, uma auditoria de documentação conferiu README, AGENTS e docs
 > vivos contra o código da S5 (sem antecipar o motor do plano).
@@ -34,6 +35,7 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S11 | [x] | Configurações + backup ZIP | Meta diária editável, backup `.zip` com JSON + capas (pasta escolhida no export), "Em breve" em lembrete/tema, fila saneada e remontagem após restaurar; 486 testes; conferido no Android | `sessions/S11-configuracoes-backup.md` |
 | S11a | [x] | Design 3D da lombada e emoções | Lombada B (64 px) com etiqueta centralizada e dinâmica, tassel no topo e capa S2 com sombra sobre a foto; conferido no Android. O balanço do tassel não animou e foi para a S11b | `sessions/S11a-design-3d-emocoes.md` |
 | S11b | [x] | Tassel animado | Balanço C para a esquerda (`matrix` no `G`), corda presa ao topo e franja com follow-through, no cheio e no compacto; conferido no Android | `sessions/S11b-tassel-animado.md` |
+| S11c | [ ] | Estante fluida | Grade virtualizada e camadas animadas isoladas; 60 fps com tassel, brilho e piscada, medido antes/depois no Android | `sessions/S11c-estante-performance.md` |
 | S12 | [ ] | Release interno | APK instalável no Android; ícone, splash e camada adaptativa conferidos no launcher | `sessions/S12-release-interno.md` |
 | S13 | [ ] | Documentação final + limpeza | Sub-sessões no padrão Xa/Xb; backlog reordenado pela prioridade do dono; itens descartados removidos dos docs; docs revisados e changelog fechado | `sessions/S13-documentacao-final.md` |
 
