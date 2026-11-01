@@ -63,6 +63,20 @@ function pagesAlreadyRecorded(recorded: number): string {
   return `Há ${recorded} páginas registradas nas sessões de leitura. Desfaça os registros no detalhe para baixar o progresso.`;
 }
 
+/**
+ * Concluir é chegar ao fim: o status manda no progresso, inclusive quando a
+ * edição manual escolhe "Concluído" sem passar por uma sessão de leitura.
+ */
+function fillFinishedProgress<
+  T extends {
+    status: (typeof readingStatuses)[number];
+    pages: number;
+    pagesRead: number;
+  },
+>(book: T): T {
+  return book.status === 'finished' ? { ...book, pagesRead: book.pages } : book;
+}
+
 export function createBooksRepository<TRunResult>(
   db: AppDatabase<TRunResult>,
 ): BooksRepository {
@@ -102,7 +116,7 @@ export function createBooksRepository<TRunResult>(
     },
 
     create(input) {
-      const parsed = bookInputSchema.parse(input);
+      const parsed = fillFinishedProgress(bookInputSchema.parse(input));
       assertIsbnAvailable(parsed.isbn);
       const now = new Date();
 
@@ -125,17 +139,19 @@ export function createBooksRepository<TRunResult>(
       }
 
       // Valida o livro completo, não só os campos alterados.
-      const merged = bookInputSchema.parse({
-        title: current.title,
-        author: current.author,
-        genreId: current.genreId,
-        status: current.status,
-        pages: current.pages,
-        pagesRead: current.pagesRead,
-        isbn: current.isbn,
-        coverUri: current.coverUri,
-        ...patch,
-      });
+      const merged = fillFinishedProgress(
+        bookInputSchema.parse({
+          title: current.title,
+          author: current.author,
+          genreId: current.genreId,
+          status: current.status,
+          pages: current.pages,
+          pagesRead: current.pagesRead,
+          isbn: current.isbn,
+          coverUri: current.coverUri,
+          ...patch,
+        }),
+      );
 
       assertIsbnAvailable(merged.isbn, id);
 

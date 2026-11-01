@@ -59,6 +59,12 @@ repositório de livros, mantendo progresso e status coerentes como a transação
 do SQLite. A ordem em memória (`createInMemoryQueueRepository(booksRepository)`)
 segue a mesma ideia: compacta posições e ignora órfãos/concluídos como o SQL.
 
+A roda de status é testada por eventos de scroll: `fireEvent.scroll` muda a
+prévia (sem gravar), `scrollEndDrag` com o mesmo `contentOffset` confirma e
+`fireEvent.press` numa opção (`roda-status-<status>`) exerce o caminho acessível.
+O teste afirma sobre o repositório em memória e o rótulo do chip — nunca sobre
+frames do Reanimated.
+
 Nunca importe `expo-sqlite`, `expo-file-system` ou `expo-image-picker` no teste:
 são módulos nativos. As telas recebem `CoverService` por contexto justamente
 para isso.

@@ -2,33 +2,36 @@
 
 ## Sessão
 
-- **Atual:** nenhuma sessão aberta; S8 encerrada em 2026-11-01.
+- **Atual:** S8a implementada em 2026-11-01; falta conferir no Android.
 - **Última concluída:** S8 (conferida no Android; glitch estético no backlog).
-- **Próxima:** S8a (`S08a-troca-rapida-status.md`): roda de troca rápida de status.
-- **Depois:** S9 (conclusão + resenha) e S10 (estatísticas).
+- **Próxima:** S9 (conclusão + resenha), depois S10 (estatísticas).
+
+## Pronto (S8a)
+
+- Segurar o chip de status (~500 ms) abre a `QuickStatusSheet`; o toque simples
+  continua sem trocar status. A folha mostra capa/lombada, título e a
+  `StatusWheel` com os quatro status. Deslizar só pré-visualiza (card e arte
+  acompanham); soltar/tocar confirma e fecha; tocar fora/Cancelar descarta.
+- `status-from-offset.ts` é a conta pura offset → status. A roda é um
+  `ScrollView` vertical com snap. A11y: chip com hint + ação "Trocar status";
+  roda `adjustable` com increment/decrement.
+- Concluir preenche as páginas lidas no repositório de livros (formulário e
+  roda), com a mesma regra no repositório em memória (ADR 0018).
+- 16 testes novos (346 em 45 arquivos); lint, typecheck, test, doctor e export
+  verdes. Falta a conferência no Android.
 
 ## Pronto (S8)
 
-- `queue_items` (`book_id` PK, `position`, `note`, timestamps) com migração
-  aditiva `0005`; a Ordem nasce vazia e o `sync` materializa os livros.
-- Ordem automática: todo livro não concluído entra; `reading` forma o bloco
-  "Lendo agora", `queued`/`paused` ficam em "Depois". Status é a entrada/saída,
-  sem adicionar/remover (ADR 0017).
-- O primeiro Lendo é o principal (coroa/"Principal") e o bloco `active` do
-  plano; o motor não usa mais a sessão mais recente para escolher o ativo.
-- Arrastar (toque longo na alça, com brilho e prévia) ou setas animadas; não
-  cruza blocos. Novo Lendo entra no fim de "Lendo agora" e "Sugerir ordem"
-  alterna gênero por bloco. O drop via alça ainda pisca/animar antes de alocar
-  (setas ok) — no backlog.
+- `queue_items` com migração aditiva `0005`; a Ordem nasce vazia e o `sync`
+  materializa todo livro não concluído. Status é a entrada/saída (ADR 0017).
+- Dois blocos: `reading` em "Lendo agora" (primeiro = principal e bloco `active`
+  do plano) e `queued`/`paused` em "Depois". Arrastar/setas não cruzam blocos.
 - Repositório com `list`/`sync`/`move`/`replaceAll` em transação; os hooks
   sincronizam quando a estante muda e reordenar atualiza a Hoje.
-- `Screen` usa o `ScrollView` do RNGH e o root monta `GestureHandlerRootView`;
-  no Jest, `react-native-worklets` é mapeado para o mock.
-- 330 testes (44 arquivos); lint, typecheck/test/doctor/export verdes.
+- Drop via alça ainda pisca/animar antes de alocar (setas ok) — no backlog.
 
 ## Decisões abertas
 
-- S8a: onde a roda aparece, quando grava e o livro com capa — decidir na abertura.
 - Rótulo de `queued`: a UI diz "Quero ler"; o dono chama de "Pretendo ler".
 - Multisseleção da Estante no backlog pós-MVP; entrada e espera de 5 s ficam lá.
 - S7.2 (opcional): persistir o plano + edição manual.
@@ -36,45 +39,41 @@
 
 ## Arquivos-chave
 
-- `src/db/schema.ts`, `src/db/repositories/queue.ts`, `drizzle/0005_*.sql`
-- `src/features/queue/` (`QueueScreen`, `QueueRow`, `use-queue`,
-  `suggest-order`)
-- `src/test-utils/repositories.ts` (`createInMemoryQueueRepository`)
+- `src/features/library/EstanteScreen.tsx`, `quick-status-sheet.tsx`,
+  `status-wheel.tsx`, `status-from-offset.ts` + testes
+- `src/components/ui/Chip.tsx`
+- `src/db/repositories/books.ts`, `src/test-utils/repositories.ts`
+- `src/db/repositories/queue.ts`, `drizzle/0005_*.sql`, `src/features/queue/`
 - `src/features/today/use-daily-plan.ts`, `planner/engine/selection.ts`
-- `src/components/ui/Screen.tsx`, `src/app/_layout.tsx`, ADR 0017
+- `src/components/ui/Screen.tsx`, `src/app/_layout.tsx`, ADR 0017 e 0018
 
 ## Armadilhas
 
-- A ordem tem dois blocos: `reading` no topo (na ordem manual) e o resto abaixo.
-  `move` nunca deixa cruzar; não normalize a lista só por posição.
-- `sync` é o que materializa livro novo/status mudado. Ele roda no `useQueue`
-  quando `books` muda; não remova esse gatilho.
+- A ordem tem dois blocos: `reading` no topo e o resto abaixo. `move` nunca deixa
+  cruzar; não normalize a lista só por posição. `sync` é o gatilho de livro
+  novo/status mudado; não remova.
 - Posição nunca com empate/buraco: `move`/`replaceAll` reescrevem a lista toda;
-  `list()` deriva se faltar linha e concluído/órfão só sai na próxima escrita.
-- Arrastar exige toque longo; bloqueia a rolagem nativa e calcula a prévia do
-  alvo. O drop via alça ainda pisca/animar antes de alocar (setas ok); backlog.
-- `Screen` precisa do `ScrollView` do RNGH e o app do `GestureHandlerRootView`;
-  no Jest, `react-native-worklets` vai para o mock (senão o RNGH quebra).
+  `list()` deriva se faltar linha. Concluído/órfão só sai na próxima escrita.
+- Arrastar exige toque longo e bloqueia a rolagem nativa; o drop via alça ainda
+  pisca (setas ok). `Screen` precisa do `ScrollView` do RNGH e o app do
+  `GestureHandlerRootView`; no Jest, `react-native-worklets` vai para o mock.
+- A roda separa prévia de escrita: `onScroll`/`onPreview` não podem chamar
+  `update`; só `onSettle`/`onCommit` grava. A prévia vive na Estante.
+- O chip só é interativo com `onPress` ou `onLongPress`; não desabilite o chip de
+  status (ele não tem toque simples).
+- Concluir (`finished`) sempre leva `pagesRead` ao total no repositório; trocar
+  de volta para outro status mantém o progresso cheio.
 - A Ordem não registra leitura nem muda status; o toque abre o detalhe.
 - O motor devolve o plano **bruto**; `buildPlanView` compara com o lido hoje.
-- Principal = primeiro Lendo da ordem; sem Lendo, não há principal e o primeiro
-  elegível leva o dia inteiro. Volta leve ainda usa a última sessão (≥ 3 dias).
+- Principal = primeiro Lendo da ordem; sem Lendo, o primeiro elegível leva o dia
+  inteiro. Volta leve usa a última sessão (≥ 3 dias).
 - Corte 0,7; conta inteira (`percentOf`). Teto de 60% só com principal e meta
   ≥ 10; meta < 10 é um livro só.
-- `pages_read` tem `CHECK`: só o repositório de leitura escreve, chamando
-  `notifyBooksChanged`.
+- `pages_read` tem `CHECK`: só o repositório de leitura escreve páginas lidas
+  (fora a normalização de concluir, que usa o total).
 - RNTL 14 é assíncrono; passe `booksRepository`, `queueRepository` e
   `readingRepository` ao `renderWithProviders`.
 - Rota tipada: `.expo/types/router.d.ts` é gerado; renomeou rota? rode
   `npx expo start --offline`. Import entre features: caminho direto, não o barril.
-- `isbn-ranges.ts`, `drizzle/*.sql` e `migrations.js` são gerados; `lint:fix` depois do generate.
-
-## Como rodar
-
-```bash
-npm install && npm start      # Expo Go
-npm run lint && npm run typecheck && npm run test
-npm run doctor && npx expo export --platform android --output-dir dist
-npx drizzle-kit generate      # depois de mudar src/db/schema.ts
-npm run lint:fix              # normaliza migrations.js e o snapshot
-```
+- `isbn-ranges.ts`, `drizzle/*.sql` e `migrations.js` são gerados; `lint:fix`
+  depois do generate.

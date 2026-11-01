@@ -205,4 +205,42 @@ describe('books repository', () => {
     expect(repository.findById('book-1')?.pagesRead).toBe(20);
     expect(repository.update('book-1', { pagesRead: 20 })?.pagesRead).toBe(20);
   });
+
+  it('concluir preenche as páginas lidas ao criar', async () => {
+    const db = await createTestDatabase();
+    const repository = createBooksRepository(db);
+
+    const created = repository.create({
+      ...baseBook,
+      id: 'book-1',
+      status: 'finished',
+      pagesRead: 0,
+    });
+
+    expect(created.status).toBe('finished');
+    expect(created.pagesRead).toBe(310);
+  });
+
+  it('concluir preenche as páginas lidas ao atualizar', async () => {
+    const db = await createTestDatabase();
+    const repository = createBooksRepository(db);
+    repository.create({ ...baseBook, id: 'book-1' });
+
+    const updated = repository.update('book-1', { status: 'finished' });
+
+    expect(updated?.status).toBe('finished');
+    expect(updated?.pagesRead).toBe(310);
+    expect(repository.findById('book-1')?.pagesRead).toBe(310);
+  });
+
+  it('não mexe no progresso ao trocar para outro status', async () => {
+    const db = await createTestDatabase();
+    const repository = createBooksRepository(db);
+    repository.create({ ...baseBook, id: 'book-1' });
+
+    const updated = repository.update('book-1', { status: 'paused' });
+
+    expect(updated?.status).toBe('paused');
+    expect(updated?.pagesRead).toBe(128);
+  });
 });

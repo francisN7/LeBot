@@ -78,6 +78,12 @@ SQLite (expo-sqlite + Drizzle)
   (`expo-file-system`) e remove ao trocar/excluir. A implementação nativa
   (`cover-service.ts`) é montada no `_layout.tsx` via `CoverServiceProvider`;
   as telas recebem o serviço por contexto e os testes recebem um fake.
+- Troca rápida de status: segurar o chip da Estante abre a `QuickStatusSheet`
+  (folha modal) com a capa/lombada grande e a `StatusWheel`. Deslizar só muda a
+  prévia (o card e a arte da folha acompanham); soltar o dedo ou tocar numa
+  opção confirma e grava via `useBooks().update`. Tocar fora ou em "Cancelar"
+  fecha sem gravar. A conta offset → status é pura
+  (`status-from-offset.ts`); concluir preenche `pages_read` (ADR 0018).
 - Decisão: ADR 0009.
 
 ## Gêneros (S3.2)
@@ -232,6 +238,8 @@ Nenhum passo apaga dados ou esconde erro de migração.
   [`docs/adr/0016-ordem-persistida.md`](adr/0016-ordem-persistida.md)
 - Ordem automática e principal:
   [`docs/adr/0017-ordem-automatica-e-principal.md`](adr/0017-ordem-automatica-e-principal.md)
+- Concluir preenche as páginas lidas:
+  [`docs/adr/0018-concluir-preenche-paginas.md`](adr/0018-concluir-preenche-paginas.md)
 
 ## Pendências conhecidas
 

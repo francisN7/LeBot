@@ -81,6 +81,8 @@ o que entra/sai da ordem; não há adicionar/remover manual. Ver ADR 0017.
   transação; é a regra de "quem registra está lendo" (ADR 0015). Chegar ao total
   muda o status para `finished`. Desfazer não restaura o status anterior (ele
   não é guardado) e desfazer o fim volta para `reading` (ADR 0012).
+- Concluir pela edição ou pela roda de status preenche `pages_read` até o total
+  no repositório de livros; a tela não manda as páginas (ADR 0018).
 
 ### `genres`
 

@@ -141,7 +141,8 @@ export function createInMemoryBooksRepository(
         genreId: input.genreId,
         status: input.status,
         pages: input.pages,
-        pagesRead: input.pagesRead ?? 0,
+        pagesRead:
+          input.status === 'finished' ? input.pages : (input.pagesRead ?? 0),
         isbn: input.isbn ?? null,
         coverUri: input.coverUri ?? null,
         createdAt: now,
@@ -166,6 +167,12 @@ export function createInMemoryBooksRepository(
           patch.coverUri === undefined ? existing.coverUri : patch.coverUri,
         updatedAt: new Date(),
       };
+
+      // Mesma regra do SQLite: concluir leva `pagesRead` até o total.
+      if (updated.status === 'finished') {
+        updated.pagesRead = updated.pages;
+      }
+
       assertIsbnAvailable(updated.isbn, id);
       current[index] = updated;
       return updated;

@@ -19,6 +19,7 @@ import { hasCover } from '@/lib/covers';
 import { colors } from '@/theme';
 
 import { labelForStatus, UNKNOWN_GENRE_NAME } from './genre';
+import { QuickStatusSheet } from './quick-status-sheet';
 import type { ReadingStatus } from './types';
 import { useBooks } from './use-books';
 
@@ -57,8 +58,39 @@ export function EstanteScreen({
 }: EstanteScreenProps = {}) {
   const [filter, setFilter] = useState<ShelfFilter>('all');
   const [query, setQuery] = useState('');
-  const { books } = useBooks();
+  const [quickStatus, setQuickStatus] = useState<{
+    bookId: string;
+    preview: ReadingStatus;
+  } | null>(null);
+  const { books, update } = useBooks();
   const { genreById } = useGenres();
+
+  const quickBook = quickStatus
+    ? books.find((book) => book.id === quickStatus.bookId)
+    : undefined;
+
+  function openStatusWheel(book: { id: string; status: ReadingStatus }) {
+    setQuickStatus({ bookId: book.id, preview: book.status });
+  }
+
+  function cancelStatusWheel() {
+    setQuickStatus(null);
+  }
+
+  function commitStatus(status: ReadingStatus) {
+    if (!quickStatus) {
+      return;
+    }
+
+    const book = books.find((item) => item.id === quickStatus.bookId);
+
+    // Escolher o status atual fecha a folha sem escrever de novo.
+    if (book && book.status !== status) {
+      update(book.id, { status });
+    }
+
+    setQuickStatus(null);
+  }
 
   const visibleBooks = books.filter(
     (book) =>
@@ -120,6 +152,10 @@ export function EstanteScreen({
           {visibleBooks.map((book, index) => {
             const genre = genreById.get(book.genreId);
             const genreColor = genre?.colorLight ?? colors.navyMuted;
+            const displayStatus =
+              quickStatus?.bookId === book.id
+                ? quickStatus.preview
+                : book.status;
 
             return (
               <Animated.View
@@ -137,7 +173,7 @@ export function EstanteScreen({
                     <BookCover
                       genreColor={genreColor}
                       onPress={() => onOpenBook?.(book.id)}
-                      status={book.status}
+                      status={displayStatus}
                       title={book.title}
                       uri={book.coverUri}
                     />
@@ -146,7 +182,8 @@ export function EstanteScreen({
                       color={genreColor}
                       onPress={() => onOpenBook?.(book.id)}
                       showLabel={false}
-                      status={book.status}
+                      status={displayStatus}
+                      testID={`lombada-${book.id}`}
                       title={book.title}
                     />
                   )}
@@ -172,7 +209,21 @@ export function EstanteScreen({
                   >
                     {genre?.name ?? UNKNOWN_GENRE_NAME}
                   </AppText>
-                  <Chip label={labelForStatus(book.status)} />
+                  <Chip
+                    accessibilityActions={[
+                      { name: 'openStatusWheel', label: 'Trocar status' },
+                    ]}
+                    accessibilityHint="Segure para trocar o status"
+                    delayLongPress={500}
+                    label={labelForStatus(displayStatus)}
+                    onAccessibilityAction={(event) => {
+                      if (event.nativeEvent.actionName === 'openStatusWheel') {
+                        openStatusWheel(book);
+                      }
+                    }}
+                    onLongPress={() => openStatusWheel(book)}
+                    testID={`status-${book.id}`}
+                  />
                 </Card>
               </Animated.View>
             );
@@ -187,6 +238,23 @@ export function EstanteScreen({
             {emptyState}
           </AppText>
         </Card>
+      ) : null}
+
+      {quickStatus && quickBook ? (
+        <QuickStatusSheet
+          book={quickBook}
+          genreColor={
+            genreById.get(quickBook.genreId)?.colorLight ?? colors.navyMuted
+          }
+          onCancel={cancelStatusWheel}
+          onCommit={commitStatus}
+          onPreview={(preview) =>
+            setQuickStatus((current) =>
+              current ? { ...current, preview } : current,
+            )
+          }
+          preview={quickStatus.preview}
+        />
       ) : null}
     </Screen>
   );

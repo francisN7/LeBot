@@ -14,27 +14,23 @@ refletem a mudança na hora.
 - Redesenhar a arte da lombada ou criar expressões novas.
 - Haptics: `expo-haptics` não está instalado; fica para depois, se o dono pedir.
 
-## Decisões a confirmar na abertura
+## Decisões confirmadas na abertura (2026-11-01)
 
-1. **Onde a roda aparece.** Recomendo uma folha modal (bottom sheet) com a
-   lombada grande, o título e a roda logo abaixo — espaço para o rosto e para o
-   dedo. A alternativa é um painel ancorado no próprio card, com a roda cobrindo
-   parte da grade.
-2. **Quando grava.** Recomendo gravar ao soltar o dedo na opção central, com a
-   folha fechando em seguida; tocar fora cancela. A alternativa é exigir
-   "Salvar" no rodapé.
-3. **Descoberta.** O toque longo é o que o dono pediu. Avaliar se o toque simples
-   no chip também abre a folha (mais descobrível) ou se fica só no longo, com
-   `accessibilityHint` e a folha acessível por ação de leitor de tela.
-4. **Roda.** Recomendo `FlatList`/`ScrollView` com `snapToInterval` e
-   `onMomentumScrollEnd` (sem dependência nova); a alternativa é um gesto com
-   Reanimated. Nos dois casos, a conta "offset → status" fica numa função pura.
-5. **Livro com capa.** Capa não tem rosto de lombada. Recomendo mostrar o
-   `BookArt` do livro na folha (capa real quando existe) e manter a prévia de
-   rosto só para quem está sem capa; decidir se a folha força uma lombada.
-6. **Concluir sem ler tudo.** O repositório aceita `finished` com
-   `pagesRead < pages`; escolher "Concluído" na roda não preenche páginas. O
-   motor já ignora livro concluído. Confirmar que não haverá aviso extra.
+1. **Onde a roda aparece.** Folha modal (bottom sheet) com a capa/lombada
+   grande, o título e a roda logo abaixo.
+2. **Quando grava.** Grava ao soltar o dedo (ou tocar numa opção), com a folha
+   fechando em seguida; tocar fora ou em "Cancelar" cancela. Sem botão "Salvar".
+3. **Descoberta.** Só o toque longo (~500 ms) abre a folha; o toque simples
+   continua sem trocar status. O chip expõe `accessibilityHint` e a ação
+   "Trocar status" para leitor de tela.
+4. **Roda.** `ScrollView` vertical com `snapToInterval` e `onScrollEndDrag` /
+   `onMomentumScrollEnd`, sem dependência nova. A conta "offset → status" fica
+   em `status-from-offset.ts`, pura e testada.
+5. **Livro com capa.** A folha usa `BookArt` (capa real quando existe) e mantém
+   a prévia de rosto só para quem está sem capa; a capa mostra o selo do status.
+6. **Concluir sem ler tudo.** O dono decidiu que concluir, em qualquer lugar do
+   app, preenche as páginas lidas (ADR 0018). A roda grava `finished`, o
+   repositório leva `pagesRead` ao total e não há aviso extra.
 
 ## Tarefas
 
@@ -62,15 +58,15 @@ refletem a mudança na hora.
 
 ## Aceite
 
-- [ ] Segurar o chip de status (~500 ms) abre a roda; toque simples continua
+- [x] Segurar o chip de status (~500 ms) abre a roda; toque simples continua
       sem trocar status.
-- [ ] Deslizar a roda muda o rosto da lombada em tempo real, passando pelos
+- [x] Deslizar a roda muda o rosto da lombada em tempo real, passando pelos
       quatro status, sem gravar no banco.
-- [ ] Soltar/confirmar grava o status e o chip da Estante muda na hora.
-- [ ] Cancelar mantém o status anterior.
-- [ ] Registro em livro `paused`/`queued` continua mudando para `reading` pela
+- [x] Soltar/confirmar grava o status e o chip da Estante muda na hora.
+- [x] Cancelar mantém o status anterior.
+- [x] Registro em livro `paused`/`queued` continua mudando para `reading` pela
       Hoje/detalhe; a roda é só uma edição manual.
-- [ ] A folha é operável por leitor de tela (ação + roda ajustável).
+- [x] A folha é operável por leitor de tela (ação + roda ajustável).
 - [ ] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes; conferido no
       Android.
 
