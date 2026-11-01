@@ -72,16 +72,16 @@ describe('BackupCard', () => {
     await fireEvent.press(screen.getByTestId('backup-exportar'));
 
     await waitFor(() => {
-      expect(service.shares).toHaveLength(1);
+      expect(service.saved).toHaveLength(1);
     });
 
-    expect(first(service.shares).fileName).toMatch(
+    expect(first(service.saved).fileName).toMatch(
       /^lebot-backup-\d{4}-\d{2}-\d{2}\.zip$/,
     );
-    expect(screen.getByText(/Backup gerado:/)).toBeOnTheScreen();
+    expect(screen.getByText(/Backup salvo:/)).toBeOnTheScreen();
     expect(screen.getByText(/Último backup:/)).toBeOnTheScreen();
 
-    const unpacked = await unpackBackupArchive(first(service.shares).bytes);
+    const unpacked = await unpackBackupArchive(first(service.saved).bytes);
     const parsed = parseBackup(unpacked.json);
 
     expect(parsed.tables.books).toHaveLength(5);
@@ -102,7 +102,23 @@ describe('BackupCard', () => {
     expect(
       await screen.findByText(/Estas capas não estão mais no aparelho/),
     ).toBeOnTheScreen();
-    expect(service.shares).toHaveLength(0);
+    expect(service.saved).toHaveLength(0);
+  });
+
+  it('não grava a data quando a seleção de pasta é cancelada', async () => {
+    const service = createFakeBackupService();
+
+    service.saveCanceled = true;
+
+    await renderWithProviders(<BackupCard />, {
+      backupService: service,
+    });
+
+    await fireEvent.press(screen.getByTestId('backup-exportar'));
+
+    expect(service.saved).toHaveLength(0);
+    expect(screen.getByText('Nenhum backup ainda.')).toBeOnTheScreen();
+    expect(screen.queryByText(/Backup salvo:/)).not.toBeOnTheScreen();
   });
 
   it('não abre nada quando o seletor é cancelado', async () => {
@@ -163,10 +179,10 @@ describe('BackupCard', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText('Cópia do estado atual gerada.'),
+        screen.getByText('Cópia do estado atual salva.'),
       ).toBeOnTheScreen();
     });
-    expect(service.shares).toHaveLength(1);
+    expect(service.saved).toHaveLength(1);
 
     await fireEvent.press(screen.getByTestId('restore-continuar'));
 

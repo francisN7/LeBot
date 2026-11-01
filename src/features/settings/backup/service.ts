@@ -4,7 +4,6 @@ import {
   Paths,
   type PickSingleFileResult,
 } from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
 
 import { COVERS_DIRECTORY, coverFileName } from '@/lib/covers';
 
@@ -31,13 +30,17 @@ export type PickArchiveResult =
   | { canceled: true }
   | { canceled: false; fileName: string; bytes: Uint8Array };
 
+export type SaveArchiveResult =
+  | { status: 'canceled' }
+  | { status: 'saved'; fileName: string };
+
 export { MissingCoverFilesError };
 
 export type BackupService = {
   /** Lê os arquivos de capa; falha se algum caminho não existir. */
   readCovers(books: readonly CoverSource[]): Promise<Map<string, Uint8Array>>;
-  /** Grava o .zip no cache e abre o compartilhamento. */
-  shareArchive(fileName: string, bytes: Uint8Array): Promise<void>;
+  /** Escolhe a pasta e grava o .zip nela. */
+  saveArchive(fileName: string, bytes: Uint8Array): Promise<SaveArchiveResult>;
   /** Abre o seletor de arquivos e devolve os bytes do .zip. */
   pickArchive(): Promise<PickArchiveResult>;
   /** Prepara as capas numa pasta temporária, antes de tocar no banco. */
@@ -65,9 +68,18 @@ function ensureCoversDirectory(): Directory {
   return directory;
 }
 
+function isPickerCanceled(error: unknown): boolean {
+  return error instanceof Error && /cancel/i.test(error.message);
+}
+
+function withTimeSuffix(fileName: string): string {
+  const time = new Date().toTimeString().slice(0, 8).replace(/:/g, '');
+  return fileName.replace(/\.zip$/i, `-${time}.zip`);
+}
+
 /**
- * Camada nativa do backup: arquivos, compartilhamento e seletor. A regra de
- * formato fica em `format.ts`/`archive.ts`; aqui só se toca no aparelho.
+ * Camada nativa do backup: arquivos, pasta e seletor. A regra de formato fica
+ * em `format.ts`/`archive.ts`; aqui só se toca no aparelho.
  */
 export function createDeviceBackupService(): BackupService {
   return {
@@ -119,26 +131,47 @@ export function createDeviceBackupService(): BackupService {
       return covers;
     },
 
-    async shareArchive(fileName, bytes) {
-      if (!(await Sharing.isAvailableAsync())) {
+    async saveArchive(fileName, bytes) {
+      let directory: Directory;
+
+      try {
+        directory = await Directory.pickDirectoryAsync();
+      } catch (error) {
+        if (isPickerCanceled(error)) {
+          return { status: 'canceled' };
+        }
+
         throw new Error(
-          'O compartilhamento não está disponível neste aparelho.',
+          'Não foi possível abrir a seleção de pasta neste aparelho.',
         );
       }
 
-      const file = new File(Paths.cache, fileName);
+      let file: File;
 
-      if (file.exists) {
-        file.delete();
+      try {
+        file = directory.createFile(fileName, 'application/zip');
+      } catch {
+        // Um backup anterior com o mesmo nome pode bloquear a criação. Não
+        // apaga o que existe: tenta um nome com a hora para não perder nada.
+        try {
+          file = directory.createFile(
+            withTimeSuffix(fileName),
+            'application/zip',
+          );
+        } catch {
+          throw new Error(
+            'Não foi possível criar o backup na pasta escolhida.',
+          );
+        }
       }
 
-      file.create();
-      await file.write(bytes);
-      await Sharing.shareAsync(file.uri, {
-        dialogTitle: 'Salvar backup do LêBot',
-        mimeType: 'application/zip',
-        UTI: 'public.zip-archive',
-      });
+      try {
+        await file.write(bytes);
+      } catch {
+        throw new Error('Não foi possível salvar o backup na pasta escolhida.');
+      }
+
+      return { status: 'saved', fileName: file.name || fileName };
     },
 
     async pickArchive() {

@@ -27,7 +27,6 @@ const config: ExpoConfig = {
   },
   plugins: [
     'expo-router',
-    'expo-sharing',
     'expo-sqlite',
     [
       'expo-image-picker',

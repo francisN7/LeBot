@@ -86,40 +86,43 @@ export function createInMemoryBackupRepository(
 }
 
 export type FakeBackupService = BackupService & {
-  shares: { fileName: string; bytes: Uint8Array }[];
+  saved: { fileName: string; bytes: Uint8Array }[];
   committed: string[][];
   discarded: number;
   /** Configura o que o seletor devolve; `null` simula cancelamento. */
   pickResult: PickArchiveResult | null;
   /** Títulos que devem falhar como "capa sumida" no export. */
   missingCovers: string[];
-  /** Se definido, o compartilhamento falha com esta mensagem. */
-  shareError: string | null;
+  /** Se definido, salvar o arquivo falha com esta mensagem. */
+  saveError: string | null;
+  /** Simula cancelamento da seleção de pasta. */
+  saveCanceled: boolean;
   /** Ids que falham ao mover a capa depois do banco. */
   commitFailedIds: string[];
 };
 
 /**
  * Serviço de backup em memória: o seletor devolve o `pickResult`, as capas
- * viram bytes fixos e o compartilhamento só registra o que seria enviado.
+ * viram bytes fixos e a pasta escolhida só registra o arquivo que seria salvo.
  */
 export function createFakeBackupService(
   options: Partial<FakeBackupService> = {},
 ): FakeBackupService {
   const state = {
-    shares: [] as { fileName: string; bytes: Uint8Array }[],
+    saved: [] as { fileName: string; bytes: Uint8Array }[],
     committed: [] as string[][],
     discarded: 0,
     pickResult: null as PickArchiveResult | null,
     missingCovers: [] as string[],
-    shareError: null as string | null,
+    saveError: null as string | null,
+    saveCanceled: false,
     commitFailedIds: [] as string[],
     ...options,
   };
 
   const service: FakeBackupService = {
-    get shares() {
-      return state.shares;
+    get saved() {
+      return state.saved;
     },
     get committed() {
       return state.committed;
@@ -139,11 +142,17 @@ export function createFakeBackupService(
     set missingCovers(value) {
       state.missingCovers = value;
     },
-    get shareError() {
-      return state.shareError;
+    get saveError() {
+      return state.saveError;
     },
-    set shareError(value) {
-      state.shareError = value;
+    set saveError(value) {
+      state.saveError = value;
+    },
+    get saveCanceled() {
+      return state.saveCanceled;
+    },
+    set saveCanceled(value) {
+      state.saveCanceled = value;
     },
     get commitFailedIds() {
       return state.commitFailedIds;
@@ -172,12 +181,17 @@ export function createFakeBackupService(
       return covers;
     },
 
-    async shareArchive(fileName, bytes) {
-      if (state.shareError) {
-        throw new Error(state.shareError);
+    async saveArchive(fileName, bytes) {
+      if (state.saveError) {
+        throw new Error(state.saveError);
       }
 
-      state.shares.push({ fileName, bytes });
+      if (state.saveCanceled) {
+        return { status: 'canceled' };
+      }
+
+      state.saved.push({ fileName, bytes });
+      return { status: 'saved', fileName };
     },
 
     async pickArchive() {

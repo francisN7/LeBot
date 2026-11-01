@@ -346,23 +346,24 @@ mini-lombadas, o drill-down das notas, a linha do tempo e o estado vazio.
   mesma transação.
 - `src/features/settings/use-settings.test.tsx`: dois consumidores veem a meta
   nova depois de `setValue` (assinatura do `useSettings`).
-- `src/features/settings/AjustesScreen.test.tsx`: quatro seções, dois cards "Em
-  breve", ausência de `20:00`/`Claro`, gêneros, meta salva refletida na Hoje e
-  erro fora do intervalo.
+- `src/features/settings/AjustesScreen.test.tsx`: quatro seções na ordem
+  Leitura → Organização → Dados → Sobre, dois cards "Em breve", ausência de
+  `20:00`/`Claro`, gêneros, meta salva refletida na Hoje e erro fora do intervalo.
 - `src/features/settings/BackupCard.test.tsx`: export com data e ZIP válido,
-  aborto por capa ausente, cancelamento do seletor, arquivo inválido, contagens
-  do arquivo × do aparelho, cópia do estado atual, dupla confirmação, volta da
+  cancelamento da seleção de pasta (não grava nem muda a data), aborto por capa
+  ausente, cancelamento do seletor de arquivo, arquivo inválido, contagens do
+  arquivo × do aparelho, cópia do estado atual, dupla confirmação, volta da
   segunda etapa, sucesso com capa, aviso de capa que não pôde ser gravada e
   `onRestored`.
 - `src/test-utils/backup.ts` e `renderWithProviders`: repositório em memória,
   serviço fake, providers de backup e versão de dados. O fake não toca em
-  `expo-file-system`/`expo-sharing`; o teste de tela usa o mesmo fluxo de
-  serializar, zipar, validar e substituir.
+  `expo-file-system`; a seleção de pasta/arquivo e a gravação são simuladas, e o
+  teste de tela usa o mesmo fluxo de serializar, zipar, validar e substituir.
 
-O que continua manual: no Android, o compartilhamento do ZIP, salvar em
-Arquivos/Drive, escolher o arquivo no seletor, restaurar as capas, o teclado
-numérico da meta e o modal em tela pequena. O `backup/service.ts` é a camada
-nativa e não entra no Jest; o `backup/format.ts`, o `archive.ts` e o repositório
-são testados sem SQLite nativo.
+O que continua manual: no Android, escolher a pasta e salvar o ZIP, escolher o
+arquivo no seletor, restaurar as capas, o teclado numérico da meta e o modal em
+tela pequena. O `backup/service.ts` é a camada nativa e não entra no Jest; o
+`backup/format.ts`, o `archive.ts` e o repositório são testados sem SQLite
+nativo.
 
-A suíte atual tem 64 arquivos e 485 testes (`npm run test`).
+A suíte atual tem 64 arquivos e 486 testes (`npm run test`).

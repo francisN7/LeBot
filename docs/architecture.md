@@ -178,7 +178,7 @@ SQLite (expo-sqlite + Drizzle)
 ## Ajustes e backup (S11)
 
 - `AjustesScreen` em quatro seções: **Leitura** (meta, lembrete, aparência),
-  **Dados** (backup), **Organização** (gêneros e campos de resenha) e **Sobre**.
+  **Organização** (gêneros e campos de resenha), **Dados** (backup) e **Sobre**.
   Lembrete e Aparência são cards "Em breve"; as chaves `reminder.time`,
   `appearance.theme` e `backup.enabled` continuam em `settings` para os recursos
   futuros, mas a UI não exibe valores falsos.
@@ -189,8 +189,8 @@ SQLite (expo-sqlite + Drizzle)
   - `format.ts` (puro): serializa e valida o JSON v1 com Zod, confere ids,
     ISBNs, referências, meta e capas;
   - `archive.ts` (puro): monta e abre o ZIP com `fflate`;
-  - `service.ts` (nativo): lê as capas, compartilha o arquivo, abre o seletor e
-    prepara/move as capas restauradas;
+  - `service.ts` (nativo): lê as capas, escolhe a pasta e grava o arquivo, abre
+    o seletor de restauração e prepara/move as capas;
   - `use-backup.tsx`: orquestra banco + serviço + `useSettings` e guarda o estado
     de erro/busy;
   - `BackupCard` e `RestoreBackupDialog`: export, cópia opcional do estado
@@ -210,8 +210,9 @@ SQLite (expo-sqlite + Drizzle)
 - **Fila:** excluir um livro também apaga `queue_items`. O export tira linhas de
   livro concluído/excluído e renumera as posições visíveis; a importação recusa
   item de livro inexistente ou concluído.
-- Dependências da S11: `expo-sharing` (plugin em `app.config.ts`) e `fflate`
-  (JS puro). O seletor usa `File.pickFileAsync` do `expo-file-system`.
+- Dependências da S11: `fflate` (JS puro). A pasta e o seletor usam
+  `Directory.pickDirectoryAsync`/`File.pickFileAsync` do `expo-file-system`, sem
+  `expo-sharing` nem `expo-document-picker`.
 
 ## Abas e papéis (S7.1)
 

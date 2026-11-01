@@ -376,7 +376,7 @@ cartão ou no vazio).
 ## Ajustes e backup (S11)
 
 - A tela é dividida em quatro seções com título `subtitle`: **Leitura**,
-  **Dados**, **Organização** e **Sobre**. Os cards continuam `Card` com título
+  **Organização**, **Dados** e **Sobre**. Os cards continuam `Card` com título
   `bodyStrong`, dica em `caption`/`muted` e chip quando há um número curto.
 - **Meta diária:** o card tem o valor atual em chip, um `TextField` numérico
   ("Páginas por dia"), o botão "Salvar meta" e a mensagem de erro do próprio
@@ -385,14 +385,16 @@ cartão ou no vazio).
   curta do porquê. Não há botão nem valor falso; Lembrete e Aparência usam esse
   estado.
 - **Backup:** card com chip `Local`, a data do último backup (ou "Nenhum backup
-  ainda."), "Exportar backup" e "Restaurar backup". Enquanto trabalha, mostra
-  "Preparando o backup...", "Lendo o arquivo..." ou "Restaurando..." e desabilita
-  os botões. Erros e o nome do arquivo gerado aparecem em `caption`.
+  ainda."), "Exportar backup" e "Restaurar backup". Exportar abre a **seleção de
+  pasta** e grava o `.zip` nela; restaurar abre a **seleção de arquivo**.
+  Enquanto trabalha, mostra "Salvando o backup...", "Lendo o arquivo..." ou
+  "Restaurando..." e desabilita os botões. Erros e o nome do arquivo salvo
+  aparecem em `caption`; cancelar a pasta não grava nem muda a data.
 - **Importação:** `RestoreBackupDialog` segue o visual do `ConfirmDialog`
   (fundo navy translúcido + `Card` central), em três passos:
   1. arquivo, data, versão, contagens do arquivo e do aparelho, aviso de que a
-     restauração substitui tudo, botão "Exportar cópia atual" (opcional) e
-     "Continuar";
+     restauração substitui tudo, botão "Exportar cópia atual" (opcional, abre a
+     seleção de pasta) e "Continuar";
   2. confirmação final com "Voltar" e "Restaurar" em `danger`;
   3. "Backup restaurado" com as contagens, aviso de capas que falharam e
      "Ver estante", que remonta o app.

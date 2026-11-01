@@ -10,10 +10,11 @@ describe('AjustesScreen', () => {
     await renderWithProviders(<AjustesScreen />);
 
     expect(screen.getByText('Ajustes')).toBeOnTheScreen();
-    expect(screen.getByText('Leitura')).toBeOnTheScreen();
-    expect(screen.getByText('Dados')).toBeOnTheScreen();
-    expect(screen.getByText('Organização')).toBeOnTheScreen();
-    expect(screen.getByText('Sobre')).toBeOnTheScreen();
+    expect(
+      screen
+        .getAllByText(/^(Leitura|Organização|Dados|Sobre)$/)
+        .map((node) => node.props.children),
+    ).toEqual(['Leitura', 'Organização', 'Dados', 'Sobre']);
     expect(screen.getByText('Meta diária')).toBeOnTheScreen();
     expect(screen.getByText('Lembrete')).toBeOnTheScreen();
     expect(screen.getByText('Aparência')).toBeOnTheScreen();

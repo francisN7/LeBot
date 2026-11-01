@@ -93,16 +93,19 @@ export function useBackup() {
       );
       const bytes = await packBackupArchive(json, covers);
       const fileName = backupFileName(exportedAt);
+      const saved = await service.saveArchive(fileName, bytes);
 
-      await service.shareArchive(fileName, bytes);
+      if (saved.status === 'canceled') {
+        return null;
+      }
 
       try {
         setValue('backup.last_exported_at', exportedAt.toISOString());
       } catch {
-        // A data é conveniência; o arquivo já foi gerado.
+        // A data é conveniência; o arquivo já foi salvo.
       }
 
-      return { fileName, counts: countBackup(tables) };
+      return { fileName: saved.fileName, counts: countBackup(tables) };
     } catch (cause) {
       setError(messageOf(cause));
       return null;

@@ -49,10 +49,6 @@ export function AjustesScreen({ onOpenGenres }: AjustesScreenProps = {}) {
         />
       </Section>
 
-      <Section title="Dados">
-        <BackupCard onRestored={bump} />
-      </Section>
-
       <Section title="Organização">
         <Card className="gap-xs">
           <View className="flex-row items-center justify-between gap-sm">
@@ -75,6 +71,10 @@ export function AjustesScreen({ onOpenGenres }: AjustesScreenProps = {}) {
         </Card>
 
         <ReviewFieldsCard />
+      </Section>
+
+      <Section title="Dados">
+        <BackupCard onRestored={bump} />
       </Section>
 
       <Section title="Sobre">

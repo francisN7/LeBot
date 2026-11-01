@@ -10,8 +10,8 @@
 
 ## Pronto (S11)
 
-- Ajustes em quatro seções: **Leitura** (meta, lembrete, aparência), **Dados**
-  (backup), **Organização** (gêneros e campos de resenha) e **Sobre**.
+- Ajustes em quatro seções: **Leitura** (meta, lembrete, aparência),
+  **Organização** (gêneros e campos de resenha), **Dados** (backup) e **Sobre**.
 - Meta diária editável com campo numérico, validação 3–200 e botão Salvar.
   `useSettings` ganhou assinatura; a Hoje recalcula na hora, sem reiniciar.
 - Lembrete e Aparência viraram cards "Em breve", sem horário/tema falsos. As
@@ -19,7 +19,8 @@
   banco e no backup para os recursos futuros.
 - Backup manual em `.zip`: `backup.json` (formato 1) + `covers/<bookId>.jpg`.
   Exportar lê as sete tabelas, aborta se uma capa referenciada sumiu do aparelho,
-  compartilha via `expo-sharing` e grava `backup.last_exported_at`.
+  escolhe a pasta com `Directory.pickDirectoryAsync`, grava o arquivo e a data.
+  Cancelar a pasta não grava nem muda a data.
 - Importação valida em memória (formato, ids, ISBNs, referências, meta, capas),
   mostra contagens do arquivo × do aparelho, oferece exportar uma cópia do estado
   atual, pede confirmação dupla e substitui tudo numa transação. As capas são
@@ -28,17 +29,17 @@
   backup são limpos. O sucesso remonta a navegação por `DataVersionProvider`.
 - `books.remove` apaga `queue_items` na mesma transação; o export descarta da
   fila livro concluído/inexistente e renumera.
-- Serializador/validador puro (`backup/format.ts`), ZIP puro (`archive.ts`),
-  camada nativa (`service.ts`), hook (`use-backup`) e repositório
-  (`src/db/repositories/backup.ts`). `expo-sharing` + `fflate`; o seletor usa
-  `File.pickFileAsync` do `expo-file-system`, sem `expo-document-picker`.
-- 48 testes novos (485 em 64 arquivos); lint, typecheck, test, doctor e export
+- Serializador puro (`backup/format.ts`), ZIP (`archive.ts`), camada nativa
+  (`service.ts`), hook (`use-backup`) e repositório (`backup.ts`). `fflate`;
+  pasta/arquivo via `Directory.pickDirectoryAsync`/`File.pickFileAsync` do
+  `expo-file-system`, sem `expo-sharing`/`expo-document-picker`.
+- 49 testes novos (486 em 64 arquivos); lint, typecheck, test, doctor e export
   verdes. Sem migração (ADR 0021).
 
 ## Decisões abertas
 
-- Conferir no Android: compartilhar o ZIP, salvar em Arquivos/Drive, escolher no
-  seletor, restaurar capas, teclado da meta e modal em tela pequena.
+- Conferir no Android: escolher a pasta e salvar o ZIP, escolher o arquivo,
+  restaurar capas, teclado da meta e modal em tela pequena.
 - Backlog: galeria de citações, `finished_at`, grid ajustável na Estante,
   refinamento das animações do mascote, tema escuro e temas extras.
 
@@ -50,8 +51,7 @@
   `backup-context`, `types`, `labels`)
 - `src/db/repositories/backup.ts`, `src/db/repositories/books.ts`
 - `src/app/_layout.tsx` (providers + `AppStack` com `key`)
-- `src/test-utils/backup.ts`, `src/test-utils/render.tsx`
-- `docs/adr/0021-backup-em-zip.md`
+- `src/test-utils/backup.ts`, `src/test-utils/render.tsx`, ADR 0021
 
 ## Armadilhas
 

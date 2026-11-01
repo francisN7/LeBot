@@ -21,9 +21,10 @@ imagens em base64 e preservar a qualidade original.
 
 1. **Um arquivo `.zip`** com `backup.json` na raiz e uma capa por livro em
    `covers/<bookId>.jpg`. O JSON continua sendo o contrato versionado; o ZIP é
-   só o recipiente. `fflate` monta e abre o arquivo; `expo-sharing` abre o
-   compartilhamento e `File.pickFileAsync` (do `expo-file-system` já instalado)
-   escolhe o arquivo na importação. Não entrou `expo-document-picker`.
+   só o recipiente. `fflate` monta e abre o arquivo; `Directory.pickDirectoryAsync`
+   escolhe a pasta no export e `File.pickFileAsync` escolhe o ZIP na importação,
+   ambos do `expo-file-system`. Não entraram `expo-sharing` nem
+   `expo-document-picker`.
 2. **Formato v1**, validado com Zod na importação: `formatVersion: 1`,
    `appVersion`, `exportedAt` e `data` com `genres`, `review_fields`, `books`,
    `reading_sessions`, `queue_items`, `reviews` e `settings`. Tabelas em
@@ -71,7 +72,9 @@ imagens em base64 e preservar a qualidade original.
   é limitado a 128 MB, o conteúdo descompactado a 256 MB e cada capa a 20 MB;
   para uma biblioteca pessoal é folgado, mas não é um backup incremental.
 - Capas não são redimensionadas: o ZIP preserva o arquivo original, ao custo de
-  tamanho. Exportar de novo no mesmo dia sobrescreve o arquivo de cache.
+  tamanho. Exportar de novo no mesmo dia cria outro arquivo se o nome já existir
+  (o app tenta um sufixo de hora); nenhum backup anterior é apagado. Cancelar a
+  seleção de pasta não grava nada nem atualiza a data do último backup.
 - O ZIP não tem checksum nem migração de formato. Um v2 precisará de uma
   conversão explícita.
 - A restauração pode falhar depois do banco trocado se a gravação de uma capa
@@ -87,6 +90,10 @@ imagens em base64 e preservar a qualidade original.
   cada capa no export; perde qualidade e não resolve o caso de muitas capas.
 - **`expo-document-picker`:** `File.pickFileAsync` do `expo-file-system` 58 já
   tem paridade com o picker; uma dependência a menos.
+- **`expo-sharing` no export:** abre o share sheet e não deixa escolher a pasta;
+  o dono teria que escolher um app que salvasse o arquivo. O
+  `Directory.pickDirectoryAsync` é o mesmo gesto da importação e escreve direto
+  no destino escolhido.
 - **Mesclar na importação:** conflito de ISBN, `book_id` e histórico; a resenha
   e a ordem não têm chave natural para combinar.
 - **Evento global para atualizar as telas:** mais código em cada feature e mais

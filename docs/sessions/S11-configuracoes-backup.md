@@ -118,10 +118,12 @@ mudou em relação ao plano original:
   1) e `covers/<bookId>.jpg`; o JSON guarda o caminho relativo e a importação
   reescreve para o caminho do aparelho. Export aborta se uma capa referenciada
   sumiu do disco.
-- **Só `expo-sharing` como dependência nativa nova.** O seletor é
-  `File.pickFileAsync` do `expo-file-system` 58; `expo-document-picker` não
-  entrou. O ZIP usa `fflate` (JS puro).
-- **Ajustes em quatro seções** (Leitura, Dados, Organização e Sobre), com a data
+- **Nenhuma dependência nativa nova.** A pasta do export é escolhida com
+  `Directory.pickDirectoryAsync` e o arquivo da importação com
+  `File.pickFileAsync`, ambos do `expo-file-system` 58; `expo-sharing` e
+  `expo-document-picker` não entraram. O ZIP usa `fflate` (JS puro). Cancelar a
+  pasta não grava nem muda a data do último backup.
+- **Ajustes em quatro seções** (Leitura, Organização, Dados e Sobre), com a data
   do último backup, a cópia opcional do estado atual antes de restaurar e as
   contagens só nos diálogos de confirmação.
 - **`books.remove` apaga `queue_items`** na mesma transação; o export descarta
@@ -129,7 +131,6 @@ mudou em relação ao plano original:
 - **`useSettings` ganhou assinatura**, então a meta salva em Ajustes atualiza a
   Hoje sem reiniciar. Depois de restaurar, a versão de dados remonta a navegação
   e todos os hooks releem o banco.
-- Sem migração. 48 testes novos (485 em 64 arquivos); lint, typecheck, test,
-  doctor e export verdes. Falta a conferência manual no Android do
-  compartilhamento, do seletor, da restauração de capas e do modal em tela
-  pequena.
+- Sem migração. 49 testes novos (486 em 64 arquivos); lint, typecheck, test,
+  doctor e export verdes. Falta a conferência manual no Android da escolha de
+  pasta e de arquivo, da restauração de capas e do modal em tela pequena.

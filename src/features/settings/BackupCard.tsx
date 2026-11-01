@@ -50,7 +50,7 @@ export function BackupCard({ onRestored }: BackupCardProps = {}) {
     const exported = await exportBackup();
 
     if (exported) {
-      setMessage(`Backup gerado: ${exported.fileName}.`);
+      setMessage(`Backup salvo: ${exported.fileName}.`);
     }
   }
 
@@ -78,7 +78,7 @@ export function BackupCard({ onRestored }: BackupCardProps = {}) {
     const exported = await exportBackup();
 
     if (exported) {
-      setCopyMessage('Cópia do estado atual gerada.');
+      setCopyMessage('Cópia do estado atual salva.');
     }
   }
 
@@ -105,7 +105,7 @@ export function BackupCard({ onRestored }: BackupCardProps = {}) {
 
   const busyLabel =
     busy === 'export'
-      ? 'Preparando o backup...'
+      ? 'Salvando o backup...'
       : busy === 'pick'
         ? 'Lendo o arquivo...'
         : busy === 'restore'

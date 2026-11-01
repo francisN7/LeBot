@@ -244,6 +244,9 @@ instância do Drizzle por parâmetro, então o mesmo código roda no aparelho
 
 - Um `.zip` manual com `backup.json` (formato 1) e `covers/<bookId>.jpg`; o JSON
   tem as sete tabelas, datas ISO e `cover_uri` relativo. Ver ADR 0021.
+- Exportar escolhe a pasta com `Directory.pickDirectoryAsync` e grava o arquivo
+  direto nela; importar escolhe o ZIP com `File.pickFileAsync`. Cancelar a
+  seleção não toca no banco nem na data do último backup.
 - Exportar aborta se um `cover_uri` aponta para arquivo inexistente/vazio; o
   dono precisa remover ou trocar a capa antes.
 - Importar valida tudo em memória, prepara as capas no cache, substitui o banco

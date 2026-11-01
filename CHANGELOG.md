@@ -19,22 +19,23 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 ### Added
 
 - S11: Ajustes completo e backup manual. A tela ganhou quatro seções (Leitura,
-  Dados, Organização e Sobre): a meta diária virou campo editável de 3–200 e
+  Organização, Dados e Sobre): a meta diária virou campo editável de 3–200 e
   atualiza a Hoje na hora; Lembrete e Aparência mostram "Em breve" sem valores
   falsos, mantendo as chaves para o futuro. O backup é um `.zip` com
   `backup.json` (formato 1) e as capas em `covers/<bookId>.jpg`: exportar lê
-  todas as tabelas e aborta se uma capa referenciada sumiu do aparelho; importar
-  valida tudo em memória, mostra as contagens do arquivo e do aparelho, permite
-  exportar uma cópia do estado atual, pede confirmação dupla e substitui o banco
-  numa transação. As capas voltam para `covers/`, os caminhos são reescritos e
-  arquivos antigos são limpos; se uma capa falhar, o livro fica sem capa em vez
-  de apontar para o vazio. A restauração remonta a navegação para todos os hooks
-  lerem o banco novo. `books.remove` passou a apagar o item da ordem; o export
-  sanitiza a fila e a validação recusa livro concluído/inexistente na ordem.
-  `expo-sharing` + `fflate`; o seletor usa `File.pickFileAsync` do
-  `expo-file-system`, sem `expo-document-picker`. Sem migração (ADR 0021). 48
-  testes novos (485 em 64 arquivos); lint, typecheck, test, doctor e export
-  verdes.
+  todas as tabelas, aborta se uma capa referenciada sumiu do aparelho, escolhe a
+  pasta e grava o arquivo; importar valida tudo em memória, mostra as contagens
+  do arquivo e do aparelho, permite exportar uma cópia do estado atual, pede
+  confirmação dupla e substitui o banco numa transação. As capas voltam para
+  `covers/`, os caminhos são reescritos e arquivos antigos são limpos; se uma
+  capa falhar, o livro fica sem capa em vez de apontar para o vazio. A
+  restauração remonta a navegação para todos os hooks lerem o banco novo.
+  `books.remove` passou a apagar o item da ordem; o export sanitiza a fila e a
+  validação recusa livro concluído/inexistente na ordem. `fflate`; pasta e
+  arquivo usam `Directory.pickDirectoryAsync`/`File.pickFileAsync` do
+  `expo-file-system`, sem `expo-sharing`/`expo-document-picker`. Sem migração
+  (ADR 0021). 49 testes novos (486 em 64 arquivos); lint, typecheck, test,
+  doctor e export verdes.
 - S10: "Meu ritmo" (estatísticas). A Estante ganha um atalho discreto abaixo do
   título que abre `/estatisticas`. Períodos civis no dia local: 1 semana (últimos
   7 dias, uma barra por dia), 1 mês (mês corrente do dia 1 até hoje, blocos de 7
