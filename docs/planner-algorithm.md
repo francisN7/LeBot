@@ -124,8 +124,10 @@ da meta, o plano é parcial (não é erro e não vira `no-books`).
 
 Quando há livro ativo, os blocos seguintes vêm com `suggestion: true`: são a
 leitura paralela que alterna o gênero, não uma obrigação. Sem livro ativo, o
-primeiro da fila é o **plano** (`suggestion: false`), não uma sugestão. A UI
-decide como mostrar (S7); o motor só marca.
+primeiro da fila é o **plano** (`suggestion: false`), não uma sugestão. Desde a
+S7.1 a UI não mostra o selo "sugestão": o bloco paralelo vem da Ordem, que é
+escolha do dono. O motor mantém a marca; o selo volta se existir um livro
+proposto fora da Ordem.
 
 ### 12. Sem livro elegível
 

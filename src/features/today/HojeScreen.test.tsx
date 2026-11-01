@@ -33,7 +33,7 @@ function seededRepositories() {
 }
 
 describe('HojeScreen', () => {
-  it('mostra a meta e os blocos do plano real, com a sugestão marcada', async () => {
+  it('mostra a meta e os blocos do plano real, com o bloco paralelo da Ordem', async () => {
     const { books, reading } = seededRepositories();
     reading.create({ bookId: 'book-hobbit', pages: 1, readAt: new Date() });
 
@@ -53,7 +53,7 @@ describe('HojeScreen', () => {
     expect(screen.getByText('Orgulho e Preconceito')).toBeOnTheScreen();
     expect(screen.getByText('Fantasia · 11 páginas')).toBeOnTheScreen();
     expect(screen.getByText('Clássico · 7 páginas')).toBeOnTheScreen();
-    expect(screen.getByText('sugestão')).toBeOnTheScreen();
+    expect(screen.queryByText('sugestão')).not.toBeOnTheScreen();
     expect(screen.getByText('Agora')).toBeOnTheScreen();
     expect(screen.getByText('Depois')).toBeOnTheScreen();
     expect(screen.getAllByText('Registrar leitura').length).toBeGreaterThan(0);
@@ -91,7 +91,6 @@ describe('HojeScreen', () => {
     expect(
       screen.getByText('Com 8 páginas, o dia costuma render um livro só.'),
     ).toBeOnTheScreen();
-    expect(screen.queryByText('sugestão')).not.toBeOnTheScreen();
   });
 
   it('explica o vazio e leva para a Ordem quando não há livro elegível', async () => {

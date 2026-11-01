@@ -190,9 +190,10 @@ pequena e a barra de progresso em densidades diferentes.
   `depois`, páginas de hoje marcando `feito`, sessão de outro dia ignorada,
   livro concluído, plano vazio, meta batida e volta leve. Também cobre o rótulo
   de data em PT-BR sem depender do locale.
-- `src/features/today/HojeScreen.test.tsx`: plano real com ativo + sugestão,
-  volta leve com a última sessão fora da janela de 7 dias, meta < 10, vazio com
-  CTA para a Ordem e registro a partir do bloco atualizando o progresso na hora.
+- `src/features/today/HojeScreen.test.tsx`: plano real com ativo + bloco
+  paralelo da Ordem, volta leve com a última sessão fora da janela de 7 dias,
+  meta < 10, vazio com CTA para a Ordem e registro a partir do bloco atualizando
+  o progresso na hora.
 - `src/db/repositories/reading-sessions.test.ts`: `latest()` devolve a sessão
   mais recente de qualquer livro (e `undefined` sem histórico).
 - `QueueScreen.test.tsx` continua verde depois de extrair `BookArt` (capa ×
@@ -206,7 +207,8 @@ pequena e a barra de progresso em densidades diferentes.
 - `src/features/today/HojeScreen.test.tsx`: Coraline pausada com sessão de hoje
   vira o livro ativo do plano e seu status muda; "Plano do dia" e "Lido hoje"
   com páginas e hora; meta batida sem fração acima de 100%; botão explícito
-  "Registrar leitura" e "Registrar mais"; CTA "Ver a ordem".
+  "Registrar leitura" e "Registrar mais"; CTA "Ver a ordem"; o bloco paralelo da
+  Ordem não exibe mais o selo "sugestão".
 - `src/features/today/plan-view.test.ts` + `format.test.ts`: `sessionsToday` em
   ordem cronológica com `HH:mm`, sessão órfã contando na meta sem entrar na lista
   e data inválida.

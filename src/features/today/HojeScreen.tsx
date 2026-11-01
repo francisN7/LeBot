@@ -126,7 +126,6 @@ export function HojeScreen({ onOpenQueue }: HojeScreenProps = {}) {
                         label={blockStatusLabel[block.status]}
                         selected={block.status === 'now'}
                       />
-                      {block.suggestion ? <Chip label="sugestão" /> : null}
                       {block.finishes ? <Chip label="fecha o livro" /> : null}
                     </View>
                   </View>

@@ -73,3 +73,11 @@ troca o interior do hook pela fila persistida sem tocar na tela nem no motor.
   plano deixaria de ser um alvo estável do dia.
 - **Esconder a sugestão atrás de um toque:** reduz a tela, mas esconde a
   decisão do motor e o convite à alternância de gênero.
+
+## Adendo (2026-11-01, S7.1)
+
+O selo "sugestão" saiu da Hoje. O bloco paralelo vem do topo da Ordem, que é
+escolha do dono, não uma proposta do app; chamá-lo de sugestão confundia a
+origem com o papel no plano. O motor mantém `suggestion: true` e a UI não mostra
+o selo. Ele volta se existir um livro proposto fora da Ordem.
+
