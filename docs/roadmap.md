@@ -28,9 +28,12 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S10 | [ ] | Estatísticas e insights | Tela com dados reais | — |
 | S11 | [ ] | Configurações + backup JSON | Round-trip de export/import testado | — |
 | S12 | [ ] | Release interno | APK instalável no Android; ícone, splash e camada adaptativa conferidos no launcher | — |
-| S13 | [ ] | Documentação final | Docs revisados e changelog fechado | — |
+| S13 | [ ] | Documentação final + limpeza | Sub-sessões no padrão Xa/Xb; backlog reordenado pela prioridade do dono; itens descartados removidos dos docs; docs revisados e changelog fechado | `sessions/S13-documentacao-final.md` |
 
 ## Backlog pós-MVP
+
+> A ordem abaixo é provisória: a S13 reordena pela prioridade do dono e remove
+> o que não entra mais.
 
 - Botão **(i)** de ajuda em cada aba, com explicação curta do papel da tela e o
   LêBot "confuso" atrás do i (interrogação diagonal, como quem inspeciona),
