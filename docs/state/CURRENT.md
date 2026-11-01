@@ -2,9 +2,12 @@
 
 ## Sessão
 
-- **Atual:** nenhuma sessão aberta; S9 encerrada em 2026-11-01.
-- **Última concluída:** S9 (resenha + campos extras). Falta conferir no Android.
-- **Próxima:** S10 (estatísticas e insights).
+- **Atual:** nenhuma sessão aberta; S9 implementada em 2026-11-01, com a
+  conferência no Android pendente.
+- **Última concluída:** S9 (resenha + campos extras); falta o aceite manual no
+  Android.
+- **Próxima:** S10 (estatísticas e insights) — spec em
+  `docs/sessions/S10-estatisticas.md`.
 
 ## Pronto (S9)
 
