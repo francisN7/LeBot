@@ -22,9 +22,9 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 ### Changed
 
 - S7 (revisão no Android): a tela foi aprovada e o dono abriu a **S7.1** —
-  registrar leitura retoma livro pausado/fila (ADR 0015), Hoje antes da Fila e
-  Fila somente ordem. O botão (i) com o mascote confuso ficou para depois da
-  S12.
+  registrar leitura retoma livro pausado/fila (ADR 0015), Hoje antes da Fila,
+  Fila somente ordem e blocos com ação explícita. O botão (i) com o mascote
+  confuso ficou para depois da S12.
 - Auditoria de documentação: `README.md`, `AGENTS.md`, `docs/INDEX.md`,
   `docs/architecture.md`, `docs/data-model.md`, `docs/testing.md`,
   `docs/design/*`, `docs/brand.md` e `brand/README.md` alinhados ao código da
