@@ -57,7 +57,8 @@
 ## Armadilhas
 
 - `extras` é JSON por `field_id`: não invente campo fixo para "trecho" — citação
-  é `reviews.quote` e a galeria futura depende disso.
+  é `reviews.quote` e a galeria futura depende disso. Campo vazio (ou só
+  espaços) não vira chave.
 - Só `onSettle` da roda grava status; a resenha nunca abre por cima do gesto.
 - A abertura automática usa `write.book.status` da sessão de leitura; não abra
   por `pagesRead` na tela (o repositório é a fonte).
@@ -65,13 +66,9 @@
   status no repositório.
 - Excluir campo limpa a chave em todas as resenhas; excluir livro apaga a
   resenha. Os dois caminhos têm teste no SQLite e no fake.
-- Campo vazio (ou só espaços) não vira chave em `extras`.
-- `TextField multiline` precisa de altura mínima; sem ela o campo nasce com uma
-  linha no Android.
-- Rota tipada: `.expo/types/router.d.ts` é gerado; rota nova exige
-  `npx expo start --offline` antes do typecheck.
-- `renderWithProviders` agora injeta `reviewsRepository` e
-  `reviewFieldsRepository`; sem eles os hooks caem no banco real.
+- `TextField multiline` precisa de altura mínima; no Android, sem ela nasce com uma linha.
+- Rota tipada: `.expo/types/router.d.ts` é gerado; rota nova exige `npx expo start --offline` antes do typecheck.
+- `renderWithProviders` injeta `reviewsRepository` e `reviewFieldsRepository`; sem eles os hooks caem no banco real.
 - `drizzle/*.sql` e `migrations.js` são gerados; rode `lint:fix` depois.
 
 ## Como rodar
