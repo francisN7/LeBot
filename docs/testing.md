@@ -291,28 +291,31 @@ rolagem vertical e setas com leitor de tela).
 - `src/lib/day.test.ts`: dia local, diferença entre dias, início/fim do dia e
   soma de dias atravessando mês e ano. É a base que o plano e as estatísticas
   compartilham desde a S10.
-- `src/features/stats/period.test.ts`: janela de 4 e 12 semanas terminando hoje,
-  janela anterior encadeada sem sobreposição, 12 meses corridos, rótulos e
+- `src/features/stats/period.test.ts`: uma barra por dia na semana, 4 semanas no
+  mês, 12 semanas no trimestre, 12 meses corridos no ano, janela anterior
+  encadeada sem sobreposição, rótulos curtos (dia do mês com 12 barras) e
   descrições acessíveis.
 - `src/features/stats/charts.test.ts`: escala das barras com piso, largura por
-  quantidade, "1,2k", fatia com mínimo visível e vírgula decimal.
+  quantidade, milhares em "1k", fatia com mínimo visível e vírgula decimal.
 - `src/features/stats/aggregate.test.ts`: soma de páginas (com `appliedPages`),
   dias ativos e média, sequência com folga de hoje e parada na falha, sessão
   órfã contando páginas sem gênero, conclusão pela última sessão × `updated_at`
-  aproximado × fora do período, nota média sem livro excluído, comparação com a
-  janela anterior, "Outros" a partir do sexto gênero, vazio e troca de recorte.
+  aproximado × fora do período, nota média sem livro excluído, lista de livros
+  por nota, comparação com a janela anterior, "Outros" a partir do sexto gênero,
+  vazio e troca de recorte.
 - `src/features/stats/use-stats.test.tsx`: registrar uma sessão recalcula a tela
   na hora (assinatura do repositório de leitura).
 - `src/features/stats/StatsScreen.test.tsx`: números e frase do período, troca
-  para 12 semanas, estado vazio sem gráfico, abertura do concluído pela
-  mini-lombada e voltar.
+  para 3 meses, estado vazio sem gráfico, abertura do concluído pela
+  mini-lombada, drill-down de uma nota com "Voltar às notas" e voltar da tela.
 - `src/components/ui/StatsIcon.test.tsx`: o ícone existe e é decorativo.
 - `src/db/repositories/reading-sessions.test.ts`: `listLatestPerBook` devolve só
   a sessão mais recente de cada livro.
 - `src/features/library/EstanteScreen.test.tsx`: atalho "Meu ritmo" chama a
   navegação.
 
-O que continua manual: no Android, a prateleira com 4 e 12 barras, os rótulos
-curtos, a rotação do adesivo de sequência, as mini-lombadas e o estado vazio.
+O que continua manual: no Android, a prateleira com 7 dias, 4 e 12 barras, os
+rótulos curtos, a rotação do adesivo de sequência, as mini-lombadas, o
+drill-down das notas e o estado vazio.
 
-A suíte atual tem 56 arquivos e 426 testes (`npm run test`).
+A suíte atual tem 56 arquivos e 428 testes (`npm run test`).

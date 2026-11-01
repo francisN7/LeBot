@@ -2,8 +2,8 @@
 
 ## Sessão
 
-- **Atual:** S10 (estatísticas e insights) implementada em 2026-11-01; falta
-  conferir no Android para encerrar.
+- **Atual:** S10 (estatísticas e insights) implementada em 2026-11-01 e
+  revisada com o retorno do Android; falta a reconferência final para encerrar.
 - **Última concluída:** S9 (resenha + campos extras).
 - **Próxima:** S11 (configurações + backup JSON) — spec em
   `docs/sessions/S11-configuracoes-backup.md`.
@@ -14,27 +14,31 @@
 
 - "Meu ritmo": rota `/estatisticas` aberta pelo atalho discreto da Estante
   (ícone de três barras + rótulo), abaixo de "N livros · N à vista".
-- Períodos 4 semanas (padrão), 12 semanas e ano (12 meses corridos), tudo no dia
-  local; semanas terminam hoje. A janela anterior serve só para comparar.
+- Períodos 1 semana (7 dias, uma barra por dia), 1 mês (4 semanas, padrão), 3
+  meses (12 semanas) e 1 ano (12 meses corridos), tudo no dia local; semanas
+  terminam hoje. A janela anterior serve só para comparar.
 - Cartão do LêBot com uma frase calculada e humor coerente; adesivo de sequência
-  quando ≥ 2 dias. Páginas, dias ativos e sequência em um card; média por dia
-  ativo numa legenda.
-- Ritmo em prateleira de lombadas (sem gráfico de lib): semana/mês corrente em
-  dourado, valor compacto e cada coluna acessível por extenso. Gêneros em barras
+  quando ≥ 2 dias. Páginas, dias com leitura e sequência em um card; abaixo,
+  "Média de N páginas por dia com leitura, em M dias do período.".
+- Ritmo em prateleira de lombadas (sem gráfico de lib): uma barra por
+  dia/semana/mês conforme o período, coluna corrente em dourado, largura
+  dividida entre as colunas e rótulos curtos para não cortar. Gêneros em barras
   na cor da prateleira, top 5 + Outros, com páginas e concluídos. Mini-lombadas
-  clicáveis dos concluídos, com mês. Nota média, estrelas e distribuição 5→1.
+  clicáveis dos concluídos, com mês. Nota média, estrelas e distribuição 5→1;
+  tocar numa nota abre os livros daquela nota, com "Voltar às notas".
 - Sessão órfã conta páginas e não entra em gênero/nota. Conclusão datada pela
   última sessão; sem sessão (roda/edição), `books.updated_at` aproximado.
 - Vazio: mascote, frase e CTA para a Hoje, sem números falsos.
 - Agregação pura (`period.ts`, `aggregate.ts`, `insights.ts`), `useStats` e
   `readingSessions.listLatestPerBook`. Sem migração e sem biblioteca de gráfico
-  (ADR 0020). 35 testes novos (426 em 56 arquivos); lint, typecheck, test,
-  doctor e export verdes.
+  (ADR 0020, com adendo da revisão). 37 testes novos (428 em 56 arquivos); lint,
+  typecheck, test, doctor e export verdes.
 
 ## Decisões abertas
 
-- Conferir no Android: atalho na Estante, prateleira com 4 e 12 barras, adesivo
-  rotacionado, mini-lombadas e estado vazio. Só então marcar S10 como `[x]`.
+- Reconferir no Android: prateleira com 7, 4 e 12 barras e rótulos sem corte, o
+  subtítulo por unidade, a frase de média, o drill-down das notas e o vazio.
+  Só então marcar S10 como `[x]`.
 - S11: formato e versionamento do backup, restauração substitui × mescla, capas
   no backup (hoje só o caminho), lembrete (sem `expo-notifications`) e o que
   fazer com Aparência. Tudo em `docs/sessions/S11-configuracoes-backup.md`.
@@ -70,6 +74,9 @@
   `npx expo start --offline` antes do typecheck (o `expo export` não regenera).
 - `renderWithProviders` injeta os repositórios; tela de stats precisa de
   `readingRepository` e `reviewsRepository` nos cenários customizados.
+- Rótulo de barra não cabe em largura fixa: as colunas do ritmo dividem a
+  largura e, com 12 barras, a semana usa só o dia do mês e o valor vira `1k`.
+  Não volte a `sizes.chart.barWidthCompact` como largura da coluna.
 
 ## Como rodar
 

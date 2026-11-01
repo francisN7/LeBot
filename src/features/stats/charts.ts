@@ -16,11 +16,11 @@ export function barHeight(pages: number, maxPages: number): number {
 
 /** Barras mais finas quando há muitas (12 semanas ou 12 meses). */
 export function barWidth(bucketCount: number): number {
-  return bucketCount > 6 ? sizes.chart.barWidthCompact : sizes.chart.barWidth;
+  return bucketCount > 7 ? sizes.chart.barWidthCompact : sizes.chart.barWidth;
 }
 
 /**
- * 1240 → "1,2k". O valor em cima de uma barra de 18 px não cabe por extenso,
+ * 1240 → "1k". O valor em cima de uma barra estreita não cabe por extenso,
  * mas o leitor de tela sempre ouve o número inteiro.
  */
 export function compactPages(pages: number): string {
@@ -32,7 +32,7 @@ export function compactPages(pages: number): string {
     return String(pages);
   }
 
-  return `${(Math.round(pages / 100) / 10).toFixed(1).replace('.', ',')}k`;
+  return `${Math.round(pages / 1000)}k`;
 }
 
 /** Fatia de uma barra horizontal (0–100), com 2% mínimo para não sumir. */

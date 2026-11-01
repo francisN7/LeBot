@@ -39,7 +39,11 @@ export function GenreBars({ genres, pages }: GenreBarsProps) {
             key={genre.id}
           >
             <View className="flex-row items-baseline justify-between gap-sm">
-              <AppText numberOfLines={1} variant="bodyStrong">
+              <AppText
+                numberOfLines={1}
+                style={{ flex: 1 }}
+                variant="bodyStrong"
+              >
                 {genre.name}
               </AppText>
               <AppText numberOfLines={1} tone="muted" variant="caption">

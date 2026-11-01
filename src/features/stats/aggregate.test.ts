@@ -39,7 +39,7 @@ function session(
 
 function base(overrides: Partial<AggregateInput> = {}): AggregateInput {
   return {
-    period: '4w',
+    period: '1m',
     today,
     sessions: [],
     previousSessions: [],
@@ -178,6 +178,10 @@ describe('aggregateStats', () => {
       { rating: 2, count: 0 },
       { rating: 1, count: 0 },
     ]);
+    expect(stats.ratings.books).toEqual([
+      { bookId: 'book-a', title: 'Livro', author: 'Autora', rating: 5 },
+      { bookId: 'book-b', title: 'Livro', author: 'Autora', rating: 3 },
+    ]);
   });
 
   it('compara com a janela anterior, sem gênero para puxar a frase', () => {
@@ -230,11 +234,11 @@ describe('aggregateStats', () => {
 
   it('muda o recorte ao trocar o período', () => {
     const sessions = [
-      session('book-apagado', at(8, 20), 40), // fora de 4 semanas
+      session('book-apagado', at(8, 20), 40), // fora das últimas 4 semanas
       session('book-apagado', at(10, 1), 10),
     ];
 
     expect(aggregateStats(base({ sessions })).pages).toBe(10);
-    expect(aggregateStats(base({ period: '12w', sessions })).pages).toBe(50);
+    expect(aggregateStats(base({ period: '3m', sessions })).pages).toBe(50);
   });
 });

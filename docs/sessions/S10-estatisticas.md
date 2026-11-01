@@ -11,11 +11,12 @@ biblioteca nova no MVP.
 1. **Onde a tela mora:** rota `/estatisticas`, aberta por um atalho discreto na
    **Estante** abaixo do título ("Meu ritmo", ícone de três barras). Não é 5ª
    aba nem card da Hoje; a Hoje segue focada no plano.
-2. **Período:** 4 semanas (padrão), 12 semanas e ano (12 meses corridos). As
-   semanas terminam hoje; tudo no dia local.
-3. **Números:** páginas e média por dia ativo; dias ativos e sequência atual;
-   livros concluídos (mini-lombadas clicáveis); gêneros com páginas **e**
-   concluídos; nota média e distribuição de todas as resenhas.
+2. **Período:** 1 semana (7 dias, uma barra por dia), 1 mês (4 semanas, padrão),
+   3 meses (12 semanas) e 1 ano (12 meses corridos). Tudo no dia local.
+3. **Números:** páginas e média por dia com leitura; dias ativos e sequência
+   atual; livros concluídos (mini-lombadas clicáveis); gêneros com páginas **e**
+   concluídos; nota média e distribuição de todas as resenhas, com a lista dos
+   livros de cada nota ao tocar nela.
 4. **Gráficos:** prateleira de lombadas para o ritmo e barras horizontais para
    gêneros, tudo com `View`/NativeWind. Sem biblioteca de gráfico.
 5. **Insights:** uma frase calculada por tela, escolhida por prioridade, com o
@@ -37,12 +38,13 @@ biblioteca nova no MVP.
 3. **Hook:** `useStats(period, today)` junta os repositórios e recalcula ao
    mudar de período ou após registrar/desfazer leitura.
 4. **Tela:** rota `/estatisticas`, cabeçalho, seletor de período, cartão do
-   LêBot, três números, prateleira de ritmo, gêneros, concluídos, notas e
-   estado vazio.
+   LêBot, três números, prateleira de ritmo, gêneros, concluídos, notas com
+   drill-down por nota e estado vazio.
 5. **Entrada:** atalho "Meu ritmo" na Estante, abaixo do título.
 6. **Testes:** agregação (períodos, dias ativos, sequência, órfãs, gêneros,
-   nota média, vazio, conclusão aproximada), `useStats` reagindo a escrita, e
-   tela (números, troca de período, vazio, voltar, abrir concluído).
+   nota média, lista por nota, vazio, conclusão aproximada), `useStats` reagindo
+   a escrita, e tela (números, troca de período, vazio, notas, voltar, abrir
+   concluído).
 7. **Docs:** `architecture.md`, `data-model.md`, `design-system.md`,
    `testing.md`, `CURRENT.md`, `roadmap.md`, `CHANGELOG.md` e ADR 0020.
 
@@ -54,6 +56,7 @@ biblioteca nova no MVP.
 - [x] Registrar leitura atualiza a estatística ao voltar para a tela.
 - [x] Sessões órfãs contam nas páginas e não quebram gênero/nota.
 - [x] Estado vazio claro, sem números falsos.
+- [x] Notas abrem os livros de cada nota e voltam ao resumo.
 - [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
 - [ ] Conferido no Android.
 

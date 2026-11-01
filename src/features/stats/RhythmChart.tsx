@@ -4,12 +4,19 @@ import { AppText, Card } from '@/components/ui';
 import { colors, lineHeight } from '@/theme';
 
 import { barHeight, barWidth, compactPages } from './charts';
-import type { StatsBucket } from './types';
+import type { StatsBucket, StatsUnit } from './types';
 
 type RhythmChartProps = {
   buckets: (StatsBucket & { pages: number })[];
-  /** Chave da semana/mês corrente: a barra ganha a cor do destaque. */
+  /** Chave do dia/semana/mês corrente: a barra ganha a cor do destaque. */
   currentKey: string;
+  unit: StatsUnit;
+};
+
+const unitLabel: Record<StatsUnit, string> = {
+  day: 'dia',
+  week: 'semana',
+  month: 'mês',
 };
 
 function pagesLabel(pages: number): string {
@@ -17,11 +24,12 @@ function pagesLabel(pages: number): string {
 }
 
 /**
- * Ritmo como prateleira: cada semana/mês é uma lombada em pé sobre uma linha
- * navy. A altura é proporcional às páginas; a coluna inteira é o elemento
- * acessível, com o número por extenso.
+ * Ritmo como prateleira: cada dia/semana/mês é uma lombada em pé sobre uma
+ * linha navy. A altura é proporcional às páginas; a coluna inteira é o
+ * elemento acessível, com o número por extenso. As colunas dividem a largura
+ * disponível, então o rótulo nunca é cortado por uma barra estreita.
  */
-export function RhythmChart({ buckets, currentKey }: RhythmChartProps) {
+export function RhythmChart({ buckets, currentKey, unit }: RhythmChartProps) {
   const maxPages = Math.max(...buckets.map((bucket) => bucket.pages), 1);
   const width = barWidth(buckets.length);
 
@@ -30,7 +38,7 @@ export function RhythmChart({ buckets, currentKey }: RhythmChartProps) {
       <View className="gap-xs">
         <AppText variant="subtitle">Ritmo</AppText>
         <AppText tone="muted" variant="caption">
-          Páginas por {buckets.length > 12 ? 'mês' : 'semana'}.
+          Páginas por {unitLabel[unit]}.
         </AppText>
       </View>
 
@@ -39,9 +47,9 @@ export function RhythmChart({ buckets, currentKey }: RhythmChartProps) {
           <View
             accessibilityLabel={`${bucket.description}: ${pagesLabel(bucket.pages)}`}
             accessible
-            className="items-center justify-end"
+            className="flex-1 items-center justify-end"
             key={bucket.key}
-            style={{ paddingBottom: 2, width }}
+            style={{ paddingBottom: 2 }}
           >
             <AppText
               numberOfLines={1}
@@ -52,11 +60,12 @@ export function RhythmChart({ buckets, currentKey }: RhythmChartProps) {
               {compactPages(bucket.pages)}
             </AppText>
             <View
-              className="w-full rounded-t-sm border-2 border-navy"
+              className="rounded-t-sm border-2 border-navy"
               style={{
                 backgroundColor:
                   bucket.key === currentKey ? colors.gold : colors.pink,
                 height: barHeight(bucket.pages, maxPages),
+                width,
               }}
             />
           </View>
@@ -68,7 +77,7 @@ export function RhythmChart({ buckets, currentKey }: RhythmChartProps) {
           <AppText
             key={bucket.key}
             numberOfLines={1}
-            style={{ textAlign: 'center', width }}
+            style={{ flex: 1, textAlign: 'center' }}
             tone={bucket.key === currentKey ? 'default' : 'muted'}
             variant="label"
           >

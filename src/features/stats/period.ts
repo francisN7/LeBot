@@ -5,14 +5,26 @@ import {
   toLocalDayKey,
 } from '@/lib/day';
 
-import type { StatsBucket, StatsPeriod, StatsRange } from './types';
+import type { StatsBucket, StatsPeriod, StatsRange, StatsUnit } from './types';
 
-const PERIOD_DAYS: Record<'4w' | '12w', number> = { '4w': 28, '12w': 84 };
+const PERIOD_DAYS: Record<'1w' | '1m' | '3m', number> = {
+  '1w': 7,
+  '1m': 28,
+  '3m': 84,
+};
 
 const PERIOD_LABELS: Record<StatsPeriod, string> = {
-  '4w': 'Últimas 4 semanas',
-  '12w': 'Últimas 12 semanas',
-  year: 'Últimos 12 meses',
+  '1w': 'Últimos 7 dias',
+  '1m': 'Últimas 4 semanas',
+  '3m': 'Últimas 12 semanas',
+  '1y': 'Últimos 12 meses',
+};
+
+const PERIOD_UNITS: Record<StatsPeriod, StatsUnit> = {
+  '1w': 'day',
+  '1m': 'week',
+  '3m': 'week',
+  '1y': 'month',
 };
 
 const MONTH_SHORT = [
@@ -45,11 +57,29 @@ const MONTH_LONG = [
   'Dezembro',
 ] as const;
 
-/** `12/10`, sem depender do locale do aparelho. */
+const WEEKDAY_SHORT = [
+  'dom',
+  'seg',
+  'ter',
+  'qua',
+  'qui',
+  'sex',
+  'sáb',
+] as const;
+
+const WEEKDAY_LONG = [
+  'Domingo',
+  'Segunda-feira',
+  'Terça-feira',
+  'Quarta-feira',
+  'Quinta-feira',
+  'Sexta-feira',
+  'Sábado',
+] as const;
+
+/** `5/10`, sem zero à esquerda e sem depender do locale do aparelho. */
 function shortDate(date: Date): string {
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  return `${day}/${month}`;
+  return `${date.getDate()}/${date.getMonth() + 1}`;
 }
 
 /** `out` — rótulo curto de mês, sem depender do locale do aparelho. */
@@ -57,18 +87,35 @@ export function shortMonth(date: Date): string {
   return MONTH_SHORT[date.getMonth()] ?? MONTH_SHORT[0];
 }
 
+function dayBuckets(today: Date, days: number): StatsBucket[] {
+  return Array.from({ length: days }, (_, index) => {
+    const start = startOfLocalDay(addLocalDays(today, -(days - 1) + index));
+
+    return {
+      key: toLocalDayKey(start),
+      label: WEEKDAY_SHORT[start.getDay()] ?? WEEKDAY_SHORT[0],
+      description: `${WEEKDAY_LONG[start.getDay()] ?? WEEKDAY_LONG[0]}, ${shortDate(start)}`,
+      start,
+      end: endOfLocalDay(start),
+    };
+  });
+}
+
 function weekBuckets(today: Date, days: number): StatsBucket[] {
   const weeks = days / 7;
+  // Com muitas barras o rótulo `5/10` não cabe; o dia do mês basta, e a
+  // descrição acessível continua com o intervalo completo.
+  const compactLabel = weeks > 6;
 
   return Array.from({ length: weeks }, (_, index) => {
     const start = startOfLocalDay(addLocalDays(today, -(days - 1) + index * 7));
     const end = endOfLocalDay(addLocalDays(start, 6));
-    const label = shortDate(start);
+    const day = start.getDate();
 
     return {
       key: toLocalDayKey(start),
-      label,
-      description: `Semana de ${label} a ${shortDate(end)}`,
+      label: compactLabel ? String(day) : shortDate(start),
+      description: `Semana de ${shortDate(start)} a ${shortDate(end)}`,
       start,
       end,
     };
@@ -103,8 +150,9 @@ function monthBuckets(today: Date): StatsBucket[] {
  */
 export function statsRange(period: StatsPeriod, today: Date): StatsRange {
   const label = PERIOD_LABELS[period];
+  const unit = PERIOD_UNITS[period];
 
-  if (period === 'year') {
+  if (period === '1y') {
     const buckets = monthBuckets(today);
     const year = today.getFullYear();
     const month = today.getMonth();
@@ -112,6 +160,7 @@ export function statsRange(period: StatsPeriod, today: Date): StatsRange {
     return {
       period,
       label,
+      unit,
       from: new Date(year, month - 11, 1),
       to: endOfLocalDay(today),
       previous: {
@@ -130,12 +179,14 @@ export function statsRange(period: StatsPeriod, today: Date): StatsRange {
   return {
     period,
     label,
+    unit,
     from,
     to,
     previous: {
       from: startOfLocalDay(addLocalDays(previousTo, -(days - 1))),
       to: previousTo,
     },
-    buckets: weekBuckets(today, days),
+    buckets:
+      unit === 'day' ? dayBuckets(today, days) : weekBuckets(today, days),
   };
 }

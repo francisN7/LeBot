@@ -330,14 +330,17 @@ cartão ou no vazio).
   O humor vem da mesma regra da frase (sequência, conclusão, nota alta, silêncio
   recente). A sequência ≥ 2 ganha um adesivo `gold` com borda navy e rotação de
   −3°, nunca emoji.
+- **Períodos:** 1 semana (uma barra por dia), 1 mês (4 semanas), 3 meses (12
+  semanas) e 1 ano (12 meses). O chip é curto; o subtítulo da tela diz a janela.
 - **Números:** um `Card` com três colunas (páginas, dias ativos, dias seguidos)
-  separadas por um filete navy a 15%. Número em `variant="title"`; a média por
-  dia ativo é uma `caption` abaixo do card.
-- **Ritmo:** `RhythmChart` desenha uma lombada por semana/mês sobre uma linha
-  navy de 2 px. Altura ∝ páginas (`barHeight`), topo arredondado, rosa; a
-  semana/mês corrente é `gold`. O valor compacto fica acima (`compactPages`,
-  "1,2k") e o rótulo embaixo. Cada coluna é acessível com o intervalo e o total
-  por extenso.
+  separadas por um filete navy a 15%. Número em `variant="title"`; abaixo,
+  "Média de N páginas por dia com leitura, em M dias do período.".
+- **Ritmo:** `RhythmChart` desenha uma lombada por dia/semana/mês sobre uma linha
+  navy de 2 px. Altura ∝ páginas (`barHeight`), topo arredondado, rosa; o
+  dia/semana/mês corrente é `gold`. O subtítulo segue a unidade ("Páginas por
+  dia/semana/mês"). As colunas dividem a largura disponível; o valor compacto
+  (`1k`) fica acima e o rótulo embaixo (dia da semana, dia do mês ou `jan`).
+  Cada coluna é acessível com o intervalo e o total por extenso.
 - **Gêneros:** `GenreBars` em barras horizontais na cor do gênero, ordenadas por
   páginas, top 5 + "Outros". Cada linha mostra "N páginas · M concluídos".
 - **Concluídos:** `FinishedStrip` com mini-lombadas (`Spine` 30×44, sem rótulo,
@@ -345,7 +348,8 @@ cartão ou no vazio).
   não aparece.
 - **Notas:** `RatingSummary` com média, `RatingStars` de leitura e distribuição
   5→1 em barrinhas douradas. Média e distribuição são de todas as resenhas; o
-  cartão diz isso.
+  cartão diz isso. Tocar numa nota troca o cartão pelos títulos daquela nota
+  (autor e estrelas), com "Voltar às notas" acima; o livro abre no detalhe.
 - **Vazio:** mascote `thinking`, frase e "Ir para Hoje"; nenhum gráfico zerado.
 
 ## Gêneros e cores

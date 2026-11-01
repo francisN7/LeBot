@@ -1,7 +1,10 @@
 /** Períodos do seletor de "Meu ritmo". */
-export const statsPeriods = ['4w', '12w', 'year'] as const;
+export const statsPeriods = ['1w', '1m', '3m', '1y'] as const;
 
 export type StatsPeriod = (typeof statsPeriods)[number];
+
+/** Granularidade das barras de ritmo. */
+export type StatsUnit = 'day' | 'week' | 'month';
 
 /**
  * Humor do LêBot na tela. Os nomes são os mesmos de `MascotState`, mas o
@@ -15,11 +18,11 @@ export type StatsMood =
   | 'thinking'
   | 'celebrating';
 
-/** Fatia do gráfico de ritmo (uma semana ou um mês). */
+/** Fatia do gráfico de ritmo (um dia, uma semana ou um mês). */
 export type StatsBucket = {
   /** Chave estável para listas. */
   key: string;
-  /** Rótulo curto embaixo da barra (`12/10` ou `out`). */
+  /** Rótulo curto embaixo da barra (`seg`, `5/10`, `12` ou `out`). */
   label: string;
   /** Descrição longa para o leitor de tela. */
   description: string;
@@ -29,8 +32,10 @@ export type StatsBucket = {
 
 export type StatsRange = {
   period: StatsPeriod;
-  /** "Últimas 4 semanas". */
+  /** "Último mês". */
   label: string;
+  /** Cada barra é um dia, uma semana ou um mês. */
+  unit: StatsUnit;
   from: Date;
   to: Date;
   /** Janela do mesmo tamanho imediatamente anterior, para comparar ritmo. */
@@ -52,8 +57,15 @@ export type StatsFinishedBook = {
   title: string;
   genreId: string;
   at: Date;
-  /** `false` quando a data veio de `books.updatedAt` (conclusão sem sessão). */
+  /** `false` quando a data veio de `books.updated_at` (conclusão sem sessão). */
   exact: boolean;
+};
+
+export type StatsRatedBook = {
+  bookId: string;
+  title: string;
+  author: string;
+  rating: number;
 };
 
 export type StatsRatingBucket = {
@@ -82,6 +94,8 @@ export type StatsData = {
     average: number | null;
     count: number;
     distribution: StatsRatingBucket[];
+    /** Todos os livros com resenha, para o drill-down por nota. */
+    books: StatsRatedBook[];
   };
   insight: StatsInsight;
   lastReadAt: Date | null;

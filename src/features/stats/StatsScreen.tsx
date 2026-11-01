@@ -20,9 +20,10 @@ import type { StatsPeriod } from './types';
 import { useStats } from './use-stats';
 
 const periodOptions: { value: StatsPeriod; label: string }[] = [
-  { value: '4w', label: '4 semanas' },
-  { value: '12w', label: '12 semanas' },
-  { value: 'year', label: 'Ano' },
+  { value: '1w', label: '1 semana' },
+  { value: '1m', label: '1 mês' },
+  { value: '3m', label: '3 meses' },
+  { value: '1y', label: '1 ano' },
 ];
 
 type StatsScreenProps = {
@@ -62,12 +63,12 @@ function Divider() {
 
 function activeDaysNote(activeDays: number, average: number): string {
   if (activeDays === 0) {
-    return 'Nenhum dia ativo no período.';
+    return 'Nenhum dia com leitura no período.';
   }
 
-  return activeDays === 1
-    ? `1 dia ativo, com média de ${average} páginas.`
-    : `${activeDays} dias ativos, com média de ${average} páginas por dia.`;
+  const days = activeDays === 1 ? '1 dia' : `${activeDays} dias`;
+
+  return `Média de ${average} páginas por dia com leitura, em ${days} do período.`;
 }
 
 /**
@@ -80,7 +81,7 @@ export function StatsScreen({
   onGoToToday,
   today,
 }: StatsScreenProps) {
-  const [period, setPeriod] = useState<StatsPeriod>('4w');
+  const [period, setPeriod] = useState<StatsPeriod>('1m');
   const stats = useStats(period, today);
   const { genreById } = useGenres();
   const currentKey = stats.buckets.at(-1)?.key ?? '';
@@ -141,7 +142,11 @@ export function StatsScreen({
             </AppText>
           </View>
 
-          <RhythmChart buckets={stats.buckets} currentKey={currentKey} />
+          <RhythmChart
+            buckets={stats.buckets}
+            currentKey={currentKey}
+            unit={stats.range.unit}
+          />
 
           {stats.genres.length > 0 ? (
             <GenreBars genres={stats.genres} pages={stats.pages} />
@@ -159,8 +164,10 @@ export function StatsScreen({
 
           <RatingSummary
             average={stats.ratings.average}
+            books={stats.ratings.books}
             count={stats.ratings.count}
             distribution={stats.ratings.distribution}
+            onOpenBook={onOpenBook}
           />
         </>
       ) : (

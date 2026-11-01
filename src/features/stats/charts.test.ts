@@ -17,7 +17,7 @@ describe('barHeight', () => {
 
 describe('barWidth', () => {
   it('afina quando há muitas barras', () => {
-    expect(barWidth(4)).toBe(32);
+    expect(barWidth(7)).toBe(32);
     expect(barWidth(12)).toBe(18);
   });
 });
@@ -26,8 +26,8 @@ describe('compactPages', () => {
   it('encurta milhares e esconde zero', () => {
     expect(compactPages(0)).toBe('');
     expect(compactPages(84)).toBe('84');
-    expect(compactPages(1240)).toBe('1,2k');
-    expect(compactPages(1000)).toBe('1,0k');
+    expect(compactPages(1240)).toBe('1k');
+    expect(compactPages(12345)).toBe('12k');
   });
 });
 

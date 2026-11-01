@@ -83,3 +83,20 @@ conclusão, porque `books` só tem `updated_at`.
 - **Filtrar notas pelo período:** a resenha é atemporal; filtrar por
   `reviews.updated_at` esconderia o histórico e a tela diria "sem resenhas" com
   resenhas salvas.
+
+## Adendo — revisão no Android (2026-11-01)
+
+O dono conferiu a tela no aparelho e pediu quatro ajustes, fechados assim:
+
+1. **Períodos finais:** 1 semana (7 dias, uma barra por **dia**), 1 mês (4
+   semanas), 3 meses (12 semanas) e 1 ano (12 meses). O seletor usa o rótulo
+   curto; o subtítulo da tela diz a janela exata ("Últimas 4 semanas").
+2. **Rótulos do ritmo sem corte:** as colunas dividem a largura disponível e,
+   com 12 barras, a semana mostra só o dia do mês (`10`) e o mês continua `jan`.
+   O valor acima da barra é compacto (`1k`) e o leitor de tela ouve o total.
+3. **Média explícita:** "Média de N páginas por dia com leitura, em M dias do
+   período." A média continua sendo por dia **ativo**, não por dia corrido.
+4. **Notas clicáveis:** tocar numa nota troca o conteúdo do cartão pelos títulos
+   daquela nota (autor e estrelas), com "Voltar às notas" acima e o livro
+   abrindo no detalhe.
+

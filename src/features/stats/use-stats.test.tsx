@@ -42,7 +42,7 @@ const sessionRow: ReadingSessionRow = {
 };
 
 function Probe() {
-  const stats = useStats('4w', today);
+  const stats = useStats('1m', today);
   const { register } = useReadingSessions('book-1');
 
   return (

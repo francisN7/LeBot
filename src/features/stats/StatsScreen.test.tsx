@@ -114,9 +114,27 @@ describe('StatsScreen', () => {
       { booksRepository, readingRepository, reviewsRepository },
     );
 
-    await fireEvent.press(screen.getByText('12 semanas'));
+    await fireEvent.press(screen.getByText('3 meses'));
 
     expect(screen.getByLabelText('135 páginas')).toBeOnTheScreen();
+  });
+
+  it('abre os livros de uma nota e volta para o resumo', async () => {
+    const { booksRepository, readingRepository, reviewsRepository } = setup();
+
+    await renderWithProviders(
+      <StatsScreen onBack={jest.fn()} today={today} />,
+      { booksRepository, readingRepository, reviewsRepository },
+    );
+
+    await fireEvent.press(screen.getByLabelText('Ver livros com nota 5'));
+
+    expect(screen.getByText('5 estrelas')).toBeOnTheScreen();
+    expect(screen.getByText('O Pequeno Príncipe')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByText('Voltar às notas'));
+
+    expect(screen.getByText('Suas notas')).toBeOnTheScreen();
   });
 
   it('mostra o estado vazio sem gráfico zerado', async () => {

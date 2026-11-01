@@ -9,6 +9,7 @@ import type {
   StatsFinishedBook,
   StatsGenre,
   StatsPeriod,
+  StatsRatedBook,
 } from './types';
 
 /** Máximo de gêneros antes de agrupar o resto em "Outros". */
@@ -229,9 +230,27 @@ export function aggregateStats({
         ]
       : sortedGenres;
 
-  const ratingValues = reviews
-    .filter((review) => bookById.has(review.bookId))
-    .map((review) => review.rating);
+  const ratedBooks: StatsRatedBook[] = reviews
+    .flatMap((review) => {
+      const book = bookById.get(review.bookId);
+
+      return book
+        ? [
+            {
+              bookId: book.id,
+              title: book.title,
+              author: book.author,
+              rating: review.rating,
+            },
+          ]
+        : [];
+    })
+    .sort(
+      (first, second) =>
+        second.rating - first.rating || first.title.localeCompare(second.title),
+    );
+
+  const ratingValues = ratedBooks.map((book) => book.rating);
   const averageRating =
     ratingValues.length > 0
       ? Math.round(
@@ -292,6 +311,7 @@ export function aggregateStats({
       average: averageRating,
       count: ratingValues.length,
       distribution,
+      books: ratedBooks,
     },
     insight,
     lastReadAt: latestSession,

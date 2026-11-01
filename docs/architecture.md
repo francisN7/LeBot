@@ -152,9 +152,10 @@ SQLite (expo-sqlite + Drizzle)
   `GenreBars`, `RatingSummary`, `FinishedStrip`), o `useStats` e três módulos
   puros: `period.ts` (janelas e barras), `aggregate.ts` (junção e números) e
   `insights.ts` (frase e humor do mascote).
-- O período (4 semanas, 12 semanas ou 12 meses) é derivado de `today` no dia
-  local. Semanas terminam hoje; o ano são 12 meses corridos. A janela anterior
-  do mesmo tamanho serve só para a comparação do insight.
+- O período (1 semana, 1 mês, 3 meses ou 1 ano) é derivado de `today` no dia
+  local. Uma semana são 7 dias com uma barra por dia; 1 mês são 4 semanas; 3
+  meses, 12 semanas; 1 ano, 12 meses corridos. A janela anterior do mesmo
+  tamanho serve só para a comparação do insight.
 - `useStats` lê `readingSessions.listBetween` (uma janela que cobre o período e
   a sequência de até 366 dias), `listLatestPerBook` (data de conclusão),
   `useBooks`, `useGenres` e `useReviews`. Registrar ou desfazer sessão recalcula
