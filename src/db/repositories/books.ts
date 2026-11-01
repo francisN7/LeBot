@@ -9,6 +9,7 @@ import {
   books,
   readingSessions,
   readingStatuses,
+  reviews,
 } from '../schema';
 import type { AppDatabase } from '../types';
 
@@ -181,13 +182,18 @@ export function createBooksRepository<TRunResult>(
     },
 
     remove(id) {
-      const deleted = db
-        .delete(books)
-        .where(eq(books.id, id))
-        .returning({ id: books.id })
-        .all();
+      // Sem FK física: a resenha sai na mesma transação do livro.
+      return db.transaction((tx) => {
+        tx.delete(reviews).where(eq(reviews.bookId, id)).run();
 
-      return deleted.length > 0;
+        const deleted = tx
+          .delete(books)
+          .where(eq(books.id, id))
+          .returning({ id: books.id })
+          .all();
+
+        return deleted.length > 0;
+      });
     },
   };
 

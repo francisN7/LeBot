@@ -6,12 +6,19 @@ import {
   createReadingSessionsRepository,
   type ReadingSessionsRepository,
 } from './reading-sessions';
+import {
+  createReviewFieldsRepository,
+  type ReviewFieldsRepository,
+} from './review-fields';
+import { createReviewsRepository, type ReviewsRepository } from './reviews';
 import { createSettingsRepository, type SettingsRepository } from './settings';
 
 let booksInstance: BooksRepository | undefined;
 let genresInstance: GenresRepository | undefined;
 let queueInstance: QueueRepository | undefined;
 let readingSessionsInstance: ReadingSessionsRepository | undefined;
+let reviewFieldsInstance: ReviewFieldsRepository | undefined;
+let reviewsInstance: ReviewsRepository | undefined;
 let settingsInstance: SettingsRepository | undefined;
 
 /** Repositório real, criado sob demanda (importar o módulo não abre o banco). */
@@ -35,6 +42,16 @@ export function getReadingSessionsRepository(): ReadingSessionsRepository {
   return readingSessionsInstance;
 }
 
+export function getReviewFieldsRepository(): ReviewFieldsRepository {
+  reviewFieldsInstance ??= createReviewFieldsRepository(getDb());
+  return reviewFieldsInstance;
+}
+
+export function getReviewsRepository(): ReviewsRepository {
+  reviewsInstance ??= createReviewsRepository(getDb());
+  return reviewsInstance;
+}
+
 export function getSettingsRepository(): SettingsRepository {
   settingsInstance ??= createSettingsRepository(getDb());
   return settingsInstance;
@@ -46,6 +63,8 @@ export function resetRepositoriesForTests(): void {
   genresInstance = undefined;
   queueInstance = undefined;
   readingSessionsInstance = undefined;
+  reviewFieldsInstance = undefined;
+  reviewsInstance = undefined;
   settingsInstance = undefined;
 }
 
@@ -62,4 +81,9 @@ export type {
   ReadingSessionsRepository,
   ReadingSessionWrite,
 } from './reading-sessions';
+export type {
+  CreateReviewFieldInput,
+  ReviewFieldsRepository,
+} from './review-fields';
+export type { ReviewsRepository, SaveReviewInput } from './reviews';
 export type { SettingsRepository } from './settings';

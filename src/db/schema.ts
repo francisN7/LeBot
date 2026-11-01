@@ -140,6 +140,59 @@ export const queueItems = sqliteTable(
 export type QueueItemRow = typeof queueItems.$inferSelect;
 export type NewQueueItemRow = typeof queueItems.$inferInsert;
 
+/**
+ * Resenha do dono: uma por livro, viva mesmo quando o livro volta a `reading`
+ * (a UI a esconde). `quote` fica em coluna própria para a futura galeria de
+ * citações; os campos extras configuráveis vivem em `extras` (ADR 0019).
+ */
+export const reviews = sqliteTable(
+  'reviews',
+  {
+    /** `books.id` e PK: uma resenha por livro. */
+    bookId: text('book_id').primaryKey(),
+    rating: integer('rating').notNull(),
+    text: text('text'),
+    quote: text('quote'),
+    /** `{ [review_fields.id]: texto }`; campos vazios não entram. */
+    extras: text('extras', { mode: 'json' })
+      .$type<Record<string, string>>()
+      .notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (table) => [
+    check(
+      'reviews_rating_range',
+      sql`${table.rating} >= 1 AND ${table.rating} <= 5`,
+    ),
+  ],
+);
+
+export type ReviewRow = typeof reviews.$inferSelect;
+export type NewReviewRow = typeof reviews.$inferInsert;
+
+/**
+ * Campos extras de resenha, globais e criados pelo dono em Ajustes.
+ * O nome é o título do campo na UI; a ordem é a dos chips.
+ */
+export const reviewFields = sqliteTable(
+  'review_fields',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    sortOrder: integer('sort_order').notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (table) => [
+    uniqueIndex('review_fields_name_unique').on(table.name),
+    index('review_fields_sort_order_idx').on(table.sortOrder),
+  ],
+);
+
+export type ReviewFieldRow = typeof reviewFields.$inferSelect;
+export type NewReviewFieldRow = typeof reviewFields.$inferInsert;
+
 export const settings = sqliteTable('settings', {
   key: text('key').primaryKey(),
   value: text('value').notNull(),
