@@ -6,9 +6,10 @@
   conferência no Android pendente.
 - **Última concluída:** S9 (resenha + campos extras); falta o aceite manual no
   Android.
-- **Próxima:** S11a (design 3D da lombada e emoções) — spec em
-  `docs/sessions/S11a-design-3d-emocoes.md`. S10 (estatísticas) e S11
-  (configurações + backup) ficam pendentes na fila.
+- **Próxima:** S10 (estatísticas e insights) — spec em
+  `docs/sessions/S10-estatisticas.md`.
+- **Planejada:** S11a (design 3D da lombada e emoções), depois da S11 — spec em
+  `docs/sessions/S11a-design-3d-emocoes.md`; não executar agora.
 
 ## Pronto (S9)
 
@@ -38,9 +39,10 @@
 - Conferir no Android: abertura ao concluir (detalhe e Hoje), teclado
   multilinha, acordeão dos chips, cadastro em Ajustes, selo e alinhamento da
   grade.
-- S11a: decisões fechadas; a lombada sem capa fica mais estreita (60×128;
-  compacta 48×104) e a capa mantém 88×128 (72×104 compacta), com o desenho
-  redesenhado no novo formato. Spec pronta para executar.
+- S11a (planejada): decisões fechadas; a lombada sem capa fica mais estreita
+  (52×128; compacta 42×104) e a capa mantém 88×128 (72×104 compacta), com o
+  desenho redesenhado no novo formato, tassel, páginas com texto e selo animado.
+  Não executar antes da S11.
 - Galeria de citações no backlog (`reviews.quote` já pronta).
 - S7.2 (opcional): persistir o plano + edição manual.
 - Livro excluído deixa `reading_sessions` órfãs; a resenha sai junto. Limpeza no

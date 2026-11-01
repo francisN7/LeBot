@@ -25,15 +25,17 @@ mesmas expressões da lombada sem capa.
 1. **Volume no SVG**, com frente e lateral; sem `rotateY`/`perspective` nativo.
    A face lateral fica em **8–10%** da largura da lombada, com arestas de
    topo/base em perspectiva.
-2. **Largura confirmada:** a lombada sem capa é mais estreita que a capa. Proposta:
-   - capa: `cover` 88×128 (mantém o slot atual) e `coverCompact` 72×104;
-   - lombada: `spine` **60×128** e `spineCompact` **48×104**.
-   A lombada perde ~32% da largura; a capa continua com o formato 2:3. A altura
-   não muda, então cards, Ordem, Hoje e detalhe mantêm o alinhamento e a arte
-   fica centrada no espaço que já existe.
-3. **Redesenhar, não comprimir.** O `viewBox` da lombada passa a acompanhar o
-   novo formato (~60×128; compacto ~48×104); olhos e boca são reposicionados
-   para continuarem redondos. Usar o viewBox antigo (100×140) com
+2. **Largura confirmada:** a lombada sem capa é mais estreita que a capa. Decisão
+   final:
+   - capa: `cover` 88×128 (2:3, mantém o slot atual) e `coverCompact` 72×104;
+   - lombada: `spine` **52×128** e `spineCompact` **42×104**.
+   A proporção fica ~1:2,5, que lê como um livro grosso — e não como capa. Mais
+   estreito que isso (abaixo de ~46 px) espreme os dois olhos e o tassel; mais
+   largo volta a parecer capa. A altura não muda, então cards, Ordem, Hoje e
+   detalhe mantêm o alinhamento e a arte fica centrada.
+3. **Redesenhar, não comprimir.** O `viewBox` da lombada passa a ser 52×128
+   (compacto 42×104, mesma proporção); olhos, boca e tassel são desenhados para
+   esse formato. Usar o viewBox antigo (100×140) com
    `preserveAspectRatio="none"` transformaria o rosto num oval.
 4. **Tassel/marcador:** fita fina saindo da base da lombada, com ponta em V, na
    cor de destaque do gênero. Ela ocupa o rodapé do slot: o corpo do livro
@@ -58,20 +60,20 @@ mesmas expressões da lombada sem capa.
    `shadow` e paradas do gradiente, derivadas do hex do gênero; manter `ink` e o
    contraste ≥ 3:1. Testes puros da paleta e do fallback 2D.
 2. **Tamanhos:** separar capa e lombada em `src/theme/sizes.ts`:
-   `cover` 88×128 / `coverCompact` 72×104 / `spine` 60×128 / `spineCompact`
-   48×104. `BookCover` usa `cover`; `BookArt` escolhe o par certo por
+   `cover` 88×128 / `coverCompact` 72×104 / `spine` 52×128 / `spineCompact`
+   42×104. `BookCover` usa `cover`; `BookArt` escolhe o par certo por
    `hasCover`; `Spine` usa `spine`. Altura não muda.
-3. **Lombada:** redesenhar `SpineArtwork` para o novo `viewBox` (~60×128):
+3. **Lombada:** redesenhar `SpineArtwork` para o `viewBox` 52×128:
    - frente com gradiente horizontal (borda escura → base → luz → borda);
-   - lateral direita visível em **8–10%** da largura, com topo/base em
-     perspectiva (arestas inclinadas);
+   - lateral direita visível em **8–10%** da largura (~5 px no cheio, ~4 px no
+     compacto), com topo/base em perspectiva (arestas inclinadas);
    - vinco/charneira à esquerda, sem o filete vertical atual;
    - faixas de topo/base acompanhando a perspectiva;
    - **tassel** na base, com ponta em V, na cor de destaque do gênero, com
      `testID` próprio e balanço sutil opcional;
    - sombra de contato sob o objeto, dentro do slot;
-   - rosto reposicionado para o novo formato (olhos redondos, não ovais), com a
-     mesma piscada/brilho/"z".
+   - rosto desenhado para o formato estreito (olhos redondos e próximos, boca
+     curta), com a mesma piscada/brilho/"z".
    O fallback sem status continua chapado e usa a mesma largura.
 4. **Capa:** refazer a lateral de `BookCover`:
    - remover o bloco de 7% com três linhas;
@@ -89,7 +91,7 @@ mesmas expressões da lombada sem capa.
    `BookFormScreen`; o selo acompanha o chip de status escolhido.
 7. **Testes:**
    - paleta/expressões puras (`spine-art.test.ts`): side/shade, ink, fallback;
-   - dimensões: `BookArt` entrega 60/48 sem capa e 88/72 com capa;
+   - dimensões: `BookArt` entrega 52/42 sem capa e 88/72 com capa;
    - `Spine.test.tsx` / `BookCover.test.tsx`: presença do selo por status,
      `expressionByStatus` igual nos dois, ausência de selo sem status, tassel na
      lombada e face de páginas com `testID` na capa;
@@ -103,7 +105,7 @@ mesmas expressões da lombada sem capa.
 
 ## Aceite
 
-- [ ] A lombada é visivelmente mais estreita que a capa (60×128 / 72×104
+- [ ] A lombada é visivelmente mais estreita que a capa (52×128 / 42×104
       compacta), lê como objeto de volume e **não** como livro grosso: face
       lateral fina, frente com gradiente e tassel visível na base, para os 4
       status e qualquer cor de gênero.
@@ -141,12 +143,12 @@ mesmas expressões da lombada sem capa.
 - **Parecer 3D de verdade:** duas faces chapadas podem continuar "2D com
   sombra"; o gradiente e as arestas inclinadas precisam de conferência visual no
   aparelho, não só no teste.
-- **Tamanho compacto:** a face lateral fina pode virar um risco em 48×104; o
+- **Tamanho compacto:** a face lateral fina pode virar um risco em 42×104; o
   tassel e a sombra não podem estourar o slot nem cobrir o rosto. Testar na
   Ordem e na Hoje.
-- **Rosto oval:** reaproveitar o viewBox 100×140 com a largura de 60 comprime os
+- **Rosto oval:** reaproveitar o viewBox 100×140 com a largura de 52 comprime os
   olhos; o desenho precisa ser refeito no novo formato, não escalado.
-- **Título na lombada estreita:** a etiqueta de 60 px quebra fácil; as telas
+- **Título na lombada estreita:** a etiqueta de 52 px quebra fácil; as telas
   principais já usam `showLabel={false}`, mas o padrão do componente precisa ser
   conferido.
 - **Capa × lombada:** a capa continua 88×128; conferir lado a lado que a
@@ -164,4 +166,5 @@ mesmas expressões da lombada sem capa.
 
 ## Próximo depois desta
 
-**S11** — configurações + backup JSON (ou S10, conforme prioridade do dono).
+**S12** — release interno, se a S11a ficar depois da S11. Se o dono antecipar a
+S11a, a fila volta para S10/S11 antes do release.
