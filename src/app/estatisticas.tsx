@@ -21,6 +21,7 @@ export default function StatsRoute() {
       onOpenBook={(id) =>
         go(() => router.push({ pathname: '/livro/[id]', params: { id } }))
       }
+      onOpenTimeline={() => go(() => router.push('/linha-do-tempo'))}
     />
   );
 }

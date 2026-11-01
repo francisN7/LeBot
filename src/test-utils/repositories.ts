@@ -479,6 +479,14 @@ export function createInMemoryReadingSessionsRepository(
         );
     },
 
+    listAll() {
+      return [...current].sort(
+        (first, second) =>
+          first.readAt.getTime() - second.readAt.getTime() ||
+          first.id.localeCompare(second.id),
+      );
+    },
+
     latest() {
       return sortedDescending(current)[0];
     },

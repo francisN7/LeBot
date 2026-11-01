@@ -16,6 +16,7 @@ import { FinishedStrip } from './FinishedStrip';
 import { GenreBars } from './GenreBars';
 import { RatingSummary } from './RatingSummary';
 import { RhythmChart } from './RhythmChart';
+import { countLabel, StatDivider, StatNumber } from './StatNumber';
 import type { StatsPeriod } from './types';
 import { useStats } from './use-stats';
 
@@ -29,37 +30,13 @@ const periodOptions: { value: StatsPeriod; label: string }[] = [
 type StatsScreenProps = {
   onBack: () => void;
   onOpenBook?: (bookId: string) => void;
+  /** Abre "Ver tudo": a linha do tempo completa, fora dos períodos. */
+  onOpenTimeline?: () => void;
   /** Atalho do estado vazio; a rota decide para onde ir. */
   onGoToToday?: () => void;
   /** Relógio injetável para os testes; em produção é o agora. */
   today?: Date;
 };
-
-function StatNumber({ label, value }: { label: string; value: number }) {
-  return (
-    <View
-      accessibilityLabel={`${value} ${label}`}
-      accessible
-      className="flex-1 items-center gap-xs"
-    >
-      <AppText variant="title">{value}</AppText>
-      <AppText
-        numberOfLines={1}
-        style={{ textAlign: 'center' }}
-        tone="muted"
-        variant="label"
-      >
-        {label}
-      </AppText>
-    </View>
-  );
-}
-
-function Divider() {
-  return (
-    <View className="w-px self-stretch bg-navy" style={{ opacity: 0.15 }} />
-  );
-}
 
 function activeDaysNote(activeDays: number, average: number): string {
   if (activeDays === 0) {
@@ -78,13 +55,13 @@ function activeDaysNote(activeDays: number, average: number): string {
 export function StatsScreen({
   onBack,
   onOpenBook,
+  onOpenTimeline,
   onGoToToday,
   today,
 }: StatsScreenProps) {
   const [period, setPeriod] = useState<StatsPeriod>('1m');
   const stats = useStats(period, today);
   const { genreById } = useGenres();
-  const currentKey = stats.buckets.at(-1)?.key ?? '';
 
   return (
     <Screen>
@@ -131,11 +108,35 @@ export function StatsScreen({
 
           <View className="gap-xs">
             <Card className="flex-row items-center">
-              <StatNumber label="páginas" value={stats.pages} />
-              <Divider />
-              <StatNumber label="dias ativos" value={stats.activeDays} />
-              <Divider />
-              <StatNumber label="dias seguidos" value={stats.streak} />
+              <StatNumber
+                accessibilityLabel={countLabel(
+                  stats.pages,
+                  'página',
+                  'páginas',
+                )}
+                label="páginas"
+                value={stats.pages}
+              />
+              <StatDivider />
+              <StatNumber
+                accessibilityLabel={countLabel(
+                  stats.activeDays,
+                  'dia ativo',
+                  'dias ativos',
+                )}
+                label="dias ativos"
+                value={stats.activeDays}
+              />
+              <StatDivider />
+              <StatNumber
+                accessibilityLabel={countLabel(
+                  stats.streak,
+                  'dia seguido',
+                  'dias seguidos',
+                )}
+                label="dias seguidos"
+                value={stats.streak}
+              />
             </Card>
             <AppText tone="muted" variant="caption">
               {activeDaysNote(stats.activeDays, stats.averagePerActiveDay)}
@@ -144,7 +145,7 @@ export function StatsScreen({
 
           <RhythmChart
             buckets={stats.buckets}
-            currentKey={currentKey}
+            currentKey={stats.range.currentKey}
             unit={stats.range.unit}
           />
 
@@ -188,6 +189,24 @@ export function StatsScreen({
           ) : null}
         </Card>
       )}
+
+      {onOpenTimeline ? (
+        <Card className="gap-sm">
+          <View className="gap-xs">
+            <AppText variant="subtitle">Toda a linha do tempo</AppText>
+            <AppText tone="muted" variant="caption">
+              O histórico inteiro, desde a primeira leitura, fora do período.
+            </AppText>
+          </View>
+          <Button
+            className="self-start"
+            label="Ver tudo"
+            onPress={onOpenTimeline}
+            size="sm"
+            variant="secondary"
+          />
+        </Card>
+      ) : null}
     </Screen>
   );
 }

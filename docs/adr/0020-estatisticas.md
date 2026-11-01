@@ -100,3 +100,25 @@ O dono conferiu a tela no aparelho e pediu quatro ajustes, fechados assim:
    daquela nota (autor e estrelas), com "Voltar às notas" acima e o livro
    abrindo no detalhe.
 
+## Adendo 2 — períodos civis e linha do tempo (2026-11-01)
+
+Ao conferir os filtros, o dono apontou que as janelas rotativas deixavam o
+passado de fora e desalinhavam mês e ano (dezembro de 2025 virava a primeira
+barra do "ano"). As regras finais:
+
+1. **1 semana:** últimos 7 dias, uma barra por dia.
+2. **1 mês:** mês civil do dia 1 até hoje, blocos de 7 dias a partir do dia 1
+   (1–7, 8–14…); a janela anterior é o mês anterior inteiro.
+3. **3 meses:** mês atual + os dois anteriores, uma barra por mês; a janela
+   anterior são os três meses anteriores.
+4. **1 ano:** ano civil jan→dez, uma barra por mês; meses futuros ficam vazios.
+   A janela anterior é o ano anterior inteiro.
+5. O total sempre para em hoje; barras futuras existem só para manter a grade do
+   calendário estável.
+6. **"Ver tudo" abre `/linha-do-tempo`**, fora dos filtros: primeira leitura,
+   totais gerais (páginas, dias com leitura, concluídos) e uma grade jan→dez por
+   ano. É o "passado perdido" que as janelas civis deixariam de fora.
+7. A linha do tempo lê `readingSessions.listAll()` à parte; `useStats` continua
+   carregando só a janela do período mais a sequência.
+
+

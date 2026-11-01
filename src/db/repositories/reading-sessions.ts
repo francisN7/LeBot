@@ -50,6 +50,8 @@ export type ReadingSessionsRepository = {
   listByBook(bookId: string): ReadingSessionRow[];
   /** Sessões com `readAt` entre `from` e `to`, inclusive. */
   listBetween(from: Date, to: Date): ReadingSessionRow[];
+  /** Todo o histórico, em ordem crescente de `readAt`. Base da linha do tempo. */
+  listAll(): ReadingSessionRow[];
   /** Sessão mais recente de qualquer livro; `undefined` quando não há nenhuma. */
   latest(): ReadingSessionRow | undefined;
   /**
@@ -84,6 +86,14 @@ export function createReadingSessionsRepository<TRunResult>(
             lte(readingSessions.readAt, to),
           ),
         )
+        .orderBy(asc(readingSessions.readAt), asc(readingSessions.id))
+        .all();
+    },
+
+    listAll() {
+      return db
+        .select()
+        .from(readingSessions)
         .orderBy(asc(readingSessions.readAt), asc(readingSessions.id))
         .all();
     },

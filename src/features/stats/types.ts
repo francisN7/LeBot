@@ -41,6 +41,8 @@ export type StatsRange = {
   /** Janela do mesmo tamanho imediatamente anterior, para comparar ritmo. */
   previous: { from: Date; to: Date };
   buckets: StatsBucket[];
+  /** Chave do dia/semana/mês de hoje, destacada no gráfico. */
+  currentKey: string;
 };
 
 export type StatsGenre = {

@@ -7,23 +7,10 @@ import {
 
 import type { StatsBucket, StatsPeriod, StatsRange, StatsUnit } from './types';
 
-const PERIOD_DAYS: Record<'1w' | '1m' | '3m', number> = {
-  '1w': 7,
-  '1m': 28,
-  '3m': 84,
-};
-
-const PERIOD_LABELS: Record<StatsPeriod, string> = {
-  '1w': 'Últimos 7 dias',
-  '1m': 'Últimas 4 semanas',
-  '3m': 'Últimas 12 semanas',
-  '1y': 'Últimos 12 meses',
-};
-
 const PERIOD_UNITS: Record<StatsPeriod, StatsUnit> = {
   '1w': 'day',
   '1m': 'week',
-  '3m': 'week',
+  '3m': 'month',
   '1y': 'month',
 };
 
@@ -77,6 +64,14 @@ const WEEKDAY_LONG = [
   'Sábado',
 ] as const;
 
+function monthShort(month: number): string {
+  return MONTH_SHORT[month] ?? MONTH_SHORT[0];
+}
+
+function monthLong(month: number): string {
+  return MONTH_LONG[month] ?? MONTH_LONG[0];
+}
+
 /** `5/10`, sem zero à esquerda e sem depender do locale do aparelho. */
 function shortDate(date: Date): string {
   return `${date.getDate()}/${date.getMonth() + 1}`;
@@ -84,7 +79,12 @@ function shortDate(date: Date): string {
 
 /** `out` — rótulo curto de mês, sem depender do locale do aparelho. */
 export function shortMonth(date: Date): string {
-  return MONTH_SHORT[date.getMonth()] ?? MONTH_SHORT[0];
+  return monthShort(date.getMonth());
+}
+
+/** `Outubro` — nome do mês para textos e leitor de tela. */
+export function longMonth(date: Date): string {
+  return monthLong(date.getMonth());
 }
 
 function dayBuckets(today: Date, days: number): StatsBucket[] {
@@ -101,92 +101,155 @@ function dayBuckets(today: Date, days: number): StatsBucket[] {
   });
 }
 
-function weekBuckets(today: Date, days: number): StatsBucket[] {
-  const weeks = days / 7;
-  // Com muitas barras o rótulo `5/10` não cabe; o dia do mês basta, e a
-  // descrição acessível continua com o intervalo completo.
-  const compactLabel = weeks > 6;
+/**
+ * Semanas do mês civil em blocos de 7 dias desde o dia 1 (1–7, 8–14…). Não
+ * alinha à segunda-feira de propósito: o mês começa no dia 1 e as barras
+ * cobrem o mês inteiro, inclusive os dias que ainda não chegaram.
+ */
+function monthChunks(year: number, month: number): StatsBucket[] {
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  const chunks: StatsBucket[] = [];
 
-  return Array.from({ length: weeks }, (_, index) => {
-    const start = startOfLocalDay(addLocalDays(today, -(days - 1) + index * 7));
-    const end = endOfLocalDay(addLocalDays(start, 6));
-    const day = start.getDate();
+  for (let day = 1; day <= lastDay; day += 7) {
+    const endDay = Math.min(day + 6, lastDay);
+    const start = new Date(year, month, day);
+    const end = endOfLocalDay(new Date(year, month, endDay));
+
+    chunks.push({
+      key: toLocalDayKey(start),
+      label: shortDate(start),
+      description: `${day} a ${endDay} de ${monthLong(month).toLowerCase()}`,
+      start,
+      end,
+    });
+  }
+
+  return chunks;
+}
+
+function monthBuckets(year: number, months: number[], withYear: boolean) {
+  return months.map((month): StatsBucket => {
+    const start = new Date(year, month, 1);
+    const monthIndex = start.getMonth();
+    const startYear = start.getFullYear();
 
     return {
       key: toLocalDayKey(start),
-      label: compactLabel ? String(day) : shortDate(start),
-      description: `Semana de ${shortDate(start)} a ${shortDate(end)}`,
+      label: withYear
+        ? `${monthShort(monthIndex)}/${String(startYear).slice(-2)}`
+        : monthShort(monthIndex),
+      description: `${monthLong(monthIndex)} de ${startYear}`,
       start,
-      end,
+      end: endOfLocalDay(new Date(startYear, monthIndex + 1, 0)),
     };
   });
 }
 
-function monthBuckets(today: Date): StatsBucket[] {
-  const todayEnd = endOfLocalDay(today);
-  const year = today.getFullYear();
-  const month = today.getMonth();
+function bucketAt(buckets: StatsBucket[], date: Date): StatsBucket | undefined {
+  return buckets.find((bucket) => date >= bucket.start && date <= bucket.end);
+}
 
-  return Array.from({ length: 12 }, (_, index) => {
-    const monthIndex = month - 11 + index;
-    const start = new Date(year, monthIndex, 1);
-    const monthEnd = endOfLocalDay(new Date(year, monthIndex + 1, 0));
-    const end = new Date(Math.min(monthEnd.getTime(), todayEnd.getTime()));
+function threeMonthLabel(today: Date): string {
+  const start = new Date(today.getFullYear(), today.getMonth() - 2, 1);
+  const end = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    return {
-      key: toLocalDayKey(start),
-      label: MONTH_SHORT[start.getMonth()] ?? MONTH_SHORT[0],
-      description: `${MONTH_LONG[start.getMonth()] ?? MONTH_LONG[0]} de ${start.getFullYear()}`,
-      start,
-      end,
-    };
-  });
+  if (start.getFullYear() === end.getFullYear()) {
+    return `${monthLong(start.getMonth())} a ${monthLong(end.getMonth()).toLowerCase()} de ${end.getFullYear()}`;
+  }
+
+  return `${monthLong(start.getMonth())} de ${start.getFullYear()} a ${monthLong(end.getMonth()).toLowerCase()} de ${end.getFullYear()}`;
 }
 
 /**
- * Janela do período e do anterior, no dia local. Semanas terminam hoje (a
- * última barra é a semana corrente, incompleta); o ano são 12 meses corridos
- * terminando no mês atual. Tudo derivado de `today`, sem relógio global.
+ * Janelas civis, no dia local:
+ * - 1 semana: últimos 7 dias (rotativo), uma barra por dia;
+ * - 1 mês: do dia 1 até hoje, uma barra por bloco de 7 dias do mês;
+ * - 3 meses: mês atual + os dois anteriores, uma barra por mês;
+ * - 1 ano: ano civil (jan→dez), uma barra por mês; meses futuros ficam vazios.
+ * O total sempre para em hoje. A janela anterior é o período civil equivalente.
  */
 export function statsRange(period: StatsPeriod, today: Date): StatsRange {
-  const label = PERIOD_LABELS[period];
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const to = endOfLocalDay(today);
   const unit = PERIOD_UNITS[period];
 
-  if (period === '1y') {
-    const buckets = monthBuckets(today);
-    const year = today.getFullYear();
-    const month = today.getMonth();
+  if (period === '1w') {
+    const from = startOfLocalDay(addLocalDays(today, -6));
+    const previousTo = endOfLocalDay(addLocalDays(from, -1));
+    const buckets = dayBuckets(today, 7);
 
     return {
       period,
-      label,
+      label: 'Últimos 7 dias',
       unit,
-      from: new Date(year, month - 11, 1),
-      to: endOfLocalDay(today),
+      from,
+      to,
       previous: {
-        from: new Date(year, month - 23, 1),
-        to: endOfLocalDay(new Date(year, month - 11, 0)),
+        from: startOfLocalDay(addLocalDays(previousTo, -6)),
+        to: previousTo,
       },
       buckets,
+      currentKey: toLocalDayKey(today),
     };
   }
 
-  const days = PERIOD_DAYS[period];
-  const from = startOfLocalDay(addLocalDays(today, -(days - 1)));
-  const to = endOfLocalDay(today);
-  const previousTo = endOfLocalDay(addLocalDays(from, -1));
+  if (period === '1m') {
+    const from = new Date(year, month, 1);
+    const buckets = monthChunks(year, month);
+    const current = bucketAt(buckets, today);
+
+    return {
+      period,
+      label: `${monthLong(month)} de ${year}`,
+      unit,
+      from,
+      to,
+      previous: {
+        from: new Date(year, month - 1, 1),
+        to: endOfLocalDay(new Date(year, month, 0)),
+      },
+      buckets,
+      currentKey: current?.key ?? toLocalDayKey(from),
+    };
+  }
+
+  if (period === '3m') {
+    const fromMonth = month - 2;
+    const months = [fromMonth, month - 1, month];
+    const start = new Date(year, fromMonth, 1);
+    const buckets = monthBuckets(
+      year,
+      months,
+      new Date(year, month, 1).getFullYear() !== start.getFullYear(),
+    );
+
+    return {
+      period,
+      label: threeMonthLabel(today),
+      unit,
+      from: start,
+      to,
+      previous: {
+        from: new Date(year, month - 5, 1),
+        to: endOfLocalDay(new Date(year, month - 2, 0)),
+      },
+      buckets,
+      currentKey: toLocalDayKey(new Date(year, month, 1)),
+    };
+  }
 
   return {
     period,
-    label,
+    label: String(year),
     unit,
-    from,
+    from: new Date(year, 0, 1),
     to,
     previous: {
-      from: startOfLocalDay(addLocalDays(previousTo, -(days - 1))),
-      to: previousTo,
+      from: new Date(year - 1, 0, 1),
+      to: endOfLocalDay(new Date(year - 1, 11, 31)),
     },
-    buckets:
-      unit === 'day' ? dayBuckets(today, days) : weekBuckets(today, days),
+    buckets: monthBuckets(year, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], false),
+    currentKey: toLocalDayKey(new Date(year, month, 1)),
   };
 }

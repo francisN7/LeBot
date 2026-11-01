@@ -49,11 +49,11 @@ excluir um gênero em uso é bloqueado, e o último gênero nunca sai.
 Sem FK física, pelo mesmo motivo de `books.genre`: a integridade fica no
 repositório de leitura, que recusa livro inexistente.
 
-`listBetween(from, to)` alimenta as estatísticas (S10). `listLatestPerBook`
-devolve uma linha por livro — a última sessão — e é o que data a conclusão: a
-sessão que chega ao fim é sempre a última do livro. Não existe `finished_at`;
-quando a conclusão veio da roda ou da edição, a estatística usa
-`books.updated_at` e marca a data como aproximada (ADR 0020).
+`listBetween(from, to)` alimenta as estatísticas (S10) e `listAll` a linha do
+tempo. `listLatestPerBook` devolve uma linha por livro — a última sessão — e é o
+que data a conclusão: a sessão que chega ao fim é sempre a última do livro. Não
+existe `finished_at`; quando a conclusão veio da roda ou da edição, a estatística
+usa `books.updated_at` e marca a data como aproximada (ADR 0020).
 
 ### `queue_items`
 
@@ -211,8 +211,8 @@ parâmetro, então o mesmo código roda no aparelho (`expo-sqlite`) e nos testes
 - Leitura: `create` grava a sessão e soma em `pages_read` na mesma transação
   (teto no total, `finished` automático); `remove` desconta e nunca deixa o
   progresso negativo. `listByBook` ordena do mais recente para o mais antigo;
-  `listBetween(from, to)` é a base das estatísticas da S10, e
-  `listLatestPerBook` data a conclusão de cada livro.
+  `listBetween(from, to)` é a base das estatísticas da S10, `listAll` alimenta a
+  linha do tempo e `listLatestPerBook` data a conclusão de cada livro.
 - Ordem: `sync` materializa todo livro não concluído em dois blocos (`reading`
   primeiro, depois os demais) e limpa concluído/órfão; `list` deriva a ordem se
   faltar linha; `move` só anda dentro do bloco do livro; `replaceAll` reescreve

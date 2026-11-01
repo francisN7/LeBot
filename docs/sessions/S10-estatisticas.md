@@ -11,20 +11,25 @@ biblioteca nova no MVP.
 1. **Onde a tela mora:** rota `/estatisticas`, aberta por um atalho discreto na
    **Estante** abaixo do título ("Meu ritmo", ícone de três barras). Não é 5ª
    aba nem card da Hoje; a Hoje segue focada no plano.
-2. **Período:** 1 semana (7 dias, uma barra por dia), 1 mês (4 semanas, padrão),
-   3 meses (12 semanas) e 1 ano (12 meses corridos). Tudo no dia local.
+2. **Período (calendário civil, no dia local):** 1 semana são os últimos 7 dias;
+   1 mês é o mês corrente do dia 1 até hoje (padrão); 3 meses são o mês atual + 2
+   anteriores; 1 ano é o ano civil jan→dez, com meses futuros vazios. O total
+   para em hoje e a janela anterior é o período civil equivalente.
 3. **Números:** páginas e média por dia com leitura; dias ativos e sequência
    atual; livros concluídos (mini-lombadas clicáveis); gêneros com páginas **e**
    concluídos; nota média e distribuição de todas as resenhas, com a lista dos
    livros de cada nota ao tocar nela.
-4. **Gráficos:** prateleira de lombadas para o ritmo e barras horizontais para
+4. **Linha do tempo:** como os períodos são civis, o passado fora da janela fica
+   no "Ver tudo" (`/linha-do-tempo`): totais desde a primeira leitura e grade
+   jan→dez por ano, fora dos filtros.
+5. **Gráficos:** prateleira de lombadas para o ritmo e barras horizontais para
    gêneros, tudo com `View`/NativeWind. Sem biblioteca de gráfico.
-5. **Insights:** uma frase calculada por tela, escolhida por prioridade, com o
+6. **Insights:** uma frase calculada por tela, escolhida por prioridade, com o
    humor do mascote; tom descritivo, sem cobrança.
-6. **Livro excluído:** sessões órfãs somam páginas, mas não entram em gênero ou
+7. **Livro excluído:** sessões órfãs somam páginas, mas não entram em gênero ou
    nota. Resenha de livro excluído é ignorada.
-7. **Vazio:** mascote, frase curta e CTA para a Hoje; nenhum gráfico zerado.
-8. **Concluído em:** última sessão do livro; sem sessão, `books.updated_at`
+8. **Vazio:** mascote, frase curta e CTA para a Hoje; nenhum gráfico zerado.
+9. **Concluído em:** última sessão do livro; sem sessão, `books.updated_at`
    como data aproximada. Sem migração.
 
 ## Tarefas
@@ -39,13 +44,15 @@ biblioteca nova no MVP.
    mudar de período ou após registrar/desfazer leitura.
 4. **Tela:** rota `/estatisticas`, cabeçalho, seletor de período, cartão do
    LêBot, três números, prateleira de ritmo, gêneros, concluídos, notas com
-   drill-down por nota e estado vazio.
+   drill-down e o cartão "Ver tudo".
 5. **Entrada:** atalho "Meu ritmo" na Estante, abaixo do título.
-6. **Testes:** agregação (períodos, dias ativos, sequência, órfãs, gêneros,
-   nota média, lista por nota, vazio, conclusão aproximada), `useStats` reagindo
-   a escrita, e tela (números, troca de período, vazio, notas, voltar, abrir
-   concluído).
-7. **Docs:** `architecture.md`, `data-model.md`, `design-system.md`,
+6. **Linha do tempo:** rota `/linha-do-tempo` com totais gerais e a grade
+   jan→dez por ano, lendo `readingSessions.listAll()`.
+7. **Testes:** agregação (períodos, dias ativos, sequência, órfãs, gêneros,
+   nota média, lista por nota, vazio, conclusão aproximada), linha do tempo,
+   `useStats` reagindo a escrita, e tela (números, troca de período, vazio,
+   notas, "Ver tudo", voltar, abrir concluído).
+8. **Docs:** `architecture.md`, `data-model.md`, `design-system.md`,
    `testing.md`, `CURRENT.md`, `roadmap.md`, `CHANGELOG.md` e ADR 0020.
 
 ## Aceite
@@ -57,6 +64,8 @@ biblioteca nova no MVP.
 - [x] Sessões órfãs contam nas páginas e não quebram gênero/nota.
 - [x] Estado vazio claro, sem números falsos.
 - [x] Notas abrem os livros de cada nota e voltam ao resumo.
+- [x] Períodos civis (semana rotativa, mês atual, últimos 3 meses, ano civil).
+- [x] "Ver tudo" mostra o histórico completo fora dos períodos.
 - [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
 - [ ] Conferido no Android.
 

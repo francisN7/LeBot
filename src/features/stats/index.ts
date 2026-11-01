@@ -4,6 +4,8 @@ export {
   currentStreak,
 } from './aggregate';
 export { StatsScreen } from './StatsScreen';
+export { TimelineScreen } from './TimelineScreen';
+export { buildTimeline, type TimelineData } from './timeline';
 export type {
   StatsData,
   StatsGenre,

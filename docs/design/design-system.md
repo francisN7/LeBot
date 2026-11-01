@@ -330,8 +330,10 @@ cartão ou no vazio).
   O humor vem da mesma regra da frase (sequência, conclusão, nota alta, silêncio
   recente). A sequência ≥ 2 ganha um adesivo `gold` com borda navy e rotação de
   −3°, nunca emoji.
-- **Períodos:** 1 semana (uma barra por dia), 1 mês (4 semanas), 3 meses (12
-  semanas) e 1 ano (12 meses). O chip é curto; o subtítulo da tela diz a janela.
+- **Períodos:** 1 semana (últimos 7 dias, uma barra por dia), 1 mês (mês civil,
+  uma barra por bloco de 7 dias), 3 meses (mês atual + 2 anteriores, uma barra
+  por mês) e 1 ano (ano civil jan→dez, uma barra por mês, futuro vazio). O chip
+  é curto; o subtítulo da tela diz a janela ("Novembro de 2026", "2026").
 - **Números:** um `Card` com três colunas (páginas, dias ativos, dias seguidos)
   separadas por um filete navy a 15%. Número em `variant="title"`; abaixo,
   "Média de N páginas por dia com leitura, em M dias do período.".
@@ -351,6 +353,12 @@ cartão ou no vazio).
   cartão diz isso. Tocar numa nota troca o cartão pelos títulos daquela nota
   (autor e estrelas), com "Voltar às notas" acima; o livro abre no detalhe.
 - **Vazio:** mascote `thinking`, frase e "Ir para Hoje"; nenhum gráfico zerado.
+- **"Ver tudo":** cartão fixo no fim da tela (aparece até com o período vazio)
+  com o botão que abre `/linha-do-tempo`. A tela da linha do tempo tem
+  `BackButton`, "Desde outubro de 2025", três números (páginas, dias com
+  leitura, concluídos) e um cartão por ano com a grade jan→dez. Meses sem
+  leitura ficam com a barra em creme; o mês corrente, dourado. Sem histórico,
+  mascote e frase, como no vazio das estatísticas.
 
 ## Gêneros e cores
 

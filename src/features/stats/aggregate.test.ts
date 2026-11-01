@@ -82,6 +82,7 @@ describe('aggregateStats', () => {
   it('soma páginas, dias ativos e média do período', () => {
     const stats = aggregateStats(
       base({
+        period: '3m',
         sessions: [
           session('book-1', at(9, 30), 20),
           session('book-1', at(9, 31), 10),
@@ -94,7 +95,7 @@ describe('aggregateStats', () => {
     expect(stats.activeDays).toBe(3);
     expect(stats.averagePerActiveDay).toBe(12);
     expect(stats.streak).toBe(3);
-    expect(stats.buckets.at(-1)?.pages).toBe(35);
+    expect(stats.buckets.map((bucket) => bucket.pages)).toEqual([0, 30, 5]);
     expect(stats.insight.text).toBe(
       'Sequência de 3 dias. O LêBot está orgulhoso.',
     );
@@ -133,6 +134,7 @@ describe('aggregateStats', () => {
   it('data a conclusão pela última sessão e cai no updatedAt sem sessão', () => {
     const stats = aggregateStats(
       base({
+        period: '3m',
         books: [
           book({ id: 'book-a', status: 'finished' }),
           book({ id: 'book-b', status: 'finished', updatedAt: at(10, 1) }),
@@ -142,7 +144,7 @@ describe('aggregateStats', () => {
           // A data mais recente vence por livro.
           session('book-a', at(9, 20)),
           // Concluído antes do período: updatedAt recente não deve contar.
-          session('book-c', at(8, 1)),
+          session('book-c', at(5, 1)),
         ],
         genres: [{ id: 'fantasy', name: 'Fantasia', colorLight: '#7B69EE' }],
       }),
@@ -188,7 +190,7 @@ describe('aggregateStats', () => {
     const stats = aggregateStats(
       base({
         sessions: [session('book-apagado', at(10, 1), 10)],
-        previousSessions: [session('book-apagado', at(8, 20), 5)],
+        previousSessions: [session('book-apagado', at(9, 20), 5)],
       }),
     );
 
@@ -240,5 +242,23 @@ describe('aggregateStats', () => {
 
     expect(aggregateStats(base({ sessions })).pages).toBe(10);
     expect(aggregateStats(base({ period: '3m', sessions })).pages).toBe(50);
+  });
+
+  it('no ano civil, deixa meses futuros vazios e ignora o ano anterior', () => {
+    const stats = aggregateStats(
+      base({
+        period: '1y',
+        sessions: [
+          session('book-apagado', at(0, 10), 40), // 10 de janeiro
+          session('book-apagado', at(10, 1), 10), // 1º de novembro
+          session('book-apagado', new Date(2025, 11, 1, 10), 30), // dez/2025
+        ],
+      }),
+    );
+
+    expect(stats.pages).toBe(50);
+    expect(stats.buckets).toHaveLength(12);
+    expect(stats.buckets[0]).toMatchObject({ label: 'jan', pages: 40 });
+    expect(stats.buckets[11]).toMatchObject({ label: 'dez', pages: 0 });
   });
 });

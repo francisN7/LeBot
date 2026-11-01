@@ -10,7 +10,7 @@ import {
 
 import { StatsScreen } from './StatsScreen';
 
-const today = new Date(2026, 10, 1, 12); // 1º de novembro de 2026
+const today = new Date(2026, 10, 20, 12); // sexta, 20 de novembro de 2026
 const stamp = new Date(2026, 9, 1);
 const reviewer = new Date(2026, 9, 20);
 
@@ -65,16 +65,16 @@ function setup() {
       id: 'book-finished',
       title: 'O Pequeno Príncipe',
       status: 'finished',
-      updatedAt: new Date(2026, 9, 20),
+      updatedAt: new Date(2026, 10, 10),
     }),
   ];
   const booksRepository = createInMemoryBooksRepository(books);
   const readingRepository = createInMemoryReadingSessionsRepository(
     booksRepository,
     [
-      sessionRow({ id: 's-1', pages: 20, readAt: new Date(2026, 9, 30) }),
-      sessionRow({ id: 's-2', pages: 10, readAt: new Date(2026, 9, 31) }),
-      sessionRow({ id: 's-3', pages: 5 }),
+      sessionRow({ id: 's-1', pages: 20, readAt: new Date(2026, 10, 18) }),
+      sessionRow({ id: 's-2', pages: 10, readAt: new Date(2026, 10, 19) }),
+      sessionRow({ id: 's-3', pages: 5, readAt: new Date(2026, 10, 20) }),
       sessionRow({ id: 's-4', pages: 100, readAt: new Date(2026, 8, 20) }),
     ],
   );
@@ -169,6 +169,24 @@ describe('StatsScreen', () => {
     );
 
     expect(onOpenBook).toHaveBeenCalledWith('book-finished');
+  });
+
+  it('abre a linha do tempo pelo botão Ver tudo', async () => {
+    const onOpenTimeline = jest.fn();
+    const { booksRepository, readingRepository, reviewsRepository } = setup();
+
+    await renderWithProviders(
+      <StatsScreen
+        onBack={jest.fn()}
+        onOpenTimeline={onOpenTimeline}
+        today={today}
+      />,
+      { booksRepository, readingRepository, reviewsRepository },
+    );
+
+    await fireEvent.press(screen.getByText('Ver tudo'));
+
+    expect(onOpenTimeline).toHaveBeenCalledTimes(1);
   });
 
   it('volta pelo botão de voltar', async () => {

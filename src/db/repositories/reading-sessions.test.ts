@@ -232,6 +232,23 @@ describe('reading sessions repository', () => {
     expect(latest.find((row) => row.bookId === 'book-2')?.pages).toBe(9);
   });
 
+  it('lista todo o histórico em ordem crescente de leitura', async () => {
+    const { repository } = await setup();
+
+    repository.create({
+      bookId: 'book-1',
+      pages: 5,
+      readAt: new Date('2026-10-03T12:00:00.000Z'),
+    });
+    repository.create({
+      bookId: 'book-1',
+      pages: 7,
+      readAt: new Date('2026-10-01T12:00:00.000Z'),
+    });
+
+    expect(repository.listAll().map((row) => row.pages)).toEqual([7, 5]);
+  });
+
   it('desfaz a sessão e desconta do progresso', async () => {
     const { books, repository } = await setup();
     const write = repository.create({ bookId: 'book-1', pages: 20 });
