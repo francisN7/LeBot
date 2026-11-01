@@ -21,7 +21,8 @@ sugere uma ordem anti-ressaca que alterna gêneros.
 - Notificações e lembretes.
 - Conclusão com resenha → **S9**.
 - Backup/exportação → **S11**.
-- Arrastar-e-soltar: se entrar, é S8.1; nesta sessão a reordenação é por botões.
+- Preservar a legenda e a identidade da Ordem da S7.1: a escrita volta só para
+  montar a sequência.
 
 ## Decisões a confirmar no início
 
@@ -34,8 +35,10 @@ sugere uma ordem anti-ressaca que alterna gêneros.
    `queued` ou `paused`. Recomendo (b): a Ordem é a intenção do dono, e o motor já
    ignora `paused`/`finished`. Confirmar o que acontece ao adicionar um livro
    `paused` (volta para `queued`?) e ao removê-lo.
-3. **Reordenar:** setas ↑/↓ (acessível, simples, recomendado) ou arrastar. Se
-   arrastar, medir o custo com `react-native-gesture-handler` + Reanimated antes.
+3. **Reordenar:** arrastar é o caminho principal (decidido pelo dono em
+   2026-11-01, dentro da própria S8); setas ↑/↓ ficam como alternativa
+   acessível. Medir o custo com `react-native-gesture-handler` + Reanimated
+   antes de fechar a interação.
 4. **"Sugerir ordem":** aplicar direto na Ordem (reversível reordenando) ou
    mostrar uma prévia antes de gravar. Recomendo aplicar direto, com o botão
    desabilitado quando a ordem sugerida já é a atual.
@@ -55,8 +58,9 @@ sugere uma ordem anti-ressaca que alterna gêneros.
    (mesma regra do motor), preserva todos os livros e é determinística; testes
    de borda (um livro, todos do mesmo gênero, ordem vazia, gêneros repetidos).
 5. `QueueScreen`: lista real, adicionar (do detalhe/estante ou de um seletor na
-   própria Ordem), remover com confirmação, setas de reordenação e "Sugerir
-   ordem". Textos e estados vazios. Sem registro de leitura.
+   própria Ordem), remover com confirmação, arrastar para reordenar (com setas
+   ↑/↓ como alternativa acessível) e "Sugerir ordem". Textos e estados vazios.
+   Sem registro de leitura.
 6. Hoje: nenhuma mudança de tela; conferir que reordenar muda os blocos na
    próxima abertura. Teste de integração Ordem → Hoje se a navegação permitir.
 7. Atualizar `docs/architecture.md`, `docs/data-model.md`, `docs/testing.md`,
@@ -66,8 +70,9 @@ sugere uma ordem anti-ressaca que alterna gêneros.
 ## Aceite
 
 - [ ] Ordem lida do banco; reiniciar o app mantém a sequência.
-- [ ] Reordenar muda a ordem usada por `useQueueBookIds` e, por consequência, o
-      segundo bloco da Hoje.
+- [ ] Reordenar por arrastar muda a ordem usada por `useQueueBookIds` e, por
+      consequência, o segundo bloco da Hoje; a alternância acessível por setas
+      faz o mesmo.
 - [ ] Sugestão alterna gênero, não perde nem duplica livro e é idempotente.
 - [ ] Ordem vazia explica o vazio e leva a adicionar um livro.
 - [ ] Nenhuma fixture de ordem sobrou no código.
@@ -86,6 +91,8 @@ sugere uma ordem anti-ressaca que alterna gêneros.
 - `src/db/schema.ts` + `drizzle/0005_*.sql`
 - `src/db/repositories/queue.ts` (novo) e `queues` no barril
 - `src/features/queue/QueueScreen.tsx`, `use-queue.ts`, `suggest-order.ts`
+- `src/components/ui/QueueRow.tsx` (se a linha arrastável justificar um
+  componente próprio) e o gesto com `react-native-gesture-handler`
 - `src/test-utils/repositories.ts` (ordem em memória)
 - `src/features/library/BookDetailScreen.tsx` (se "adicionar à ordem" entrar ali)
 
@@ -102,8 +109,13 @@ sugere uma ordem anti-ressaca que alterna gêneros.
   da S7.1); o toque no item só abre o detalhe.
 - **Testes de tela:** a Ordem em memória precisa refletir a mesma transação do
   repositório, senão o teste passa e o aparelho não.
+- **Arrastar × rolagem:** o gesto de reordenar não pode roubar a rolagem
+  vertical; conferir no Android com lista maior que a tela e item no topo/fim.
+- **Arrastar × acessibilidade:** o arrastar sozinho não é operável por leitor de
+  tela; manter as setas ↑/↓ com rótulo acessível.
 
 ## Próximo depois desta
 
-- S8.1: arrastar para reordenar (se o dono quiser).
+- **S8a** — roda de troca rápida de status na Estante (`S08a-troca-rapida-status.md`).
+- **S8b** — multisseleção na Estante (`S08b-multisselecao-estante.md`).
 - Depois: **S9** — conclusão + resenha.

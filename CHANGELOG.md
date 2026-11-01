@@ -12,7 +12,8 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
   páginas e hora, meta batida sem fração acima de 100% e botão explícito em cada
   bloco ("Registrar leitura"/"Registrar mais"). A antiga Fila vira **Ordem**
   (rota `/ordem`, `QueueScreen`) somente leitura, e as abas passam a Estante,
-  Hoje, Ordem, Ajustes. 16 testes novos (311 na suíte).
+  Hoje, Ordem, Ajustes. 16 testes novos (311 na suíte). Conferido no Android em
+  2026-11-01.
 - S7: tela Hoje com o plano real do motor: meta com volta leve, blocos por
   livro (capa/lombada, gênero, páginas e estado feito/agora/depois), sugestão
   com selo, registro a partir do bloco e vazio com CTA para a Fila. Plano

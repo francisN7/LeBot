@@ -2,11 +2,14 @@
 
 ## Sessão
 
-- **Atual:** S7.1 implementada; falta a conferência do dono no Android.
-- **Última concluída:** S7.1 (código e docs). Antes: S7.
+- **Atual:** S7.1 concluída e conferida no Android em 2026-11-01; a próxima é a
+  S8.
+- **Última concluída:** S7.1. Antes: S7.
 - **Próxima:** S8 (`docs/sessions/S08-ordem-real.md`): Ordem persistida,
-  adicionar/remover/reordenar e sugestão anti-ressaca.
-- **Depois:** S9 (conclusão + resenha).
+  adicionar/remover/reordenar por arrastar e sugestão anti-ressaca. O arrastar
+  entrou na própria S8 (não há mais S8.1).
+- **Depois:** S8a (`S08a-troca-rapida-status.md`), S8b
+  (`S08b-multisselecao-estante.md`) e S9 (conclusão + resenha).
 
 ## Pronto (S7.1)
 
@@ -21,12 +24,18 @@
 - Ordem somente leitura: legenda "A sequência é sua: o que ler depois do livro
   atual.", contagem "N livros depois do atual", posição 1º/2º, nota, chip
   "Pausado" com aviso e nota da S8. Sem páginas, "Começar" ou modal.
-- 311 testes (41 arquivos); lint, typecheck, test, doctor e export verdes.
+- 311 testes (41 arquivos); lint, typecheck, test, doctor e export verdes;
+  conferido no Android em 2026-11-01.
 
 ## Decisões abertas
 
 - S8: modelo da Ordem (`queue_items` × coluna em `books`), o que entra e como
-  reordenar (setas × arrastar) — decidir na abertura (spec S08).
+  arrastar para reordenar (setas ficam como alternativa acessível) — decidir na
+  abertura (spec S08).
+- S8a: onde a roda aparece, quando grava e o que fazer com livro que tem capa
+  (sem rosto de lombada) — decidir na abertura.
+- S8b: como entrar no modo de seleção e a confirmação dupla com espera de 5 s —
+  decidir na abertura. A espera vale para excluir **e** remover capa.
 - S7.2 (opcional): persistir o plano + edição manual.
 - Excluir livro deixa `reading_sessions` órfãs (sem FK). Limpeza na S9/S11.
 
