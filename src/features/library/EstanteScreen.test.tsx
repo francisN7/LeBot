@@ -46,6 +46,35 @@ function bookRow(overrides: Partial<BookRow> = {}): BookRow {
   };
 }
 
+/** Percorre a árvore de host e junta as paradas de gradiente do SVG. */
+function gradientStops(node: unknown, found: number[] = []): number[] {
+  if (!node || typeof node !== 'object') {
+    return found;
+  }
+
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      gradientStops(child, found);
+    }
+    return found;
+  }
+
+  const typed = node as {
+    children?: unknown;
+    props?: { gradient?: unknown };
+  };
+
+  if (Array.isArray(typed.props?.gradient)) {
+    for (const value of typed.props.gradient) {
+      if (typeof value === 'number') {
+        found.push(value);
+      }
+    }
+  }
+
+  return gradientStops(typed.children, found);
+}
+
 describe('EstanteScreen', () => {
   it('lista os livros da estante', async () => {
     await renderWithProviders(<EstanteScreen />);
@@ -155,7 +184,34 @@ describe('EstanteScreen', () => {
     // as paradas como ARGB inteiro com sinal (0xFF123456 -> -15584170).
     const argb = (0xff000000 + 0x123456) | 0;
 
-    expect(JSON.stringify(screen.toJSON())).toContain(String(argb));
+    expect(gradientStops(screen.toJSON())).toContain(argb);
+  });
+
+  it('virtualiza a grade e busca na estante inteira', async () => {
+    const rows = Array.from({ length: 120 }, (_, index) =>
+      bookRow({
+        id: `book-${index}`,
+        title: `Livro ${index}`,
+        author: `Autor ${index}`,
+      }),
+    );
+
+    await renderWithProviders(<EstanteScreen />, {
+      booksRepository: createInMemoryBooksRepository(rows),
+    });
+
+    expect(screen.getByText('120 livros · 120 à vista')).toBeOnTheScreen();
+    expect(screen.getByText('Livro 0')).toBeOnTheScreen();
+
+    // Só a primeira leva é montada; o resto entra conforme a rolagem.
+    expect(screen.getAllByTestId(/^lombada-book-/).length).toBeLessThan(120);
+    expect(screen.queryByText('Livro 119')).not.toBeOnTheScreen();
+
+    // A busca continua sobre a lista completa, não só sobre o que está montado.
+    await fireEvent.changeText(screen.getByLabelText('Buscar'), 'Livro 119');
+
+    expect(screen.getByText('Livro 119')).toBeOnTheScreen();
+    expect(screen.queryByText('Livro 0')).not.toBeOnTheScreen();
   });
 
   it('mostra o mascote neutro quando a estante está vazia', async () => {

@@ -67,6 +67,12 @@ porque o `runOnJS` do mock roda numa microtask. O destaque é afirmado pelo
 memória. A saída animada desmonta ~180 ms depois; espere com `waitFor`. Nunca
 afirme sobre frames do Reanimated.
 
+A grade da Estante é um `FlatList` virtualizado (`numColumns={2}`). Em teste, só
+a primeira leva de cards é montada (`initialNumToRender`); para afirmar algo
+sobre a estante inteira, use a contagem do cabeçalho ou a busca, que continua
+sobre a lista completa. Não simule rolagem para "provar" virtualização — a
+ausência de um card distante já mostra que o resto não foi montado.
+
 Nunca importe `expo-sqlite`, `expo-file-system` ou `expo-image-picker` no teste:
 são módulos nativos. As telas recebem `CoverService` por contexto justamente
 para isso.
@@ -380,7 +386,7 @@ testados sem SQLite nativo.
   ellipsis); vazio usa o máximo; a largura disponível é considerada.
 - `src/components/ui/Spine.test.tsx`: arte 3D, etiqueta de título no topo,
   rosto por status (feliz, neutro, sonolento, brilho), “zzz” no pausado, tassel
-  no topo (a `matrix` animada não é afirmada por frames), fallback 2D sem status,
+  no topo (o giro animado não é afirmado por frames), fallback 2D sem status,
   etiqueta oculta e `onPress`. O SVG é
   decorativo (`accessibilityElementsHidden`) e a etiqueta também fica fora da
   árvore de acessibilidade (o `Pressable` já anuncia "Lombada de …"); por isso
@@ -392,11 +398,23 @@ testados sem SQLite nativo.
 
 O que continua manual: no Android, o volume do cilindro em 64/52 px, o tassel no
 topo (corda/franja e sombra) no compacto, o **balanço do tassel** para a esquerda
-no cheio e no compacto (a `matrix` animada foi confirmada no aparelho, ADR
-0023), o “zzz” diagonal, o título
+no cheio e no compacto (a técnica de `Animated.View` foi confirmada no aparelho,
+ADR 0024), o “zzz” diagonal, o título
 centralizado em 5–7 px (com títulos longos e ellipsis), o rosto no selo de
 18–26 px, a sombra S2 sobre fotos claras e escuras e o alinhamento da grade com
 lombadas de 64 px. A piscada do selo não é afirmada por frames; validamos
 montagem e props.
 
-A suíte atual tem 66 arquivos e 510 testes (`npm run test`).
+## Cobertura da S11c
+
+- `src/features/library/EstanteScreen.test.tsx`: com 120 livros, só a primeira
+  leva de cards é montada (`initialNumToRender`), mas a contagem e a busca usam a
+  lista inteira — buscar "Livro 119" o traz para a tela. O teste do hex do gênero
+  passou a ler as paradas de gradiente da árvore de host, sem serializar a lista
+  virtualizada (o elemento do cabeçalho tem referência circular).
+- `src/components/ui/Spine.test.tsx` continua afirmando face, tassel e “zzz”;
+  as camadas separadas mantêm os mesmos `testID`s e não mudam a acessibilidade.
+- Não há teste de frames: a validação de 60 fps é manual, no aparelho (dev para
+  comparar e APK da S12 para o número final).
+
+A suíte atual tem 66 arquivos e 511 testes (`npm run test`).

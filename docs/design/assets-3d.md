@@ -82,20 +82,23 @@ faixas foram desenhados para esse formato, senão o rosto vira um oval.
   `showLabel={false}` esconde a etiqueta (mini-lombadas); as telas principais
   mantêm o padrão.
 - **Tassel T1:** no **canto superior esquerdo**, sem argola. A corda começa em
-  y=0 (cortada pelo topo, parece sair de dentro), encontra corpo e pescoço e
-  termina na franja de seis fios. O dourado tem gradiente, aresta escura e uma
-  sombra desfocada no corpo. Desde a **S11b** ele balança para a esquerda
-  (modelo C): ataque de ~400 ms até 10°, franja a 12,5° cerca de 90 ms depois,
-  sombra a 55% e retorno lento com overshoot de 1,6°, em ciclo de 4,4 s. A corda
-  é cortada pela silhueta do corpo (`bodyClip`) para não soltar do canto; a
-  franja pode passar da borda. É um tassel de verdade, não uma ponta de fita nem
-  um recorte com contorno navy.
+  y=2.1, já dentro da capa — o clip antigo escondia acima de ~1,08, então o
+  comprimento visível é o mesmo e o topo não descola no pico. Ela encontra corpo
+  e pescoço e termina na franja de seis fios. O dourado tem gradiente, aresta
+  escura e uma sombra radial no corpo. Desde a **S11b** ele balança para a
+  esquerda (modelo C): ataque de ~400 ms até 10°, franja a 12,5° cerca de 90 ms
+  depois, sombra a 55% e retorno lento com overshoot de 1,6°, em ciclo de 4,4 s.
+  A franja pode passar da borda. É um tassel de verdade, não uma ponta de fita
+  nem um recorte com contorno navy.
 - **Rosto:** olhos em `happy` um pouco mais afastados (spread 10) para o “Lendo”
   não parecer apertado; as outras expressões usam 8.
 - **“zzz”:** três letras em diagonal no canto direito (49/73, 53/67 e 57/60),
-  com opacidade 1 → 0,3; só em `sleepy`. O `translateY` não chega ao nativo no
-  `G` animado (ADR 0023), então a diagonal é a posição fixa das letras e o
-  “flutuar” é o fade.
+  com opacidade 1 → 0,3; só em `sleepy`. Fica num SVG pequeno próprio e anima a
+  opacidade da View — o `translateY` continua fora; a diagonal é a posição fixa
+  das letras e o “flutuar” é o fade.
+- **Camadas (S11c):** corpo, faixas e nervuras ficam num SVG estático; brilho,
+  piscada, “zzz” e tassel são SVGs recortados em Views absolutas. Só a camada que
+  anima é invalidada por frame (ADR 0024).
 - **Sombra de contato:** `contactShadow` no wrapper; o corpo ocupa 126 dos
   128 px. O `Pressable` da arte é transparente (o fundo na cor do gênero virava
   um retângulo nos cantos); o contorno navy vem do SVG.
@@ -158,18 +161,17 @@ contínuo, porque há um livro só).
 | Capa | mola de escala 0,97 e inclinação −1,5° no toque | grade e detalhe |
 | Capa | brilho diagonal atravessa a capa em 1,7 s | só `animated` (detalhe) |
 | Capa | selo pisca os olhos como a lombada | `happy`, `neutral` |
-| Grade | `FadeInDown` com 45 ms de atraso por card (máx. 6) | troca de filtro/busca |
+| Grade | `FadeInDown` com 45 ms de atraso por card (máx. 6); só a primeira leva, para rolar sem piscar | ao abrir e trocar filtro/busca |
 | Mascote | respiração 1,04 e −2 px, 4 s ida e volta | sempre |
 | Mascote | piscada de 90 ms a cada ~2,8 s | estados de olhos redondos |
 | Mascote | acessórios pulsam entre 1 e 0,35 | `sleepy`, `celebrating` |
 | Mascote | fade de 200 ms ao trocar de estado | sempre |
 
 A piscada da lombada e a do selo vivem no mesmo `SpineFace`; não duplique os
-tempos em outro componente. O balanço do tassel anima `matrix` no `G` (ADR
-0023), no UI thread — `rotation`/`origin` animados não chegam ao nativo no
-Android. Todas as animações usam `transform` e `opacity`, no UI thread; nenhuma
-mexe em layout. Sem `useReducedMotion` por enquanto — fica no backlog de
-acessibilidade.
+tempos em outro componente. O balanço do tassel usa `Animated.View` + `rotate`
+nas camadas recortadas (ADR 0024); o corpo estático não é redesenhado por frame.
+Todas as animações usam `transform` e `opacity`, no UI thread; nenhuma mexe em
+layout. Sem `useReducedMotion` por enquanto — fica no backlog de acessibilidade.
 
 ## Capa personalizada como livro
 

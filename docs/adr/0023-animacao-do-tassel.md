@@ -3,6 +3,9 @@
 - **Status:** aceito
 - **Data:** 2026-11-01
 - **Sessão:** S11b
+- **Atualização:** a S11c trocou a técnica `matrix` por `Animated.View` + `rotate`
+  em camadas recortadas (ADR 0024). O modelo C, os ângulos e os tempos continuam
+  os mesmos.
 
 ## Contexto
 

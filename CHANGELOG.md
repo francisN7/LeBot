@@ -5,6 +5,17 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 ## [Unreleased]
 
+### Changed
+
+- S11c: a Estante parou de redesenhar a lombada inteira a cada frame. O corpo
+  (gradiente, faixas e nervuras) ficou num SVG estático; brilho, piscada, “zzz” e
+  tassel viraram camadas pequenas movidas por `transform`/opacity — o tassel usa
+  `Animated.View` + `rotate`, com a corda começando em `y=2.1` (sem `bodyClip`) e
+  sombra em gradiente radial, sem `FeGaussianBlur`. A grade virou `FlatList`
+  virtualizada (`numColumns={2}`, header com busca/filtros e lote inicial de 6),
+  o que mantém a Estante leve mesmo com milhares de livros. Baseline em dev com
+  5 livros: UI 11 / JS 56 fps; a medição final fica no APK da S12. ADR 0024.
+
 ### Fixed
 
 - S11: excluir um livro também apaga o item da ordem na mesma transação; antes a

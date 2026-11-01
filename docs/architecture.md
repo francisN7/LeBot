@@ -60,6 +60,11 @@ SQLite (expo-sqlite + Drizzle)
   telas na hora. `useRecentSessions` assina o mesmo repositório e junta a janela
   de 7 dias com a sessão mais recente de qualquer data (é o que permite a volta
   leve).
+- A Estante carrega a lista inteira de `books` em memória (busca, filtros,
+  contagem e ordem são locais) e virtualiza só a renderização com `FlatList`
+  `numColumns={2}`. Milhares de linhas cabem nesse modelo; se o volume passar de
+  dezenas de milhares, o próximo passo é paginar o repositório e mover busca e
+  filtro para o SQL (ADR 0024).
 - Erros de escrita sobem como exceção; validação de entrada é Zod no
   repositório.
 

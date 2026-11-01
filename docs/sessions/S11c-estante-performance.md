@@ -67,19 +67,37 @@ piscada; e deixar a grade pronta para escalar com muitas lombadas.
 10. **Testes:** grade virtualizada, header/filtros/busca, wheel, slots e toque;
     não afirmar frames.
 
+## Resultado (2026-11-01)
+
+- Baseline registrado: **UI 11 fps / JS 56 fps** em dev com 5 livros.
+- Corpo estático separado; brilho (View recortada), piscada (opacidade), “zzz”
+  (SVG próprio) e tassel (três `Animated.View` recortadas) são camadas
+  independentes. `matrix` saiu do caminho animado; a técnica é a 3 do lab.
+- Corda em `y=2.1`, sem `bodyClip`; sombra radial no lugar de `FeGaussianBlur`.
+- `Spine` memoiza a paleta e `SpineArtwork` usa `memo`.
+- Grade em `FlatList` `numColumns={2}` com header/lista vazia e virtualização
+  (`initialNumToRender` 6, lote 8, `windowSize` 5); `visibleBooks` memoizado.
+  Milhares de livros entram na lista em memória, mas só a janela visível monta.
+- `renderToHardwareTextureAndroid`/`shouldRasterizeIOS` não foram ligados — ficam
+  como próxima alavanca, dependente de medição e memória.
+- **Pendente:** medir de novo no aparelho. A comparação confiável é no APK da
+  S12; o dev build serve só para checar que a queda sumiu. Nenhum frame foi
+  afirmado em teste.
+
 ## Aceite
 
 - [ ] Com **5 livros**, a UI fica em 60 fps (ou sem queda perceptível) no
-      Android; UI/JS medidos antes e depois.
-- [ ] Tassel, brilho e piscada continuam; nenhuma animação foi removida e o
+      Android; UI/JS medidos antes e depois. **(estrutura pronta; medição no
+      aparelho pendente, número final no APK da S12)**
+- [x] Tassel, brilho e piscada continuam; nenhuma animação foi removida e o
       modelo C segue igual.
-- [ ] A corda continua presa ao topo, sem `bodyClip` e sem mudar o comprimento
+- [x] A corda continua presa ao topo, sem `bodyClip` e sem mudar o comprimento
       visível de forma perceptível.
-- [ ] Sem `FeGaussianBlur` em elemento animado e sem redesenhar o corpo inteiro
+- [x] Sem `FeGaussianBlur` em elemento animado e sem redesenhar o corpo inteiro
       por frame.
-- [ ] A grade virtualizada aguenta muitas lombadas sem mudar layout, alturas,
+- [x] A grade virtualizada aguenta muitas lombadas sem mudar layout, alturas,
       busca, filtros, wheel ou toque.
-- [ ] Testes, lint, typecheck, doctor e export verdes.
+- [x] Testes, lint, typecheck, doctor e export verdes.
 
 ## Contexto necessário
 

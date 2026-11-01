@@ -1,7 +1,8 @@
-import { type ComponentType, type ReactNode, useEffect, useId } from 'react';
+import { memo, useEffect, useId } from 'react';
+import { StyleSheet, View, type ViewStyle } from 'react-native';
 import Animated, {
   Easing,
-  useAnimatedProps,
+  useAnimatedStyle,
   useSharedValue,
   withDelay,
   withRepeat,
@@ -12,11 +13,10 @@ import Svg, {
   ClipPath,
   Defs,
   Ellipse,
-  FeGaussianBlur,
-  Filter,
   G,
   LinearGradient,
   Path,
+  RadialGradient,
   Rect,
   Stop,
 } from 'react-native-svg';
@@ -27,23 +27,7 @@ import type {
 } from '@/features/library/spine-art';
 import { colors } from '@/theme';
 
-import { SpineFace } from './SpineFace';
-
-const AnimatedG = Animated.createAnimatedComponent(G);
-const AnimatedRect = Animated.createAnimatedComponent(Rect);
-
-type MatrixProps = { matrix: number[] };
-
-/**
- * `matrix` é prop nativa do grupo, mas não está no tipo do `G`. O cast existe
- * para o Reanimated escrever a matriz direto no nativo, sem passar pelo render.
- */
-const AnimatedMatrixG = Animated.createAnimatedComponent(
-  G,
-) as unknown as ComponentType<{
-  animatedProps?: Partial<MatrixProps>;
-  children?: ReactNode;
-}>;
+import { SpineEyes, SpineMouth, useBlink } from './SpineFace';
 
 /** Sistema de coordenadas da lombada B (64×128, 1:2). */
 const VIEW = { height: 128, width: 64 };
@@ -54,11 +38,49 @@ const HEADBAND_STRIPES = [5, 11, 17, 23, 29, 35, 41, 47, 53];
 /** Paradas do gradiente da frente. */
 const GRADIENT_STOPS = [0, 0.18, 0.5, 1] as const;
 
+/**
+ * Recortes das camadas animadas. Ficam no mesmo sistema 64×128 do corpo, então
+ * cada overlay se alinha ao desenho por porcentagem — sem medir o layout.
+ */
+type Box = { height: number; width: number; x: number; y: number };
+
+/** Tassel inteiro, com folga para a franja cruzar a borda ao girar. */
+const TASSEL_BOX: Box = { height: 28, width: 16, x: -4, y: 0 };
+/** Olhos da piscada: arco (`happy`) ou círculos (`neutral`). */
+const EYES_BOX: Box = { height: 18, width: 34, x: 15, y: 69 };
+/** Três “z” em diagonal no canto direito. */
+const ZZZ_BOX: Box = { height: 24, width: 21, x: 43, y: 54 };
+
+/** Ângulo do tassel em torno de (6, 0); a franja gira em (6, 9). */
+const TASSEL_ORIGIN = { x: 6, y: 0 };
+const FRINGE_ORIGIN = { x: 6, y: 9 };
+
 type SpineArtworkProps = {
   expression: SpineExpression;
   palette: SpinePalette;
+  /** Origem do giro do tassel em px: a arte escala com a lombada. */
+  width?: number;
+  height?: number;
   testID?: string;
 };
+
+function percent(value: number, total: number): `${number}%` {
+  return `${(value / total) * 100}%` as `${number}%`;
+}
+
+function boxStyle(box: Box): ViewStyle {
+  return {
+    height: percent(box.height, VIEW.height),
+    left: percent(box.x, VIEW.width),
+    position: 'absolute',
+    top: percent(box.y, VIEW.height),
+    width: percent(box.width, VIEW.width),
+  };
+}
+
+const TASSEL_LAYER = boxStyle(TASSEL_BOX);
+const EYES_LAYER = boxStyle(EYES_BOX);
+const ZZZ_LAYER = boxStyle(ZZZ_BOX);
 
 function zPath(cx: number, cy: number, size: number): string {
   const half = size / 2;
@@ -66,7 +88,11 @@ function zPath(cx: number, cy: number, size: number): string {
   return `M${cx - half} ${cy - half} H${cx + half} L${cx - half} ${cy + half} H${cx + half}`;
 }
 
-/** Ponta do tassel: 22 unidades abaixo da fixação, com o balanço em graus. */
+/**
+ * Ponta do tassel: 22 unidades abaixo da fixação, com o balanço em graus.
+ * A corda começa em `y=2.1`: o clip antigo escondia acima de ~1,08, então o
+ * comprimento visível é o mesmo e o topo continua preso ao corpo.
+ */
 const TASSEL = {
   body: 10,
   bodyHesitation: 9.4,
@@ -86,39 +112,18 @@ const TASSEL = {
 
 const THREADS = [-3, -1.8, -0.6, 0.6, 1.8, 3];
 
-/**
- * Matriz coluna-maior de rotação em graus em torno de (ox, oy). É a mesma que
- * o `G` calcula no render — animar `matrix` (prop nativa) evita o
- * `rotation`/`origin`, que o lado nativo ignora.
- */
-function rotationMatrix(angle: number, ox: number, oy: number): number[] {
-  'worklet';
-  const radians = (angle * Math.PI) / 180;
-  const cos = Math.cos(radians);
-  const sin = Math.sin(radians);
-
-  return [
-    cos,
-    sin,
-    -sin,
-    cos,
-    ox * (1 - cos) + oy * sin,
-    -ox * sin + oy * (1 - cos),
-  ];
-}
-
-/** A corda sai do topo e encontra o corpo; o clip a corta na silhueta. */
+/** A corda sai do corpo e encontra o pescoço; sem clip, começa dentro da capa. */
 function TasselCord() {
   return (
     <>
       <Path
-        d="M6 0 V4.6"
+        d="M6 2.1 V4.6"
         stroke="#B87A12"
         strokeLinecap="round"
         strokeWidth={1.5}
       />
       <Path
-        d="M6 0 V4.6"
+        d="M6 2.1 V4.6"
         stroke="#FFE3A3"
         strokeLinecap="round"
         strokeWidth={0.6}
@@ -293,13 +298,20 @@ function shadowSwing() {
  * Desenho da lombada B com volume: corpo cilíndrico, headband/tailband,
  * nervuras, rosto do status, "zzz" no sono e tassel no topo-esquerdo.
  *
+ * **Camadas:** o corpo, as faixas e as nervuras ficam num SVG estático; o
+ * brilho, a piscada, o "zzz" e o tassel são Views absolutas com `Svg` pequeno.
+ * Só a camada que anima é invalidada por frame — antes cada matriz do tassel
+ * redesenhava a lombada inteira (S11c).
+ *
  * A etiqueta com o título é uma View do `Spine` (texto real e centralizado),
  * não texto dentro do SVG. O viewBox é 64×128; o compacto 52×104 mantém a
  * proporção exata, sem esticar o rosto.
  */
-export function SpineArtwork({
+function SpineArtworkBase({
   expression,
   palette,
+  width = VIEW.width,
+  height = VIEW.height,
   testID,
 }: SpineArtworkProps) {
   const sheen = useSharedValue(-20);
@@ -307,12 +319,13 @@ export function SpineArtwork({
   const body = useSharedValue(0);
   const fringe = useSharedValue(0);
   const shadow = useSharedValue(0);
+  const { blink, canBlink } = useBlink(expression);
   const rawId = useId();
-  const gradientId = `spine-cyl-${rawId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
-  const clipId = `${gradientId}-clip`;
-  const bodyClipId = `${gradientId}-body-clip`;
-  const goldId = `${gradientId}-gold`;
-  const shadowFilterId = `${gradientId}-tassel-shadow`;
+  const baseId = `spine-cyl-${rawId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
+  const clipId = `${baseId}-clip`;
+  const shadeId = `${baseId}-shade`;
+  const goldId = `${baseId}-gold`;
+  const shadowId = `${baseId}-tassel-shadow`;
 
   useEffect(() => {
     sheen.value = -20;
@@ -350,23 +363,47 @@ export function SpineArtwork({
     shadow.value = shadowSwing();
   }, [body, fringe, shadow]);
 
-  const sheenProps = useAnimatedProps(() => ({ x: sheen.value }));
-  const zzzProps = useAnimatedProps(() => ({
-    opacity: asleep.value,
-    translateY: (1 - asleep.value) * -2,
+  const sheenMotion = useAnimatedStyle(() => ({
+    transform: [{ translateX: (sheen.value / VIEW.width) * width }],
   }));
-  const bodyProps = useAnimatedProps<MatrixProps>(() => ({
-    matrix: rotationMatrix(body.value, 6, 0),
+  const eyesMotion = useAnimatedStyle(() => ({ opacity: blink.value }));
+  const zzzMotion = useAnimatedStyle(() => ({ opacity: asleep.value }));
+  const bodyMotion = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${body.value}deg` }],
   }));
-  const headProps = useAnimatedProps<MatrixProps>(() => ({
-    matrix: rotationMatrix(body.value, 6, 0),
+  const fringeMotion = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${fringe.value}deg` }],
   }));
-  const fringeProps = useAnimatedProps<MatrixProps>(() => ({
-    matrix: rotationMatrix(fringe.value, 6, 9),
+  const shadowMotion = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${shadow.value}deg` }],
   }));
-  const shadowProps = useAnimatedProps<MatrixProps>(() => ({
-    matrix: rotationMatrix(shadow.value, 6, 0),
-  }));
+
+  // `transformOrigin` é medido da borda da própria camada; o recorte do tassel
+  // começa em x=-4, então a origem (6, 0) fica a 10 unidades da esquerda.
+  const originX = ((TASSEL_ORIGIN.x - TASSEL_BOX.x) * width) / VIEW.width;
+  const fringeOriginY =
+    ((FRINGE_ORIGIN.y - TASSEL_BOX.y) * height) / VIEW.height;
+  const tasselOrigin: [number, number] = [originX, 0];
+  const fringeOrigin: [number, number] = [originX, fringeOriginY];
+
+  const glossClip = {
+    ...boxStyle(BODY),
+    borderRadius: (6 * width) / VIEW.width,
+    overflow: 'hidden' as const,
+  };
+  const glossBar = {
+    backgroundColor: palette.highlight,
+    height: (138 * height) / VIEW.height,
+    left: 0,
+    opacity: expression === 'shine' ? 0.38 : 0.2,
+    position: 'absolute' as const,
+    top: (-10 * height) / VIEW.height,
+    width: (9 * width) / VIEW.width,
+  };
+
+  const tasselViewBox = `${TASSEL_BOX.x} ${TASSEL_BOX.y} ${TASSEL_BOX.width} ${TASSEL_BOX.height}`;
+  const eyesViewBox = `${EYES_BOX.x} ${EYES_BOX.y} ${EYES_BOX.width} ${EYES_BOX.height}`;
+  const zzzViewBox = `${ZZZ_BOX.x} ${ZZZ_BOX.y} ${ZZZ_BOX.width} ${ZZZ_BOX.height}`;
 
   const zzz = [
     { cx: 49, cy: 73, size: 3.4, width: 1.4 },
@@ -375,200 +412,274 @@ export function SpineArtwork({
   ];
 
   return (
-    <Svg
+    <View
       accessibilityElementsHidden
-      height="100%"
       importantForAccessibility="no-hide-descendants"
-      preserveAspectRatio="none"
-      viewBox={`0 0 ${VIEW.width} ${VIEW.height}`}
-      width="100%"
+      pointerEvents="none"
+      style={StyleSheet.absoluteFill}
     >
-      <Defs>
-        <LinearGradient id={gradientId} x1="0" x2="1" y1="0" y2="0">
-          {GRADIENT_STOPS.map((offset, index) => (
-            <Stop
-              key={offset}
-              offset={offset}
-              stopColor={palette.gradient[index]}
-            />
-          ))}
-        </LinearGradient>
-        <LinearGradient id={`${clipId}-vert`} x1="0" x2="0" y1="0" y2="1">
-          <Stop offset="0" stopColor={palette.shadow} stopOpacity={0.18} />
-          <Stop offset="0.12" stopColor={palette.shadow} stopOpacity={0} />
-          <Stop offset="0.88" stopColor={palette.shadow} stopOpacity={0} />
-          <Stop offset="1" stopColor={palette.shadow} stopOpacity={0.26} />
-        </LinearGradient>
-        <ClipPath id={clipId}>
-          <Rect
-            height={BODY.height}
-            rx={6}
-            width={BODY.width}
-            x={BODY.x}
-            y={BODY.y}
-          />
-        </ClipPath>
-        <ClipPath id={bodyClipId}>
-          <Rect
-            height={BODY.height}
-            rx={6}
-            width={BODY.width}
-            x={BODY.x}
-            y={BODY.y}
-          />
-        </ClipPath>
-        <LinearGradient id={goldId} x1="0" x2="1" y1="0" y2="0">
-          <Stop offset="0" stopColor="#FFE3A3" />
-          <Stop offset="0.45" stopColor={colors.gold} />
-          <Stop offset="1" stopColor="#D99A24" />
-        </LinearGradient>
-        <Filter
-          height="200%"
-          id={shadowFilterId}
-          width="200%"
-          x="-50%"
-          y="-50%"
-        >
-          <FeGaussianBlur stdDeviation={1.2} />
-        </Filter>
-      </Defs>
-
-      <Rect
-        fill={`url(#${gradientId})`}
-        height={BODY.height}
-        rx={6}
-        stroke={colors.navy}
-        strokeWidth={2}
-        width={BODY.width}
-        x={BODY.x}
-        y={BODY.y}
-      />
-      <Rect
-        fill={`url(#${clipId}-vert)`}
-        height={BODY.height}
-        rx={6}
-        width={BODY.width}
-        x={BODY.x}
-        y={BODY.y}
-      />
-
-      <G clipPath={`url(#${clipId})`}>
-        {/* Headband/tailband: faixas listradas nas duas pontas. */}
-        {[7, 111].map((y) => (
-          <G key={y}>
+      {/* Corpo estático: gradiente, faixas, nervuras. Nunca anima. */}
+      <Svg
+        height="100%"
+        preserveAspectRatio="none"
+        viewBox={`0 0 ${VIEW.width} ${VIEW.height}`}
+        width="100%"
+      >
+        <Defs>
+          <LinearGradient id={baseId} x1="0" x2="1" y1="0" y2="0">
+            {GRADIENT_STOPS.map((offset, index) => (
+              <Stop
+                key={offset}
+                offset={offset}
+                stopColor={palette.gradient[index]}
+              />
+            ))}
+          </LinearGradient>
+          <LinearGradient id={shadeId} x1="0" x2="0" y1="0" y2="1">
+            <Stop offset="0" stopColor={palette.shadow} stopOpacity={0.18} />
+            <Stop offset="0.12" stopColor={palette.shadow} stopOpacity={0} />
+            <Stop offset="0.88" stopColor={palette.shadow} stopOpacity={0} />
+            <Stop offset="1" stopColor={palette.shadow} stopOpacity={0.26} />
+          </LinearGradient>
+          <ClipPath id={clipId}>
             <Rect
-              fill={palette.highlight}
-              height={4}
-              rx={1.2}
-              width={56}
-              x={4}
-              y={y}
+              height={BODY.height}
+              rx={6}
+              width={BODY.width}
+              x={BODY.x}
+              y={BODY.y}
             />
-            {HEADBAND_STRIPES.map((x) => (
+          </ClipPath>
+        </Defs>
+
+        <Rect
+          fill={`url(#${baseId})`}
+          height={BODY.height}
+          rx={6}
+          stroke={colors.navy}
+          strokeWidth={2}
+          width={BODY.width}
+          x={BODY.x}
+          y={BODY.y}
+        />
+        <Rect
+          fill={`url(#${shadeId})`}
+          height={BODY.height}
+          rx={6}
+          width={BODY.width}
+          x={BODY.x}
+          y={BODY.y}
+        />
+
+        <G clipPath={`url(#${clipId})`}>
+          {/* Headband/tailband: faixas listradas nas duas pontas. */}
+          {[7, 111].map((y) => (
+            <G key={y}>
               <Rect
-                fill={palette.ink}
+                fill={palette.highlight}
                 height={4}
-                key={x}
-                opacity={0.5}
-                width={2.6}
-                x={x}
+                rx={1.2}
+                width={56}
+                x={4}
                 y={y}
               />
-            ))}
-            <Rect
-              fill="none"
-              height={4}
-              rx={1.2}
-              stroke={palette.edge}
-              strokeWidth={0.5}
-              width={56}
-              x={4}
-              y={y}
-            />
-          </G>
-        ))}
-
-        {/* Nervuras da capa dura. */}
-        {[52, 103].map((y) => (
-          <G key={y}>
-            <Rect
-              fill={palette.edge}
-              height={2.2}
-              opacity={0.6}
-              width={62}
-              x={1}
-              y={y}
-            />
-            <Rect
-              fill={palette.highlight}
-              height={1}
-              opacity={0.75}
-              width={62}
-              x={1}
-              y={y + 2.2}
-            />
-          </G>
-        ))}
-
-        <AnimatedRect
-          animatedProps={sheenProps}
-          fill={palette.highlight}
-          height={138}
-          opacity={expression === 'shine' ? 0.38 : 0.2}
-          width={9}
-          y={-10}
-        />
-
-        <SpineFace
-          expression={expression}
-          ink={palette.ink}
-          testID={testID ? `${testID}-face-${expression}` : undefined}
-        />
-
-        {expression === 'sleepy' ? (
-          <AnimatedG
-            animatedProps={zzzProps}
-            fill="none"
-            stroke={palette.ink}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            testID={testID ? `${testID}-zzz` : undefined}
-          >
-            {zzz.map((item) => (
-              <Path
-                d={zPath(item.cx, item.cy, item.size)}
-                key={item.size}
-                strokeWidth={item.width}
+              {HEADBAND_STRIPES.map((x) => (
+                <Rect
+                  fill={palette.ink}
+                  height={4}
+                  key={x}
+                  opacity={0.5}
+                  width={2.6}
+                  x={x}
+                  y={y}
+                />
+              ))}
+              <Rect
+                fill="none"
+                height={4}
+                rx={1.2}
+                stroke={palette.edge}
+                strokeWidth={0.5}
+                width={56}
+                x={4}
+                y={y}
               />
-            ))}
-          </AnimatedG>
-        ) : null}
-      </G>
+            </G>
+          ))}
 
-      <G testID={testID ? `${testID}-tassel` : undefined}>
-        <AnimatedMatrixG animatedProps={shadowProps}>
-          <Ellipse
-            cx={7.6}
-            cy={13}
-            fill={colors.navy}
-            filter={`url(#${shadowFilterId})`}
-            opacity={0.22}
-            rx={2.4}
-            ry={8}
-          />
-        </AnimatedMatrixG>
-        <G clipPath={`url(#${bodyClipId})`}>
-          <AnimatedMatrixG animatedProps={bodyProps}>
-            <TasselCord />
-          </AnimatedMatrixG>
+          {/* Nervuras da capa dura. */}
+          {[52, 103].map((y) => (
+            <G key={y}>
+              <Rect
+                fill={palette.edge}
+                height={2.2}
+                opacity={0.6}
+                width={62}
+                x={1}
+                y={y}
+              />
+              <Rect
+                fill={palette.highlight}
+                height={1}
+                opacity={0.75}
+                width={62}
+                x={1}
+                y={y + 2.2}
+              />
+            </G>
+          ))}
         </G>
-        <AnimatedMatrixG animatedProps={headProps}>
-          <TasselHead goldId={goldId} />
-        </AnimatedMatrixG>
-        <AnimatedMatrixG animatedProps={fringeProps}>
-          <TasselFringe />
-        </AnimatedMatrixG>
-      </G>
-    </Svg>
+      </Svg>
+
+      {/* Brilho: uma View recortada no corpo; só o transform anima. */}
+      <View style={glossClip}>
+        <Animated.View style={[glossBar, sheenMotion]} />
+      </View>
+
+      {/* Rosto: boca e olhos estáticos; a piscada é um overlay de opacidade. */}
+      <View
+        style={StyleSheet.absoluteFill}
+        testID={testID ? `${testID}-face-${expression}` : undefined}
+      >
+        <Svg
+          height="100%"
+          preserveAspectRatio="none"
+          viewBox={`0 0 ${VIEW.width} ${VIEW.height}`}
+          width="100%"
+        >
+          {canBlink ? null : (
+            <SpineEyes expression={expression} ink={palette.ink} />
+          )}
+          <SpineMouth expression={expression} ink={palette.ink} />
+        </Svg>
+
+        {canBlink ? (
+          <Animated.View style={[EYES_LAYER, eyesMotion]}>
+            <Svg
+              height="100%"
+              preserveAspectRatio="none"
+              viewBox={eyesViewBox}
+              width="100%"
+            >
+              <SpineEyes expression={expression} ink={palette.ink} />
+            </Svg>
+          </Animated.View>
+        ) : null}
+      </View>
+
+      {/* “zzz” do sono: SVG próprio, só a opacidade da View anima. */}
+      {expression === 'sleepy' ? (
+        <Animated.View
+          style={[ZZZ_LAYER, zzzMotion]}
+          testID={testID ? `${testID}-zzz` : undefined}
+        >
+          <Svg
+            height="100%"
+            preserveAspectRatio="none"
+            viewBox={zzzViewBox}
+            width="100%"
+          >
+            <G
+              fill="none"
+              stroke={palette.ink}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              {zzz.map((item) => (
+                <Path
+                  d={zPath(item.cx, item.cy, item.size)}
+                  key={item.size}
+                  strokeWidth={item.width}
+                />
+              ))}
+            </G>
+          </Svg>
+        </Animated.View>
+      ) : null}
+
+      {/*
+        Tassel em três Views independentes, cada uma girada por `transform`.
+        O SVG de cada camada é pequeno e estático; o giro não redesenha o corpo.
+      */}
+      <View
+        style={StyleSheet.absoluteFill}
+        testID={testID ? `${testID}-tassel` : undefined}
+      >
+        <Animated.View
+          style={[
+            TASSEL_LAYER,
+            { transformOrigin: tasselOrigin },
+            shadowMotion,
+          ]}
+        >
+          <Svg
+            height="100%"
+            preserveAspectRatio="none"
+            viewBox={tasselViewBox}
+            width="100%"
+          >
+            <Defs>
+              {/* Sombra radial em vez de FeGaussianBlur: sem bitmap por frame. */}
+              <RadialGradient cx="0.5" cy="0.5" id={shadowId} r="0.5">
+                <Stop offset="0" stopColor={colors.navy} stopOpacity={0.3} />
+                <Stop offset="0.55" stopColor={colors.navy} stopOpacity={0.2} />
+                <Stop offset="1" stopColor={colors.navy} stopOpacity={0} />
+              </RadialGradient>
+            </Defs>
+            <Ellipse
+              cx={7.6}
+              cy={13}
+              fill={`url(#${shadowId})`}
+              rx={4}
+              ry={9.6}
+            />
+          </Svg>
+        </Animated.View>
+
+        <Animated.View
+          style={[TASSEL_LAYER, { transformOrigin: tasselOrigin }, bodyMotion]}
+        >
+          <Svg
+            height="100%"
+            preserveAspectRatio="none"
+            viewBox={tasselViewBox}
+            width="100%"
+          >
+            <Defs>
+              <LinearGradient id={goldId} x1="0" x2="1" y1="0" y2="0">
+                <Stop offset="0" stopColor="#FFE3A3" />
+                <Stop offset="0.45" stopColor={colors.gold} />
+                <Stop offset="1" stopColor="#D99A24" />
+              </LinearGradient>
+            </Defs>
+            <TasselCord />
+            <TasselHead goldId={goldId} />
+          </Svg>
+        </Animated.View>
+
+        <Animated.View
+          style={[
+            TASSEL_LAYER,
+            { transformOrigin: fringeOrigin },
+            fringeMotion,
+          ]}
+        >
+          <Svg
+            height="100%"
+            preserveAspectRatio="none"
+            viewBox={tasselViewBox}
+            width="100%"
+          >
+            <TasselFringe />
+          </Svg>
+        </Animated.View>
+      </View>
+    </View>
   );
 }
+
+/**
+ * `memo`: a arte só redesenha quando expressão/paleta/tamanho mudam. O preview
+ * do status na grade re-renderiza o card, mas não o corpo estático.
+ */
+export const SpineArtwork = memo(SpineArtworkBase);

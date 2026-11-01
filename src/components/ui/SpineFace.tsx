@@ -37,7 +37,7 @@ function star(cx: number, cy: number, radius: number): string {
  * Ficam num grupo separado para a piscada poder animar só eles; em `happy` os
  * olhos abrem um pouco mais para o rosto não parecer apertado.
  */
-function SpineEyes({
+export function SpineEyes({
   expression,
   ink,
 }: {
@@ -106,7 +106,7 @@ function SpineEyes({
 }
 
 /** Boca no mesmo sistema de coordenadas dos olhos. */
-function SpineMouth({
+export function SpineMouth({
   expression,
   ink,
 }: {
@@ -153,23 +153,23 @@ function SpineMouth({
 }
 
 /**
- * Rosto completo do status, compartilhado pela lombada e pelo selo da capa.
- *
- * A piscada anima só a opacidade dos olhos (`happy`/`neutral`), porque `sleepy`
- * já fecha os olhos e `shine` tem estrelas; boca e acessórios ficam parados.
- * Usar o mesmo componente nos dois lugares impede as expressões de divergirem.
+ * Expressões com piscada (olhos redondos/arco). As demais já têm os olhos
+ * fechados (`sleepy`) ou em estrela (`shine`) e ficam estáticas.
  */
-export function SpineFace({
-  expression,
-  ink,
-  testID,
-}: {
-  expression: SpineExpression;
-  ink: string;
-  testID?: string;
-}) {
+export function blinks(expression: SpineExpression): boolean {
+  return expression === 'neutral' || expression === 'happy';
+}
+
+/**
+ * Piscada compartilhada: `1` = olhos abertos, `0` = piscando.
+ *
+ * A lombada usa a opacidade do overlay de olhos; o selo da capa anima o grupo
+ * dentro do SVG. Só `happy`/`neutral` piscam — `sleepy` e `shine` já têm olhos
+ * fechados/estrela.
+ */
+export function useBlink(expression: SpineExpression) {
   const blink = useSharedValue(1);
-  const canBlink = expression === 'neutral' || expression === 'happy';
+  const canBlink = blinks(expression);
 
   useEffect(() => {
     if (!canBlink) {
@@ -187,6 +187,27 @@ export function SpineFace({
       -1,
     );
   }, [blink, canBlink]);
+
+  return { blink, canBlink };
+}
+
+/**
+ * Rosto completo do status, compartilhado pela lombada e pelo selo da capa.
+ *
+ * A piscada anima só a opacidade dos olhos (`happy`/`neutral`), porque `sleepy`
+ * já fecha os olhos e `shine` tem estrelas; boca e acessórios ficam parados.
+ * Usar o mesmo componente nos dois lugares impede as expressões de divergirem.
+ */
+export function SpineFace({
+  expression,
+  ink,
+  testID,
+}: {
+  expression: SpineExpression;
+  ink: string;
+  testID?: string;
+}) {
+  const { blink } = useBlink(expression);
 
   const eyesProps = useAnimatedProps(() => ({ opacity: blink.value }));
 

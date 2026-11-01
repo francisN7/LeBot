@@ -266,8 +266,8 @@ de "Meu ritmo" (30×60).
 
 Movimento: o toque inclina com mola e `animated` liga a flutuação contínua —
 reserve para telas com um livro só (detalhe), não para a grade. O tassel balança
-para a esquerda com `matrix` animada (ADR 0023); o “zzz” do sono pisca na
-diagonal.
+para a esquerda em camadas recortadas com `Animated.View` + `rotate` (ADR 0024);
+o “zzz” do sono pisca na diagonal.
 
 ```tsx
 <Spine
@@ -280,6 +280,12 @@ diagonal.
 
 O desenho do rosto, das faixas e do tassel fica em `SpineArtwork` (interno); a
 etiqueta é uma View com `AppText` para o título real e centralizado.
+
+O corpo (gradiente, faixas e nervuras) é estático; brilho, piscada, “zzz” e
+tassel são camadas animadas separadas. Na Estante, a grade é um `FlatList`
+`numColumns={2}` com cabeçalho, busca e filtros em `ListHeaderComponent`: só os
+cards próximos da tela são montados, então a tela escala para milhares de livros
+sem milhares de SVGs animados (ADR 0024).
 
 ### `Mascot`
 

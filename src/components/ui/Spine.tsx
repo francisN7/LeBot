@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
@@ -68,7 +68,10 @@ export function Spine({
   className,
   testID,
 }: SpineProps) {
-  const art = resolveSpineArt({ color, status });
+  const art = useMemo(
+    () => resolveSpineArt({ color, status }),
+    [color, status],
+  );
   const pressed = useSharedValue(0);
   const float = useSharedValue(1);
 
@@ -175,8 +178,10 @@ export function Spine({
             >
               <SpineArtwork
                 expression={art.expression}
+                height={height}
                 palette={art.palette}
                 testID={testID}
+                width={width}
               />
             </View>
             {headLabel}
