@@ -5,8 +5,8 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 ## [Unreleased]
 
-Sem mudanças pendentes: a S5 aguarda a conferência no Android do dono (trava de
-progresso e histórico); depois dela vem a S6.
+Sem mudanças pendentes: a S5 está concluída e validada no Android; a próxima é
+a S6.
 
 ## S5.1 — Progresso não desce abaixo do histórico
 
@@ -60,7 +60,8 @@ progresso e histórico); depois dela vem a S6.
 ### Validated
 
 - `lint`, `typecheck`, 203 testes, `expo-doctor` (20/20) e `expo export`
-  (Android) verdes.
+  (Android) verdes. Conferido no Android pelo dono junto com a S5.1 (207
+  testes).
 
 ## S4b — ISBN oficial, avisos do terminal e capa na Fila
 

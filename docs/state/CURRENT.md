@@ -2,48 +2,35 @@
 
 ## Sessão
 
-- **Atual:** S5 implementada; S5.1 (piso de progresso) aguarda conferência no
-  Android do dono.
-- **Última concluída:** S4b (ISBN oficial, avisos do terminal, capa na Fila).
-- **Próxima:** fechar a S5 no Android e abrir a S6
-  (`docs/sessions/S06-motor-plano.md`), motor puro do plano diário.
+- **Atual:** S5 concluída e validada no Android (registro de leitura + piso do
+  progresso).
+- **Última concluída:** S5.
+- **Próxima:** S6 (`docs/sessions/S06-motor-plano.md`), motor puro do plano
+  diário.
 
-## Pronto (S5 — registro de leitura)
+## Pronto (S5 — registro de leitura + piso)
 
-- `reading_sessions` em `src/db/schema.ts` + migração aditiva
-  `drizzle/0003_cloudy_pretty_boy.sql` (índice em `book_id`, `pages > 0`).
+- `reading_sessions` em `src/db/schema.ts` + migrações aditivas
+  `0003_cloudy_pretty_boy.sql` (índice em `book_id`, `pages > 0`) e
+  `0004_clever_turbo.sql` (`applied_pages`; `NULL` antigo vale como `pages`).
 - `src/db/repositories/reading-sessions.ts`: `create` grava a sessão e soma em
   `books.pages_read` na mesma transação, com teto no total e `finished`
-  automático; `remove` desconta (nunca negativo) e devolve `finished` →
-  `reading`; `listByBook` (recente primeiro) e `listBetween` (base da S10).
+  automático; `remove` desconta `appliedPages` (nunca negativo) e devolve
+  `finished` → `reading`; `listByBook` e `listBetween` (base da S10).
 - `src/features/reading/`: `useReadingSessions`, `ReadingForm` (modal, +1/+10,
   aviso de clamp) e `ReadingProgressCard` (barra, últimas leituras, desfazer).
 - Detalhe tem o card "Progresso"; o "Começar" da Fila abre o registro com
   `plannedPages` como valor sugerido (o detalhe sugere 1).
 - `useBooks` exporta `notifyBooksChanged`; registrar atualiza Estante, detalhe
   e Fila sem reiniciar.
-- Testes: repositório (soma, teto, `finished`, desfazer, Zod, faixa de datas),
-  `ReadingForm`, detalhe e Fila. 203 testes no total.
-
-## Pronto (S5.1 — piso do progresso)
-
-- `reading_sessions.applied_pages` + migração aditiva
-  `drizzle/0004_clever_turbo.sql`; `NULL` em linhas antigas vale como `pages`.
-- `create` grava `appliedPages`; `remove` desconta `appliedPages` (corrige o
-  desfazer de sessão clampada).
-- `validateBookForm(..., recordedPages)` e o formulário recusam "Páginas lidas"
-  abaixo do que as sessões registram; o campo mostra "Já registradas: N".
-- `update` de livros repete a guarda: `Há N páginas registradas nas sessões de
-  leitura. Desfaça os registros no detalhe para baixar o progresso.`
-- 207 testes no total.
-- Validação desktop: `lint`, `typecheck`, `test`, `doctor` (20/20) e
-  `expo export --platform android` verdes.
+- Piso: formulário (`validateBookForm(..., recordedPages)`, aviso "Já
+  registradas: N") e `update` de livros recusam progresso abaixo do histórico;
+  a mensagem manda desfazer no detalhe.
+- 207 testes; `lint`, `typecheck`, `test`, `doctor` (20/20) e
+  `expo export --platform android` verdes. Validado no Android pelo dono.
 
 ## Decisões abertas
 
-- ADR 0012 fixa: clamp com aviso na UI e `finished` automático (desfazer volta
-  para `reading`). Se o dono não gostar da volta automática, é uma linha no
-  repositório.
 - Excluir livro deixa `reading_sessions` órfãs (sem FK). Limpeza na S9/S11.
 - `queued`/`paused` não viram `reading` ao registrar páginas; só `reading` vira
   `finished`. Ajustar na S9 se incomodar.

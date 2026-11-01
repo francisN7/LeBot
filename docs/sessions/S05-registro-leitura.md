@@ -54,7 +54,7 @@ plano ainda.
 - [x] Livro que chega ao fim vira `finished` e aparece assim na Estante.
 - [x] Migração aplica em banco já existente (S0–S4) sem perder dados.
 - [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
-- [ ] Conferido no Android pelo dono.
+- [x] Conferido no Android pelo dono.
 
 ## Contexto necessário
 
