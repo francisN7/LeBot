@@ -21,7 +21,8 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S4c | [x] | Movimento e vida | Mola no toque, cascata na grade, detalhe com animação contínua e capa tratada como livro | `sessions/S04c-movimento.md` |
 | S5 | [x] | Registro de leitura | Registrar sessão e ver progresso na hora; piso do progresso travado; conferido no Android | `sessions/S05-registro-leitura.md` |
 | S6 | [x] | Motor do plano (funções puras) | Meta 3–200, volta leve, ativo em 7 dias, teto flexível e 75 testes; algoritmo documentado | `sessions/S06-motor-plano.md` |
-| S7 | [x] | Plano na UI + tela Hoje | Plano real na Hoje, sugestão com selo e registro a partir do bloco; recalculado a cada abertura (Android a conferir) | `sessions/S07-plano-na-ui.md` |
+| S7 | [x] | Plano na UI + tela Hoje | Plano real na Hoje, sugestão com selo e registro a partir do bloco; revisão no Android gerou a S7.1 | `sessions/S07-plano-na-ui.md` |
+| S7.1 | [ ] | Ajustes da revisão | Registrar retoma livro pausado/fila; Hoje antes da Fila; Fila somente ordem | `sessions/S07.1-ajustes-hoje-fila.md` |
 | S8 | [ ] | Fila e ordem anti-ressaca | Sugestão automática + reordenação | `sessions/S08-fila-real.md` |
 | S9 | [ ] | Conclusão + resenha | Livro finalizado gera resenha completa | — |
 | S10 | [ ] | Estatísticas e insights | Tela com dados reais | — |
@@ -31,6 +32,10 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 
 ## Backlog pós-MVP
 
+- Botão **(i)** de ajuda em cada aba, com explicação curta do papel da tela e o
+  LêBot "confuso" atrás do i (interrogação diagonal, como quem inspeciona),
+  com animação. Depois da S12. O mascote ainda não tem esse estado: criar um
+  novo ou reaproveitar "pensando".
 - Atualizar a toolchain para zerar os advisories moderados do `npm audit`
   (`minimatch`, `glob`, Jest e Expo CLI). **Não** usar `npm audit fix --force`:
   ele rebaixa o Expo para 51. Reavaliar junto com a próxima atualização de SDK.

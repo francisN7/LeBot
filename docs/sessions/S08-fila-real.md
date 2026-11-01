@@ -6,9 +6,13 @@ A Fila deixa de ser fixture: o dono coloca livros na fila, reordena, a ordem
 persiste no aparelho e a tela Hoje passa a montar o plano nessa ordem. Um botão
 sugere uma ordem anti-ressaca que alterna gêneros.
 
+> A S7.1 já deixou a Fila somente leitura (sem registrar e sem páginas) e a Hoje
+> como a única tela de registro. Aqui a Fila ganha escrita de novo — só para
+> montar e ordenar a fila, nunca para registrar leitura.
+
 ## Fora de escopo
 
-- Plano persistido e edição manual → **S7.1**, só se o dono pedir.
+- Persistir o plano e editar blocos → **S7.2**, só se o dono pedir.
 - Estatísticas, sequência e gráficos → **S10**.
 - Notificações e lembretes.
 - Conclusão com resenha → **S9**.
@@ -31,9 +35,8 @@ sugere uma ordem anti-ressaca que alterna gêneros.
 4. **"Sugerir ordem":** aplicar direto na fila (reversível reordenando) ou
    mostrar uma prévia antes de gravar. Recomendo aplicar direto, com o botão
    desabilitado quando a ordem sugerida já é a atual.
-5. **Páginas do "Começar" na Fila:** manter `planned_pages` na fila ou usar o
-   bloco do plano do dia (`buildPlan`, mesma fonte da Hoje)? Recomendo o bloco
-   do plano; sem bloco hoje, o formulário abre com 1.
+5. **Registro de leitura:** fica só na Hoje (S7.1). A Fila não ganha "Começar"
+   nem modal de volta; o toque no item abre o detalhe do livro.
 
 ## Tarefas
 
@@ -49,7 +52,7 @@ sugere uma ordem anti-ressaca que alterna gêneros.
    de borda (um livro, todos do mesmo gênero, fila vazia, gêneros repetidos).
 5. `FilaScreen`: lista real, adicionar (do detalhe/estante ou de um seletor na
    própria Fila), remover com confirmação, setas de reordenação e "Sugerir
-   ordem". Textos e estados vazios.
+   ordem". Textos e estados vazios. Sem registro de leitura.
 6. Hoje: nenhuma mudança de tela; conferir que reordenar muda os blocos na
    próxima abertura. Teste de integração Fila → Hoje se a navegação permitir.
 7. Atualizar `docs/architecture.md`, `docs/data-model.md`, `docs/testing.md`,
@@ -91,8 +94,8 @@ sugere uma ordem anti-ressaca que alterna gêneros.
   ids órfãos na leitura, como a Fila faz hoje.
 - **Ciclo de import:** `queue` não pode importar `today`; a Hoje é quem depende
   da fila, nunca o contrário.
-- **Duas fontes de páginas:** manter `planned_pages` e o plano do dia ao mesmo
-  tempo reintroduz divergência; escolher uma na abertura.
+- **Registro fora da Hoje:** a Fila não pode recuperar "Começar"/modal (decisão
+  da S7.1); o toque no item só abre o detalhe.
 - **Testes de tela:** a Fila em memória precisa refletir a mesma transação do
   repositório, senão o teste passa e o aparelho não.
 

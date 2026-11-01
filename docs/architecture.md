@@ -168,6 +168,8 @@ Nenhum passo apaga dados ou esconde erro de migração.
   [`docs/adr/0013-motor-do-plano.md`](adr/0013-motor-do-plano.md)
 - Plano recalculado na Hoje:
   [`docs/adr/0014-plano-recalculado-na-hoje.md`](adr/0014-plano-recalculado-na-hoje.md)
+- Status ao registrar leitura:
+  [`docs/adr/0015-status-ao-registrar.md`](adr/0015-status-ao-registrar.md)
 
 ## Pendências conhecidas
 

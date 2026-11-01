@@ -56,8 +56,9 @@ avançar.
 - [x] Registrar um bloco atualiza o progresso e o estado do dia na hora, sem
       reiniciar.
 - [x] Sem livros, a tela explica o vazio e leva à Fila.
-- [ ] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes; conferido no
-      Android. (Verde no build local; Android ainda não conferido pelo dono.)
+- [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes; conferido no
+      Android. A revisão do dono em 2026-11-01 abriu a **S7.1** (status ao
+      registrar, ordem das abas e Fila somente leitura).
 
 ## Contexto necessário
 
