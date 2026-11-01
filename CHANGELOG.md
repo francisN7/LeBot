@@ -11,12 +11,13 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
   todo livro não concluído entra; `reading` forma o bloco "Lendo agora", com o
   primeiro coroado como principal, e `queued`/`paused` ficam em "Depois" com
   aviso. O status é a entrada/saída — sem adicionar/remover. Reordenar pela alça
-  de três barras (toque longo, brilho, prévia de troca e drop instantâneo; RNGH +
-  Reanimated) ou por setas maiores com transição animada, sem cruzar blocos;
-  "Sugerir ordem" alterna gênero por bloco. O motor passa a usar o primeiro Lendo como principal
-  (Hobbit 11 + Sapiens 7), não a sessão mais recente. `Screen` adota o
-  `ScrollView` do gesture handler e o app monta `GestureHandlerRootView`; ADR
-  0016 e 0017. 17 testes novos (330 na suíte); falta conferir no Android.
+  de três barras (toque longo, brilho e prévia; RNGH + Reanimated) ou por setas
+  maiores com transição animada, sem cruzar blocos; "Sugerir ordem" alterna
+  gênero por bloco. O motor usa o primeiro Lendo como principal (Hobbit 11 +
+  Sapiens 7), não a sessão mais recente. `Screen` adota o `ScrollView` do gesture
+  handler e o app monta `GestureHandlerRootView`; ADR 0016 e 0017. 17 testes
+  novos (330 na suíte). Conferido no Android; o glitch de animação no drop via
+  alça (setas ok) ficou no backlog.
 - S7.1: registrar leitura retoma livro `paused`/`queued` como `reading` e
   conclui em `finished` (ADR 0015); Hoje ganha "Plano do dia" e "Lido hoje" com
   páginas e hora, meta batida sem fração acima de 100% e botão explícito em cada

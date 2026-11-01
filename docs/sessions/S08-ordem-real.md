@@ -78,10 +78,14 @@ anti-ressaca que alterna gêneros dentro de cada bloco.
 - [x] Ordem vazia explica que concluídos não entram; sem ação falsa.
 - [x] Nenhuma fixture de ordem sobrou no código.
 - [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
-- [ ] Conferido no Android: Hobbit 11 + Sapiens 7 na Hoje, coroa no primeiro
+- [x] Conferido no Android: Hobbit 11 + Sapiens 7 na Hoje, coroa no primeiro
       Lendo, bloqueio de Quero ler no topo, toque longo na alça, prévia de troca
-      durante o arraste, drop sem animação, lista maior que a tela, rolagem
-      vertical, animação das setas e setas com leitor de tela.
+      durante o arraste, lista maior que a tela, rolagem vertical, animação das
+      setas e setas com leitor de tela.
+
+> Pendência estética no backlog: ao soltar o arraste via alça, as linhas ainda
+> piscam/animam antes de se alocar. As setas estão ok. A S8 foi encerrada com
+> essa pendência registrada.
 
 ## Contexto necessário
 

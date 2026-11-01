@@ -23,7 +23,7 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S6 | [x] | Motor do plano (funções puras) | Meta 3–200, volta leve, ativo em 7 dias, teto flexível e 75 testes; algoritmo documentado | `sessions/S06-motor-plano.md` |
 | S7 | [x] | Plano na UI + tela Hoje | Plano real na Hoje, sugestão com selo e registro a partir do bloco; revisão no Android gerou a S7.1 | `sessions/S07-plano-na-ui.md` |
 | S7.1 | [x] | Ajustes da revisão | Registrar retoma livro pausado; Hoje antes da Ordem; Fila → Ordem; blocos com ação explícita; conferido no Android | `sessions/S07.1-ajustes-hoje-ordem.md` |
-| S8 | [~] | Ordem real e sugestão anti-ressaca | Sequência persistida, adicionar/remover/reordenar por arrastar e sugestão automática; falta conferir no Android | `sessions/S08-ordem-real.md` |
+| S8 | [x] | Ordem real e sugestão anti-ressaca | Ordem automática por status, principal = primeiro Lendo, setas ok; drop via alça com glitch estético no backlog | `sessions/S08-ordem-real.md` |
 | S8a | [ ] | Troca rápida de status na Estante | Segurar o chip de status abre uma roda; o rosto da lombada muda em tempo real ao deslizar e o status persiste ao soltar | `sessions/S08a-troca-rapida-status.md` |
 | S9 | [ ] | Conclusão + resenha | Livro finalizado gera resenha completa | — |
 | S10 | [ ] | Estatísticas e insights | Tela com dados reais | — |
@@ -36,6 +36,9 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 > A ordem abaixo é provisória: a S13 reordena pela prioridade do dono e remove
 > o que não entra mais.
 
+- **Ordem — drop via alça:** ao soltar, as linhas ainda piscam/animam antes de
+  se alocar; as setas estão ok. Reavaliar com uma lista de drag dedicada ou
+  posições absolutas. Não bloqueia a S8.
 - **Multisseleção na Estante:** selecionar vários livros e aplicar uma edição
   por vez — status, gênero, remoção de capa ou exclusão. Remover capa e excluir
   exigem confirmação dupla, com contagem visível de 5 s no segundo passo. O

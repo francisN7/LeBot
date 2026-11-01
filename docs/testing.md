@@ -237,6 +237,9 @@ pequena e a barra de progresso em densidades diferentes.
 - `src/test-utils/repositories.ts` mantém a ordem em memória e o `sync` usados
   pelas telas; `renderWithProviders` injeta `queueRepository` por padrão.
 
+O drop via alça ainda tem um glitch de animação ao soltar (as linhas piscam antes
+de se alocar); as setas estão ok. Está registrado no backlog do roadmap.
+
 A suíte atual tem 44 arquivos e 330 testes (`npm run test`).
 
 O que continua manual: conferir a Hoje no Android (toque no botão do bloco,
