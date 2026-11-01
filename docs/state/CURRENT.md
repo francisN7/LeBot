@@ -6,8 +6,9 @@
   conferência no Android pendente.
 - **Última concluída:** S9 (resenha + campos extras); falta o aceite manual no
   Android.
-- **Próxima:** S10 (estatísticas e insights) — spec em
-  `docs/sessions/S10-estatisticas.md`.
+- **Próxima:** S11a (design 3D da lombada e emoções) — spec em
+  `docs/sessions/S11a-design-3d-emocoes.md`. S10 (estatísticas) e S11
+  (configurações + backup) ficam pendentes na fila.
 
 ## Pronto (S9)
 
@@ -37,6 +38,9 @@
 - Conferir no Android: abertura ao concluir (detalhe e Hoje), teclado
   multilinha, acordeão dos chips, cadastro em Ajustes, selo e alinhamento da
   grade.
+- S11a: confirmar a técnica do volume (SVG com faces), o destino do bloco
+  lateral da capa (refazer como páginas × remover) e se a sombra de contato entra
+  também na grade. Recomendações na spec.
 - Galeria de citações no backlog (`reviews.quote` já pronta).
 - S7.2 (opcional): persistir o plano + edição manual.
 - Livro excluído deixa `reading_sessions` órfãs; a resenha sai junto. Limpeza no

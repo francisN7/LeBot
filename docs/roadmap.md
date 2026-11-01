@@ -6,6 +6,9 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 
 > A S4c foi implementada antes da S4b por decisão do dono; a tabela segue a numeração das sessões, e não a ordem em que foram executadas.
 >
+> A S11a foi pedida pelo dono como sessão de design e pode ser executada antes
+> da S10/S11; o nome segue a numeração, como a S8a.
+>
 > Antes da S6, uma auditoria de documentação conferiu README, AGENTS e docs
 > vivos contra o código da S5 (sem antecipar o motor do plano).
 
@@ -27,6 +30,7 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S8a | [x] | Troca rápida de status na Estante | Roda radial por toque longo; prévia do rosto e gravação ao soltar; conferida no Android | `sessions/S08a-troca-rapida-status.md` |
 | S9 | [x] | Conclusão + resenha | Nota/texto/citação, campos extras em Ajustes e selo na Estante; falta conferir no Android | `sessions/S09-conclusao-resenha.md` |
 | S10 | [ ] | Estatísticas e insights | Tela com dados reais | `sessions/S10-estatisticas.md` |
+| S11a | [ ] | Design 3D da lombada e emoções | Lombada e capa com volume real, lateral da capa refeita e selo com piscada por status; conferido no Android | `sessions/S11a-design-3d-emocoes.md` |
 | S11 | [ ] | Configurações + backup JSON | Meta diária editável, backup JSON com round-trip e estados explícitos para lembrete/tema; escopo fechado na abertura | — |
 | S12 | [ ] | Release interno | APK instalável no Android; ícone, splash e camada adaptativa conferidos no launcher | — |
 | S13 | [ ] | Documentação final + limpeza | Sub-sessões no padrão Xa/Xb; backlog reordenado pela prioridade do dono; itens descartados removidos dos docs; docs revisados e changelog fechado | `sessions/S13-documentacao-final.md` |
