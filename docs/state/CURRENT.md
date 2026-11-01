@@ -2,12 +2,11 @@
 
 ## Sessão
 
-- **Atual:** S7.1 concluída e conferida no Android em 2026-11-01; a próxima é a
-  S8.
-- **Última concluída:** S7.1. Antes: S7.
+- **Atual:** nenhuma sessão aberta; S7.1 encerrada em 2026-11-01.
+- **Última concluída:** S7.1 (conferida no Android). Antes: S7.
 - **Próxima:** S8 (`docs/sessions/S08-ordem-real.md`): Ordem persistida,
-  adicionar/remover/reordenar por arrastar e sugestão anti-ressaca. O arrastar
-  entrou na própria S8 (não há mais S8.1).
+  adicionar/remover/reordenar por arrastar (dentro da própria S8) e sugestão
+  anti-ressaca.
 - **Depois:** S8a (`S08a-troca-rapida-status.md`) e S9 (conclusão + resenha).
 
 ## Pronto (S7.1)
@@ -21,23 +20,22 @@
 - "Fila" virou **Ordem** na UI, na rota (`/ordem`, `ordem.tsx`) e na tela
   (`QueueScreen`); abas: Estante, Hoje, Ordem, Ajustes.
 - Ordem somente leitura: legenda "A sequência é sua: o que ler depois do livro
-  atual.", contagem "N livros depois do atual", posição 1º/2º, nota, chip
-  "Pausado" com aviso e nota da S8. Sem páginas, "Começar" ou modal.
+  atual.", posições, chip "Pausado" e a nota da S8; sem páginas ou modal.
+- O selo "sugestão" segue o status: `queued` (Pretendo Ler) leva o selo, mesmo
+  como bloco principal; `reading` não leva, porque já é decisão.
 - 313 testes (41 arquivos); lint, typecheck, test, doctor e export verdes;
   conferido no Android em 2026-11-01.
-- O selo "sugestão" segue o status do livro: `queued` (Pretendo Ler) leva o
-  selo, mesmo como bloco principal; `reading` não leva, porque já é decisão. O
-  flag `suggestion` do motor continua definindo ordem e estado dos blocos.
 
 ## Decisões abertas
 
 - S8: modelo da Ordem (`queue_items` × coluna em `books`), o que entra e como
-  arrastar para reordenar (setas ficam como alternativa acessível) — decidir na
-  abertura (spec S08).
-- S8a: onde a roda aparece, quando grava e o que fazer com livro que tem capa
-  (sem rosto de lombada) — decidir na abertura.
-- Multisseleção da Estante está no backlog pós-MVP (não é sessão): se virar
-  sessão, a decisão de entrada no modo e a espera de 5 s são definidas lá.
+  arrastar (setas como alternativa acessível) — decidir na abertura.
+- S8a: onde a roda aparece, quando grava e o livro com capa (sem rosto de
+  lombada) — decidir na abertura.
+- Rótulo de `queued`: a UI diz "Quero ler"; o dono chama de "Pretendo ler".
+  Alinhar antes da S8, se for para mudar.
+- Multisseleção da Estante está no backlog pós-MVP; se virar sessão, a entrada
+  no modo e a espera de 5 s são decididas lá.
 - S7.2 (opcional): persistir o plano + edição manual.
 - Excluir livro deixa `reading_sessions` órfãs (sem FK). Limpeza na S9/S11.
 
