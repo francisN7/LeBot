@@ -33,7 +33,7 @@ function seededRepositories() {
 }
 
 describe('HojeScreen', () => {
-  it('mostra a meta e os blocos do plano real, com o bloco paralelo da Ordem', async () => {
+  it('mostra a meta e os blocos do plano real, com o Pretendo Ler marcado', async () => {
     const { books, reading } = seededRepositories();
     reading.create({ bookId: 'book-hobbit', pages: 1, readAt: new Date() });
 
@@ -53,7 +53,7 @@ describe('HojeScreen', () => {
     expect(screen.getByText('Orgulho e Preconceito')).toBeOnTheScreen();
     expect(screen.getByText('Fantasia · 11 páginas')).toBeOnTheScreen();
     expect(screen.getByText('Clássico · 7 páginas')).toBeOnTheScreen();
-    expect(screen.queryByText('sugestão')).not.toBeOnTheScreen();
+    expect(screen.getByText('sugestão')).toBeOnTheScreen();
     expect(screen.getByText('Agora')).toBeOnTheScreen();
     expect(screen.getByText('Depois')).toBeOnTheScreen();
     expect(screen.getAllByText('Registrar leitura').length).toBeGreaterThan(0);
@@ -157,6 +157,33 @@ describe('HojeScreen', () => {
     expect(screen.getAllByText('Coraline').length).toBeGreaterThan(0);
     expect(screen.getByText('Terror · 11 páginas')).toBeOnTheScreen();
     expect(screen.getByText('10 de 18 páginas hoje')).toBeOnTheScreen();
+    expect(screen.getByText('Agora')).toBeOnTheScreen();
+  });
+
+  it('marca "sugestão" no Pretendo Ler mesmo quando ele é o bloco principal', async () => {
+    const { books, reading } = seededRepositories();
+
+    await renderWithProviders(<HojeScreen />, {
+      booksRepository: books,
+      readingRepository: reading,
+    });
+
+    expect(screen.getByText('Clássico · 18 páginas')).toBeOnTheScreen();
+    expect(screen.getByText('sugestão')).toBeOnTheScreen();
+    expect(screen.getByText('Agora')).toBeOnTheScreen();
+  });
+
+  it('não marca "sugestão" em livro que já está lendo', async () => {
+    const { books, reading } = seededRepositories();
+    reading.create({ bookId: 'book-orgulho', pages: 5, readAt: new Date() });
+
+    await renderWithProviders(<HojeScreen />, {
+      booksRepository: books,
+      readingRepository: reading,
+    });
+
+    expect(books.findById('book-orgulho')?.status).toBe('reading');
+    expect(screen.queryByText('sugestão')).not.toBeOnTheScreen();
     expect(screen.getByText('Agora')).toBeOnTheScreen();
   });
 

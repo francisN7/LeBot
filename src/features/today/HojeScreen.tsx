@@ -126,6 +126,11 @@ export function HojeScreen({ onOpenQueue }: HojeScreenProps = {}) {
                         label={blockStatusLabel[block.status]}
                         selected={block.status === 'now'}
                       />
+                      {/* Quem ainda não começou recebe sugestão; "Lendo" já é
+                          uma decisão do dono. O flag do motor não manda aqui. */}
+                      {block.book.status === 'queued' ? (
+                        <Chip label="sugestão" />
+                      ) : null}
                       {block.finishes ? <Chip label="fecha o livro" /> : null}
                     </View>
                   </View>

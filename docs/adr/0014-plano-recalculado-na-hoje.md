@@ -76,8 +76,9 @@ troca o interior do hook pela fila persistida sem tocar na tela nem no motor.
 
 ## Adendo (2026-11-01, S7.1)
 
-O selo "sugestão" saiu da Hoje. O bloco paralelo vem do topo da Ordem, que é
-escolha do dono, não uma proposta do app; chamá-lo de sugestão confundia a
-origem com o papel no plano. O motor mantém `suggestion: true` e a UI não mostra
-o selo. Ele volta se existir um livro proposto fora da Ordem.
+O selo "sugestão" na Hoje depende do **status do livro**, não do flag
+`suggestion` do motor: livro `queued` (Pretendo Ler) no plano leva o selo,
+porque o dono ainda não começou; livro `reading` nunca leva, porque já é uma
+decisão. O flag `suggestion` continua no motor para a ordem dos blocos e a
+escolha do "agora".
 

@@ -152,9 +152,10 @@ SQLite (expo-sqlite + Drizzle)
   acima de 100%. "Lido hoje" fica vazio com "Nada registrado hoje ainda.".
 - Cada bloco tem botão explícito: "Registrar leitura" (primário no "Agora",
   secundário nos demais) ou "Registrar mais" quando o bloco já foi feito.
-- O bloco paralelo vindo da Ordem não tem selo "sugestão" (decisão da S7.1): a
-  sequência é escolha do dono. O motor continua marcando `suggestion`; o selo
-  só volta se existir um livro proposto fora da Ordem.
+- O selo "sugestão" segue o status do livro: `queued` (Pretendo Ler) leva o
+  selo, porque o dono ainda não começou; `reading` não leva, porque já é uma
+  decisão. O flag `suggestion` do motor continua definindo a ordem e o estado
+  dos blocos, não o selo.
 - O plano **não é persistido**: recalcula a cada abertura (decisão da S7). As
   sessões e `pages_read` são a fonte de verdade do progresso; o motor devolve o
   plano bruto e a UI compara com o que já foi lido hoje.

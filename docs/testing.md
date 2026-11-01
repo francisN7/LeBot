@@ -207,8 +207,8 @@ pequena e a barra de progresso em densidades diferentes.
 - `src/features/today/HojeScreen.test.tsx`: Coraline pausada com sessão de hoje
   vira o livro ativo do plano e seu status muda; "Plano do dia" e "Lido hoje"
   com páginas e hora; meta batida sem fração acima de 100%; botão explícito
-  "Registrar leitura" e "Registrar mais"; CTA "Ver a ordem"; o bloco paralelo da
-  Ordem não exibe mais o selo "sugestão".
+  "Registrar leitura" e "Registrar mais"; CTA "Ver a ordem"; o selo "sugestão"
+  aparece em bloco Pretendo Ler (`queued`) e não em livro Lendo (`reading`).
 - `src/features/today/plan-view.test.ts` + `format.test.ts`: `sessionsToday` em
   ordem cronológica com `HH:mm`, sessão órfã contando na meta sem entrar na lista
   e data inválida.
@@ -216,7 +216,7 @@ pequena e a barra de progresso em densidades diferentes.
   do atual", posições 1º/2º, chip "Pausado" com aviso, ausência de "Começar",
   páginas e modal, vazio sem ação falsa e toque abrindo o detalhe.
 
-A suíte atual tem 41 arquivos e 311 testes (`npm run test`).
+A suíte atual tem 41 arquivos e 313 testes (`npm run test`).
 
 O que continua manual: conferir a Hoje no Android (toque no botão do bloco,
 modal com o valor do plano e virada do dia), a ordem das abas e a legenda da

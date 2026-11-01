@@ -23,11 +23,11 @@
 - Ordem somente leitura: legenda "A sequência é sua: o que ler depois do livro
   atual.", contagem "N livros depois do atual", posição 1º/2º, nota, chip
   "Pausado" com aviso e nota da S8. Sem páginas, "Começar" ou modal.
-- 311 testes (41 arquivos); lint, typecheck, test, doctor e export verdes;
+- 313 testes (41 arquivos); lint, typecheck, test, doctor e export verdes;
   conferido no Android em 2026-11-01.
-- O bloco paralelo da Ordem não exibe mais o selo "sugestão": a sequência é
-  escolha do dono. O motor mantém o flag; o selo volta se existir livro
-  proposto fora da Ordem.
+- O selo "sugestão" segue o status do livro: `queued` (Pretendo Ler) leva o
+  selo, mesmo como bloco principal; `reading` não leva, porque já é decisão. O
+  flag `suggestion` do motor continua definindo ordem e estado dos blocos.
 
 ## Decisões abertas
 
