@@ -250,12 +250,13 @@ fallback. Com `onPress` vira botão acessível. Quando o livro tem capa, o card 
 
 Desde a S11a a lombada é a **B**, com 64×128 (52×104 compacta) e proporção 1:2:
 corpo cilíndrico em gradiente, headband/tailband listradas, duas nervuras,
-etiqueta de título no topo (só o título, centralizado, em até duas linhas),
-rosto do status e tassel T1 no canto superior esquerdo — argola, corda, corpo,
-pescoço e franja dourada. O viewBox é 64×128; o rosto foi desenhado para esse
-formato, não comprimido. A piscada vive em `SpineFace` e é a mesma do selo da
-capa. O `Pressable` pinta o fundo com a cor do gênero e não desenha borda: o
-contorno navy vem da arte.
+etiqueta de título no topo (centralizada, 11–53 × 19–38; **só o título**, em até
+duas linhas, Fredoka 600 com tamanho dinâmico de 7 a 5 e ellipsis depois disso),
+rosto do status e tassel T1 no canto superior esquerdo — corda saindo do topo,
+corpo, pescoço e franja dourada com sombra e balanço de ±3°. O viewBox é 64×128;
+o rosto foi desenhado para esse formato, não comprimido. A piscada vive em
+`SpineFace` e é a mesma do selo da capa. O `Pressable` da arte é transparente: o
+contorno navy vem do SVG, sem retângulo de fundo nos cantos.
 
 `showLabel` controla a etiqueta: no topo quando há arte e no rodapé no fallback
 2D. O padrão é ligado; as telas principais mostram o título na lombada mesmo com
@@ -263,8 +264,8 @@ o título do card abaixo. Desligue só em tamanhos pequenos, como a mini-lombada
 de "Meu ritmo" (30×60).
 
 Movimento: o toque inclina com mola e `animated` liga a flutuação contínua —
-reserve para telas com um livro só (detalhe), não para a grade. O tassel é
-estático; o “zzz” do sono flutua na diagonal.
+reserve para telas com um livro só (detalhe), não para a grade. O tassel balança
+±3°; o “zzz” do sono flutua na diagonal.
 
 ```tsx
 <Spine

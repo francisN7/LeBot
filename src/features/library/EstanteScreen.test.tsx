@@ -1,5 +1,4 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
-import { StyleSheet } from 'react-native';
 import {
   createGestureController,
   getByGestureTestId,
@@ -152,10 +151,11 @@ describe('EstanteScreen', () => {
 
     expect(screen.getByText('Fantasia épica')).toBeOnTheScreen();
 
-    const spine = screen.getByLabelText('Lombada de O Hobbit');
-    const style = StyleSheet.flatten(spine.props.style);
+    // O corpo usa o hex do gênero no gradiente; o react-native-svg serializa
+    // as paradas como ARGB inteiro com sinal (0xFF123456 -> -15584170).
+    const argb = (0xff000000 + 0x123456) | 0;
 
-    expect(style.backgroundColor).toBe('#123456');
+    expect(JSON.stringify(screen.toJSON())).toContain(String(argb));
   });
 
   it('mostra o mascote neutro quando a estante está vazia', async () => {

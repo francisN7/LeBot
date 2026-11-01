@@ -9,10 +9,11 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import Svg, {
-  Circle,
   ClipPath,
   Defs,
   Ellipse,
+  FeGaussianBlur,
+  Filter,
   G,
   LinearGradient,
   Path,
@@ -35,7 +36,6 @@ const AnimatedRect = Animated.createAnimatedComponent(Rect);
 const VIEW = { height: 128, width: 64 };
 /** O corpo encurta 4 px para a sombra de contato caber no slot. */
 const BODY = { height: 126, width: 62, x: 1, y: 1 };
-const TASSEL_X = 5.8;
 /** Posições das listras do headband/tailband. */
 const HEADBAND_STRIPES = [5, 11, 17, 23, 29, 35, 41, 47, 53];
 /** Paradas do gradiente da frente. */
@@ -54,69 +54,74 @@ function zPath(cx: number, cy: number, size: number): string {
 }
 
 /**
- * Tassel T1 no canto superior esquerdo: argola na borda, corda, corpo, pescoço
- * e franja de seis fios. A argola é cortada pelo topo do SVG para parecer que
- * sai de dentro do livro; o resto pende sobre o headband.
+ * Tassel T1 no canto superior esquerdo: a corda sai do topo (sem argola),
+ * encontra o corpo e o pescoço e termina na franja de seis fios. O dourado usa
+ * gradiente, aresta escura e sombra para não parecer um recorte colado.
  */
-function Tassel() {
+function Tassel({ goldId }: { goldId: string }) {
   const threads = [-3, -1.8, -0.6, 0.6, 1.8, 3].map((dx, index) => {
-    const x0 = TASSEL_X + dx * 0.35;
-    const x1 = TASSEL_X + dx;
+    const x0 = 6 + dx * 0.28;
+    const x1 = 6 + dx;
     const y1 = 22 + (index % 2) * 1.2;
 
     return (
       <G key={dx}>
         <Path
-          d={`M${x0} 9.2 L${x1} ${y1}`}
-          stroke={colors.navy}
+          d={`M${x0} 9 L${x1} ${y1}`}
+          stroke="#B87A12"
           strokeLinecap="round"
-          strokeWidth={1.5}
+          strokeWidth={1.3}
         />
         <Path
-          d={`M${x0} 9.2 L${x1} ${y1}`}
-          stroke={colors.gold}
+          d={`M${x0} 9 L${x1} ${y1}`}
+          stroke="#FFD98A"
           strokeLinecap="round"
-          strokeWidth={0.75}
+          strokeWidth={0.65}
         />
       </G>
     );
   });
 
   return (
-    <G stroke={colors.navy} strokeLinejoin="round" strokeWidth={0.7}>
-      <Ellipse
-        cx={TASSEL_X}
-        cy={1.4}
-        fill={colors.navy}
-        opacity={0.18}
-        rx={3.4}
-        ry={2}
-        stroke="none"
+    <G>
+      <Path
+        d="M6 0 V4.6"
+        stroke="#B87A12"
+        strokeLinecap="round"
+        strokeWidth={1.5}
       />
-      <Circle
-        cx={TASSEL_X}
-        cy={0.8}
-        fill="none"
-        r={1.4}
-        stroke={colors.gold}
-        strokeWidth={0.9}
-      />
-      <Path d={`M${TASSEL_X} 2 V5.2`} stroke={colors.gold} strokeWidth={1.2} />
-      <Rect
-        fill={colors.gold}
-        height={3}
-        rx={1.5}
-        width={4}
-        x={TASSEL_X - 2}
-        y={5}
+      <Path
+        d="M6 0 V4.6"
+        stroke="#FFE3A3"
+        strokeLinecap="round"
+        strokeWidth={0.6}
       />
       <Rect
-        fill={colors.goldDeep}
+        fill={`url(#${goldId})`}
+        height={3.2}
+        rx={1.6}
+        stroke="#B87A12"
+        strokeWidth={0.5}
+        width={4.4}
+        x={3.8}
+        y={4.4}
+      />
+      <Path
+        d="M4.6 5.4 V6.8"
+        opacity={0.8}
+        stroke="#FFE3A3"
+        strokeLinecap="round"
+        strokeWidth={0.7}
+      />
+      <Rect
+        fill="#D99A24"
         height={1.6}
         rx={0.8}
-        width={5}
-        x={TASSEL_X - 2.5}
-        y={7.8}
+        stroke="#B87A12"
+        strokeWidth={0.4}
+        width={5.6}
+        x={3.2}
+        y={7.4}
       />
       {threads}
     </G>
@@ -138,9 +143,12 @@ export function SpineArtwork({
 }: SpineArtworkProps) {
   const sheen = useSharedValue(-20);
   const asleep = useSharedValue(1);
+  const swing = useSharedValue(-1);
   const rawId = useId();
   const gradientId = `spine-cyl-${rawId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const clipId = `${gradientId}-clip`;
+  const goldId = `${gradientId}-gold`;
+  const shadowFilterId = `${gradientId}-tassel-shadow`;
 
   useEffect(() => {
     sheen.value = -20;
@@ -172,11 +180,20 @@ export function SpineArtwork({
     );
   }, [asleep, expression]);
 
+  useEffect(() => {
+    swing.value = withRepeat(
+      withTiming(1, { duration: 1700, easing: Easing.inOut(Easing.quad) }),
+      -1,
+      true,
+    );
+  }, [swing]);
+
   const sheenProps = useAnimatedProps(() => ({ x: sheen.value }));
   const zzzProps = useAnimatedProps(() => ({
     opacity: asleep.value,
     translateY: (1 - asleep.value) * -2,
   }));
+  const tasselProps = useAnimatedProps(() => ({ rotation: swing.value * 3 }));
 
   const zzz = [
     { cx: 49, cy: 73, size: 3.4, width: 1.4 },
@@ -218,6 +235,20 @@ export function SpineArtwork({
             y={BODY.y}
           />
         </ClipPath>
+        <LinearGradient id={goldId} x1="0" x2="1" y1="0" y2="0">
+          <Stop offset="0" stopColor="#FFE3A3" />
+          <Stop offset="0.45" stopColor={colors.gold} />
+          <Stop offset="1" stopColor="#D99A24" />
+        </LinearGradient>
+        <Filter
+          height="200%"
+          id={shadowFilterId}
+          width="200%"
+          x="-50%"
+          y="-50%"
+        >
+          <FeGaussianBlur stdDeviation={1.2} />
+        </Filter>
       </Defs>
 
       <Rect
@@ -332,9 +363,22 @@ export function SpineArtwork({
         ) : null}
       </G>
 
-      <G testID={testID ? `${testID}-tassel` : undefined}>
-        <Tassel />
-      </G>
+      <Ellipse
+        cx={7.6}
+        cy={13}
+        fill={colors.navy}
+        filter={`url(#${shadowFilterId})`}
+        opacity={0.22}
+        rx={2.4}
+        ry={8}
+      />
+      <AnimatedG
+        animatedProps={tasselProps}
+        origin="6, 0"
+        testID={testID ? `${testID}-tassel` : undefined}
+      >
+        <Tassel goldId={goldId} />
+      </AnimatedG>
     </Svg>
   );
 }

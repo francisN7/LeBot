@@ -25,13 +25,15 @@ capa dura, um tassel de verdade e uma capa que mantém a foto inteira.
    sombra vertical discreta nas pontas. Sem face lateral.
 3. **Headband/tailband** listradas (7 e 111 px) e **duas nervuras** (52 e
    103 px), com sombra acima e luz abaixo.
-4. **Etiqueta de título** creme no topo (15–59 × 18–45), **só com o título,
-   centralizado**, em até duas linhas. É uma View do `Spine` com `AppText`, não
-   texto no SVG. O autor/título completo continuam no card abaixo.
+4. **Etiqueta de título** creme no topo, **centralizada** (11–53 × 19–38),
+   **só com o título**, em até duas linhas. É uma View do `Spine` com `AppText`
+   em Fredoka 600; o tamanho encolhe de 7 a 5 via `fitSpineTitle` e, no mínimo,
+   o `Text` aplica ellipsis. O autor/título completo continuam no card abaixo.
    `showLabel={false}` esconde a etiqueta (mini-lombadas).
-5. **Tassel T1 no canto superior esquerdo**, preso ao headband: argola cortada
-   pelo topo, corda, corpo, pescoço e franja de seis fios dourados com contorno
-   navy. Estático; a argola cortada sugere que sai de dentro.
+5. **Tassel T1 no canto superior esquerdo**, sem argola: a corda sai do topo
+   (cortada pela borda, parece vir de dentro), encontra corpo e pescoço e
+   termina na franja de seis fios. O dourado usa gradiente, aresta escura e
+   sombra desfocada no corpo; o grupo balança ±3° em 1,7 s em torno do topo.
 6. **Capa S2:** foto inteira + sombra de vinco à esquerda (preto 38%), fio de
    luz creme (13–20%), sombra de borda à direita (42%) e na base (30%), fio de
    luz no topo/esquerda. Sem páginas e sem faixa lateral. A fita do gênero
@@ -40,8 +42,9 @@ capa dura, um tassel de verdade e uma capa que mantém a foto inteira.
    10 e as outras expressões com 8; piscada só em `happy`/`neutral`; “zzz” de
    três letras na diagonal, opacidade 1→0,3 e `translateY` 0→−2 px.
 8. **Sombra de contato** nativa (`contactShadow`) no wrapper; o corpo ocupa 126
-   dos 128 px. O `Pressable` da arte pinta o fundo com a cor do gênero e não
-   desenha borda: o contorno navy vem do SVG. O fallback 2D continua chapado.
+   dos 128 px. O `Pressable` da arte é **transparente** e o contorno navy vem do
+   SVG: o fundo na cor do gênero atrás do corpo virava um retângulo nos cantos.
+   O fallback 2D continua chapado.
 
 ## Tarefas
 
@@ -54,11 +57,12 @@ capa dura, um tassel de verdade e uma capa que mantém a foto inteira.
 3. **Lombada (`SpineArtwork`):** viewBox 64×128; gradiente/sombra vertical;
    headband/tailband; nervuras; rosto; “zzz”; tassel T1; sombra de contato
    nativa no `Spine`. O viewBox compacto é o mesmo, escalado por 52/64.
-4. **Etiqueta (`Spine`):** View creme com borda navy, posição/tamanho
-   proporcionais (15–59 × 18–45), `AppText` com o título centralizado,
-   `numberOfLines={2}`, `ellipsizeMode="tail"`, oculta da árvore de
-   acessibilidade (o `Pressable` já anuncia “Lombada de …”). As telas principais
-   deixam de passar `showLabel={false}`; a mini-lombada mantém `false`.
+4. **Etiqueta (`Spine`):** View creme com borda navy, centralizada e mais baixa
+   (11–53 × 19–38), `AppText` em Fredoka 600 com `fitSpineTitle`
+   (`spine-label.ts`), `numberOfLines={2}`, `ellipsizeMode="tail"`, oculta da
+   árvore de acessibilidade (o `Pressable` já anuncia “Lombada de …”). As telas
+   principais deixam de passar `showLabel={false}`; a mini-lombada mantém
+   `false`.
 5. **Capa (`BookCover`):** remover o bloco de páginas; adicionar a camada S2 de
    sombra/luz sobre a foto; manter a fita, o brilho diagonal (`animated`), o selo
    e a sombra de contato. O selo usa `viewBox="14 70 36 32"` do novo rosto.
@@ -67,9 +71,10 @@ capa dura, um tassel de verdade e uma capa que mantém a foto inteira.
    `testID` próprio.
 7. **Preview do formulário:** manter `status` no `BookCover` do `BookFormScreen`;
    o selo acompanha o chip.
-8. **Testes:** paleta sem side/accent; `BookArt` 64/52 e 88/72; etiqueta no topo;
-   tassel no topo; “zzz” no pausado; capa com `-depth`; selo por status; preview.
-   Não afirmar sobre frames; validar montagem e props.
+8. **Testes:** paleta sem side/accent; `BookArt` 64/52 e 88/72; etiqueta no topo
+   e `fitSpineTitle` (curto/longo/mínimo/vazio); tassel no topo; “zzz” no
+   pausado; capa com `-depth`; selo por status; preview. Não afirmar sobre
+   frames; validar montagem e props.
 9. **Docs:** `assets-3d.md`, `design-system.md`, `testing.md`, `CURRENT.md`,
    `roadmap.md`, `CHANGELOG.md`, ADR 0022 e esta spec.
 
@@ -77,11 +82,15 @@ capa dura, um tassel de verdade e uma capa que mantém a foto inteira.
 
 - [ ] A lombada B tem 64×128 (52×104 compacta), lê como cilindro com
       headband/tailband e nervuras, não como fita/tijolo.
-- [ ] O título aparece na etiqueta do topo, centralizado, em até duas linhas;
-      o autor continua no card. A mini-lombada não mostra etiqueta.
-- [ ] O tassel T1 fica no canto superior esquerdo, com argola cortada, corda,
-      corpo, pescoço e franja dourada; é reconhecível como tassel no cheio e no
-      compacto.
+- [ ] O título aparece na etiqueta do topo, **centralizada e baixa**
+      (11–53 × 19–38), em até duas linhas, com fonte Fredoka 600 encolhendo de
+      7 a 5 e ellipsis no limite; o autor continua no card. A mini-lombada não
+      mostra etiqueta.
+- [ ] O tassel T1 fica no canto superior esquerdo, **sem argola**, com a corda
+      saindo do topo, corpo/pescoço/franja em gradiente dourado, sombra e
+      balanço de ±3°; é reconhecível no cheio e no compacto.
+- [ ] A lombada não tem retângulo de fundo: o `Pressable` é transparente e o
+      contorno navy é o do corpo; os cantos arredondados aparecem limpos.
 - [ ] Em “Lendo” os olhos estão mais afastados; em “Pausado” o “zzz” flutua na
       diagonal.
 - [ ] A capa mantém a foto inteira e ganha profundidade S2 (vinco + sombra de

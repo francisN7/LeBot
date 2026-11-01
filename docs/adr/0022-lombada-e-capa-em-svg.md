@@ -28,14 +28,15 @@ matriz de assets, sem transformação 3D nativa e com o toque no `Pressable`.
    horizontal de quatro paradas (`edge → base → light → edge`) e uma sombra
    vertical discreta nas pontas. Headband/tailband listradas e duas nervuras
    (52 e 103 px) dão a anatomia de capa dura.
-3. **Etiqueta de título no topo**, creme com borda navy, **só com o título,
-   centralizado**, em até duas linhas. É uma View do `Spine` com `AppText`, não
-   texto no SVG: o título real escala e trunca melhor. O autor continua no card
-   abaixo.
-4. **Tassel T1 no canto superior esquerdo**, preso ao headband: argola cortada
-   pelo topo (parece sair de dentro), corda, corpo, pescoço e franja de seis fios
-   dourados com contorno navy. É estático; a argola cortada é o que cria a
-   ilusão de vir de dentro.
+3. **Etiqueta de título no topo**, creme com borda navy, **centralizada**
+   (11–53 × 19–38 no viewBox), **só com o título**, em até duas linhas. É uma
+   View do `Spine` com `AppText` em Fredoka 600: o tamanho encolhe de 7 a 5 via
+   `fitSpineTitle` e, no mínimo, o `Text` aplica ellipsis. O autor continua no
+   card abaixo.
+4. **Tassel T1 no canto superior esquerdo**, sem argola: a corda sai do topo
+   (cortada pela borda, parece vir de dentro), encontra corpo e pescoço e
+   termina na franja de seis fios. O dourado usa gradiente, aresta escura e
+   sombra desfocada no corpo; o grupo balança ±3° em 1,7 s em torno do topo.
 5. **Rosto compartilhado (`SpineFace`)** entre a lombada e o selo da capa. Em
    `happy` os olhos abrem um pouco mais (spread 10); as outras expressões usam 8.
    No `sleepy`, um “zzz” de três letras flutua na diagonal.
@@ -44,7 +45,9 @@ matriz de assets, sem transformação 3D nativa e com o toque no `Pressable`.
    luz creme em 13–20%, sombra de borda à direita (42%) e na base (30%), fio de
    luz no topo/esquerda. O selo e a fita ficam por cima.
 7. **Sombra de contato nativa** (`contactShadow`) no wrapper da lombada e da
-   capa; o corpo da lombada ocupa 126 dos 128 px.
+   capa; o corpo da lombada ocupa 126 dos 128 px. O `Pressable` da arte é
+   transparente (o fundo na cor do gênero virava um retângulo nos cantos) e o
+   contorno navy vem do SVG.
 
 `SpinePalette` expõe `base`, `edge`, `light`, `shadow`, `highlight`, `ink` e
 `gradient` (`[edge, base, light, edge]`). `side` e `accent` saíram.
@@ -55,11 +58,11 @@ matriz de assets, sem transformação 3D nativa e com o toque no `Pressable`.
   etiqueta legível e tassel reconhecível.
 - A capa mantém as cores e a arte originais; a profundidade funciona em fotos
   claras e escuras sem cobrir a imagem.
-- A etiqueta é uma View, então o título pode ter duas linhas e ellipsis; o custo
-  é mais um nó por lombada.
+- A etiqueta é uma View, então o título pode ter duas linhas, encolher e usar
+  ellipsis; o custo é mais um nó por lombada.
 - A mini-lombada 30×60 reduz a altura da fileira de concluídos em relação ao
   30×74 da primeira tentativa.
-- O tassel é estático; um balanço exigiria `transform` no grupo e não foi pedido.
+- O tassel balança ±3° e usa gradiente/sombra; não é um adesivo estático.
 - A conferência continua visual no aparelho; não há snapshot de imagem.
 
 ## Alternativas descartadas

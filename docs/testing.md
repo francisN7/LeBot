@@ -375,6 +375,9 @@ testados sem SQLite nativo.
 - `src/components/ui/BookArt.test.tsx`: lombada 64×128 e 52×104 sem capa; capa
   88×128 e 72×104 com capa; mesma altura dentro de cada par. A dimensão é lida
   do wrapper `-frame` com `StyleSheet.flatten`, sem snapshot.
+- `src/features/library/spine-label.test.ts`: título curto mantém a fonte
+  máxima; título longo diminui; texto enorme para no mínimo (e o `Text` aplica
+  ellipsis); vazio usa o máximo; a largura disponível é considerada.
 - `src/components/ui/Spine.test.tsx`: arte 3D, etiqueta de título no topo,
   rosto por status (feliz, neutro, sonolento, brilho), “zzz” no pausado, tassel
   no topo, fallback 2D sem status, etiqueta oculta e `onPress`. O SVG é
@@ -387,9 +390,10 @@ testados sem SQLite nativo.
   status escolhido — neutro por padrão e brilho depois de tocar em "Concluído".
 
 O que continua manual: no Android, o volume do cilindro em 64/52 px, o tassel no
-topo (argola/corda/franja) no compacto, o “zzz” diagonal, o título centralizado
-em 8/6,5 px, o rosto no selo de 18–26 px, a sombra S2 sobre fotos claras e
-escuras e o alinhamento da grade com lombadas de 64 px. A piscada do selo não é
-afirmada por frames; validamos montagem e props.
+topo (corda/franja, sombra e balanço) no compacto, o “zzz” diagonal, o título
+centralizado em 5–7 px (com títulos longos e ellipsis), o rosto no selo de
+18–26 px, a sombra S2 sobre fotos claras e escuras e o alinhamento da grade com
+lombadas de 64 px. A piscada do selo não é afirmada por frames; validamos
+montagem e props.
 
-A suíte atual tem 65 arquivos e 505 testes (`npm run test`).
+A suíte atual tem 66 arquivos e 510 testes (`npm run test`).

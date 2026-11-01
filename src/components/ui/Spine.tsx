@@ -14,6 +14,7 @@ import { twMerge } from 'tailwind-merge';
 import { AppText } from '@/components/ui/AppText';
 import { SpineArtwork } from '@/components/ui/SpineArtwork';
 import { resolveSpineArt } from '@/features/library/spine-art';
+import { fitSpineTitle } from '@/features/library/spine-label';
 import type { ReadingStatus } from '@/features/library/types';
 import { colors, contactShadow, opacities, radii, sizes } from '@/theme';
 
@@ -96,6 +97,12 @@ export function Spine({
 
   const scaleX = width / 64;
   const scaleY = height / 128;
+  const labelFontSize = fitSpineTitle({
+    title,
+    width: 36 * scaleX,
+    maxFontSize: 7 * scaleY,
+    minFontSize: Math.max(4.5, 5 * scaleY),
+  });
   const headLabel = showLabel ? (
     <View
       accessibilityElementsHidden
@@ -107,13 +114,12 @@ export function Spine({
         borderColor: colors.navy,
         borderRadius: 2 * scaleX,
         borderWidth: 1,
-        height: 27 * scaleY,
+        height: 19 * scaleY,
         justifyContent: 'center',
-        left: 15 * scaleX,
-        paddingHorizontal: 2 * scaleX,
+        left: 11 * scaleX,
         position: 'absolute',
-        top: 18 * scaleY,
-        width: 44 * scaleX,
+        top: 19 * scaleY,
+        width: 42 * scaleX,
       }}
       testID={testID ? `${testID}-label` : undefined}
     >
@@ -121,11 +127,11 @@ export function Spine({
         ellipsizeMode="tail"
         numberOfLines={2}
         style={{
-          fontSize: 8 * scaleY,
-          lineHeight: 9.5 * scaleY,
+          fontSize: labelFontSize,
+          lineHeight: labelFontSize * 1.15,
           textAlign: 'center',
         }}
-        variant="label"
+        variant="subtitle"
       >
         {title || 'Sem título'}
       </AppText>
@@ -154,7 +160,7 @@ export function Spine({
           pressed.value = withSpring(0, PRESS_SPRING);
         }}
         style={{
-          backgroundColor: art.kind === 'art' ? art.palette.base : art.color,
+          backgroundColor: art.kind === 'art' ? 'transparent' : art.color,
           borderRadius: art.kind === 'art' ? 0 : radii.sm,
           flex: 1,
         }}

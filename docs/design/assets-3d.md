@@ -73,21 +73,26 @@ faixas foram desenhados para esse formato, senão o rosto vira um oval.
   contorno do `edge`.
 - **Nervuras:** dois relevos horizontais (52 e 103 px) com sombra acima e luz
   abaixo.
-- **Etiqueta de título:** retângulo creme com borda navy no topo (15–59 ×
-  18–45), **só com o título, centralizado**, em até duas linhas. É uma View do
-  `Spine` (texto real e acessível pelo rótulo do `Pressable`), não texto no SVG.
-  O autor e o título completo continuam no card abaixo. `showLabel={false}`
-  esconde a etiqueta (mini-lombadas); as telas principais mantêm o padrão.
-- **Tassel T1:** no **canto superior esquerdo**, preso ao headband. Argola
-  cortada pelo topo do SVG (parece sair de dentro), corda, corpo, pescoço e
-  franja de seis fios dourados com contorno navy. É um tassel de verdade, não
-  uma ponta de fita; fica estático.
+- **Etiqueta de título:** retângulo creme com borda navy, **centralizado**
+  (11–53 × 19–38 no viewBox 64×128), **só com o título**, em até duas linhas.
+  A fonte é Fredoka 600 e encolhe de 7 até 5 via `fitSpineTitle`
+  (`src/features/library/spine-label.ts`); abaixo de 5, o `Text` usa ellipsis.
+  É uma View do `Spine` (texto real e acessível pelo rótulo do `Pressable`), não
+  texto no SVG. O autor e o título completo continuam no card abaixo.
+  `showLabel={false}` esconde a etiqueta (mini-lombadas); as telas principais
+  mantêm o padrão.
+- **Tassel T1:** no **canto superior esquerdo**, sem argola. A corda começa em
+  y=0 (cortada pelo topo, parece sair de dentro), encontra corpo e pescoço e
+  termina na franja de seis fios. O dourado tem gradiente, aresta escura e uma
+  sombra desfocada no corpo; balança ±3° em 1,7 s em torno de (6, 0). É um
+  tassel de verdade, não uma ponta de fita nem um recorte com contorno navy.
 - **Rosto:** olhos em `happy` um pouco mais afastados (spread 10) para o “Lendo”
   não parecer apertado; as outras expressões usam 8.
 - **“zzz”:** três letras em diagonal no canto direito (49/73, 53/67 e 57/60),
   com opacidade 1 → 0,3 e `translateY` de 0 → −2 px; só em `sleepy`.
 - **Sombra de contato:** `contactShadow` no wrapper; o corpo ocupa 126 dos
-  128 px e o `Pressable` pinta o fundo com a cor do gênero, sem borda duplicada.
+  128 px. O `Pressable` da arte é transparente (o fundo na cor do gênero virava
+  um retângulo nos cantos); o contorno navy vem do SVG.
 
 O fallback 2D usa o mesmo slot de 64×128 (52×104 compacto), chapado, com a
 etiqueta de título no rodapé quando `showLabel` está ligado.
@@ -142,6 +147,7 @@ contínuo, porque há um livro só).
 | Lombada | piscada: olhos somem por 70 ms a cada ~2,9 s | `happy`, `neutral` |
 | Lombada | brilho varre o corpo a cada ~3,3 s | todas |
 | Lombada | "zzz" flutua na diagonal: opacidade 1→0,3 e −2 px | `sleepy` |
+| Lombada | tassel balança ±3° em 1,7 s, ida e volta | todas |
 | Lombada | flutuação de 3% e −2,4 px, ida e volta em 4,4 s | só `animated` (detalhe) |
 | Capa | mola de escala 0,97 e inclinação −1,5° no toque | grade e detalhe |
 | Capa | brilho diagonal atravessa a capa em 1,7 s | só `animated` (detalhe) |
@@ -153,10 +159,10 @@ contínuo, porque há um livro só).
 | Mascote | fade de 200 ms ao trocar de estado | sempre |
 
 A piscada da lombada e a do selo vivem no mesmo `SpineFace`; não duplique os
-tempos em outro componente. O tassel é estático (fica no topo, preso ao
-headband). Todas as animações usam `transform` e `opacity`, no UI thread; nenhuma
-mexe em layout. Sem `useReducedMotion` por enquanto — fica no backlog de
-acessibilidade.
+tempos em outro componente. O tassel balança ±3° em torno do topo; a sombra
+dele fica no corpo. Todas as animações usam `transform` e `opacity`, no UI
+thread; nenhuma mexe em layout. Sem `useReducedMotion` por enquanto — fica no
+backlog de acessibilidade.
 
 ## Capa personalizada como livro
 

@@ -20,14 +20,16 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 - S11a: lombada B e capa com profundidade por sombra. A lombada sem capa ficou
   64×128 (52×104 compacta, 1:2), com corpo cilíndrico, headband/tailband
-  listradas, duas nervuras e etiqueta de título no topo (só o título,
-  centralizado). O tassel T1 fica no canto superior esquerdo — argola cortada
-  pelo topo, corda, corpo, pescoço e franja dourada — em vez da ponta de fita
-  escura. O rosto ganhou olhos mais afastados em “Lendo” e um “zzz” diagonal
-  flutuante no pausado. A capa mantém a foto inteira e recebe a profundidade S2
-  (vinco de lombada + sombra de borda + luz), sem páginas nem faixa lateral; o
-  selo e a fita continuam. `SpinePalette` perdeu `side`/`accent`; a mini-lombada
-  de "Meu ritmo" foi para 30×60. 505 testes em 65 arquivos; ADR 0022.
+  listradas, duas nervuras e etiqueta de título centralizada (11–53 × 19–38, só
+  o título, Fredoka 600 com tamanho dinâmico de 7 a 5 e ellipsis). O tassel T1
+  fica no canto superior esquerdo, sem argola: a corda sai do topo, o corpo e a
+  franja têm gradiente dourado, sombra e balanço de ±3°. O rosto ganhou olhos
+  mais afastados em “Lendo” e um “zzz” diagonal flutuante no pausado. A capa
+  mantém a foto inteira e recebe a profundidade S2 (vinco de lombada + sombra de
+  borda + luz), sem páginas nem faixa lateral; o selo e a fita continuam. O
+  `Pressable` da arte é transparente, sem o retângulo de fundo nos cantos.
+  `SpinePalette` perdeu `side`/`accent`; a mini-lombada de "Meu ritmo" foi para
+  30×60. 510 testes em 66 arquivos; ADR 0022.
 - S11: Ajustes completo e backup manual. A tela ganhou quatro seções (Leitura,
   Organização, Dados e Sobre): a meta diária virou campo editável de 3–200 e
   atualiza a Hoje na hora; Lembrete e Aparência mostram "Em breve" sem valores
