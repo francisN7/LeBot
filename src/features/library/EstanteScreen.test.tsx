@@ -10,6 +10,7 @@ import { renderWithProviders } from '@/test-utils/render';
 import {
   createInMemoryBooksRepository,
   createInMemoryGenresRepository,
+  createInMemoryReviewsRepository,
   testGenreRows,
 } from '@/test-utils/repositories';
 
@@ -317,5 +318,34 @@ describe('EstanteScreen', () => {
 
     expect(update).not.toHaveBeenCalled();
     await closeWheel();
+  });
+
+  it('mostra as estrelas no card de livro concluído com resenha', async () => {
+    const row = bookRow({ status: 'finished', pagesRead: 310 });
+    const books = createInMemoryBooksRepository([row]);
+    const reviews = createInMemoryReviewsRepository(books);
+    reviews.save({ bookId: row.id, rating: 4 });
+
+    await renderWithProviders(<EstanteScreen />, {
+      booksRepository: books,
+      reviewsRepository: reviews,
+    });
+
+    expect(screen.getByTestId(`resenha-${row.id}`)).toBeOnTheScreen();
+    expect(screen.getByLabelText('Nota: 4 de 5 estrelas')).toBeOnTheScreen();
+  });
+
+  it('não mostra estrelas enquanto o livro não está concluído', async () => {
+    const row = bookRow();
+    const books = createInMemoryBooksRepository([row]);
+    const reviews = createInMemoryReviewsRepository(books);
+    reviews.save({ bookId: row.id, rating: 5 });
+
+    await renderWithProviders(<EstanteScreen />, {
+      booksRepository: books,
+      reviewsRepository: reviews,
+    });
+
+    expect(screen.queryByTestId(`resenha-${row.id}`)).not.toBeOnTheScreen();
   });
 });

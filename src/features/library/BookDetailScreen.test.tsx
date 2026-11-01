@@ -11,6 +11,7 @@ import { renderWithProviders } from '@/test-utils/render';
 import {
   createInMemoryBooksRepository,
   createInMemoryReadingSessionsRepository,
+  createInMemoryReviewsRepository,
 } from '@/test-utils/repositories';
 
 import { BookDetailScreen } from './BookDetailScreen';
@@ -219,5 +220,122 @@ describe('BookDetailScreen', () => {
     expect(screen.getByText('128 páginas lidas')).toBeOnTheScreen();
     expect(screen.queryByText('30/10 · 20 pág.')).not.toBeOnTheScreen();
     expect(books.findById(row.id)?.pagesRead).toBe(128);
+  });
+
+  it('mostra a resenha do livro concluído e abre a edição', async () => {
+    const row = bookRow({ status: 'finished', pagesRead: 310 });
+    const books = createInMemoryBooksRepository([row]);
+    const reviews = createInMemoryReviewsRepository(books);
+    const onOpenReview = jest.fn();
+    reviews.save({
+      bookId: row.id,
+      rating: 4,
+      text: 'Começa devagar e termina bem.',
+      quote: 'Em um buraco no chão vivia um hobbit.',
+    });
+
+    await renderWithProviders(
+      <BookDetailScreen
+        bookId={row.id}
+        onBack={jest.fn()}
+        onEdit={jest.fn()}
+        onOpenReview={onOpenReview}
+      />,
+      { booksRepository: books, reviewsRepository: reviews },
+    );
+
+    expect(screen.getByTestId('resenha-card')).toBeOnTheScreen();
+    expect(screen.getByText('Começa devagar e termina bem.')).toBeOnTheScreen();
+    expect(
+      screen.getByText('Em um buraco no chão vivia um hobbit.'),
+    ).toBeOnTheScreen();
+    expect(screen.getByLabelText('Nota: 4 de 5 estrelas')).toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByText('Editar resenha'));
+
+    expect(onOpenReview).toHaveBeenCalledTimes(1);
+  });
+
+  it('esconde a resenha enquanto o livro não está concluído', async () => {
+    const row = bookRow();
+    const books = createInMemoryBooksRepository([row]);
+    const reviews = createInMemoryReviewsRepository(books);
+    reviews.save({ bookId: row.id, rating: 5, text: 'Guardada.' });
+
+    await renderWithProviders(
+      <BookDetailScreen
+        bookId={row.id}
+        onBack={jest.fn()}
+        onEdit={jest.fn()}
+      />,
+      { booksRepository: books, reviewsRepository: reviews },
+    );
+
+    expect(screen.queryByTestId('resenha-card')).not.toBeOnTheScreen();
+    expect(screen.queryByText('Guardada.')).not.toBeOnTheScreen();
+    expect(screen.queryByText('Escrever resenha')).not.toBeOnTheScreen();
+  });
+
+  it('oferece escrever resenha em livro concluído sem resenha', async () => {
+    const row = bookRow({ status: 'finished', pagesRead: 310 });
+    const onOpenReview = jest.fn();
+
+    await renderWithProviders(
+      <BookDetailScreen
+        bookId={row.id}
+        onBack={jest.fn()}
+        onEdit={jest.fn()}
+        onOpenReview={onOpenReview}
+      />,
+      { booksRepository: createInMemoryBooksRepository([row]) },
+    );
+
+    expect(screen.getByTestId('resenha-vazia')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByText('Escrever resenha'));
+
+    expect(onOpenReview).toHaveBeenCalledTimes(1);
+  });
+
+  it('concluir pela leitura abre a resenha', async () => {
+    const row = bookRow({ pagesRead: 300 });
+    const onOpenReview = jest.fn();
+
+    await renderWithProviders(
+      <BookDetailScreen
+        bookId={row.id}
+        onBack={jest.fn()}
+        onEdit={jest.fn()}
+        onOpenReview={onOpenReview}
+      />,
+      { booksRepository: createInMemoryBooksRepository([row]) },
+    );
+
+    await fireEvent.press(screen.getByText('Registrar leitura'));
+    await fireEvent.changeText(screen.getByLabelText('Páginas lidas'), '25');
+    await fireEvent.press(screen.getByText('Salvar'));
+
+    expect(onOpenReview).toHaveBeenCalledTimes(1);
+  });
+
+  it('excluir o livro apaga a resenha', async () => {
+    const row = bookRow({ status: 'finished', pagesRead: 310 });
+    const books = createInMemoryBooksRepository([row]);
+    const reviews = createInMemoryReviewsRepository(books);
+    reviews.save({ bookId: row.id, rating: 5, text: 'Fica.' });
+
+    await renderWithProviders(
+      <BookDetailScreen
+        bookId={row.id}
+        onBack={jest.fn()}
+        onEdit={jest.fn()}
+      />,
+      { booksRepository: books, reviewsRepository: reviews },
+    );
+
+    await fireEvent.press(screen.getByText('Excluir livro'));
+    await fireEvent.press(screen.getByText('Excluir'));
+
+    expect(books.list()).toHaveLength(0);
+    expect(reviews.findByBook(row.id)).toBeUndefined();
   });
 });

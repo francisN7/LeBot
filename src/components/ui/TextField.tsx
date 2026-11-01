@@ -31,6 +31,11 @@ const inputStyle = StyleSheet.create({
     fontSize: fontSize.md,
     lineHeight: lineHeight.md,
   },
+  multiline: {
+    minHeight: 112,
+    paddingTop: spacing.sm,
+    textAlignVertical: 'top',
+  },
 });
 
 /** Campo de texto com rótulo, dica e mensagem de erro por campo. */
@@ -40,6 +45,7 @@ export function TextField({
   hint,
   className,
   testID,
+  multiline,
   ...rest
 }: TextFieldProps) {
   return (
@@ -47,9 +53,11 @@ export function TextField({
       <AppText variant="label">{label}</AppText>
       <TextInput
         accessibilityLabel={label}
+        multiline={multiline}
         placeholderTextColor={colors.navyMuted}
         style={[
           inputStyle.base,
+          multiline ? inputStyle.multiline : null,
           { borderColor: error ? colors.coral : colors.navy },
         ]}
         {...rest}

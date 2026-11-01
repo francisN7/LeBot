@@ -17,6 +17,9 @@ import { ReadingForm } from '@/features/reading/ReadingForm';
 import { ReadingProgressCard } from '@/features/reading/ReadingProgressCard';
 import type { ReadingSession } from '@/features/reading/types';
 import { useReadingSessions } from '@/features/reading/use-reading-sessions';
+import { ReviewCard } from '@/features/reviews/ReviewCard';
+import { toReview } from '@/features/reviews/types';
+import { useReview } from '@/features/reviews/use-reviews';
 import { hasCover } from '@/lib/covers';
 import { colors } from '@/theme';
 
@@ -28,6 +31,7 @@ type BookDetailScreenProps = {
   bookId: string;
   onBack: () => void;
   onEdit: () => void;
+  onOpenReview?: () => void;
 };
 
 /** Ficha do livro: capa/lombada, dados e as ações de editar e excluir. */
@@ -35,11 +39,13 @@ export function BookDetailScreen({
   bookId,
   onBack,
   onEdit,
+  onOpenReview,
 }: BookDetailScreenProps) {
   const { books, remove } = useBooks();
   const { genreById } = useGenres();
   const covers = useCoverService();
   const { sessions, register, undo } = useReadingSessions(bookId);
+  const { review } = useReview(bookId);
   const [confirming, setConfirming] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [undoing, setUndoing] = useState<ReadingSession | null>(null);
@@ -59,6 +65,8 @@ export function BookDetailScreen({
 
   const book = found;
   const genre = genreById.get(book.genreId);
+  const shownReview =
+    book.status === 'finished' && review ? toReview(review) : undefined;
 
   async function deleteBook() {
     // A capa sai do disco mesmo que o arquivo já não exista.
@@ -141,6 +149,28 @@ export function BookDetailScreen({
         sessions={sessions}
       />
 
+      {shownReview ? (
+        <ReviewCard
+          onEdit={onOpenReview ?? (() => undefined)}
+          review={shownReview}
+        />
+      ) : null}
+
+      {book.status === 'finished' && !shownReview ? (
+        <Card className="gap-sm" testID="resenha-vazia">
+          <AppText variant="label">Resenha</AppText>
+          <AppText variant="caption" tone="muted">
+            Você terminou este livro. Que tal guardar a impressão?
+          </AppText>
+          <Button
+            label="Escrever resenha"
+            onPress={onOpenReview}
+            size="sm"
+            variant="secondary"
+          />
+        </Card>
+      ) : null}
+
       <Button label="Editar livro" onPress={onEdit} />
       <Button
         label="Excluir livro"
@@ -152,8 +182,13 @@ export function BookDetailScreen({
         bookTitle={book.title}
         onCancel={() => setRegistering(false)}
         onSave={(pages) => {
-          register(pages);
+          const write = register(pages);
           setRegistering(false);
+
+          // Chegar ao fim pela leitura é o momento canônico da resenha.
+          if (write.book.status === 'finished') {
+            onOpenReview?.();
+          }
         }}
         remaining={book.pages - book.pagesRead}
         visible={registering}

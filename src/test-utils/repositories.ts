@@ -2,15 +2,24 @@ import type {
   BooksRepository,
   GenresRepository,
   ReadingSessionsRepository,
+  ReviewFieldsRepository,
+  ReviewsRepository,
   SettingsRepository,
 } from '@/db/repositories';
 import { booksUsingGenre } from '@/db/repositories/genres';
 import type { QueueRepository } from '@/db/repositories/queue';
+import {
+  normalizeReviewFieldName,
+  reviewFieldInputSchema,
+} from '@/db/repositories/review-fields';
+import { normalizeExtras, reviewInputSchema } from '@/db/repositories/reviews';
 import type {
   BookRow,
   GenreRow,
   QueueItemRow,
   ReadingSessionRow,
+  ReviewFieldRow,
+  ReviewRow,
 } from '@/db/schema';
 import { seedBooks, seedSettings } from '@/db/seed';
 import { normalizeGenreName } from '@/lib/genre-name';
@@ -551,6 +560,196 @@ export function createInMemorySettingsRepository(
     },
     remove(key) {
       return values.delete(key);
+    },
+  };
+}
+
+/**
+ * Repositório em memória das resenhas. A lista só devolve livros que ainda
+ * existem, o que reproduz a exclusão em cascata do SQLite sem FK.
+ */
+export function createInMemoryReviewsRepository(
+  booksRepository: BooksRepository,
+  rows: ReviewRow[] = [],
+): ReviewsRepository {
+  let current = rows.map((row) => ({ ...row, extras: { ...row.extras } }));
+
+  function clone(row: ReviewRow): ReviewRow {
+    return { ...row, extras: { ...row.extras } };
+  }
+
+  function visible(): ReviewRow[] {
+    return current
+      .filter((row) => booksRepository.findById(row.bookId) !== undefined)
+      .map(clone);
+  }
+
+  return {
+    list() {
+      return visible();
+    },
+
+    findByBook(bookId) {
+      if (!booksRepository.findById(bookId)) {
+        return undefined;
+      }
+
+      const row = current.find((review) => review.bookId === bookId);
+      return row ? clone(row) : undefined;
+    },
+
+    save(input) {
+      const parsed = reviewInputSchema.parse(input);
+
+      if (!booksRepository.findById(parsed.bookId)) {
+        throw new Error('Livro não encontrado');
+      }
+
+      const index = current.findIndex(
+        (review) => review.bookId === parsed.bookId,
+      );
+      const existing = current[index];
+      const now = new Date();
+      const row: ReviewRow = {
+        bookId: parsed.bookId,
+        rating: parsed.rating,
+        text: parsed.text,
+        quote: parsed.quote,
+        extras: parsed.extras,
+        createdAt: existing?.createdAt ?? now,
+        updatedAt: now,
+      };
+
+      if (existing) {
+        current[index] = row;
+      } else {
+        current.push(row);
+      }
+
+      return clone(row);
+    },
+
+    remove(bookId) {
+      const before = current.length;
+      current = current.filter((row) => row.bookId !== bookId);
+      return current.length < before;
+    },
+
+    stripField(fieldId) {
+      let changed = 0;
+
+      current = current.map((row) => {
+        if (!(fieldId in row.extras)) {
+          return row;
+        }
+
+        changed += 1;
+        return {
+          ...row,
+          extras: normalizeExtras(
+            Object.fromEntries(
+              Object.entries(row.extras).filter(([key]) => key !== fieldId),
+            ),
+          ),
+          updatedAt: new Date(),
+        };
+      });
+
+      return changed;
+    },
+  };
+}
+
+/** Repositório em memória dos campos extras, com a mesma limpeza nas resenhas. */
+export function createInMemoryReviewFieldsRepository(
+  rows: ReviewFieldRow[] = [],
+  reviewsRepository?: ReviewsRepository,
+): ReviewFieldsRepository {
+  let current = rows.map((row) => ({ ...row }));
+  let nextId = 0;
+
+  function findByName(
+    name: string,
+    exceptId?: string,
+  ): ReviewFieldRow | undefined {
+    const wanted = normalizeReviewFieldName(name);
+
+    return current.find(
+      (row) =>
+        row.id !== exceptId && normalizeReviewFieldName(row.name) === wanted,
+    );
+  }
+
+  function sortedFields(): ReviewFieldRow[] {
+    return [...current].sort(
+      (first, second) =>
+        first.sortOrder - second.sortOrder ||
+        first.name.localeCompare(second.name),
+    );
+  }
+
+  return {
+    list() {
+      return sortedFields();
+    },
+
+    findById(id) {
+      return current.find((row) => row.id === id);
+    },
+
+    create(input) {
+      const name = reviewFieldInputSchema.parse(input).name;
+
+      if (findByName(name)) {
+        throw new Error('Já existe um campo com este nome');
+      }
+
+      const last = sortedFields().at(-1);
+      const now = new Date();
+      const row: ReviewFieldRow = {
+        id: `field-fake-${nextId++}`,
+        name,
+        sortOrder: (last?.sortOrder ?? -1) + 1,
+        createdAt: now,
+        updatedAt: now,
+      };
+      current.push(row);
+      return row;
+    },
+
+    rename(id, name) {
+      const index = current.findIndex((row) => row.id === id);
+      const existing = current[index];
+
+      if (!existing) {
+        return undefined;
+      }
+
+      const parsed = reviewFieldInputSchema.parse({ name }).name;
+
+      if (findByName(parsed, id)) {
+        throw new Error('Já existe um campo com este nome');
+      }
+
+      const updated: ReviewFieldRow = {
+        ...existing,
+        name: parsed,
+        updatedAt: new Date(),
+      };
+      current[index] = updated;
+      return updated;
+    },
+
+    remove(id) {
+      const before = current.length;
+      current = current.filter((row) => row.id !== id);
+
+      if (current.length === before) {
+        return false;
+      }
+
+      reviewsRepository?.stripField(id);
+      return true;
     },
   };
 }

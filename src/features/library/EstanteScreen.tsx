@@ -9,11 +9,13 @@ import {
   Card,
   Chip,
   Mascot,
+  RatingStars,
   Screen,
   Spine,
   TextField,
 } from '@/components/ui';
 import { useGenres } from '@/features/genres';
+import { useReviews } from '@/features/reviews/use-reviews';
 import { matchesQuery } from '@/lib/book-search';
 import { hasCover } from '@/lib/covers';
 import { colors } from '@/theme';
@@ -72,6 +74,7 @@ export function EstanteScreen({
   const [quickStatus, setQuickStatus] = useState<QuickStatusState | null>(null);
   const { books, update } = useBooks();
   const { genreById } = useGenres();
+  const { byBook: reviewsByBook } = useReviews();
 
   function measureWheelArea(event: LayoutChangeEvent) {
     const { width, height } = event.nativeEvent.layout;
@@ -272,6 +275,14 @@ export function EstanteScreen({
                       >
                         {genre?.name ?? UNKNOWN_GENRE_NAME}
                       </AppText>
+                      {displayStatus === 'finished' &&
+                      reviewsByBook.get(book.id) ? (
+                        <RatingStars
+                          size="sm"
+                          testID={`resenha-${book.id}`}
+                          value={reviewsByBook.get(book.id)?.rating ?? 0}
+                        />
+                      ) : null}
                       <StatusWheelTrigger
                         area={wheelArea}
                         label={labelForStatus(displayStatus)}

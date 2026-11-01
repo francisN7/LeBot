@@ -8,6 +8,8 @@ import type {
   GenresRepository,
   QueueRepository,
   ReadingSessionsRepository,
+  ReviewFieldsRepository,
+  ReviewsRepository,
   SettingsRepository,
 } from '@/db/repositories';
 import { GenresRepositoryProvider } from '@/features/genres';
@@ -17,6 +19,10 @@ import {
 } from '@/features/library';
 import { QueueRepositoryProvider } from '@/features/queue';
 import { ReadingSessionsRepositoryProvider } from '@/features/reading';
+import {
+  ReviewFieldsRepositoryProvider,
+  ReviewsRepositoryProvider,
+} from '@/features/reviews';
 import { SettingsRepositoryProvider } from '@/features/settings';
 import type { CoverService } from '@/lib/covers';
 
@@ -26,6 +32,8 @@ import {
   createInMemoryGenresRepository,
   createInMemoryQueueRepository,
   createInMemoryReadingSessionsRepository,
+  createInMemoryReviewFieldsRepository,
+  createInMemoryReviewsRepository,
   createInMemorySettingsRepository,
   testGenreRows,
 } from './repositories';
@@ -40,6 +48,8 @@ type RenderWithProvidersOptions = Omit<RenderOptions, 'wrapper'> & {
   genresRepository?: GenresRepository;
   queueRepository?: QueueRepository;
   readingRepository?: ReadingSessionsRepository;
+  reviewFieldsRepository?: ReviewFieldsRepository;
+  reviewsRepository?: ReviewsRepository;
   settingsRepository?: SettingsRepository;
   coverService?: CoverService;
 };
@@ -62,6 +72,11 @@ export function renderWithProviders(
     readingRepository = createInMemoryReadingSessionsRepository(
       booksRepository,
     ),
+    reviewsRepository = createInMemoryReviewsRepository(booksRepository),
+    reviewFieldsRepository = createInMemoryReviewFieldsRepository(
+      [],
+      reviewsRepository,
+    ),
     settingsRepository = createInMemorySettingsRepository(),
     coverService = createFakeCoverService(),
     ...options
@@ -74,11 +89,17 @@ export function renderWithProviders(
           <GenresRepositoryProvider repository={genresRepository}>
             <QueueRepositoryProvider repository={queueRepository}>
               <ReadingSessionsRepositoryProvider repository={readingRepository}>
-                <SettingsRepositoryProvider repository={settingsRepository}>
-                  <CoverServiceProvider service={coverService}>
-                    {children}
-                  </CoverServiceProvider>
-                </SettingsRepositoryProvider>
+                <ReviewsRepositoryProvider repository={reviewsRepository}>
+                  <ReviewFieldsRepositoryProvider
+                    repository={reviewFieldsRepository}
+                  >
+                    <SettingsRepositoryProvider repository={settingsRepository}>
+                      <CoverServiceProvider service={coverService}>
+                        {children}
+                      </CoverServiceProvider>
+                    </SettingsRepositoryProvider>
+                  </ReviewFieldsRepositoryProvider>
+                </ReviewsRepositoryProvider>
               </ReadingSessionsRepositoryProvider>
             </QueueRepositoryProvider>
           </GenresRepositoryProvider>

@@ -24,6 +24,11 @@ export default function BookDetailRoute() {
           router.push({ pathname: '/livro/[id]/editar', params: { id } }),
         )
       }
+      onOpenReview={() =>
+        go(() =>
+          router.push({ pathname: '/livro/[id]/resenha', params: { id } }),
+        )
+      }
     />
   );
 }
