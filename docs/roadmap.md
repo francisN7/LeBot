@@ -30,7 +30,7 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S8a | [x] | Troca rápida de status na Estante | Roda radial por toque longo; prévia do rosto e gravação ao soltar; conferida no Android | `sessions/S08a-troca-rapida-status.md` |
 | S9 | [x] | Conclusão + resenha | Nota/texto/citação, campos extras em Ajustes e selo na Estante; conferido no Android | `sessions/S09-conclusao-resenha.md` |
 | S10 | [x] | Estatísticas e insights | "Meu ritmo" na Estante com períodos civis (semana/mês/3 meses/ano), linha do tempo em "Ver tudo" e notas com drill-down; conferido no Android | `sessions/S10-estatisticas.md` |
-| S11 | [ ] | Configurações + backup JSON | Meta diária editável, backup JSON com round-trip e estados explícitos para lembrete/tema; escopo fechado na abertura | `sessions/S11-configuracoes-backup.md` |
+| S11 | [x] | Configurações + backup ZIP | Meta diária editável, backup `.zip` com JSON + capas e round-trip, "Em breve" em lembrete/tema, fila saneada e remontagem após restaurar; 485 testes; conferência manual no Android pendente | `sessions/S11-configuracoes-backup.md` |
 | S11a | [ ] | Design 3D da lombada e emoções | Lombada estreita (52 px) com tassel, capa com páginas em perspectiva e selo com piscada por status; conferido no Android | `sessions/S11a-design-3d-emocoes.md` |
 | S12 | [ ] | Release interno | APK instalável no Android; ícone, splash e camada adaptativa conferidos no launcher | — |
 | S13 | [ ] | Documentação final + limpeza | Sub-sessões no padrão Xa/Xb; backlog reordenado pela prioridade do dono; itens descartados removidos dos docs; docs revisados e changelog fechado | `sessions/S13-documentacao-final.md` |
@@ -64,11 +64,6 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 - **Data exata de conclusão:** `finished_at` em `books` acabaria com a data
   aproximada de livro concluído pela roda/edição, que hoje usa `updated_at`
   (ADR 0020). Só vale com backfill; pós-MVP.
-- **Ajustes com opções inertes:** Gêneros e Campos de resenha funcionam; Meta
-  diária, Lembrete, Aparência e Backup aparecem como cards sem ação. Fechar no
-  S11: meta editável e backup entram; tema escuro segue no backlog; lembrete
-  precisa de `expo-notifications` ou sai da UI até existir. Até lá, marcar "em
-  breve" para não parecer quebrado.
 - Botão **(i)** de ajuda em cada aba, com explicação curta do papel da tela e o
   LêBot "confuso" atrás do i (interrogação diagonal, como quem inspeciona),
   com animação. Depois da S12. O mascote ainda não tem esse estado: criar um
@@ -85,8 +80,8 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 - **Mais temas além do claro/escuro:** paletas alternativas (ex.: papel
   amarelado, alto contraste, cores sazonais) escolhidas em Aparência, cada uma
   com tokens de superfície, texto, contorno e par de cores por gênero. Depende
-  do tema escuro e do toggle de Aparência (S11); o seletor deve deixar claro
-  qual é o padrão e não quebrar o contraste das lombadas.
+  do tema escuro e do toggle de Aparência; o seletor deve deixar claro qual é o
+  padrão e não quebrar o contraste das lombadas.
 - Sync multi-dispositivo (Supabase ou similar).
 - Compartilhar resenhas.
 - Importação Goodreads.

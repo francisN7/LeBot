@@ -40,7 +40,7 @@ Regras:
 SQLite (expo-sqlite + Drizzle)
   → repositório (src/db/repositories, síncrono, recebe o db)
   → hook da feature (useBooks, useGenres, useQueue, useSettings,
-    useReadingSessions, useStats, com refresh após escrita)
+    useReadingSessions, useStats, useBackup, com refresh após escrita)
   → tela
 ```
 
@@ -122,8 +122,8 @@ SQLite (expo-sqlite + Drizzle)
   progresso ainda chega ao total, continua `finished`. Um livro em `reading` no
   fim não é chamado de "concluído" pelo card: ele pede para baixar as páginas ou
   desfazer uma sessão (adendo S9 da ADR 0018).
-- Remover um livro ainda deixa as sessões dele órfãs (sem FK). A resenha é
-  apagada na mesma transação; a limpeza das sessões ficou no backlog (S11).
+- Remover um livro deixa as sessões dele órfãs de propósito (histórico/estatísticas).
+  A resenha e o item da ordem são apagados na mesma transação (S11).
 
 ## Resenha (S9)
 
@@ -174,6 +174,44 @@ SQLite (expo-sqlite + Drizzle)
   horizontais na cor do gênero. Cada barra é um elemento acessível com o total
   por extenso; não há biblioteca de gráfico (ADR 0020).
 - Vazio: mascote, frase e CTA para a Hoje, sem gráfico zerado.
+
+## Ajustes e backup (S11)
+
+- `AjustesScreen` em quatro seções: **Leitura** (meta, lembrete, aparência),
+  **Dados** (backup), **Organização** (gêneros e campos de resenha) e **Sobre**.
+  Lembrete e Aparência são cards "Em breve"; as chaves `reminder.time`,
+  `appearance.theme` e `backup.enabled` continuam em `settings` para os recursos
+  futuros, mas a UI não exibe valores falsos.
+- **Meta diária:** `GoalCard` valida 3–200 com `parseGoalInput` e grava
+  `goal.pages` por `useSettings.setValue`. `useSettings` ganhou o mesmo padrão
+  de assinatura dos outros hooks; a Hoje recalcula na hora, sem reiniciar.
+- **Backup:** `src/features/settings/backup/` separa as camadas:
+  - `format.ts` (puro): serializa e valida o JSON v1 com Zod, confere ids,
+    ISBNs, referências, meta e capas;
+  - `archive.ts` (puro): monta e abre o ZIP com `fflate`;
+  - `service.ts` (nativo): lê as capas, compartilha o arquivo, abre o seletor e
+    prepara/move as capas restauradas;
+  - `use-backup.tsx`: orquestra banco + serviço + `useSettings` e guarda o estado
+    de erro/busy;
+  - `BackupCard` e `RestoreBackupDialog`: export, cópia opcional do estado
+    atual, confirmação dupla e aviso de sucesso.
+- `BackupRepository` (`src/db/repositories/backup.ts`) exporta as sete tabelas,
+  conta o que existe e substitui tudo numa transação. O JSON não é o banco cru:
+  a fila sai só com o que é visível (livro existente e não concluído) e as datas
+  viram ISO.
+- **Restauração:** valida em memória, prepara as capas no cache, substitui o
+  banco e só então move as capas para `covers/`. Se uma capa falhar, o livro
+  fica com `cover_uri` nulo; arquivos antigos fora do backup são limpos. O
+  `seed.books.version` é reposto para um backup vazio não semear livros de
+  exemplo no próximo boot.
+- **Atualização:** fechar o aviso de sucesso incrementa a versão de dados; o
+  `AppStack` usa essa versão como `key` e remonta a navegação, fazendo todos os
+  hooks relerem o banco. Não há evento global.
+- **Fila:** excluir um livro também apaga `queue_items`. O export tira linhas de
+  livro concluído/excluído e renumera as posições visíveis; a importação recusa
+  item de livro inexistente ou concluído.
+- Dependências da S11: `expo-sharing` (plugin em `app.config.ts`) e `fflate`
+  (JS puro). O seletor usa `File.pickFileAsync` do `expo-file-system`.
 
 ## Abas e papéis (S7.1)
 
@@ -263,7 +301,9 @@ SQLite (expo-sqlite + Drizzle)
 2. abre o banco (falha → tela `DatabaseError`);
 3. aplica as migrações com `useMigrations` (falha → tela `DatabaseError`);
 4. roda o seed só em banco vazio (`seedIfEmpty`);
-5. esconde a splash e monta o `Stack` dentro do `GestureHandlerRootView`.
+5. esconde a splash e monta o `Stack` dentro do `GestureHandlerRootView`, com
+   os providers de capa, backup e versão de dados. A `key` da versão remonta a
+   navegação depois de uma restauração.
 
 O `GestureHandlerRootView` é necessário para o arrastar da Ordem; o `Screen`
 usa o `ScrollView` do gesture handler para o gesto não brigar com a rolagem.
@@ -301,14 +341,17 @@ Nenhum passo apaga dados ou esconde erro de migração.
   [`docs/adr/0019-resenha-e-campos-extras.md`](adr/0019-resenha-e-campos-extras.md)
 - Estatísticas sem biblioteca de gráfico:
   [`docs/adr/0020-estatisticas.md`](adr/0020-estatisticas.md)
+- Backup manual em ZIP:
+  [`docs/adr/0021-backup-em-zip.md`](adr/0021-backup-em-zip.md)
 
 ## Pendências conhecidas
 
 - Os ícones e o splash já são definitivos desde a S4a
   (`assets/images/` + `scripts/build-icons.mjs`), mas só aparecem em build
   nativo; o Expo Go não os exibe.
-- O `cover_uri` guarda caminho absoluto do aparelho: o backup JSON (S11) não
-  pode reutilizá-lo em outro device.
+- O `cover_uri` guarda caminho absoluto do aparelho. O backup em ZIP leva os
+  arquivos e reescreve o caminho na importação; o JSON não reutiliza o caminho
+  do aparelho antigo (ADR 0021).
 - Conclusão sem sessão (roda/edição) é datada por `books.updated_at`: editar um
   livro já concluído pode mover a data aproximada para a edição. Uma coluna
   `finished_at` resolveria, mas não entrou no MVP (ADR 0020).

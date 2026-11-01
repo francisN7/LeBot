@@ -2,6 +2,9 @@
 export const MIN_GOAL_PAGES = 3;
 export const MAX_GOAL_PAGES = 200;
 
+/** Valor usado quando a meta ainda não existe em `settings`. */
+export const DEFAULT_GOAL_PAGES = 18;
+
 /** Um livro `reading` continua ativo enquanto a última sessão tem < 7 dias. */
 export const ACTIVE_WINDOW_DAYS = 7;
 

@@ -53,6 +53,7 @@ Thumbs.db
 # Bancos e backups locais do app
 backups/
 *.sqlite
+lebot-backup-*.zip
 *.sqlite3
 *.db
 *.db-wal

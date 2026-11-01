@@ -149,8 +149,10 @@ ADR 0010.
 | `key` | text | PK |
 | `value` | text | obrigatório; tudo vira string |
 
-Chaves usadas hoje: `goal.pages`, `reminder.time`, `appearance.theme`,
-`backup.enabled`, `seed.books.version`.
+Chaves usadas hoje: `goal.pages`, `backup.last_exported_at` (ISO UTC) e
+`seed.books.version`. `reminder.time`, `appearance.theme` e `backup.enabled`
+continuam semeadas para os recursos futuros; a UI de Ajustes as mostra como
+"Em breve" e não exibe os valores.
 
 ## Migrações
 
@@ -194,11 +196,12 @@ primeiro seed.
 
 ## Repositórios
 
-`src/db/repositories/books.ts`, `genres.ts`, `queue.ts`, `reading-sessions.ts` e
-`settings.ts` expõem funções síncronas (`list`, `findById`, `create`, `update`,
-`remove`; `get`, `all`, `set`, `remove`). Recebem a instância do Drizzle por
-parâmetro, então o mesmo código roda no aparelho (`expo-sqlite`) e nos testes
-(`sql.js`).
+`src/db/repositories/books.ts`, `genres.ts`, `queue.ts`, `reading-sessions.ts`,
+`reviews.ts`, `review-fields.ts`, `settings.ts` e `backup.ts` expõem funções
+síncronas (`list`, `findById`, `create`, `update`, `remove`; `get`, `all`, `set`,
+`remove`; `exportAll`, `counts`, `replaceAll`, `clearCoverUris`). Recebem a
+instância do Drizzle por parâmetro, então o mesmo código roda no aparelho
+(`expo-sqlite`) e nos testes (`sql.js`).
 
 - Entrada validada com Zod (`bookInputSchema`, `genreFields`,
   `readingSessionInputSchema`); `update` valida a linha completa (merge com o
@@ -216,10 +219,15 @@ parâmetro, então o mesmo código roda no aparelho (`expo-sqlite`) e nos testes
 - Ordem: `sync` materializa todo livro não concluído em dois blocos (`reading`
   primeiro, depois os demais) e limpa concluído/órfão; `list` deriva a ordem se
   faltar linha; `move` só anda dentro do bloco do livro; `replaceAll` reescreve
-  0..n-1 numa transação mantendo os blocos. Nenhuma operação muda o status.
+  0..n-1 numa transação mantendo os blocos. Excluir o livro apaga o item da
+  ordem na mesma transação (`books.remove`). Nenhuma operação muda o status.
+- Backup: `exportAll` lê as sete tabelas, descarta da fila o que não é livro
+  válido e renumera; `replaceAll` apaga tudo e insere numa transação, repondo
+  `seed.books.version`; `clearCoverUris` só zera o caminho (não mexe em
+  `updated_at`). Ver ADR 0021.
 - Nenhum SQL fora de `src/db/`.
 - As telas acessam via hooks (`useBooks`, `useGenres`, `useQueue`, `useSettings`,
-  `useReadingSessions`), nunca pelo repositório diretamente.
+  `useReadingSessions`, `useBackup`), nunca pelo repositório diretamente.
 
 ## Busca e capa
 
@@ -231,6 +239,21 @@ parâmetro, então o mesmo código roda no aparelho (`expo-sqlite`) e nos testes
 - Exibição: `BookCover` cuida do arredondamento, da borda navy e da fita do
   gênero; `Bookmark` desenha a fita em SVG. Sem capa, `Spine` usa a cor do
   gênero do mapa `genreById`.
+
+## Backup
+
+- Um `.zip` manual com `backup.json` (formato 1) e `covers/<bookId>.jpg`; o JSON
+  tem as sete tabelas, datas ISO e `cover_uri` relativo. Ver ADR 0021.
+- Exportar aborta se um `cover_uri` aponta para arquivo inexistente/vazio; o
+  dono precisa remover ou trocar a capa antes.
+- Importar valida tudo em memória, prepara as capas no cache, substitui o banco
+  numa transação e move as capas para `covers/`. Se uma capa falhar, o livro
+  fica sem capa; arquivos antigos fora do backup são removidos.
+- Não há sessão órfã proibida: elas continuam válidas no histórico. Item de
+  ordem e resenha precisam de livro existente; item de ordem de livro concluído é
+  recusado.
+- `settings` leva `backup.last_exported_at` e repõe `seed.books.version`; um
+  backup vazio não faz o app semear livros de exemplo no próximo boot.
 
 ## Máscara do ISBN
 

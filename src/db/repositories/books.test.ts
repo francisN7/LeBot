@@ -1,5 +1,6 @@
 import { createBooksRepository } from '@/db/repositories/books';
-import { readingSessions } from '@/db/schema';
+import { createQueueRepository } from '@/db/repositories/queue';
+import { queueItems, readingSessions } from '@/db/schema';
 import { createTestDatabase } from '@/test-utils/sqlite';
 
 const baseBook = {
@@ -70,6 +71,21 @@ describe('books repository', () => {
     expect(repository.remove('book-1')).toBe(true);
     expect(repository.remove('book-1')).toBe(false);
     expect(repository.list()).toHaveLength(0);
+  });
+
+  it('remove o item da ordem junto com o livro', async () => {
+    const db = await createTestDatabase();
+    const repository = createBooksRepository(db);
+    const queue = createQueueRepository(db);
+
+    repository.create({ ...baseBook, id: 'book-1' });
+    queue.sync();
+
+    expect(db.select().from(queueItems).all()).toHaveLength(1);
+
+    repository.remove('book-1');
+
+    expect(db.select().from(queueItems).all()).toHaveLength(0);
   });
 
   it('rejeita título vazio e páginas inválidas', async () => {

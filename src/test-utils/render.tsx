@@ -4,6 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type {
+  BackupRepository,
   BooksRepository,
   GenresRepository,
   QueueRepository,
@@ -23,9 +24,19 @@ import {
   ReviewFieldsRepositoryProvider,
   ReviewsRepositoryProvider,
 } from '@/features/reviews';
-import { SettingsRepositoryProvider } from '@/features/settings';
+import {
+  BackupRepositoryProvider,
+  BackupServiceProvider,
+  DataVersionProvider,
+  SettingsRepositoryProvider,
+} from '@/features/settings';
+import type { BackupService } from '@/features/settings/backup/service';
 import type { CoverService } from '@/lib/covers';
 
+import {
+  createFakeBackupService,
+  createInMemoryBackupRepository,
+} from './backup';
 import { createFakeCoverService } from './covers';
 import {
   createInMemoryBooksRepository,
@@ -51,6 +62,8 @@ type RenderWithProvidersOptions = Omit<RenderOptions, 'wrapper'> & {
   reviewFieldsRepository?: ReviewFieldsRepository;
   reviewsRepository?: ReviewsRepository;
   settingsRepository?: SettingsRepository;
+  backupRepository?: BackupRepository;
+  backupService?: BackupService;
   coverService?: CoverService;
 };
 
@@ -78,6 +91,18 @@ export function renderWithProviders(
       reviewsRepository,
     ),
     settingsRepository = createInMemorySettingsRepository(),
+    backupRepository = createInMemoryBackupRepository({
+      genres: genresRepository.list(),
+      reviewFields: reviewFieldsRepository.list(),
+      books: booksRepository.list(),
+      readingSessions: readingRepository.listAll(),
+      queueItems: queueRepository.list(),
+      reviews: reviewsRepository.list(),
+      settings: Object.entries(settingsRepository.all()).map(
+        ([key, value]) => ({ key, value }),
+      ),
+    }),
+    backupService = createFakeBackupService(),
     coverService = createFakeCoverService(),
     ...options
   }: RenderWithProvidersOptions = {},
@@ -94,9 +119,15 @@ export function renderWithProviders(
                     repository={reviewFieldsRepository}
                   >
                     <SettingsRepositoryProvider repository={settingsRepository}>
-                      <CoverServiceProvider service={coverService}>
-                        {children}
-                      </CoverServiceProvider>
+                      <BackupRepositoryProvider repository={backupRepository}>
+                        <BackupServiceProvider service={backupService}>
+                          <DataVersionProvider>
+                            <CoverServiceProvider service={coverService}>
+                              {children}
+                            </CoverServiceProvider>
+                          </DataVersionProvider>
+                        </BackupServiceProvider>
+                      </BackupRepositoryProvider>
                     </SettingsRepositoryProvider>
                   </ReviewFieldsRepositoryProvider>
                 </ReviewsRepositoryProvider>

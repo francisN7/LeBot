@@ -2,74 +2,74 @@
 
 ## Sessão
 
-- **Atual:** nenhuma; S10 concluída em 2026-11-01 e conferida no Android.
-- **Última concluída:** S10 (estatísticas e linha do tempo).
-- **Próxima:** S11 (configurações + backup JSON), spec em
-  `docs/sessions/S11-configuracoes-backup.md`; depois S11a (design 3D), que não
-  deve ser antecipada.
+- **Atual:** nenhuma; S11 concluída em 2026-11-01, com conferência manual no
+  Android pendente.
+- **Última concluída:** S11 (configurações + backup ZIP).
+- **Próxima:** S11a (design 3D da lombada e emoções), spec em
+  `docs/sessions/S11a-design-3d-emocoes.md`; depois S12 (release interno).
 
-## Pronto (S10)
+## Pronto (S11)
 
-- "Meu ritmo" em `/estatisticas`, aberta pelo atalho discreto da Estante
-  (ícone de três barras + rótulo), abaixo de "N livros · N à vista".
-- Períodos civis no dia local: 1 semana (últimos 7 dias, barra por dia), 1 mês
-  (mês corrente do dia 1 até hoje, blocos de 7 dias, padrão), 3 meses (mês atual
-  + 2 anteriores, barra por mês) e 1 ano (ano civil jan→dez, futuro vazio). A
-  janela anterior é o período equivalente; o total sempre para em hoje.
-- Cartão do LêBot com uma frase calculada e humor coerente; adesivo de sequência
-  quando ≥ 2 dias. Páginas, dias com leitura e sequência; média por dia com
-  leitura explícita ("Média de N páginas por dia com leitura, em M dias do
-  período.").
-- Ritmo em prateleira de lombadas, sem lib de gráfico: coluna corrente em
-  dourado, colunas dividindo a largura e rótulos curtos. Gêneros em barras na
-  cor da prateleira, top 5 + Outros. Mini-lombadas clicáveis dos concluídos.
-  Nota média e distribuição 5→1; tocar numa nota abre os livros daquela nota,
-  com "Voltar às notas".
-- "Ver tudo" abre `/linha-do-tempo`: totais desde a primeira leitura e grade
-  jan→dez por ano, fora dos filtros (o passado que os períodos civis deixam de
-  fora).
-- Sessão órfã conta páginas e não entra em gênero/nota. Conclusão datada pela
-  última sessão; sem sessão (roda/edição), `books.updated_at` aproximado.
-  Período vazio mostra mascote e CTA, sem gráfico zerado.
-- Agregação pura (`period`, `aggregate`, `insights`, `timeline`), `useStats`,
-  `useTimeline` e `readingSessions.listAll`/`listLatestPerBook`. Sem migração
-  (ADR 0020, com dois adendos). 46 testes novos (437 em 58 arquivos); lint,
-  typecheck, test, doctor e export verdes no commit `dd6501f`.
+- Ajustes em quatro seções: **Leitura** (meta, lembrete, aparência), **Dados**
+  (backup), **Organização** (gêneros e campos de resenha) e **Sobre**.
+- Meta diária editável com campo numérico, validação 3–200 e botão Salvar.
+  `useSettings` ganhou assinatura; a Hoje recalcula na hora, sem reiniciar.
+- Lembrete e Aparência viraram cards "Em breve", sem horário/tema falsos. As
+  chaves `reminder.time`, `appearance.theme` e `backup.enabled` continuam no
+  banco e no backup para os recursos futuros.
+- Backup manual em `.zip`: `backup.json` (formato 1) + `covers/<bookId>.jpg`.
+  Exportar lê as sete tabelas, aborta se uma capa referenciada sumiu do aparelho,
+  compartilha via `expo-sharing` e grava `backup.last_exported_at`.
+- Importação valida em memória (formato, ids, ISBNs, referências, meta, capas),
+  mostra contagens do arquivo × do aparelho, oferece exportar uma cópia do estado
+  atual, pede confirmação dupla e substitui tudo numa transação. As capas são
+  preparadas no cache, movidas para `covers/` depois do banco e os caminhos são
+  reescritos; se uma capa falhar, o livro fica sem capa. Arquivos antigos fora do
+  backup são limpos. O sucesso remonta a navegação por `DataVersionProvider`.
+- `books.remove` apaga `queue_items` na mesma transação; o export descarta da
+  fila livro concluído/inexistente e renumera.
+- Serializador/validador puro (`backup/format.ts`), ZIP puro (`archive.ts`),
+  camada nativa (`service.ts`), hook (`use-backup`) e repositório
+  (`src/db/repositories/backup.ts`). `expo-sharing` + `fflate`; o seletor usa
+  `File.pickFileAsync` do `expo-file-system`, sem `expo-document-picker`.
+- 48 testes novos (485 em 64 arquivos); lint, typecheck, test, doctor e export
+  verdes. Sem migração (ADR 0021).
 
 ## Decisões abertas
 
-- S11: formato/versão do backup, restaurar substitui × mescla, capas (hoje só o
-  caminho), lembrete sem `expo-notifications` e o que fazer com Aparência.
-- S11a: decisões fechadas; não executar antes da S11.
+- Conferir no Android: compartilhar o ZIP, salvar em Arquivos/Drive, escolher no
+  seletor, restaurar capas, teclado da meta e modal em tela pequena.
 - Backlog: galeria de citações, `finished_at`, grid ajustável na Estante,
-  refinamento das animações do mascote e mais temas além de claro/escuro.
+  refinamento das animações do mascote, tema escuro e temas extras.
 
 ## Arquivos-chave
 
-- `src/features/stats/` (`StatsScreen`, `TimelineScreen`, `period`, `aggregate`,
-  `insights`, `timeline`, `use-stats`, `use-timeline`, `charts`)
-- `src/app/estatisticas.tsx`, `src/app/linha-do-tempo.tsx`
-- `src/features/library/EstanteScreen.tsx`, `types.ts` (`updatedAt`)
-- `src/db/repositories/reading-sessions.ts`
-- `src/lib/day.ts`, `src/components/ui/StatsIcon.tsx`, `src/theme/sizes.ts`
-- `src/test-utils/repositories.ts`, ADR 0020
+- `src/features/settings/` (`AjustesScreen`, `GoalCard`, `ComingSoonCard`,
+  `BackupCard`, `RestoreBackupDialog`, `data-version`, `use-settings`)
+- `src/features/settings/backup/` (`format`, `archive`, `service`, `use-backup`,
+  `backup-context`, `types`, `labels`)
+- `src/db/repositories/backup.ts`, `src/db/repositories/books.ts`
+- `src/app/_layout.tsx` (providers + `AppStack` com `key`)
+- `src/test-utils/backup.ts`, `src/test-utils/render.tsx`
+- `docs/adr/0021-backup-em-zip.md`
 
 ## Armadilhas
 
-- Estatística agrupa por **dia local**, nunca UTC (`src/lib/day.ts`).
-- `appliedPages ?? pages`: sessões antigas não têm a coluna; `pages` cru infla o
-  período quando a sessão passou do fim.
-- Sequência usa uma janela de 366 dias; acima disso ela trava no limite.
-- "Concluído em" = última sessão. Livro concluído antes do período com
-  `updatedAt` recente não conta (a última sessão vence).
-- Nota média é de todas as resenhas, não do período; não filtre por
-  `reviews.updated_at`.
-- Períodos são civis: não volte a janelas de 4/12 semanas nem a 12 meses
-  corridos; o total para em hoje e meses futuros só completam a grade.
-- Linha do tempo usa `listAll` em `useTimeline`; não a acople ao `useStats`.
-- Rota tipada: rota nova exige `npx expo start --offline` antes do typecheck.
-- `renderWithProviders`: stats precisa de `readingRepository` e
-  `reviewsRepository` nos cenários customizados.
+- O ZIP não é JSON puro: `backup.json` fica na raiz e as capas em `covers/`; o
+  `cover_uri` do JSON é relativo (`covers/<id>.jpg`).
+- Exportar **aborta** se um `cover_uri` aponta para arquivo inexistente/vazio;
+  não pule essa checagem nem troque por "ignorar e seguir".
+- A importação valida tudo antes da transação; abortar mantém o banco intacto.
+  As capas são preparadas no cache antes do banco e só depois movidas.
+- O `seed.books.version` é reposto no `replaceAll`; sem isso um backup vazio
+  semearia os livros de exemplo no próximo boot.
+- Restaurar troca o banco inteiro; não esqueça a remontagem por `DataVersion` ou
+  as telas ficam com dados velhos.
+- `useSettings` agora notifica; não volte a ler o repositório só no mount.
+- A fila exportada é a visível (livro existente e não concluído), renumerada;
+  item de ordem órfão/concluído é recusado na importação.
+- O `backup/service.ts` importa módulos nativos; testes de tela usam o fake de
+  `src/test-utils/backup.ts`.
 
 ## Como rodar
 

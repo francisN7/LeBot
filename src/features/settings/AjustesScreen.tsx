@@ -1,12 +1,15 @@
 import Constants from 'expo-constants';
-import { useMemo } from 'react';
+import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
 import { AppText, Button, Card, Chip, Screen } from '@/components/ui';
 import { useGenres } from '@/features/genres';
+
+import { BackupCard } from './BackupCard';
+import { ComingSoonCard } from './ComingSoonCard';
+import { useDataVersion } from './data-version';
+import { GoalCard } from './GoalCard';
 import { ReviewFieldsCard } from './ReviewFieldsCard';
-import { toSettingRows } from './rows';
-import { useSettings } from './use-settings';
 
 const appVersion = Constants.expoConfig?.version ?? '0.1.0';
 
@@ -14,10 +17,18 @@ type AjustesScreenProps = {
   onOpenGenres?: () => void;
 };
 
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <View className="gap-sm">
+      <AppText variant="subtitle">{title}</AppText>
+      {children}
+    </View>
+  );
+}
+
 export function AjustesScreen({ onOpenGenres }: AjustesScreenProps = {}) {
-  const { values } = useSettings();
   const { genres } = useGenres();
-  const settingsRows = useMemo(() => toSettingRows(values), [values]);
+  const { bump } = useDataVersion();
 
   return (
     <Screen>
@@ -26,51 +37,57 @@ export function AjustesScreen({ onOpenGenres }: AjustesScreenProps = {}) {
         <AppText tone="muted">Do seu jeito, sem culpa.</AppText>
       </View>
 
-      <View className="gap-sm">
-        {settingsRows.map((row) => (
-          <Card className="gap-xs" key={row.id}>
-            <View className="flex-row items-center justify-between">
-              <AppText variant="bodyStrong">{row.label}</AppText>
-              <Chip label={row.value} />
-            </View>
-            <AppText variant="caption" tone="muted">
-              {row.hint}
-            </AppText>
-          </Card>
-        ))}
-      </View>
-
-      <Card className="gap-xs">
-        <View className="flex-row items-center justify-between">
-          <AppText variant="bodyStrong">Gêneros</AppText>
-          <Chip
-            label={
-              genres.length === 1 ? '1 gênero' : `${genres.length} gêneros`
-            }
-          />
-        </View>
-        <AppText variant="caption" tone="muted">
-          Nome e cor de cada prateleira. A cor vale na lombada e na fita.
-        </AppText>
-        <Button
-          label="Gerenciar gêneros"
-          onPress={onOpenGenres}
-          size="sm"
-          variant="secondary"
+      <Section title="Leitura">
+        <GoalCard />
+        <ComingSoonCard
+          description="Um toque no horário certo precisa de notificações do sistema. O LêBot só entra quando isso funcionar de verdade."
+          title="Lembrete"
         />
-      </Card>
+        <ComingSoonCard
+          description="O tema escuro e os temas extras chegam depois; por enquanto o LêBot fica no claro."
+          title="Aparência"
+        />
+      </Section>
 
-      <ReviewFieldsCard />
+      <Section title="Dados">
+        <BackupCard onRestored={bump} />
+      </Section>
 
-      <Card className="gap-xs">
-        <AppText variant="subtitle">Sobre o LêBot</AppText>
-        <AppText variant="caption" tone="muted">
-          Versão {appVersion}. Seus dados ficam neste aparelho.
-        </AppText>
-        <AppText variant="caption" tone="muted">
-          Feito para quem quer ler mais sem ressaca literária.
-        </AppText>
-      </Card>
+      <Section title="Organização">
+        <Card className="gap-xs">
+          <View className="flex-row items-center justify-between gap-sm">
+            <AppText variant="bodyStrong">Gêneros</AppText>
+            <Chip
+              label={
+                genres.length === 1 ? '1 gênero' : `${genres.length} gêneros`
+              }
+            />
+          </View>
+          <AppText tone="muted" variant="caption">
+            Nome e cor de cada prateleira. A cor vale na lombada e na fita.
+          </AppText>
+          <Button
+            label="Gerenciar gêneros"
+            onPress={onOpenGenres}
+            size="sm"
+            variant="secondary"
+          />
+        </Card>
+
+        <ReviewFieldsCard />
+      </Section>
+
+      <Section title="Sobre">
+        <Card className="gap-xs">
+          <AppText variant="bodyStrong">Sobre o LêBot</AppText>
+          <AppText tone="muted" variant="caption">
+            Versão {appVersion}. Seus dados ficam neste aparelho.
+          </AppText>
+          <AppText tone="muted" variant="caption">
+            Feito para quem quer ler mais sem ressaca literária.
+          </AppText>
+        </Card>
+      </Section>
     </Screen>
   );
 }

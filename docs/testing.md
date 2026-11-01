@@ -324,4 +324,45 @@ O que continua manual: no Android, a prateleira com 7 dias, 4–5 blocos do mês
 3 meses e 12 meses, os rótulos curtos, a rotação do adesivo de sequência, as
 mini-lombadas, o drill-down das notas, a linha do tempo e o estado vazio.
 
-A suíte atual tem 58 arquivos e 437 testes (`npm run test`).
+## Cobertura da S11
+
+- `src/features/settings/goal.test.ts`: meta válida nos limites, espaços e zeros
+  à esquerda, vazio/texto/decimal e valores fora de 3–200.
+- `src/features/settings/backup/format.test.ts`: round-trip de todas as tabelas
+  com datas, extras, capa relativa e `backup.last_exported_at`; JSON inválido,
+  sem versão e versão futura; tabela/linha inválida; ids, ISBN, nomes e
+  preferências repetidos; gênero, resenha e ordem órfãos; item de ordem de livro
+  concluído; capa faltando, sobrando ou fora do caminho; meta fora do intervalo;
+  progresso incoerente; valor de campo inexistente; troca de caminho de capa e
+  rótulos/contagem/data/nome do arquivo.
+- `src/features/settings/backup/archive.test.ts`: ZIP de ida e volta com capas,
+  arquivo vazio, arquivo que não é ZIP, ZIP sem `backup.json`, arquivo
+  inesperado, caminho de capa com traversal e id inválido.
+- `src/db/repositories/backup.test.ts`: export das sete tabelas, round-trip no
+  SQLite, substituição (não mescla), flag de seed reposto, capa limpa sem mexer
+  em `updated_at`, rollback quando uma inserção falha e fila sem concluído/órfão
+  renumerada.
+- `src/db/repositories/books.test.ts`: excluir o livro apaga o item da ordem na
+  mesma transação.
+- `src/features/settings/use-settings.test.tsx`: dois consumidores veem a meta
+  nova depois de `setValue` (assinatura do `useSettings`).
+- `src/features/settings/AjustesScreen.test.tsx`: quatro seções, dois cards "Em
+  breve", ausência de `20:00`/`Claro`, gêneros, meta salva refletida na Hoje e
+  erro fora do intervalo.
+- `src/features/settings/BackupCard.test.tsx`: export com data e ZIP válido,
+  aborto por capa ausente, cancelamento do seletor, arquivo inválido, contagens
+  do arquivo × do aparelho, cópia do estado atual, dupla confirmação, volta da
+  segunda etapa, sucesso com capa, aviso de capa que não pôde ser gravada e
+  `onRestored`.
+- `src/test-utils/backup.ts` e `renderWithProviders`: repositório em memória,
+  serviço fake, providers de backup e versão de dados. O fake não toca em
+  `expo-file-system`/`expo-sharing`; o teste de tela usa o mesmo fluxo de
+  serializar, zipar, validar e substituir.
+
+O que continua manual: no Android, o compartilhamento do ZIP, salvar em
+Arquivos/Drive, escolher o arquivo no seletor, restaurar as capas, o teclado
+numérico da meta e o modal em tela pequena. O `backup/service.ts` é a camada
+nativa e não entra no Jest; o `backup/format.ts`, o `archive.ts` e o repositório
+são testados sem SQLite nativo.
+
+A suíte atual tem 64 arquivos e 485 testes (`npm run test`).

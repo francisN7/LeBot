@@ -373,6 +373,34 @@ cartão ou no vazio).
 - Hex baixo contraste em cor personalizada só gera aviso no formulário; a
   escolha é do dono.
 
+## Ajustes e backup (S11)
+
+- A tela é dividida em quatro seções com título `subtitle`: **Leitura**,
+  **Dados**, **Organização** e **Sobre**. Os cards continuam `Card` com título
+  `bodyStrong`, dica em `caption`/`muted` e chip quando há um número curto.
+- **Meta diária:** o card tem o valor atual em chip, um `TextField` numérico
+  ("Páginas por dia"), o botão "Salvar meta" e a mensagem de erro do próprio
+  campo. O intervalo é 3–200; salvar atualiza a Hoje na hora.
+- **Em breve:** `ComingSoonCard` mostra o título, o chip `Em breve` e uma frase
+  curta do porquê. Não há botão nem valor falso; Lembrete e Aparência usam esse
+  estado.
+- **Backup:** card com chip `Local`, a data do último backup (ou "Nenhum backup
+  ainda."), "Exportar backup" e "Restaurar backup". Enquanto trabalha, mostra
+  "Preparando o backup...", "Lendo o arquivo..." ou "Restaurando..." e desabilita
+  os botões. Erros e o nome do arquivo gerado aparecem em `caption`.
+- **Importação:** `RestoreBackupDialog` segue o visual do `ConfirmDialog`
+  (fundo navy translúcido + `Card` central), em três passos:
+  1. arquivo, data, versão, contagens do arquivo e do aparelho, aviso de que a
+     restauração substitui tudo, botão "Exportar cópia atual" (opcional) e
+     "Continuar";
+  2. confirmação final com "Voltar" e "Restaurar" em `danger`;
+  3. "Backup restaurado" com as contagens, aviso de capas que falharam e
+     "Ver estante", que remonta o app.
+- Contagens sempre no formato "N livros, N sessões e N resenhas"; não há
+  contagem fixa no card.
+- Depois de restaurar, a tela não fica com dados velhos: a navegação remonta pela
+  versão de dados, então a Estante e a Hoje abrem com o banco novo.
+
 ## Regras
 
 1. Nenhum valor de cor, espaçamento ou fonte hardcoded fora de `src/theme/` e

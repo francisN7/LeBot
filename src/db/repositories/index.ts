@@ -1,4 +1,5 @@
 import { getDb } from '../client';
+import { type BackupRepository, createBackupRepository } from './backup';
 import { type BooksRepository, createBooksRepository } from './books';
 import { createGenresRepository, type GenresRepository } from './genres';
 import { createQueueRepository, type QueueRepository } from './queue';
@@ -13,6 +14,7 @@ import {
 import { createReviewsRepository, type ReviewsRepository } from './reviews';
 import { createSettingsRepository, type SettingsRepository } from './settings';
 
+let backupInstance: BackupRepository | undefined;
 let booksInstance: BooksRepository | undefined;
 let genresInstance: GenresRepository | undefined;
 let queueInstance: QueueRepository | undefined;
@@ -22,6 +24,11 @@ let reviewsInstance: ReviewsRepository | undefined;
 let settingsInstance: SettingsRepository | undefined;
 
 /** Repositório real, criado sob demanda (importar o módulo não abre o banco). */
+export function getBackupRepository(): BackupRepository {
+  backupInstance ??= createBackupRepository(getDb());
+  return backupInstance;
+}
+
 export function getBooksRepository(): BooksRepository {
   booksInstance ??= createBooksRepository(getDb());
   return booksInstance;
@@ -59,6 +66,7 @@ export function getSettingsRepository(): SettingsRepository {
 
 /** Só para testes. */
 export function resetRepositoriesForTests(): void {
+  backupInstance = undefined;
   booksInstance = undefined;
   genresInstance = undefined;
   queueInstance = undefined;
@@ -68,6 +76,11 @@ export function resetRepositoriesForTests(): void {
   settingsInstance = undefined;
 }
 
+export type {
+  BackupCounts,
+  BackupRepository,
+  BackupTables,
+} from './backup';
 export type { BookPatch, BooksRepository, CreateBookInput } from './books';
 export type {
   CreateGenreInput,

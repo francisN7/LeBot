@@ -7,6 +7,7 @@ import { isValidIsbn, toStoredIsbn } from '@/lib/isbn';
 import {
   type BookRow,
   books,
+  queueItems,
   readingSessions,
   readingStatuses,
   reviews,
@@ -193,9 +194,11 @@ export function createBooksRepository<TRunResult>(
     },
 
     remove(id) {
-      // Sem FK física: a resenha sai na mesma transação do livro.
+      // Sem FK física: resenha e item da ordem saem na mesma transação do
+      // livro. As sessões ficam de propósito (histórico/estatísticas).
       return db.transaction((tx) => {
         tx.delete(reviews).where(eq(reviews.bookId, id)).run();
+        tx.delete(queueItems).where(eq(queueItems.bookId, id)).run();
 
         const deleted = tx
           .delete(books)

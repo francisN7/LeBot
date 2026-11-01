@@ -108,3 +108,28 @@ parecerem quebrados.
 
 **S11a** — design 3D da lombada e emoções (spec pronta). Depois, **S12** —
 release interno.
+
+## Resultado (2026-11-01)
+
+Entregue com as decisões fechadas na abertura e registradas na ADR 0021. O que
+mudou em relação ao plano original:
+
+- **Capas entram no backup.** O arquivo é um `.zip` com `backup.json` (formato
+  1) e `covers/<bookId>.jpg`; o JSON guarda o caminho relativo e a importação
+  reescreve para o caminho do aparelho. Export aborta se uma capa referenciada
+  sumiu do disco.
+- **Só `expo-sharing` como dependência nativa nova.** O seletor é
+  `File.pickFileAsync` do `expo-file-system` 58; `expo-document-picker` não
+  entrou. O ZIP usa `fflate` (JS puro).
+- **Ajustes em quatro seções** (Leitura, Dados, Organização e Sobre), com a data
+  do último backup, a cópia opcional do estado atual antes de restaurar e as
+  contagens só nos diálogos de confirmação.
+- **`books.remove` apaga `queue_items`** na mesma transação; o export descarta
+  da fila o que não é livro válido e renumera.
+- **`useSettings` ganhou assinatura**, então a meta salva em Ajustes atualiza a
+  Hoje sem reiniciar. Depois de restaurar, a versão de dados remonta a navegação
+  e todos os hooks releem o banco.
+- Sem migração. 48 testes novos (485 em 64 arquivos); lint, typecheck, test,
+  doctor e export verdes. Falta a conferência manual no Android do
+  compartilhamento, do seletor, da restauração de capas e do modal em tela
+  pequena.

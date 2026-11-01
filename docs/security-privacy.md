@@ -17,12 +17,14 @@ telemetria no MVP.
 | Capa escolhida | `documentDirectory/covers/` | só o caminho fica no banco (S3) |
 | Sessões de leitura e progresso | SQLite local | a partir da S5 |
 | Resenhas e notas | SQLite local | a partir da S9 |
-| Preferências | SQLite local | meta diária e tema, na S2 |
+| Preferências | SQLite local | meta diária e chaves reservadas, na S2 |
 
 A capa é copiada para a área privada do app; apagar o app apaga banco e capas.
 
-Backup é manual: export/import de um JSON que o usuário escolhe onde guardar
-(S11). Nenhum upload automático.
+Backup é manual: export/import de um **ZIP** com `backup.json` e as capas, que o
+usuário escolhe onde guardar (S11). Nenhum upload automático. O arquivo contém
+histórico, resenhas e imagens pessoais; não deve ser commitado nem compartilhado
+sem querer. Na importação, o app valida tudo antes de apagar o banco atual.
 
 ## O que o app não faz
 

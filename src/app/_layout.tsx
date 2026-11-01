@@ -20,11 +20,22 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import '../../global.css';
 import { AppText } from '@/components/ui';
 import { getDb } from '@/db/client';
-import { getBooksRepository, getSettingsRepository } from '@/db/repositories';
+import {
+  getBackupRepository,
+  getBooksRepository,
+  getSettingsRepository,
+} from '@/db/repositories';
 import { seedIfEmpty } from '@/db/seed';
 import type { DeviceDatabase } from '@/db/types';
 import { CoverServiceProvider } from '@/features/library';
 import { createDeviceCoverService } from '@/features/library/cover-service';
+import {
+  BackupRepositoryProvider,
+  BackupServiceProvider,
+  DataVersionProvider,
+  useDataVersion,
+} from '@/features/settings';
+import { createDeviceBackupService } from '@/features/settings/backup/service';
 import { colors } from '@/theme';
 import migrations from '../../drizzle/migrations';
 
@@ -61,6 +72,21 @@ function DatabaseError({ message }: { message: string }) {
   );
 }
 
+/** A navegação remonta quando a restauração troca o banco inteiro. */
+function AppStack() {
+  const { version } = useDataVersion();
+
+  return (
+    <Stack
+      key={version}
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: colors.cream },
+      }}
+    />
+  );
+}
+
 /** Roda as migrações e só então libera o app (a splash cobre a espera). */
 function DatabaseBoot({
   db,
@@ -72,6 +98,7 @@ function DatabaseBoot({
   const { success, error } = useMigrations(db, migrations);
   const [seeded, setSeeded] = useState(false);
   const [coverService] = useState(createDeviceCoverService);
+  const [backupService] = useState(createDeviceBackupService);
 
   useEffect(() => {
     if (!success) {
@@ -109,12 +136,13 @@ function DatabaseBoot({
       <SafeAreaProvider>
         <StatusBar style="dark" />
         <CoverServiceProvider service={coverService}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: colors.cream },
-            }}
-          />
+          <BackupRepositoryProvider repository={getBackupRepository()}>
+            <BackupServiceProvider service={backupService}>
+              <DataVersionProvider>
+                <AppStack />
+              </DataVersionProvider>
+            </BackupServiceProvider>
+          </BackupRepositoryProvider>
         </CoverServiceProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

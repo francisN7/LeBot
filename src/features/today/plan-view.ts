@@ -1,5 +1,5 @@
 import type { Book } from '@/features/library/types';
-import type { Plan } from '@/features/planner';
+import { DEFAULT_GOAL_PAGES, type Plan } from '@/features/planner';
 import type { ReadingSession } from '@/features/reading/types';
 
 import { formatReadTime, formatTodayLabel } from './format';
@@ -11,7 +11,7 @@ import type {
 } from './types';
 
 /** Valor usado quando `goal.pages` ainda não existe em `settings`. */
-export const FALLBACK_GOAL_PAGES = 18;
+export const FALLBACK_GOAL_PAGES = DEFAULT_GOAL_PAGES;
 
 /**
  * Lê a meta de `settings`. Texto vazio ou não numérico cai no padrão da seed;
