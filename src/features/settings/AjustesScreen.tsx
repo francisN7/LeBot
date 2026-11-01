@@ -4,6 +4,7 @@ import { View } from 'react-native';
 
 import { AppText, Button, Card, Chip, Screen } from '@/components/ui';
 import { useGenres } from '@/features/genres';
+import { ReviewFieldsCard } from './ReviewFieldsCard';
 import { toSettingRows } from './rows';
 import { useSettings } from './use-settings';
 
@@ -58,6 +59,8 @@ export function AjustesScreen({ onOpenGenres }: AjustesScreenProps = {}) {
           variant="secondary"
         />
       </Card>
+
+      <ReviewFieldsCard />
 
       <Card className="gap-xs">
         <AppText variant="subtitle">Sobre o LêBot</AppText>
