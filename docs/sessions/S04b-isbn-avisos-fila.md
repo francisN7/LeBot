@@ -42,13 +42,13 @@ tabela oficial da International ISBN Agency, require cycle e aviso de
 
 ## Aceite
 
-- [ ] Máscara do ISBN usa a tabela oficial e acerta grupos diferentes (0, 85,
+- [x] Máscara do ISBN usa a tabela oficial e acerta grupos diferentes (0, 85,
       3, 979), gerada por script com a data do XML.
-- [ ] `npx expo start` sem require cycle; o aviso de `ImageBackground` está
+- [x] `npx expo start` sem require cycle; o aviso de `ImageBackground` está
       explicado e decidido (não escondido).
-- [ ] Fila mostra a capa real na próxima parada e em "Depois", caindo na
+- [x] Fila mostra a capa real na próxima parada e em "Depois", caindo na
       lombada quando não há capa.
-- [ ] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
+- [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
 - [ ] Conferido no Android pelo dono.
 
 ## Contexto necessário
@@ -72,5 +72,4 @@ tabela oficial da International ISBN Agency, require cycle e aviso de
 
 ## Próximo depois desta
 
-S4c — movimento e vida (`docs/sessions/S04c-movimento.md`), já implementada; falta
-conferir no Android.
+S5 — registro de leitura (`docs/sessions/S05-registro-leitura.md`).

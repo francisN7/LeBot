@@ -41,4 +41,33 @@ describe('FilaScreen', () => {
     expect(screen.getByText('1 livro esperando a sua vez')).toBeOnTheScreen();
     expect(screen.queryByText('Coraline')).not.toBeOnTheScreen();
   });
+
+  it('cai na lombada quando o livro não tem capa', async () => {
+    await renderWithProviders(<FilaScreen />);
+
+    expect(
+      screen.getByLabelText('Lombada de Orgulho e Preconceito'),
+    ).toBeOnTheScreen();
+    expect(screen.getByLabelText('Lombada de Coraline')).toBeOnTheScreen();
+    expect(screen.queryByLabelText('Capa de Coraline')).not.toBeOnTheScreen();
+  });
+
+  it('mostra a capa real na próxima parada e em "Depois"', async () => {
+    const withCovers = testBookRows.map((row) => ({
+      ...row,
+      coverUri: `covers/${row.id}.jpg`,
+    }));
+
+    await renderWithProviders(<FilaScreen />, {
+      booksRepository: createInMemoryBooksRepository(withCovers),
+    });
+
+    expect(
+      screen.getByLabelText('Capa de Orgulho e Preconceito'),
+    ).toBeOnTheScreen();
+    expect(screen.getByLabelText('Capa de Coraline')).toBeOnTheScreen();
+    expect(
+      screen.queryByLabelText('Lombada de Coraline'),
+    ).not.toBeOnTheScreen();
+  });
 });

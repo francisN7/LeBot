@@ -5,7 +5,36 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 ## [Unreleased]
 
-Sem mudanças pendentes: a S4b é a próxima sessão.
+Sem mudanças pendentes: a S5 é a próxima sessão.
+
+## S4b — ISBN oficial, avisos do terminal e capa na Fila
+
+### Added
+
+- `src/lib/isbn-ranges.ts`: tabela oficial de faixas do ISBN, gerada por
+  `scripts/build-isbn-ranges.mjs` a partir do XML da International ISBN Agency
+  (287 grupos, 1889 faixas), com serial e data no cabeçalho. O app não
+  consulta a rede.
+- `formatIsbnInput` resolve grupo, registrante e publicação pela tabela: cobre
+  `978-0-306-40615-7`, `978-85-359-0277-8`, `978-3-16-148410-0` e
+  `979-10-90636-07-1`, e não "pula" com poucos dígitos.
+- Fila: capa real (`BookCover` 72×104) na próxima parada e em "Depois", com
+  lombada de fallback, fita do gênero e posição na fila.
+
+### Changed
+
+- `GenresScreen` e `FilaScreen` importam `@/features/library/use-books` e
+  `/genre` direto, cortando o require cycle `library ↔ genres`.
+- `isbn.test.ts` cobre os grupos da tabela e a digitação parcial.
+- `docs/data-model.md`, `docs/architecture.md` e `docs/testing.md` explicam a
+  máscara pela tabela oficial.
+- `/tmp/` no `.gitignore` (XML baixado pelo script).
+
+### Fixed
+
+- Aviso `ImageBackground is deprecated`: causa rastreada (getter do RN 0.88
+  tocado pelo `react-native-css-interop` do NativeWind 4) e decisão registrada
+  na ADR 0006 — aceitar e documentar, sem `LogBox.ignoreLogs`.
 
 ## S4c — Movimento e vida
 

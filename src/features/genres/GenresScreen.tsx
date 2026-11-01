@@ -8,7 +8,7 @@ import {
   Chip,
   Screen,
 } from '@/components/ui';
-import { useBooks } from '@/features/library';
+import { useBooks } from '@/features/library/use-books';
 import { resolveGenreColor, sizes } from '@/theme';
 
 import type { Genre } from './types';

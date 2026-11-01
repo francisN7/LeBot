@@ -28,7 +28,8 @@ Constraints: `books_pages_positive`, `books_pages_read_range` e índice único
 A validade do ISBN (dígito verificador) é checada em `src/lib/isbn.ts` e no Zod
 do repositório; o banco só guarda o valor já normalizado (dígitos e `X`). A
 máscara com hífens (`formatIsbnInput`) existe só na UI: o formulário formata
-enquanto o dono digita, mas o valor salvo não tem hífen.
+enquanto o dono digita, mas o valor salvo não tem hífen — ver
+[Máscara do ISBN](#máscara-do-isbn) no fim.
 
 `books.genre` não tem FK para `genres`: o SQLite exigiria recriar a tabela, e a
 migração precisa ser aditiva. A integridade fica no repositório de gêneros:
@@ -117,3 +118,29 @@ código roda no aparelho (`expo-sqlite`) e nos testes (`sql.js`).
 - Exibição: `BookCover` cuida do arredondamento, da borda navy e da fita do
   gênero; `Bookmark` desenha a fita em SVG. Sem capa, `Spine` usa a cor do
   gênero do mapa `genreById`.
+
+## Máscara do ISBN
+
+`formatIsbnInput` resolve o grupo, o registrante e a publicação pela tabela
+oficial da International ISBN Agency, e não pelo padrão brasileiro fixo:
+
+- **Tabela:** `src/lib/isbn-ranges.ts` é gerado por
+  `node scripts/build-isbn-ranges.mjs [xml]` a partir de
+  `https://www.isbn-international.org/export_rangemessage.xml`. O cabeçalho
+  guarda `MessageSerialNumber`, `MessageDate` e a contagem de grupos/faixas; o
+  app nunca consulta a rede.
+- **Formato:** cada grupo vira uma string `inicio:tamanho` por faixa, em ordem
+  crescente. O fim de uma faixa é o início da seguinte menos um. `tamanho` 0
+  marca faixa sem registrante definido e não recebe hífen. O script quebra se a
+  agência mandar faixas com lacuna.
+- **Grupo:** o mais longo prefixo válido do EAN (1 a 5 dígitos). Enquanto o
+  texto digitado não fecha nenhum grupo, a máscara devolve os dígitos crus.
+- **Registrante:** com 7 dígitos depois do grupo a faixa é exata; com menos, o
+  hífen só entra se todas as faixas candidatas tiverem o mesmo tamanho. É o que
+  evita a máscara "pular" durante a digitação.
+- **ISBN-10:** usa o grupo do prefixo 978 e o mesmo algoritmo, sem o EAN na
+  saída. O dígito verificador só é separado quando o código fecha (10 ou 13
+  dígitos).
+
+Exemplos: `978-0-306-40615-7`, `978-85-359-0277-8`, `978-3-16-148410-0`,
+`979-10-90636-07-1` e `85-359-0277-2`. O banco continua guardando só dígitos.

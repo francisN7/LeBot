@@ -38,6 +38,7 @@ yarn-debug.*
 yarn-error.*
 *.orig.*
 *.tsbuildinfo
+/tmp/
 
 # Sistema
 .DS_Store

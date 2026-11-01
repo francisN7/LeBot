@@ -60,7 +60,9 @@ SQLite (expo-sqlite + Drizzle)
 - Busca: filtro em memória (`src/lib/book-search.ts`) sobre a lista do
   `useBooks`, combinado com o chip de status.
 - ISBN: `src/lib/isbn.ts` valida dígito verificador de ISBN-10/13; o
-  repositório grava normalizado e recusa duplicado.
+  repositório grava normalizado e recusa duplicado. A máscara de UI usa a
+  tabela oficial de faixas (`src/lib/isbn-ranges.ts`, gerada do XML da
+  International ISBN Agency por `scripts/build-isbn-ranges.mjs`).
 - Capa: `CoverService` (`src/lib/covers.ts`) escolhe na galeria
   (`expo-image-picker`), copia para `documentDirectory/covers/<id>.jpg`
   (`expo-file-system`) e remove ao trocar/excluir. A implementação nativa

@@ -26,6 +26,23 @@ describe('formatIsbnInput', () => {
     expect(formatIsbnInput('9788535902772')).toBe('978-85-359-0277-2');
   });
 
+  it('usa a tabela oficial para grupos diferentes', () => {
+    expect(formatIsbnInput('9780306406157')).toBe('978-0-306-40615-7');
+    expect(formatIsbnInput('9788535902778')).toBe('978-85-359-0277-8');
+    expect(formatIsbnInput('9783161484100')).toBe('978-3-16-148410-0');
+    expect(formatIsbnInput('9791090636071')).toBe('979-10-90636-07-1');
+  });
+
+  it('não pula enquanto o grupo ou o registrante é ambíguo', () => {
+    // Grupo 0: "3" cai entre faixas de tamanhos diferentes, "306" já fecha 3.
+    expect(formatIsbnInput('97803')).toBe('978-0-3');
+    expect(formatIsbnInput('9780306')).toBe('978-0-306');
+    expect(formatIsbnInput('978030640')).toBe('978-0-306-40');
+    // Sem grupo válido ainda (979-1 não existe): a máscara espera o "0".
+    expect(formatIsbnInput('9791')).toBe('9791');
+    expect(formatIsbnInput('97910')).toBe('979-10');
+  });
+
   it('reaplica a máscara sobre texto já hifenizado', () => {
     expect(formatIsbnInput('978-85-359-0277-2')).toBe('978-85-359-0277-2');
     expect(formatIsbnInput(' 85 359 0277 2 ')).toBe('85-359-0277-2');

@@ -47,3 +47,26 @@ verdade em `src/theme/`.
 
 - **NativeWind 5 RC:** risco de RC + par de versões fixas sem ganho imediato.
 - **StyleSheet puro:** contraria a spec e aumenta o custo de manter 4 telas.
+
+## Adendo S4b — aviso de `ImageBackground` no terminal
+
+O `npx expo start` mostra `ImageBackground is deprecated and will be removed in
+a future release`. Não é código do app (não há `ImageBackground` em `src/`):
+
+1. `react-native/index.js` expõe `ImageBackground` por um getter que chama
+   `warnOnce('image-background-deprecated', …)` — a depreciação é do React
+   Native 0.88, não do NativeWind.
+2. `react-native-css-interop@0.2.7` (par do NativeWind 4.2.7) toca essa
+   propriedade no boot, em `dist/runtime/components.js`, ao chamar
+   `remapProps(ImageBackground, …)`, e dispara o aviso uma vez.
+
+**Decisão: aceitar e documentar.** O aviso é de desenvolvimento, não afeta o
+bundle de produção nem o comportamento, e `LogBox.ignoreLogs` só esconderia o
+sintoma — inclusive se o app um dia usar o componente de verdade.
+
+- **Patchear** (`patch-package`/`pnpm patch`) exigiria editar `node_modules` e
+  quebraria a cada atualização do par css-interop/NativeWind.
+- **Migrar para NativeWind 5** já é o caminho natural quando o SDK subir
+  (consequências acima); a migração resolve o aviso junto, sem gambiarra.
+- Revisar este adendo na sessão de release (S12): se o NativeWind 5 estiver
+  estável, trocar; senão, manter documentado.

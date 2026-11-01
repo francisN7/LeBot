@@ -2,77 +2,71 @@
 
 ## Sessão
 
-- **Atual:** nenhuma aberta (S4a e S4c concluídas e validadas no Android)
-- **Última concluída:** S4a (identidade 3D vetorial) e S4c (movimento e vida)
-- **Próxima:** S4b (`docs/sessions/S04b-isbn-avisos-fila.md`): tabela oficial do
-  ISBN, require cycle, aviso de `ImageBackground` e capa na Fila. A S4c foi
-  executada antes dela, por decisão do dono.
+- **Atual:** S4b implementada; falta só a conferência no Android pelo dono.
+- **Última concluída:** S4b (ISBN oficial, avisos do terminal, capa na Fila).
+- **Próxima:** S5 (`docs/sessions/S05-registro-leitura.md`): registrar sessão de
+  leitura e ver progresso.
 
-## Pronto (S4a — identidade)
+## Pronto (S4b — ISBN, avisos e Fila)
 
-- Arte vetorial paramétrica (ADR 0011), sem WebP: `color-mix.ts` mistura hexes;
-  `spine-art.ts` mapeia cor + status → expressão (`happy`, `sleepy`, `shine`,
-  `neutral`) e paleta (base, sombra, brilho, rosto por contraste); fallback 2D
-  sem status ou com hex inválido.
-- `SpineArtwork` + `SpineFace` (olhos/boca separados) e `Spine` com `status`,
-  nos tamanhos 88×128 e 72×104. Etiqueta de título sobre `cream/95`.
-- `Mascot` com os 6 estados e `mascotLabel`; na Hoje e no estado vazio da
-  Estante (neutro vazio / pensando sem resultado).
-- Estante com profundidade (`Card` aceita `style`) e capa real quando existe.
-- Ícone/splash definitivos de `brand/source/{mark,mark-mono}.svg` via
-  `node scripts/build-icons.mjs` (sharp em dev); ~87 KB no total.
-- Detalhe do livro passou a usar a lombada 3D (correção após print do dono).
+- `src/lib/isbn-ranges.ts` gerado por `node scripts/build-isbn-ranges.mjs [xml]`
+  do `export_rangemessage.xml` (287 grupos, 1889 faixas, serial e data no
+  cabeçalho). O script baixa o XML quando não recebe caminho; quebra se a agência
+  mandar faixas com lacuna.
+- `formatIsbnInput` resolve grupo (prefixo mais longo), registrante (faixa
+  exata com 7 dígitos) e publicação; com pouco dígito só entra hífen quando as
+  faixas candidatas concordam — nada de "pulo". ISBN-10 usa o grupo do 978.
+- Require cycle `library ↔ genres` cortado: `GenresScreen` e `FilaScreen` usam
+  `@/features/library/use-books` e `@/features/library/genre`, não o barril.
+- `ImageBackground is deprecated` é do RN 0.88 (`warnOnce` no getter do
+  `react-native/index.js`) disparado pelo `remapProps` do
+  `react-native-css-interop@0.2.7` no boot. Decisão: aceitar e documentar
+  (adendo na ADR 0006), sem `LogBox.ignoreLogs`.
+- Fila: `BookCover` 72×104 na próxima parada e em "Depois", com `Spine` de
+  fallback, fita do gênero e `status`; testes com e sem capa.
 
-## Pronto (S4c — movimento)
+## Pronto (S4a/S4c, resumo)
 
-- Lombada: piscada, brilho varrendo o corpo, "z" pulsando no sono e mola de
-  toque; `animated` liga a flutuação contínua (só no detalhe).
-- Estante: `FadeInDown` em cascata por card ao trocar filtro/busca.
-- Detalhe: lombada flutuando e capa com brilho atravessando.
-- `BookCover` como livro: bloco de páginas, brilho diagonal, selo do status
-  (proporcional ao tamanho) e mola no toque.
-- `Mascot`: acessórios pulsando, fade na troca de estado, respiração mais visível.
-- Hoje: entrada em cascata dos dois cards principais.
+- Lombada 3D paramétrica (cor + status → expressão/paleta), mascote de 6 estados,
+  ícone/splash de `brand/source/` e movimento (piscada, brilho, mola, cascata).
+  Detalhes no git e em `docs/sessions/S04a-identidade-3d.md` / `S04c-movimento.md`.
 
 ## Decisões abertas
 
-- Ícone, splash e camada monocromática só aparecem em build nativo: o Expo Go
-  mostra a própria tela de download. Conferir no APK da S12 (critério de aceite
-  já atualizado lá).
-- Transição compartilhada Estante → detalhe ("voo" da lombada) e contagem
-  animada da meta ficaram para depois do S7 (plano real).
+- Ícone, splash e camada monocromática só aparecem em build nativo (S12).
+- Transição compartilhada Estante → detalhe e contagem animada da meta ficaram
+  para depois do S7.
 - `useReducedMotion` (acessibilidade) ainda não é usado; backlog.
-- `ImageBackground is deprecated` (NativeWind 4) segue aberto para a S4b.
 - Tema escuro: `resolveGenreColor(..., 'dark')` já é aceito, mas a UI usa claro.
 - `cover_uri` é absoluto: o backup (S11) decide entre referência e imagem.
+- Se o NativeWind 5 estabilizar, a migração resolve o aviso de
+  `ImageBackground` de vez (revisar na S12).
 
 ## Arquivos-chave
 
-- `src/lib/color-mix.ts`, `src/features/library/spine-art.ts`
-- `src/components/ui/{Spine,SpineArtwork,SpineFace,Mascot,BookCover}.tsx`
-- `src/features/library/{EstanteScreen,BookDetailScreen}.tsx`,
-  `src/features/today/HojeScreen.tsx`
-- `brand/source/{mark,mark-mono}.svg`, `scripts/build-icons.mjs`,
-  `assets/images/*`
+- `scripts/build-isbn-ranges.mjs`, `src/lib/isbn-ranges.ts`, `src/lib/isbn.ts`
+- `src/features/queue/FilaScreen.tsx` (+ teste)
+- `src/features/genres/GenresScreen.tsx` (import direto)
+- `docs/adr/0006-design-system-nativewind.md` (adendo S4b)
 
 ## Armadilhas
 
+- `isbn-ranges.ts` é gerado: nunca editar à mão. O script emite a mesma forma
+  que o Biome formata (valor na linha de baixo quando passa de 80 colunas).
+- `debug` da máscara: o grupo 979 não tem grupo de 1 dígito; `9791` fica sem
+  hífen até o `0` fechar `979-10`.
 - Reanimated no Jest só funciona com `"resolver":
-  "react-native-reanimated/jest/resolver"` no `package.json`; sem ele o import
-  explode em `loadUnpackersWithCode`. Não precisa de mock.
+  "react-native-reanimated/jest/resolver"` no `package.json`.
 - Dois `useAnimatedStyle` que definem `transform` no mesmo `View` se
-  sobrescrevem: combine num único estilo (caso da flutuação + toque no `Spine`).
+  sobrescrevem: combine num único estilo.
 - `accessibilityElementsHidden` esconde o elemento das queries do RTL: `testID`
-  de arte vai no `View` que envolve o SVG, não no `<Svg>`. O selo da capa não usa
-  esse atributo justamente para o teste alcançar.
-- `sharp` é devDependency e não entra no bundle; os PNGs são commitados. O
-  script rasteriza já no tamanho final (resize depois deixa halo claro).
-- Rota nova só tipa depois de gerar `.expo/types/router.d.ts`
-  (`npm start` ou `npx expo start --offline`).
-- `expo-sqlite`, `expo-file-system` e `expo-image-picker` não rodam no Jest;
+  de arte vai no `View` que envolve o SVG, não no `<Svg>`.
+- `sharp` é devDependency e não entra no bundle; os PNGs são commitados.
+- Rota nova só tipa depois de gerar `.expo/types/router.d.ts` (`npm start`).
+- `expo-sqlite`, `expo-image-picker` e `expo-file-system` não rodam no Jest;
   banco por `sql.js`, capa por contexto.
-- Metro avisa require cycle quando uma feature importa o barril de outra (S4b
-  corrige com import direto).
+- Metro avisa require cycle quando uma feature importa o barril de outra: dentro
+  de `src/features/`, importe caminho direto.
 - Fontes: família com peso, nunca `fontWeight`; `lineHeight` < 1.15× corta
   descendentes; `label` **não** leva `letterSpacing`.
 
@@ -82,5 +76,6 @@
 npm install && npm start      # Expo Go
 npm run lint && npm run typecheck && npm run test
 npm run doctor && npx expo export --platform android --output-dir dist
-node scripts/build-icons.mjs  # regera ícone/splash
+node scripts/build-icons.mjs         # regera ícone/splash
+node scripts/build-isbn-ranges.mjs   # regera a tabela do ISBN (baixa o XML)
 ```

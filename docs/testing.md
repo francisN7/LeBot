@@ -73,7 +73,9 @@ para isso.
 ## Cobertura da S3
 
 - `src/lib/isbn.test.ts`: ISBN-10/13 válidos, dígito errado, tamanho e `X`;
-  máscara de UI (`8535` → `85-35`, `97885359027` → `978-85-359-027`).
+  máscara de UI (`8535` → `85-35`, `97885359027` → `978-85-359-027`). Na S4b
+  ganhou os grupos da tabela oficial (0, 85, 3, 979-10) e a digitação parcial
+  sem "pulo".
 - `src/lib/book-search.test.ts`: busca sem acento/caixa e busca vazia.
 - `src/lib/covers.test.ts`: nome do arquivo e `hasCover`.
 - `src/db/repositories/books.test.ts`: ISBN normalizado, inválido, duplicado,
@@ -126,3 +128,14 @@ claras, recorte da borda em telas de baixa densidade e o "r" final no chip.
 
 O que continua manual: respiração/piscada e ícone no launcher do Android. Não há
 snapshot de imagem nem de árvore para arte.
+
+## Cobertura da S4b
+
+- `src/lib/isbn.test.ts`: grupos da tabela oficial (`978-0`, `978-85`, `978-3`,
+  `979-10`) e a digitação parcial que não "pula" (`978-0-3` → `978-0-306`).
+- `FilaScreen.test.tsx`: próxima parada e "Depois" com capa real
+  (`Capa de <título>`) e com fallback de lombada (`Lombada de <título>`).
+- `scripts/build-isbn-ranges.mjs` não tem teste próprio: ele valida o XML
+  (faixas contíguas, EAN conhecido) e quebra antes de gravar. Conferir com
+  `node scripts/build-isbn-ranges.mjs` que o arquivo gerado não muda sem uma
+  atualização real da agência.
