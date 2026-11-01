@@ -12,6 +12,7 @@ import {
 } from '@/components/ui';
 import { readingStatuses } from '@/db/schema';
 import { useGenres } from '@/features/genres';
+import { useReadingSessions } from '@/features/reading/use-reading-sessions';
 import { createId } from '@/lib/id';
 import { formatIsbnInput, isValidIsbn, normalizeIsbn } from '@/lib/isbn';
 import { colors } from '@/theme';
@@ -61,6 +62,7 @@ export function BookFormScreen({
   const { books, create, update } = useBooks();
   const { genres, genreById } = useGenres();
   const covers = useCoverService();
+  const { sessions } = useReadingSessions(bookId ?? '');
   const existing = bookId
     ? books.find((book) => book.id === bookId)
     : undefined;
@@ -90,6 +92,10 @@ export function BookFormScreen({
 
   const storedCover = existing?.coverUri ?? null;
   const previewCover = pickedCover ?? (dropStoredCover ? null : storedCover);
+  const recordedPages = sessions.reduce(
+    (total, session) => total + session.appliedPages,
+    0,
+  );
 
   const isbnDigits = normalizeIsbn(form.isbn);
   const isbnComplete = isbnDigits.length === 10 || isbnDigits.length === 13;
@@ -131,7 +137,7 @@ export function BookFormScreen({
       return;
     }
 
-    const result = validateBookForm(form, null);
+    const result = validateBookForm(form, null, recordedPages);
 
     if (!result.ok) {
       setErrors(result.errors);
@@ -215,7 +221,11 @@ export function BookFormScreen({
         />
         <TextField
           error={errors.pagesRead}
-          hint="Comece do zero ou de onde você parou."
+          hint={
+            recordedPages > 0
+              ? `Já registradas: ${recordedPages}. Para reduzir, desfaça as sessões no detalhe.`
+              : 'Comece do zero ou de onde você parou.'
+          }
           keyboardType="number-pad"
           label="Páginas lidas"
           onChangeText={(value) => setText('pagesRead', value)}

@@ -72,6 +72,8 @@ const fieldsWithErrors = [
 export function validateBookForm(
   state: BookFormState,
   coverUri: string | null,
+  /** Páginas que as sessões já registradas colocaram no progresso. */
+  recordedPages = 0,
 ): BookFormResult {
   const parsed = bookFormSchema.safeParse(state);
 
@@ -95,6 +97,15 @@ export function validateBookForm(
       ok: false,
       errors: {
         pagesRead: 'As páginas lidas não podem passar do total',
+      },
+    };
+  }
+
+  if (parsed.data.pagesRead < recordedPages) {
+    return {
+      ok: false,
+      errors: {
+        pagesRead: `Há ${recordedPages} páginas registradas nas sessões. Desfaça no detalhe para reduzir.`,
       },
     };
   }

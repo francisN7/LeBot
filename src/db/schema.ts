@@ -101,6 +101,12 @@ export const readingSessions = sqliteTable(
     pages: integer('pages').notNull(),
     /** Dia da leitura (não o momento em que o registro foi salvo). */
     readAt: integer('read_at', { mode: 'timestamp_ms' }).notNull(),
+    /**
+     * Páginas que entraram de fato em `books.pages_read`; menor que `pages`
+     * quando a sessão passou do fim do livro. `NULL` nas linhas gravadas antes
+     * da S5.1 — nesse caso vale `pages`.
+     */
+    appliedPages: integer('applied_pages'),
     createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
     updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull(),
   },

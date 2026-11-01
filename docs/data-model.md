@@ -42,6 +42,7 @@ excluir um gênero em uso é bloqueado, e o último gênero nunca sai.
 | `id` | text | PK; `reading-<base36>` gerado em `src/lib/id.ts` |
 | `book_id` | text | `books.id`; indexado (`reading_sessions_book_idx`) |
 | `pages` | integer | > 0 (`reading_sessions_pages_positive`); o que foi lido na sessão |
+| `applied_pages` | integer | quanto de `pages` entrou em `books.pages_read`; `NULL` nas linhas anteriores à S5.1 (vale `pages`) |
 | `read_at` | integer | dia da leitura (`timestamp_ms`), não o momento do salvamento |
 | `created_at` / `updated_at` | integer | ms desde 1970 |
 
@@ -56,6 +57,10 @@ repositório de leitura, que recusa livro inexistente.
   transação. Nenhuma tela soma sessões por conta própria.
 - Sessão maior que o restante é aceita: o histórico guarda `pages` como foi
   digitado, mas `pages_read` para no total (`appliedPages` < `pages` avisa a UI).
+- `applied_pages` guarda o que entrou de fato; desfazer a sessão desconta esse
+  valor, não o digitado.
+- O formulário do livro e o repositório impedem `pages_read` abaixo da soma de
+  `applied_pages` das sessões: para reduzir, é preciso desfazer os registros.
 - Chegar ao total muda o status para `finished` na mesma transação; desfazer
   essa sessão volta para `reading` (ADR 0012).
 
@@ -100,6 +105,9 @@ Chaves usadas hoje: `goal.pages`, `reminder.time`, `appearance.theme`,
 - `0003_cloudy_pretty_boy.sql` é aditiva: `CREATE TABLE reading_sessions` e o
   índice `reading_sessions_book_idx`. Banco da S0–S4 ganha a tabela vazia, sem
   perder livros nem gêneros.
+- `0004_clever_turbo.sql` é aditiva: `ALTER TABLE reading_sessions ADD
+  applied_pages integer`. As linhas existentes ficam com `NULL` e valem como
+  `pages` até serem desfeitas.
 
 Para criar uma migração:
 

@@ -185,6 +185,7 @@ describe('BookDetailScreen', () => {
         id: 'reading-1',
         bookId: row.id,
         pages: 20,
+        appliedPages: 20,
         readAt: time,
         createdAt: time,
         updatedAt: time,

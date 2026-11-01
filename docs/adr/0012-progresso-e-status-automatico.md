@@ -36,6 +36,9 @@ Restrições:
 
 - `session.pages` guarda o valor digitado (histórico fiel).
 - `pages_read` recebe `min(pages, restante)`; o retorno traz `appliedPages`.
+- A coluna `applied_pages` (S5.1, migração `0004`) guarda esse valor aplicado;
+  desfazer desconta `applied_pages`, não `pages`, e as linhas antigas com `NULL`
+  valem como `pages`.
 - A UI compara e avisa **antes** de salvar: "Só faltam N páginas: o progresso
   para no fim do livro." Nada é truncado em silêncio.
 - Sessão em livro já concluído é recusada no repositório, não na tela.
@@ -50,6 +53,14 @@ Restrições:
   promovido a `finished`. Quem estava na fila e foi lido sem trocar o status
   continua `queued` até o dono ajustar.
 - Conclusão com resenha continua na S9; a S5 só muda o status.
+
+### O histórico manda no piso do progresso (S5.1)
+
+- Editar "Páginas lidas" não pode ir abaixo da soma de `applied_pages` das
+  sessões: o histórico deixaria de explicar o número.
+- A trava é dupla — validação no formulário (`validateBookForm`) com aviso, e
+  guarda no repositório de livros para quem chamar a API direto.
+- Para reduzir, o caminho é desfazer os registros no detalhe do livro.
 
 ## Consequências
 

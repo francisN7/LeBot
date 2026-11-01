@@ -1,0 +1,1 @@
+ALTER TABLE `reading_sessions` ADD `applied_pages` integer;

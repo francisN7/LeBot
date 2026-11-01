@@ -158,6 +158,10 @@ snapshot de imagem nem de árvore para arte.
   hora, conclusão automática e desfazer com confirmação.
 - `FilaScreen.test.tsx`: "Começar" abre o registro com as páginas do plano,
   salva e o livro já aparece concluído na parada seguinte.
+- `src/features/library/BookFormScreen.test.tsx`: o formulário mostra as
+  páginas já registradas e recusa baixar `pages_read` abaixo delas.
+- `src/db/repositories/books.test.ts`: a guarda do repositório repete a regra
+  mesmo que a UI seja contornada.
 
 O que continua manual: teclado numérico do Android, tamanho do modal em tela
 pequena e a barra de progresso em densidades diferentes.

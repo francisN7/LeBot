@@ -1,10 +1,15 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { z } from 'zod';
 
 import { createId } from '@/lib/id';
 import { isValidIsbn, toStoredIsbn } from '@/lib/isbn';
 
-import { type BookRow, books, readingStatuses } from '../schema';
+import {
+  type BookRow,
+  books,
+  readingSessions,
+  readingStatuses,
+} from '../schema';
 import type { AppDatabase } from '../types';
 
 const isbnField = z
@@ -54,9 +59,26 @@ export type BooksRepository = {
 
 const DUPLICATE_ISBN = 'Já existe um livro com este ISBN';
 
+function pagesAlreadyRecorded(recorded: number): string {
+  return `Há ${recorded} páginas registradas nas sessões de leitura. Desfaça os registros no detalhe para baixar o progresso.`;
+}
+
 export function createBooksRepository<TRunResult>(
   db: AppDatabase<TRunResult>,
 ): BooksRepository {
+  /** Soma do que as sessões já colocaram em `pages_read` (ignora órfãs). */
+  function recordedPages(bookId: string): number {
+    const row = db
+      .select({
+        total: sql<number>`coalesce(sum(coalesce(${readingSessions.appliedPages}, ${readingSessions.pages})), 0)`,
+      })
+      .from(readingSessions)
+      .where(eq(readingSessions.bookId, bookId))
+      .get();
+
+    return row?.total ?? 0;
+  }
+
   /** O índice único do banco também protege, mas aqui a mensagem fica clara. */
   function assertIsbnAvailable(isbn: string | null, exceptId?: string): void {
     if (!isbn) {
@@ -116,6 +138,13 @@ export function createBooksRepository<TRunResult>(
       });
 
       assertIsbnAvailable(merged.isbn, id);
+
+      // O histórico de sessões manda: `pages_read` não pode ficar abaixo dele.
+      const recorded = recordedPages(id);
+
+      if (merged.pagesRead < recorded) {
+        throw new Error(pagesAlreadyRecorded(recorded));
+      }
 
       return db
         .update(books)

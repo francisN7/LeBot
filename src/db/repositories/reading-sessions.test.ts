@@ -5,6 +5,7 @@ import {
   BOOK_NOT_FOUND,
   createReadingSessionsRepository,
 } from '@/db/repositories/reading-sessions';
+import { books, readingSessions } from '@/db/schema';
 import { createTestDatabase } from '@/test-utils/sqlite';
 
 const baseBook: CreateBookInput = {
@@ -22,7 +23,7 @@ async function setup(overrides: Partial<CreateBookInput> = {}) {
   const books = createBooksRepository(db);
   books.create({ ...baseBook, ...overrides });
 
-  return { books, repository: createReadingSessionsRepository(db) };
+  return { db, books, repository: createReadingSessionsRepository(db) };
 }
 
 describe('reading sessions repository', () => {
@@ -61,9 +62,42 @@ describe('reading sessions repository', () => {
     const write = repository.create({ bookId: 'book-1', pages: 25 });
 
     expect(write.session.pages).toBe(25);
+    expect(write.session.appliedPages).toBe(10);
     expect(write.appliedPages).toBe(10);
     expect(write.book.pagesRead).toBe(100);
     expect(write.book.status).toBe('finished');
+  });
+
+  it('desfaz a sessão clampada devolvendo só o que entrou', async () => {
+    const { repository } = await setup({ pagesRead: 90 });
+    const write = repository.create({ bookId: 'book-1', pages: 25 });
+
+    const removal = repository.remove(write.session.id);
+
+    expect(removal?.appliedPages).toBe(10);
+    expect(removal?.book?.pagesRead).toBe(90);
+  });
+
+  it('trata sessão anterior à S5.1 como páginas cheias', async () => {
+    const { db, repository } = await setup();
+    const time = new Date('2026-10-20T10:00:00.000Z');
+
+    db.insert(readingSessions)
+      .values({
+        id: 'reading-old',
+        bookId: 'book-1',
+        pages: 15,
+        appliedPages: null,
+        readAt: time,
+        createdAt: time,
+        updatedAt: time,
+      })
+      .run();
+
+    const removal = repository.remove('reading-old');
+
+    expect(removal?.appliedPages).toBe(10);
+    expect(removal?.book?.pagesRead).toBe(0);
   });
 
   it('recusa livro inexistente, páginas inválidas e livro já concluído', async () => {
@@ -153,10 +187,11 @@ describe('reading sessions repository', () => {
   });
 
   it('nunca deixa o progresso negativo ao desfazer', async () => {
-    const { books, repository } = await setup({ pagesRead: 90 });
+    const { db, repository } = await setup({ pagesRead: 90 });
     const write = repository.create({ bookId: 'book-1', pages: 10 });
 
-    books.update('book-1', { pagesRead: 4 });
+    // Estado impossível pela API (o update barra), simulado para checar a guarda.
+    db.update(books).set({ pagesRead: 4 }).run();
 
     const removal = repository.remove(write.session.id);
 

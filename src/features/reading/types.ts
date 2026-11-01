@@ -4,7 +4,10 @@ import type { ReadingSessionRow } from '@/db/schema';
 export type ReadingSession = {
   id: string;
   bookId: string;
+  /** Páginas digitadas no registro. */
   pages: number;
+  /** Páginas que entraram em `pages_read` (menor que `pages` no clamp). */
+  appliedPages: number;
   /** Dia da leitura. */
   readAt: Date;
 };
@@ -14,6 +17,8 @@ export function toReadingSession(row: ReadingSessionRow): ReadingSession {
     id: row.id,
     bookId: row.bookId,
     pages: row.pages,
+    // Linhas anteriores à S5.1 não guardam o valor aplicado.
+    appliedPages: row.appliedPages ?? row.pages,
     readAt: row.readAt,
   };
 }

@@ -5,8 +5,29 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 
 ## [Unreleased]
 
-Sem mudanças pendentes: a S5 está implementada e só espera a conferência no
-Android do dono; depois dela vem a S6.
+Sem mudanças pendentes: a S5 aguarda a conferência no Android do dono (trava de
+progresso e histórico); depois dela vem a S6.
+
+## S5.1 — Progresso não desce abaixo do histórico
+
+### Added
+
+- `reading_sessions.applied_pages` (migração aditiva `0004_clever_turbo.sql`):
+  guarda quanto de cada sessão entrou em `books.pages_read`. Linhas antigas com
+  `NULL` valem como `pages`.
+
+### Changed
+
+- `validateBookForm` recebe as páginas já registradas e recusa "Páginas lidas"
+  abaixo delas; o formulário mostra "Já registradas: N" no campo.
+- `update` do repositório de livros repete a guarda, mesmo se a UI for
+  contornada.
+
+### Fixed
+
+- Desfazer sessão clampada desconta só o que entrou no progresso, não o valor
+  digitado.
+- ADR 0012 e `docs/data-model.md` descrevem o piso e a coluna nova.
 
 ## S5 — Registro de leitura e progresso
 

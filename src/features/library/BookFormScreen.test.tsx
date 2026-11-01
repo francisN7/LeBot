@@ -1,11 +1,12 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 
-import type { BookRow } from '@/db/schema';
+import type { BookRow, ReadingSessionRow } from '@/db/schema';
 import { createFakeCoverService } from '@/test-utils/covers';
 import { renderWithProviders } from '@/test-utils/render';
 import {
   createInMemoryBooksRepository,
   createInMemoryGenresRepository,
+  createInMemoryReadingSessionsRepository,
   testGenreRows,
 } from '@/test-utils/repositories';
 
@@ -33,6 +34,9 @@ function bookRow(overrides: Partial<BookRow> = {}): BookRow {
 type FormOptions = {
   bookId?: string;
   genresRepository?: ReturnType<typeof createInMemoryGenresRepository>;
+  readingRepository?: ReturnType<
+    typeof createInMemoryReadingSessionsRepository
+  >;
 };
 
 function renderForm(
@@ -56,6 +60,7 @@ function renderForm(
       {
         booksRepository: repository,
         genresRepository: options.genresRepository,
+        readingRepository: options.readingRepository,
         coverService,
       },
     ),
@@ -273,6 +278,48 @@ describe('BookFormScreen', () => {
     await fireEvent.changeText(isbn, '9788535902778');
     expect(screen.getByDisplayValue('978-85-359-0277-8')).toBeOnTheScreen();
     expect(screen.getByText('ISBN válido')).toBeOnTheScreen();
+  });
+
+  it('não deixa baixar as páginas lidas abaixo do que foi registrado', async () => {
+    const row = bookRow({ pagesRead: 70 });
+    const repository = createInMemoryBooksRepository([row]);
+    const time = new Date('2026-10-30T10:00:00.000Z');
+    const sessions: ReadingSessionRow[] = [
+      {
+        id: 'reading-1',
+        bookId: row.id,
+        pages: 70,
+        appliedPages: 70,
+        readAt: time,
+        createdAt: time,
+        updatedAt: time,
+      },
+    ];
+    const form = renderForm(repository, {
+      bookId: row.id,
+      readingRepository: createInMemoryReadingSessionsRepository(
+        repository,
+        sessions,
+      ),
+    });
+    await form.render;
+
+    expect(
+      screen.getByText(
+        'Já registradas: 70. Para reduzir, desfaça as sessões no detalhe.',
+      ),
+    ).toBeOnTheScreen();
+
+    await fireEvent.changeText(screen.getByLabelText('Páginas lidas'), '0');
+    await fireEvent.press(screen.getByText('Salvar livro'));
+
+    expect(
+      screen.getByText(
+        'Há 70 páginas registradas nas sessões. Desfaça no detalhe para reduzir.',
+      ),
+    ).toBeOnTheScreen();
+    expect(form.onDone).not.toHaveBeenCalled();
+    expect(repository.findById(row.id)?.pagesRead).toBe(70);
   });
 
   it('avisa que o livro não existe', async () => {

@@ -1,4 +1,5 @@
 import { createBooksRepository } from '@/db/repositories/books';
+import { readingSessions } from '@/db/schema';
 import { createTestDatabase } from '@/test-utils/sqlite';
 
 const baseBook = {
@@ -178,5 +179,30 @@ describe('books repository', () => {
     const updated = repository.update('book-1', { coverUri: null });
 
     expect(updated?.coverUri).toBeNull();
+  });
+
+  it('não deixa o progresso ficar abaixo das sessões registradas', async () => {
+    const db = await createTestDatabase();
+    const repository = createBooksRepository(db);
+    repository.create({ ...baseBook, id: 'book-1', pagesRead: 20 });
+    const time = new Date('2026-10-30T10:00:00.000Z');
+
+    db.insert(readingSessions)
+      .values({
+        id: 'reading-1',
+        bookId: 'book-1',
+        pages: 20,
+        appliedPages: 20,
+        readAt: time,
+        createdAt: time,
+        updatedAt: time,
+      })
+      .run();
+
+    expect(() => repository.update('book-1', { pagesRead: 0 })).toThrow(
+      'Há 20 páginas registradas nas sessões de leitura. Desfaça os registros no detalhe para baixar o progresso.',
+    );
+    expect(repository.findById('book-1')?.pagesRead).toBe(20);
+    expect(repository.update('book-1', { pagesRead: 20 })?.pagesRead).toBe(20);
   });
 });

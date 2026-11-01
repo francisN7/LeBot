@@ -328,6 +328,7 @@ export function createInMemoryReadingSessionsRepository(
         id: `reading-fake-${nextId++}`,
         bookId: input.bookId,
         pages: input.pages,
+        appliedPages,
         readAt: input.readAt ?? now,
         createdAt: now,
         updatedAt: now,
@@ -359,7 +360,10 @@ export function createInMemoryReadingSessionsRepository(
         return { session, book: undefined, appliedPages: 0 };
       }
 
-      const appliedPages = Math.min(session.pages, book.pagesRead);
+      const appliedPages = Math.min(
+        session.appliedPages ?? session.pages,
+        book.pagesRead,
+      );
       const pagesRead = book.pagesRead - appliedPages;
       const updated = booksRepository.update(book.id, {
         pagesRead,

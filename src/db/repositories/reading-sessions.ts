@@ -40,6 +40,12 @@ export type ReadingSessionRemoval = {
   appliedPages: number;
 };
 
+/** Páginas da sessão que entraram de fato no progresso. */
+export function appliedPagesOf(row: ReadingSessionRow): number {
+  // Linhas gravadas antes da S5.1 não têm a coluna; nelas vale `pages`.
+  return row.appliedPages ?? row.pages;
+}
+
 export type ReadingSessionsRepository = {
   listByBook(bookId: string): ReadingSessionRow[];
   /** Sessões com `readAt` entre `from` e `to`, inclusive. */
@@ -107,6 +113,7 @@ export function createReadingSessionsRepository<TRunResult>(
             id: createId('reading'),
             bookId: parsed.bookId,
             pages: parsed.pages,
+            appliedPages,
             readAt: parsed.readAt ?? now,
             createdAt: now,
             updatedAt: now,
@@ -154,7 +161,7 @@ export function createReadingSessionsRepository<TRunResult>(
           return { session, book: undefined, appliedPages: 0 };
         }
 
-        const appliedPages = Math.min(session.pages, book.pagesRead);
+        const appliedPages = Math.min(appliedPagesOf(session), book.pagesRead);
         const pagesRead = book.pagesRead - appliedPages;
         const updatedBook = tx
           .update(books)

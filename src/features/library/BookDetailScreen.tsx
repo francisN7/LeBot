@@ -164,7 +164,7 @@ export function BookDetailScreen({
         confirmLabel="Desfazer"
         message={
           undoing
-            ? `${undoing.pages} páginas saem do progresso de "${book.title}".`
+            ? `${undoing.appliedPages} páginas saem do progresso de "${book.title}".`
             : undefined
         }
         onCancel={() => setUndoing(null)}
