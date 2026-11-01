@@ -178,6 +178,17 @@ export function createInMemoryBooksRepository(
         updatedAt: new Date(),
       };
 
+      // Baixar as páginas de um livro concluído reabre, a menos que o novo
+      // progresso ainda chegue ao total.
+      if (
+        patch.pagesRead !== undefined &&
+        patch.pagesRead < existing.pagesRead &&
+        updated.status === 'finished' &&
+        updated.pagesRead < updated.pages
+      ) {
+        updated.status = 'reading';
+      }
+
       // Mesma regra do SQLite: concluir leva `pagesRead` até o total.
       if (updated.status === 'finished') {
         updated.pagesRead = updated.pages;

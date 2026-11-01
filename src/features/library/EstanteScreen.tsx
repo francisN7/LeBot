@@ -275,14 +275,21 @@ export function EstanteScreen({
                       >
                         {genre?.name ?? UNKNOWN_GENRE_NAME}
                       </AppText>
-                      {displayStatus === 'finished' &&
-                      reviewsByBook.get(book.id) ? (
-                        <RatingStars
-                          size="sm"
-                          testID={`resenha-${book.id}`}
-                          value={reviewsByBook.get(book.id)?.rating ?? 0}
-                        />
-                      ) : null}
+                      {/* Altura fixa: o selo não pode mudar a altura do card
+                          e desalinhar a grade. */}
+                      <View
+                        className="h-6 justify-center"
+                        testID={`slot-resenha-${book.id}`}
+                      >
+                        {displayStatus === 'finished' &&
+                        reviewsByBook.get(book.id) ? (
+                          <RatingStars
+                            size="sm"
+                            testID={`resenha-${book.id}`}
+                            value={reviewsByBook.get(book.id)?.rating ?? 0}
+                          />
+                        ) : null}
+                      </View>
                       <StatusWheelTrigger
                         area={wheelArea}
                         label={labelForStatus(displayStatus)}

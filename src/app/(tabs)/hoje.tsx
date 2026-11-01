@@ -15,6 +15,14 @@ export default function HojeRoute() {
           router.push('/ordem');
         }
       }}
+      onOpenReview={(bookId) => {
+        if (allowNavigation()) {
+          router.push({
+            pathname: '/livro/[id]/resenha',
+            params: { id: bookId },
+          });
+        }
+      }}
     />
   );
 }

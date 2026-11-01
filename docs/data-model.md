@@ -83,6 +83,10 @@ o que entra/sai da ordem; não há adicionar/remover manual. Ver ADR 0017.
   não é guardado) e desfazer o fim volta para `reading` (ADR 0012).
 - Concluir pela edição ou pela roda de status preenche `pages_read` até o total
   no repositório de livros; a tela não manda as páginas (ADR 0018).
+- Baixar `pages_read` de um livro concluído reabre (`finished` → `reading`); se
+  o novo progresso ainda chega ao total, ele continua concluído. Em `reading`
+  com 100%, a UI não diz "concluído": pede para baixar as páginas ou desfazer
+  uma sessão (adendo S9 da ADR 0018).
 
 ### `reviews`
 

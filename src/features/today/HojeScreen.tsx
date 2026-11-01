@@ -29,6 +29,8 @@ const blockStatusLabel: Record<PlanBlockStatus, string> = {
 type HojeScreenProps = {
   /** Vazio: a tela leva para a Ordem (rota dona da navegação). */
   onOpenQueue?: () => void;
+  /** Chamado quando uma sessão leva o livro ao fim (abre a resenha). */
+  onOpenReview?: (bookId: string) => void;
 };
 
 function pagesLabel(pages: number): string {
@@ -40,7 +42,10 @@ function pagesLabel(pages: number): string {
  * A tela não recalcula nada: só mostra `useDailyPlan` e chama `buildPlan` por
  * trás dele.
  */
-export function HojeScreen({ onOpenQueue }: HojeScreenProps = {}) {
+export function HojeScreen({
+  onOpenQueue,
+  onOpenReview,
+}: HojeScreenProps = {}) {
   const { view, genreById } = useDailyPlan();
   const [selected, setSelected] = useState<PlanBlock | null>(null);
   const { register } = useReadingSessions(selected?.book.id ?? '');
@@ -179,8 +184,13 @@ export function HojeScreen({ onOpenQueue }: HojeScreenProps = {}) {
         defaultPages={Math.min(selected?.pages ?? 1, remaining)}
         onCancel={() => setSelected(null)}
         onSave={(pages) => {
-          register(pages);
+          const write = register(pages);
           setSelected(null);
+
+          // Concluir pela Hoje também é o momento da resenha.
+          if (write.book.status === 'finished') {
+            onOpenReview?.(write.book.id);
+          }
         }}
         remaining={remaining}
         visible={selected !== null}

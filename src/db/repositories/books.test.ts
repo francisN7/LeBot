@@ -243,4 +243,41 @@ describe('books repository', () => {
     expect(updated?.status).toBe('paused');
     expect(updated?.pagesRead).toBe(128);
   });
+
+  it('trocar de concluído para lendo mantém o progresso cheio', async () => {
+    const db = await createTestDatabase();
+    const repository = createBooksRepository(db);
+    repository.create({ ...baseBook, id: 'book-1', status: 'finished' });
+
+    const updated = repository.update('book-1', { status: 'reading' });
+
+    expect(updated?.status).toBe('reading');
+    expect(updated?.pagesRead).toBe(310);
+  });
+
+  it('baixar as páginas de um concluído reabre o livro', async () => {
+    const db = await createTestDatabase();
+    const repository = createBooksRepository(db);
+    repository.create({ ...baseBook, id: 'book-1', status: 'finished' });
+
+    const updated = repository.update('book-1', { pagesRead: 200 });
+
+    expect(updated?.status).toBe('reading');
+    expect(updated?.pagesRead).toBe(200);
+    expect(repository.findById('book-1')?.status).toBe('reading');
+  });
+
+  it('baixar as páginas até o novo total continua concluído', async () => {
+    const db = await createTestDatabase();
+    const repository = createBooksRepository(db);
+    repository.create({ ...baseBook, id: 'book-1', status: 'finished' });
+
+    const updated = repository.update('book-1', {
+      pages: 300,
+      pagesRead: 300,
+    });
+
+    expect(updated?.status).toBe('finished');
+    expect(updated?.pagesRead).toBe(300);
+  });
 });

@@ -232,4 +232,24 @@ describe('HojeScreen', () => {
     expect(screen.getByText('Nada registrado hoje ainda.')).toBeOnTheScreen();
     expect(screen.queryByText('5 páginas')).not.toBeOnTheScreen();
   });
+
+  it('concluir pela Hoje avisa para abrir a resenha', async () => {
+    const rows = testBookRows.map((book) =>
+      book.id === 'book-hobbit' ? { ...book, pagesRead: 305 } : book,
+    );
+    const books = createInMemoryBooksRepository(rows);
+    const reading = createInMemoryReadingSessionsRepository(books);
+    const onOpenReview = jest.fn();
+
+    await renderWithProviders(<HojeScreen onOpenReview={onOpenReview} />, {
+      booksRepository: books,
+      readingRepository: reading,
+    });
+
+    await fireEvent.press(screen.getByTestId('register-book-hobbit'));
+    await fireEvent.press(screen.getByText('Salvar'));
+
+    expect(books.findById('book-hobbit')?.status).toBe('finished');
+    expect(onOpenReview).toHaveBeenCalledWith('book-hobbit');
+  });
 });

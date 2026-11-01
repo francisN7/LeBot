@@ -18,17 +18,25 @@
   excluir e quatro sugestões. Viram chips abaixo do texto, em acordeão; campo
   vazio não grava e excluir o campo limpa o valor nas resenhas.
 - Reabrir o livro esconde a resenha sem apagar; reconcluir abre preenchida. A
-  Estante mostra `★★★★` só em concluído com resenha.
+  Estante mostra `★★★★` só em concluído com resenha, num slot de altura fixa
+  para não desalinhar a grade.
+- Concluir pela sessão de leitura abre a resenha tanto no detalhe quanto na
+  Hoje; concluir pela roda/edição deixa o CTA no detalhe.
+- Baixar as páginas lidas de um livro concluído reabre o livro (`finished` →
+  `reading`); mudar o status sem mexer nas páginas também persiste, e um livro
+  em leitura no fim não é chamado de "concluído" pelo card (adendo S9 da
+  ADR 0018).
 - Tabelas `reviews` (nota com `CHECK`, `quote` em coluna para a futura galeria,
   extras JSON) e `review_fields`; migração aditiva `0006`. Excluir o livro apaga
   a resenha na mesma transação (ADR 0019).
-- 34 testes novos (384 em 49 arquivos); lint, typecheck, test, doctor e export
+- 41 testes novos (391 em 49 arquivos); lint, typecheck, test, doctor e export
   verdes. Conferência no Android pendente.
 
 ## Decisões abertas
 
-- Conferir no Android: abertura ao concluir, teclado multilinha, acordeão dos
-  chips, cadastro em Ajustes e selo na Estante.
+- Conferir no Android: abertura ao concluir (detalhe e Hoje), teclado
+  multilinha, acordeão dos chips, cadastro em Ajustes, selo e alinhamento da
+  grade.
 - Galeria de citações no backlog (`reviews.quote` já pronta).
 - S7.2 (opcional): persistir o plano + edição manual.
 - Livro excluído deixa `reading_sessions` órfãs; a resenha sai junto. Limpeza no

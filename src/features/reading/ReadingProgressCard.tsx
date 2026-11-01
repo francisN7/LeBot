@@ -24,7 +24,8 @@ export function ReadingProgressCard({
 }: ReadingProgressCardProps) {
   const remaining = Math.max(0, book.pages - book.pagesRead);
   const percent = readingPercent(book.pagesRead, book.pages);
-  const finished = remaining === 0;
+  const atEnd = remaining === 0;
+  const finished = book.status === 'finished';
   const recent = sessions.slice(0, 3);
 
   return (
@@ -55,6 +56,11 @@ export function ReadingProgressCard({
         <AppText variant="caption" tone="accent">
           Livro concluído.
         </AppText>
+      ) : atEnd ? (
+        <AppText variant="caption" tone="accent">
+          No fim do livro. Reduza as páginas lidas ou desfaça uma sessão para
+          continuar.
+        </AppText>
       ) : (
         <AppText variant="caption" tone="muted">
           {remaining === 1
@@ -63,7 +69,7 @@ export function ReadingProgressCard({
         </AppText>
       )}
 
-      {finished ? null : (
+      {finished || atEnd ? null : (
         <Button label="Registrar leitura" onPress={onRegister} size="sm" />
       )}
 

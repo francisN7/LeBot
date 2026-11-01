@@ -117,14 +117,19 @@ SQLite (expo-sqlite + Drizzle)
   `reading`; chegar no fim vira `finished` (ADR 0015, que supersede parte da
   ADR 0012). Desfazer não restaura o status anterior; desfazer o fim volta para
   `reading`.
+- Baixar as páginas de um livro concluído reabre (vira `reading`); se o novo
+  progresso ainda chega ao total, continua `finished`. Um livro em `reading` no
+  fim não é chamado de "concluído" pelo card: ele pede para baixar as páginas ou
+  desfazer uma sessão (adendo S9 da ADR 0018).
 - Remover um livro ainda deixa as sessões dele órfãs (sem FK). A resenha é
   apagada na mesma transação; a limpeza das sessões ficou no backlog (S11).
 
 ## Resenha (S9)
 
 - Rota `/livro/[id]/resenha` (`ReviewFormScreen`); o detalhe abre por CTA e a
-  sessão de leitura que leva o livro ao fim abre automaticamente. Concluir pela
-  roda ou pela edição mostra o CTA em vez de abrir tela sobre o gesto (ADR 0019).
+  sessão de leitura que leva o livro ao fim abre automaticamente — no detalhe
+  **e na Hoje**. Concluir pela roda ou pela edição mostra o CTA em vez de abrir
+  tela sobre o gesto (ADR 0019).
 - `src/features/reviews/` guarda o formulário, o `ReviewCard`, `RatingStars`
   (em `components/ui`) e os hooks `useReview`/`useReviews`/`useReviewFields`, com
   o mesmo padrão de assinatura de `useBooks`.

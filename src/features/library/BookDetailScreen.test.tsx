@@ -222,6 +222,27 @@ describe('BookDetailScreen', () => {
     expect(books.findById(row.id)?.pagesRead).toBe(128);
   });
 
+  it('não chama de concluído um livro em leitura no fim do progresso', async () => {
+    const row = bookRow({ status: 'reading', pagesRead: 310 });
+
+    await renderWithProviders(
+      <BookDetailScreen
+        bookId={row.id}
+        onBack={jest.fn()}
+        onEdit={jest.fn()}
+      />,
+      { booksRepository: createInMemoryBooksRepository([row]) },
+    );
+
+    expect(screen.queryByText('Livro concluído.')).not.toBeOnTheScreen();
+    expect(
+      screen.getByText(
+        'No fim do livro. Reduza as páginas lidas ou desfaça uma sessão para continuar.',
+      ),
+    ).toBeOnTheScreen();
+    expect(screen.queryByText('Registrar leitura')).not.toBeOnTheScreen();
+  });
+
   it('mostra a resenha do livro concluído e abre a edição', async () => {
     const row = bookRow({ status: 'finished', pagesRead: 310 });
     const books = createInMemoryBooksRepository([row]);

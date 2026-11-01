@@ -330,4 +330,30 @@ describe('BookFormScreen', () => {
     expect(screen.getByText('Livro não encontrado')).toBeOnTheScreen();
     expect(form.onDone).not.toHaveBeenCalled();
   });
+
+  it('trocar de concluído para lendo sem mexer nas páginas persiste', async () => {
+    const row = bookRow({ status: 'finished', pagesRead: 310 });
+    const repository = createInMemoryBooksRepository([row]);
+    const form = renderForm(repository, { bookId: row.id });
+    await form.render;
+
+    await fireEvent.press(screen.getByText('Lendo'));
+    await fireEvent.press(screen.getByText('Salvar livro'));
+
+    expect(repository.findById(row.id)?.status).toBe('reading');
+    expect(repository.findById(row.id)?.pagesRead).toBe(310);
+  });
+
+  it('baixar as páginas de um concluído reabre o livro', async () => {
+    const row = bookRow({ status: 'finished', pagesRead: 310 });
+    const repository = createInMemoryBooksRepository([row]);
+    const form = renderForm(repository, { bookId: row.id });
+    await form.render;
+
+    await fireEvent.changeText(screen.getByLabelText('Páginas lidas'), '200');
+    await fireEvent.press(screen.getByText('Salvar livro'));
+
+    expect(repository.findById(row.id)?.status).toBe('reading');
+    expect(repository.findById(row.id)?.pagesRead).toBe(200);
+  });
 });

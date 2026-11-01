@@ -96,6 +96,14 @@ export function BookFormScreen({
     (total, session) => total + session.appliedPages,
     0,
   );
+  const formPages = Number(form.pages);
+  const formPagesRead =
+    form.pagesRead.trim() === '' ? 0 : Number(form.pagesRead);
+  const atEnd =
+    form.pages.trim() !== '' &&
+    Number.isFinite(formPages) &&
+    Number.isFinite(formPagesRead) &&
+    formPagesRead >= formPages;
 
   const isbnDigits = normalizeIsbn(form.isbn);
   const isbnComplete = isbnDigits.length === 10 || isbnDigits.length === 13;
@@ -105,7 +113,23 @@ export function BookFormScreen({
     field: 'title' | 'author' | 'pages' | 'pagesRead' | 'isbn',
     value: string,
   ) {
-    setForm((current) => ({ ...current, [field]: value }));
+    setForm((current) => {
+      const next = { ...current, [field]: value };
+      const pages = Number(next.pages);
+      const pagesRead =
+        next.pagesRead.trim() === '' ? 0 : Number(next.pagesRead);
+
+      // Baixar as páginas de um livro concluído é reabrir: o chip acompanha.
+      if (
+        next.status === 'finished' &&
+        next.pages.trim() !== '' &&
+        pagesRead < pages
+      ) {
+        next.status = 'reading';
+      }
+
+      return next;
+    });
     setErrors((current) =>
       current[field] ? { ...current, [field]: undefined } : current,
     );
@@ -224,7 +248,9 @@ export function BookFormScreen({
           hint={
             recordedPages > 0
               ? `Já registradas: ${recordedPages}. Para reduzir, desfaça as sessões no detalhe.`
-              : 'Comece do zero ou de onde você parou.'
+              : atEnd && form.status !== 'finished'
+                ? 'Você está no fim do livro: reduza as páginas lidas para continuar.'
+                : 'Comece do zero ou de onde você parou.'
           }
           keyboardType="number-pad"
           label="Páginas lidas"

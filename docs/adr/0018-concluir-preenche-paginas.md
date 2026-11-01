@@ -45,3 +45,23 @@ registradas.
   repositório a furaria.
 - **Pedir confirmação:** a decisão de concluir já é explícita na roda; um
   diálogo extra atrapalharia a troca rápida.
+
+## Adendo S9 — baixar páginas reabre o livro
+
+O aceite da S9 mostrou dois becos: baixar as páginas de um livro concluído era
+desfeito pela normalização (`finished` sempre voltava ao total), e um livro em
+`reading` com 100% aparecia como "Livro concluído." sem oferecer saída.
+
+A regra passou a ser:
+
+- se `pagesRead` **diminui** e o novo valor fica abaixo de `pages`, o status vai
+  para `reading` antes da normalização; baixar as páginas é reabrir;
+- se o novo progresso ainda chega ao total (por exemplo, o total também foi
+  corrigido para baixo), o livro continua `finished`;
+- `finished` para outro status sem mexer nas páginas continua permitido e
+  preserva o progresso cheio. O card do detalhe deixa de chamar de "concluído"
+  um livro em leitura no fim e explica que é preciso baixar as páginas ou
+  desfazer uma sessão;
+- concluir (status `finished`) continua preenchendo `pagesRead` com `pages`.
+
+Testes no SQLite e no repositório em memória cobrem os três caminhos.

@@ -42,7 +42,11 @@ se o livro for reaberto.
   `useReview`, `useReviews`, `useReviewFields` (com assinatura por repositório).
 - `src/components/ui/RatingStars.tsx` e `TextField` com `multiline`.
 - Rota `/livro/[id]/resenha`; detalhe com card/estado vazio e abertura automática
-  ao concluir pela leitura; selo na Estante.
+  ao concluir pela leitura, no detalhe **e na Hoje**; selo na Estante.
+- Correções do aceite: a Hoje também abre a resenha; o selo ocupa slot de altura
+  fixa para não desalinhar a grade; baixar as páginas lidas de um concluído
+  reabre o livro, e um livro em `reading` no fim não é rotulado como concluído
+  (adendo S9 da ADR 0018).
 - Ajustes: `ReviewFieldsCard` com criar, renomear, excluir e sugestões ("O que
   melhorar?", "O que não gostei?", "Que repertório me deu?", "Para quem indico?").
 - Repositórios em memória e `renderWithProviders` com as duas injeções novas.
@@ -63,14 +67,20 @@ se o livro for reaberto.
 - [x] Livro concluído permite nota 1–5, texto e citação; salvar persiste no SQLite.
 - [x] Reabrir o app mantém a resenha e o detalhe a mostra.
 - [x] Editar a resenha atualiza a tela na hora.
-- [x] Concluir por sessão abre a resenha; concluir pela roda oferece o CTA.
+- [x] Concluir por sessão abre a resenha (detalhe e Hoje); concluir pela roda
+      oferece o CTA.
 - [x] "Agora não" não bloqueia a conclusão nem some com o progresso.
 - [x] Reabrir o livro preserva a resenha (oculta) e concluir de novo a reusa.
 - [x] Excluir o livro apaga a resenha.
+- [x] Baixar as páginas lidas de um livro concluído reabre o livro; trocar de
+      status sem mexer nas páginas persiste.
+- [x] Livro em leitura no fim do progresso não é chamado de "concluído" e
+      explica como continuar.
 - [x] Campos extras podem ser criados, renomeados e excluídos em Ajustes; os
       valores somem junto com o campo.
 - [x] Chips abrem em acordeão e só os preenchidos aparecem no detalhe.
-- [x] Selo `★★★★` na Estante só em concluído com resenha.
+- [x] Selo `★★★★` na Estante só em concluído com resenha, sem desalinhar a
+      grade.
 - [x] `lint`, `typecheck`, `test`, `doctor` e `expo export` verdes.
 - [ ] Conferido no Android.
 

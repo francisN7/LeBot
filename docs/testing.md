@@ -253,6 +253,9 @@ de se alocar); as setas estão ok. Está registrado no backlog do roadmap.
 - `src/db/repositories/reviews.test.ts`: round-trip completo, upsert preservando
   `created_at`, extras sem valor descartados, nota inválida (0, 6, 1,5, −1),
   livro inexistente, remoção, exclusão do livro em cascata e `stripField`.
+- `src/db/repositories/books.test.ts`: trocar de concluído para lendo preserva o
+  progresso; baixar as páginas reabre; baixar até o novo total continua
+  concluído.
 - `src/db/repositories/review-fields.test.ts`: lista vazia, ordem de criação,
   nome vazio/acima de 40, duplicata sem diferenciar caixa, renomear mantendo o
   `id`, nome duplicado e exclusão limpando os valores nas resenhas.
@@ -262,19 +265,25 @@ de se alocar); as setas estão ok. Está registrado no backlog do roadmap.
 - `src/features/settings/ReviewFieldsCard.test.tsx`: seção vazia com as quatro
   sugestões, adicionar digitando, adicionar pela sugestão, duplicata, renomear e
   excluir com confirmação limpando a resenha.
+- `src/features/library/BookFormScreen.test.tsx`: trocar de concluído para lendo
+  sem mexer nas páginas persiste; baixar as páginas reabre o livro.
 - `src/features/library/BookDetailScreen.test.tsx`: card da resenha e edição,
   ocultar enquanto o livro está em `reading`, CTA em concluído sem resenha,
-  concluir pela leitura abrindo a resenha e exclusão do livro apagando a resenha.
+  concluir pela leitura abrindo a resenha, livro em leitura no fim sem o rótulo
+  "concluído" e exclusão do livro apagando a resenha.
 - `src/features/library/EstanteScreen.test.tsx`: selo de estrelas só em
-  concluído com resenha.
+  concluído com resenha, dentro de um slot de altura fixa.
+- `src/features/today/HojeScreen.test.tsx`: concluir pela Hoje chama a abertura
+  da resenha com o id do livro.
 - `src/test-utils/repositories.ts` ganhou os repositórios em memória de resenhas
   e campos (com cascata e limpeza); `renderWithProviders` injeta os dois.
 
 O que continua manual: no Android, a abertura da resenha ao concluir pela
-leitura, o teclado nos campos multilinha, a expansão/recolhimento dos chips, o
-cadastro de campos em Ajustes e o selo na Estante. Da S8, a Hoje (toque no botão
-do bloco, modal com o valor do plano e virada do dia), a ordem das abas, a
-legenda da Ordem em tela pequena e o arrastar pela alça (toque longo, prévia que
-abre espaço, rolagem vertical e setas com leitor de tela).
+leitura (detalhe e Hoje), o teclado nos campos multilinha, a
+expansão/recolhimento dos chips, o cadastro de campos em Ajustes, o selo na
+Estante e o alinhamento da grade. Da S8, a Hoje (toque no botão do bloco, modal
+com o valor do plano e virada do dia), a ordem das abas, a legenda da Ordem em
+tela pequena e o arrastar pela alça (toque longo, prévia que abre espaço,
+rolagem vertical e setas com leitor de tela).
 
-A suíte atual tem 49 arquivos e 384 testes (`npm run test`).
+A suíte atual tem 49 arquivos e 391 testes (`npm run test`).

@@ -140,18 +140,29 @@ export function createBooksRepository<TRunResult>(
       }
 
       // Valida o livro completo, não só os campos alterados.
+      const parsed = bookInputSchema.parse({
+        title: current.title,
+        author: current.author,
+        genreId: current.genreId,
+        status: current.status,
+        pages: current.pages,
+        pagesRead: current.pagesRead,
+        isbn: current.isbn,
+        coverUri: current.coverUri,
+        ...patch,
+      });
+
+      // Baixar as páginas de um livro concluído é reabrir: o status não pode
+      // continuar "finished" e forçar o progresso de volta ao total.
+      const lowered =
+        patch.pagesRead !== undefined && patch.pagesRead < current.pagesRead;
+      const reopened =
+        lowered &&
+        parsed.status === 'finished' &&
+        parsed.pagesRead < parsed.pages;
+
       const merged = fillFinishedProgress(
-        bookInputSchema.parse({
-          title: current.title,
-          author: current.author,
-          genreId: current.genreId,
-          status: current.status,
-          pages: current.pages,
-          pagesRead: current.pagesRead,
-          isbn: current.isbn,
-          coverUri: current.coverUri,
-          ...patch,
-        }),
+        reopened ? { ...parsed, status: 'reading' as const } : parsed,
       );
 
       assertIsbnAvailable(merged.isbn, id);
