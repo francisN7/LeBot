@@ -38,9 +38,9 @@
 - Conferir no Android: abertura ao concluir (detalhe e Hoje), teclado
   multilinha, acordeão dos chips, cadastro em Ajustes, selo e alinhamento da
   grade.
-- S11a: confirmar a técnica do volume (SVG com faces), o destino do bloco
-  lateral da capa (refazer como páginas × remover) e se a sombra de contato entra
-  também na grade. Recomendações na spec.
+- S11a: decisões fechadas (SVG com faces, lateral fina + tassel, páginas com
+  texto na capa, sombra na grade e no detalhe, piscada em feliz/neutro). Falta
+  confirmar se "grossa" é a profundidade (recomendado) ou a largura total.
 - Galeria de citações no backlog (`reviews.quote` já pronta).
 - S7.2 (opcional): persistir o plano + edição manual.
 - Livro excluído deixa `reading_sessions` órfãs; a resenha sai junto. Limpeza no
