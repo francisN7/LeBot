@@ -6,7 +6,7 @@ um plano diário que evita ressaca literária.
 > **Para a minha amada esposa.** O LêBot nasceu de uma ideia sua: uma estante
 > que respeita o ritmo de quem lê, uma ordem que não pesa e um plano diário que
 > evita a ressaca literária. Você idealizou tudo isso; eu só escrevi o código.
-> Este app é, antes de tudo, para você — e para quem mais quiser ler sem culpa.
+> Este app é, antes de tudo, para você. Te amo.
 
 > **Status:** v0.2.0 — primeiro APK instalável (release interno). Estante com
 > gêneros e capas, plano diário, Ordem, resenha, estatísticas e backup manual em
