@@ -6,8 +6,11 @@
   cheia. Spec em `docs/sessions/S12a-ci-github-e-estante-cheia.md`.
 - **Última concluída:** S12 — release interno v0.2.0 (APK assinado instalado no
   Android). A performance da estante cheia não bateu o aceite e virou S12a.
-- **Publicação:** `v0.2.0` com o asset `app-release.apk` no GitHub Releases
-  (`gh release create`, notas em `docs/release-notes-v0.2.0.md`).
+- **Publicação:** `v0.2.0` em
+  <https://github.com/francisN7/LeBot/releases/tag/v0.2.0>, com o asset
+  `lebot-0.2.0.apk` (54 MB, SHA-256
+  `f09271eb0b74126c20fe4dad6ed080d8166625c0bb7806811e8d1e1314203671`) e as
+  notas em `docs/release-notes-v0.2.0.md`.
 
 ## O que a S12 entregou
 
