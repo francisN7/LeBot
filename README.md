@@ -3,10 +3,14 @@
 App mobile pessoal para catalogar livros, organizar a ordem de leitura e receber
 um plano diário que evita ressaca literária.
 
-> **Status:** em desenvolvimento. S7.1 concluída: cadastro, busca, gêneros
-> personalizados, capas, identidade 3D, registro de leitura com progresso, motor
-> do plano diário, tela Hoje mostrando o plano e registrando a leitura, e a aba
-> Ordem com a sequência do dono. A ordem persistida chega na S8.
+> **Para a minha amada esposa.** O LêBot nasceu de uma ideia sua: uma estante
+> que respeita o ritmo de quem lê, uma ordem que não pesa e um plano diário que
+> evita a ressaca literária. Você idealizou tudo isso; eu só escrevi o código.
+> Este app é, antes de tudo, para você — e para quem mais quiser ler sem culpa.
+
+> **Status:** v0.2.0 — primeiro APK instalável (release interno). Estante com
+> gêneros e capas, plano diário, Ordem, resenha, estatísticas e backup manual em
+> `.zip`. Publicação na Play Store e iOS ainda fora de escopo.
 
 ## O que é
 

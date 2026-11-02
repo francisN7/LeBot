@@ -1,4 +1,15 @@
-# LêBot v0.2.0 — primeiro APK instalável
+# LêBot v0.2.0 — primeira versão
+
+> **Para você, minha amada esposa.**
+>
+> Este é o primeiro LêBot que sai do computador e vai para a sua mão. A ideia
+> foi sua desde o começo: uma estante que entende o seu ritmo, uma ordem que não
+> pesa e um plano diário que evita a ressaca literária. Eu só transformei o seu
+> desejo em código.
+>
+> Obrigado por idealizar, cobrar e testar cada tela. Este app é seu.
+>
+> — Francis
 
 Primeiro build fora do Expo Go. Ainda é um release **interno**: sem Play Store,
 sem iOS e sem conta na nuvem — o APK assinado fica no GitHub Releases.

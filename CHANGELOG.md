@@ -16,6 +16,8 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
 - `docs/release.md` reescrito para o build no **WSL2/Ubuntu** (JDK 17, Android
   SDK Linux, `rsync` para `~/lebot`, `.wslconfig` com 4 GB + swap) e
   `docs/release-notes-v0.2.0.md` para o Release do GitHub.
+- README e notas do release ganharam a dedicatória à esposa do dono, que
+  idealizou o app e para quem ele foi feito.
 - Spec da S12a: build no GitHub Actions, permissões/`allowBackup` e estante
   cheia.
 
