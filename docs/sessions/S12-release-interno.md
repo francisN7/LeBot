@@ -48,14 +48,35 @@ documentado em `docs/release.md`.
 
 ## Aceite
 
-- [ ] APK instala e abre no Android sem Expo Go.
-- [ ] Ícone (adaptativo e monocromático), splash e nome conferidos no launcher.
-- [ ] Um ciclo exportar → restaurar backup funciona no build de release.
+- [x] APK instala e abre no Android sem Expo Go.
+- [x] Ícone (adaptativo e monocromático), splash e nome conferidos no launcher.
+- [x] Um ciclo exportar → restaurar backup funciona no build de release.
 - [ ] Estante a 60 fps (ou sem queda perceptível) no release, com 5 livros e com
-      a estante cheia, e os números registrados.
-- [ ] `docs/release.md` permite repetir o build do zero.
-- [ ] lint, typecheck, test, doctor e `expo export` verdes; nada de keystore,
+      a estante cheia, e os números registrados. **(Não atendido: 201 livros
+      ficou em 77% janky / 53 ms de mediana; foi para a S12a.)**
+- [x] `docs/release.md` permite repetir o build do zero.
+- [x] lint, typecheck, test, doctor e `expo export` verdes; nada de keystore,
       `android/` ou APK no Git.
+
+## Resultado
+
+- Build em **WSL2/Ubuntu** (JDK 17 + SDK Linux), `assembleRelease` com
+  `arm64-v8a` + `armeabi-v7a`: APK de 54 MB, `com.francisN7.lebot` 0.2.0,
+  `versionCode 1`, assinado com o keystore de release (SHA-256 `43:59:…:02:BD`).
+- Instalado via `adb` no Realme C67 (RMX3890, Android 15); abriu frio em 1,8 s
+  com o SQLite real e o seed de 5 livros.
+- Launcher: nome **LêBot**, ícone adaptativo rosa/creme e splash conferidos.
+- Fumaça: livro novo, troca de status pela roda, leitura registrada, exportação
+  de backup e restauração de 200 livros (ficou com 201) funcionaram.
+- Medições no release: 5 livros = 4,4% janky (mediana 20 ms); 201 livros =
+  36% (stress) e 77% (rolagem normal), mediana 53 ms.
+- **Bug corrigido no caminho:** o `plugins/with-release-signing.js` trocava a
+  assinatura do buildType `debug` e deixava o `release` com a chave de debug
+  (o `release {` injetado era o primeiro do arquivo para o regex). Agora a troca
+  acontece antes da injeção e o plugin falha se o release não usar a config.
+- **Pendências para a S12a:** `RECORD_AUDIO`/`SYSTEM_ALERT_WINDOW` no manifesto,
+  `allowBackup=true`, `lebot-backup-cheio.zip` com texto duplicado
+  (`Breve RelÃ³gio`) e a performance da estante cheia.
 
 ## Contexto necessário
 

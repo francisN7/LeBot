@@ -3,13 +3,14 @@ import type { ExpoConfig } from 'expo/config';
 const config: ExpoConfig = {
   name: 'LêBot',
   slug: 'lebot',
-  version: '0.1.0',
+  version: '0.2.0',
   orientation: 'portrait',
   scheme: 'lebot',
   userInterfaceStyle: 'light',
   icon: './assets/images/icon.png',
   android: {
-    package: 'com.francis.lebot',
+    package: 'com.francisN7.lebot',
+    versionCode: 1,
     adaptiveIcon: {
       backgroundColor: '#FFF6E8',
       foregroundImage: './assets/images/android-icon-foreground.png',
@@ -19,7 +20,7 @@ const config: ExpoConfig = {
     predictiveBackGestureEnabled: false,
   },
   ios: {
-    bundleIdentifier: 'com.francis.lebot',
+    bundleIdentifier: 'com.francisN7.lebot',
   },
   web: {
     bundler: 'metro',
@@ -48,6 +49,7 @@ const config: ExpoConfig = {
         },
       },
     ],
+    './plugins/with-release-signing',
   ],
   experiments: {
     typedRoutes: true,

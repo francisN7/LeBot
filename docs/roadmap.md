@@ -11,6 +11,10 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 > antes da S12. A **S11c** entrou depois da S11b para resolver a Estante travada
 > (~10 fps) antes do release.
 >
+> A **S12a** entrou depois da S12 para tirar o build da máquina local (GitHub
+> Actions), corrigir permissões/`allowBackup` do APK e resolver a Estante com
+> centenas de livros, que ficou abaixo do aceite no v0.2.0.
+>
 > Antes da S6, uma auditoria de documentação conferiu README, AGENTS e docs
 > vivos contra o código da S5 (sem antecipar o motor do plano).
 
@@ -36,7 +40,8 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S11a | [x] | Design 3D da lombada e emoções | Lombada B (64 px) com etiqueta centralizada e dinâmica, tassel no topo e capa S2 com sombra sobre a foto; conferido no Android. O balanço do tassel não animou e foi para a S11b | `sessions/S11a-design-3d-emocoes.md` |
 | S11b | [x] | Tassel animado | Balanço C para a esquerda (`matrix` no `G`), corda presa ao topo e franja com follow-through, no cheio e no compacto; conferido no Android | `sessions/S11b-tassel-animado.md` |
 | S11c | [x] | Estante fluida | Lombada em camadas (corpo estático + brilho/piscada/zzz/tassel isolados) e grade `FlatList` virtualizada para milhares de livros; UI/JS **11/56 → 84/84 fps** em dev com 5 livros; número final e estante cheia no APK da S12 | `sessions/S11c-estante-performance.md` |
-| S12 | [ ] | Release interno | APK instalável no Android; ícone, splash e camada adaptativa conferidos no launcher | `sessions/S12-release-interno.md` |
+| S12 | [x] | Release interno | APK assinado (`com.francisN7.lebot` 0.2.0, arm64+armv7) instalado e aberto fora do Expo Go; ícone, splash e launcher conferidos; backup exportar/restaurar ok; build movido para WSL2. Estante com 201 livros ficou em 77% janky e foi para a S12a | `sessions/S12-release-interno.md` |
+| S12a | [ ] | Build no GitHub Actions + ajustes de release | Workflow por tag gerando o APK assinado (keystore em secrets); `RECORD_AUDIO`/`SYSTEM_ALERT_WINDOW` bloqueados e `allowBackup=false`; Estante cheia a 60 fps; fixture de 200 livros em UTF-8; limpeza do WSL | `sessions/S12a-ci-github-e-estante-cheia.md` |
 | S13 | [ ] | Documentação final + limpeza | Sub-sessões no padrão Xa/Xb; backlog reordenado pela prioridade do dono; itens descartados removidos dos docs; docs revisados e changelog fechado | `sessions/S13-documentacao-final.md` |
 
 ## Backlog pós-MVP

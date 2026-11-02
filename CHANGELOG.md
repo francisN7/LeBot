@@ -3,6 +3,46 @@
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Cada sessão é uma entrada; a mais recente vem primeiro.
 
+## S12 — Release interno (v0.2.0)
+
+### Added
+
+- Primeiro APK assinado do LêBot (`com.francisN7.lebot` 0.2.0, `versionCode` 1,
+  arm64-v8a + armeabi-v7a, 54 MB), instalado no Realme C67 fora do Expo Go:
+  abre com o SQLite real, ícone adaptativo e splash conferidos no launcher.
+- `plugins/with-release-signing.js`: injeta `signingConfigs.release` no
+  `android/app/build.gradle` gerado pelo prebuild e lê `~/.lebot/release.properties`
+  em tempo de build — keystore e senhas ficam fora do repositório.
+- `docs/release.md` reescrito para o build no **WSL2/Ubuntu** (JDK 17, Android
+  SDK Linux, `rsync` para `~/lebot`, `.wslconfig` com 4 GB + swap) e
+  `docs/release-notes-v0.2.0.md` para o Release do GitHub.
+- Spec da S12a: build no GitHub Actions, permissões/`allowBackup` e estante
+  cheia.
+
+### Changed
+
+- Build deixou o Windows: o C++ do Reanimated estoura o limite de 260 caracteres
+  do `ninja`; no Linux (`PATH_MAX` 4096) o problema não existe. O APK foi gerado
+  com `assembleRelease` e `--max-workers=2` para caber nos 4 GB do WSL.
+- `app.config.ts`/`package.json` em 0.2.0; `android.versionCode 1`; id e bundle
+  `com.francisN7.lebot` (ADR 0025).
+
+### Fixed
+
+- `with-release-signing`: o regex rodava depois da injeção do bloco novo e
+  trocava a assinatura do buildType `debug`, deixando o `release` com a chave de
+  debug. A troca agora acontece antes da injeção e o plugin lança erro se o
+  release não usar `signingConfigs.release`. O APK foi validado com `apksigner`
+  (SHA-256 `43:59:2A:…:02:BD`).
+
+### Known issues
+
+- Estante com 201 livros no release: 36% (stress) e 77% (rolagem normal) de
+  frames janky, mediana 53 ms — vai para a S12a.
+- Manifesto pede `RECORD_AUDIO`/`SYSTEM_ALERT_WINDOW` e está com
+  `allowBackup=true`; `lebot-backup-cheio.zip` da S11 tem texto duplicado
+  (`Breve RelÃ³gio`). Tudo na S12a.
+
 ## [Unreleased]
 
 ### Changed
