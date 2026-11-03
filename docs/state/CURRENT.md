@@ -2,26 +2,24 @@
 
 ## Sessão
 
-- **Atual:** S12a — build no GitHub Actions, permissões/`allowBackup` e estante
-  cheia. Spec em `docs/sessions/S12a-ci-github-e-estante-cheia.md`.
-- **Última concluída:** S12 — release interno v0.2.0, em 2026-11-02.
-- **Publicação:** <https://github.com/francisN7/LeBot/releases/tag/v0.2.0>
-  (`lebot-0.2.0.apk`, 54 MB, SHA-256 `f09271eb…4203671`).
+- **Atual:** S12b — otimização rápida da estante no 0.2.0 (sem nova versão).
+  Spec em `docs/sessions/S12b-otimizacao-estante.md`. Depois dela vem a S12a
+  (build no GitHub Actions), cuja spec já está pronta.
+- **Última concluída:** S12 — release interno v0.2.0 (2026-11-02), em
+  <https://github.com/francisN7/LeBot/releases/tag/v0.2.0> (`lebot-0.2.0.apk`,
+  54 MB, SHA-256 `f09271eb…4203671`).
 
 ## Entrega da S12
 
-- APK `com.francisN7.lebot` 0.2.0 (`versionCode 1`), `arm64-v8a` +
-  `armeabi-v7a`, minSdk 24 / targetSdk 36, assinado com o keystore de release
-  (SHA-256 `43:59:2A:…:02:BD`). Instalado no Realme C67 (RMX3890, Android 15)
-  fora do Expo Go; abriu frio em 1,8 s com SQLite real.
-- Launcher: **LêBot**, ícone adaptativo rosa/creme e splash conferidos.
-- Fumaça: livro novo, troca de status pela roda, leitura registrada, exportar
-  backup e restaurar 200 livros (ficou com 201).
+- APK `com.francisN7.lebot` 0.2.0 (`versionCode 1`), arm64 + armv7, minSdk 24 /
+  targetSdk 36, keystore de release (SHA-256 `43:59:2A:…:02:BD`), instalado no
+  Realme C67 (Android 15) fora do Expo Go: abre frio em 1,8 s.
+- Launcher **LêBot** (ícone adaptativo e splash) e fumaça conferidos: livro
+  novo, troca de status pela roda, leitura, exportar e restaurar backup.
 - Medições no release: **5 livros** 4,4% janky/20 ms; **201 livros** 36%
-  (stress) e **77%**/53 ms (normal). Não atendeu o aceite: foi para a S12a.
-- `plugins/with-release-signing.js` corrigido: trocava a assinatura do `debug` e
-  deixava o release na chave de debug. Agora troca antes de injetar e falha se o
-  release não usar `signingConfigs.release`; conferir sempre com `apksigner`.
+  (stress) e **77%**/53 ms (normal). Não atendeu o aceite: foi para a S12b.
+- `plugins/with-release-signing.js` corrigido: assinava o `debug` com a chave de
+  release; agora troca antes de injetar e falha se o `release` não usar a config.
 - `docs/release.md` reescrito para WSL2; README e notas com a dedicatória à
   esposa do dono, idealizadora do app; ADR 0025 com adendo.
 
@@ -34,41 +32,45 @@
   `~/.lebot/release.properties` com `storeFile=/mnt/c/Users/francis/.lebot/lebot-release.keystore`.
 - `npx expo prebuild --platform android --clean --no-install` +
   `./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
-  --no-daemon --max-workers=2 --no-parallel` (heap 1,5 GB): ~11 min com cache.
-- Saída em `~/lebot/android/app/build/outputs/apk/release/app-release.apk`;
-  cópia em `C:\Users\francis\Downloads\lebot-0.2.0.apk`. `adb` é o do Windows.
-- `gh` 2.103.3 no Windows, autenticado como `francisN7`.
+  --no-daemon --max-workers=2 --no-parallel`: ~11 min com cache. APK em
+  `~/lebot/android/app/build/outputs/apk/release/app-release.apk`; `adb` é o do
+  Windows. `gh` autenticado como `francisN7`.
 
-## Próximo passo (S12a)
+## Próximo passo (S12b)
 
-1. Workflow `release.yml` por tag: keystore em secrets, APK assinado anexado ao
-   Release e conferência do SHA-256 com `apksigner`.
-2. `app.config.ts`: bloquear `RECORD_AUDIO`/`SYSTEM_ALERT_WINDOW` e
-   `android.allowBackup=false`.
-3. Estante cheia: reduzir cards animados montados (`windowSize`, sombra,
-   animações fora da tela) e medir com 200 livros.
-4. Regenerar o fixture de 200 livros em UTF-8 (o `lebot-backup-cheio.zip` da S11
-   tem texto duplicado: `Breve RelÃ³gio`) e versionar o gerador.
-5. Limpeza do que sobrou da tentativa no Windows; ADR 0026 e spec da S13.
+1. Gerar `lebot-200.zip` em UTF-8 com `scripts/build-200-books.mjs` (o fixture
+   da S11 tem `Breve RelÃ³gio`) e medir a linha de base com 200 livros.
+2. Lombada estática na grade (`lively={false}`) + `windowSize` 3 + `memo` no
+   card; depois sombra/gesto por card e debounce na busca.
+3. Um lote por build (~11 min), medindo com `dumpsys gfxinfo` (protocolo na
+   spec). Meta: ≤ 5% janky com 200 livros e sem regressão com 5.
+4. Reinstalar por cima e trocar o asset do `v0.2.0`
+   (`gh release upload v0.2.0 ... --clobber`), conferindo o `apksigner`; fechar
+   docs e commitar. A S12a (CI) vem depois.
+
+## Depois (S12a)
+
+- CI por tag, permissões/`allowBackup` e limpeza do WSL. Spec pronta em
+  `docs/sessions/S12a-ci-github-e-estante-cheia.md`.
 
 ## Armadilhas
 
 - Assinatura: o template do Expo assina release com debug; conferir com
-  `apksigner` (DN `CN=LeBot` e SHA-256 acima), nunca só pela existência do APK.
-- Memória: 4 GB no WSL não aguentam Gradle + Kotlin + C++ em paralelo. Usar
-  `--max-workers=2 --no-parallel`, heap 1,5 GB e um build por vez.
-- WSL sob carga para de responder a `wsl -d Ubuntu -- ...`; inspecionar por
-  `\\wsl.localhost\Ubuntu\root\...` e `/proc/meminfo`.
+  `apksigner` (DN `CN=LeBot`, SHA-256 acima), nunca só pela existência do APK.
+  Keystore perdido impede atualizar quem já instalou: backup no gerenciador.
+- Memória: 4 GB no WSL não aguentam Gradle + Kotlin + C++ em paralelo
+  (`--max-workers=2 --no-parallel`, heap 1,5 GB, um build por vez). Sob carga,
+  `wsl -d Ubuntu -- ...` para de responder: use `\\wsl.localhost\Ubuntu\...`.
 - `prebuild` reescreve `npm run android` no clone Linux (não copiar de volta);
   `--clean` apaga `android/`, mas os objetos C++ ficam em `node_modules`.
-- Keystore perdido impede atualizar quem já instalou; backup no gerenciador.
 
 ## Arquivos-chave
 
 - `app.config.ts`, `plugins/with-release-signing.js`, `package.json`
 - `docs/release.md`, `docs/release-notes-v0.2.0.md`, `docs/adr/0025-*`
 - `docs/sessions/S12-release-interno.md`,
-  `docs/sessions/S12a-ci-github-e-estante-cheia.md`
+  `docs/sessions/S12a-ci-github-e-estante-cheia.md`,
+  `docs/sessions/S12b-otimizacao-estante.md`
 
 ## Como rodar
 
