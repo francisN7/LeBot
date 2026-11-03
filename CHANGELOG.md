@@ -18,8 +18,9 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
   `docs/release-notes-v0.2.0.md` para o Release do GitHub.
 - README e notas do release ganharam a dedicatória à esposa do dono, que
   idealizou o app e para quem ele foi feito.
-- Spec da S12a: build no GitHub Actions, permissões/`allowBackup` e estante
-  cheia.
+- Spec da S12a: build no GitHub Actions, permissões/`allowBackup` e limpeza do
+  WSL. Spec da S12b: animar só os cards visíveis e pausar os loops durante a
+  rolagem, para a estante cheia do 0.2.0.
 
 ### Changed
 
@@ -43,7 +44,7 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
   frames janky, mediana 53 ms — vai para a S12a.
 - Manifesto pede `RECORD_AUDIO`/`SYSTEM_ALERT_WINDOW` e está com
   `allowBackup=true`; `lebot-backup-cheio.zip` da S11 tem texto duplicado
-  (`Breve RelÃ³gio`). Tudo na S12a.
+  (`Breve RelÃ³gio`). Manifesto na S12a; fixture e performance na S12b.
 
 ## [Unreleased]
 
