@@ -40,10 +40,12 @@
 
 1. Gerar `lebot-200.zip` em UTF-8 com `scripts/build-200-books.mjs` (o fixture
    da S11 tem `Breve RelÃ³gio`) e medir a linha de base com 200 livros.
-2. `windowSize` 5→3 e `React.memo` no card (extrair `BookCard`, props estáveis),
-   **sem tocar nas animações** — a lombada anima na grade.
+2. Animar só os cards visíveis (`onViewableItemsChanged`/`viewabilityConfig`
+   estáveis) e pausar os loops durante a rolagem (`onScrollBeginDrag` retoma no
+   `onMomentumScrollEnd`), sem tirar a animação da grade.
 3. Um build (~11 min) e medição antes/depois com `dumpsys gfxinfo` (protocolo na
-   spec). ≤ 5% janky é meta registrada, não bloqueio: vale o ganho real.
+   spec). ≤ 5% janky é a referência; se não bater, somar `windowSize` 3 e
+   `React.memo` e medir de novo.
 4. Publicar só se compensar (instalar por cima + `gh release upload --clobber`,
    `apksigner` conferido); fechar docs e commitar. A S12a (CI) vem depois.
 

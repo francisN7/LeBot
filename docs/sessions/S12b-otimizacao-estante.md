@@ -2,19 +2,18 @@
 
 ## Objetivo
 
-Duas correções cirúrgicas de performance na Estante do **0.2.0**, sem versão
-nova e **sem mexer nas animações**: `windowSize` menor e `React.memo` no card.
-Medir antes e depois com 200 livros e registrar os números.
+Atacar o custo real da grade sem tirar a animação: **animar só os cards visíveis**
+e **pausar as animações durante a rolagem**. Medir antes e depois com 200 livros
+e registrar os números.
 
-> Roda antes da S12a. A lombada continua animada na grade (decisão do dono);
-> qualquer otimização que exija card estático, relógio compartilhado ou pausar
-> animação **não** entra aqui.
+> Roda antes da S12a. A lombada continua animada na grade (decisão do dono): o
+> que muda é **quantas** animam por vez e **quando**.
 
 ## Fora de escopo
 
-- Deixar a lombada estática, congelar animação na rolagem ou animar só os
-  visíveis — a animação fica como está.
-- Sombras, `shelfDepth`, gesto do `StatusWheelTrigger` e debounce da busca.
+- Deixar a lombada estática, remover piscada/tassel/brilho/“zzz” ou trocar a arte.
+- `windowSize`, sombras/`shelfDepth`, gesto do `StatusWheelTrigger` e debounce da
+  busca (ficam para depois; se a meta não bater, entram como reforço).
 - Trocar de lista (FlashList), de versão do RN/Expo ou de biblioteca.
 - Migrar o build para CI, permissões e `allowBackup` (S12a).
 - Novas telas, tema escuro, frases do mascote.
@@ -29,16 +28,13 @@ Medições no release 0.2.0 (Realme C67, Android 15, `dumpsys gfxinfo`):
 | 201 livros, stress (8 idas e voltas) | 777 | 36,2% | 34 ms | 69 ms |
 | 201 livros, rolagem normal (6 flings) | 357 | 77,0% | 53 ms | 300 ms |
 
-O que já existe no código (`EstanteScreen.tsx`):
+O que existe hoje (`EstanteScreen.tsx`, `spine.tsx`, `SpineArtwork.tsx`):
 
-- `FlatList` com `numColumns={2}`, `windowSize={5}`, `removeClippedSubviews`,
-  lote inicial e `maxToRenderPerBatch`. **`windowSize` já não é o padrão 21** —
-  o teste aqui é descer para 3, não “sair do padrão”.
-- `renderBook` é uma função inline: o card é recriado a cada render da tela
-  (busca, filtro, roda de status). Não há `memo` no card.
-- As animações (`sheen`, piscada, “zzz”, tassel) rodam em todos os cards
-  montados; `windowSize` menor reduz quantos ficam vivos de uma vez — é o ganho
-  que buscamos sem tocar na lombada.
+- `FlatList` com `numColumns={2}`, `windowSize={5}`, `removeClippedSubviews`.
+- Cada card montado roda quatro animações em loop (`sheen`, piscada, “zzz” e o
+  tassel com `body`/`fringe`/`shadow`), inclusive fora da tela.
+- `SpineArtwork` já é `memo` e o corpo é SVG estático (S11c); o custo é por
+  frame, não por re-render.
 
 ## Tarefas
 
@@ -46,14 +42,28 @@ O que já existe no código (`EstanteScreen.tsx`):
    (versionado) gerando `lebot-200.zip` com o schema atual e acentos corretos (o
    `lebot-backup-cheio.zip` da S11 tem texto duplicado: `Breve RelÃ³gio`).
    Restaurar no aparelho e medir a linha de base antes de mexer no código.
-2. **`windowSize` 5 → 3.** Revisar `initialNumToRender`/`maxToRenderPerBatch`
-   para não abrir buraco branco e medir. Se 3 piorar (área vazia) ou não mudar,
-   ficar com 4 e registrar a decisão.
-3. **`React.memo` no card.** Extrair o card para um componente próprio
-   (`BookCard`) com props primitivas/estáveis, `useCallback` nos handlers e
-   `memo` com comparação padrão. Conferir que:
-   - o card não re-renderiza quando outro card muda de status/preview;
-   - as animações **não reiniciam** a cada render (deps dos `useEffect`).
+2. **Animar só o visível.**
+   - `onViewableItemsChanged` + `viewabilityConfig` (ex.:
+     `itemVisiblePercentThreshold: 20`) guardando só os IDs visíveis num `Set`.
+   - O `onViewableItemsChanged` e o `viewabilityConfig` precisam ser **estáveis**
+     ( `useRef`): a `FlatList` lança erro se mudam entre renders.
+   - Atualizar o estado **só quando o conjunto de IDs muda** (comparar tamanho e
+     conteúdo) para não re-renderizar a tela a cada frame de rolagem.
+   - Propagar para a `Spine`/`SpineArtwork` uma flag (ex.: `animating`) que
+     **não monta** os quatro loops quando falsa, mantendo a arte parada no lugar.
+     Sem remover a lombada nem trocar o visual.
+   - Margem de uma tela acima/abaixo para a animação não “acender” tarde demais
+     ao entrar no campo de visão; ajustar o `viewabilityConfig` se ficar estranho.
+3. **Pausar durante a rolagem.**
+   - `onScrollBeginDrag` → pausa; `onMomentumScrollEnd` (e `onScrollEndDrag` sem
+     inércia) → retoma. Guardar em `ref`, não em estado, para não re-renderizar a
+     lista a cada evento.
+   - Pausa = parar os loops e voltar ao repouso (`sheen` fora, olhos abertos,
+     tassel reto); retomada = religar os `withRepeat`. Evitar reiniciar com
+     “salto” visível.
+   - Segurança: se o evento de fim não chegar (fim abrupto do gesto), religar
+     depois de ~300 ms.
+   - Combinação final: `animating = visível && !rolando`.
 4. **Medir e comparar.** Mesmo protocolo para 200 e 5 livros, duas rodadas cada.
    Registrar frames, janky, mediana e p95 na spec e no `CURRENT.md`.
 5. **Publicar só se compensar.** Se a rolagem com 200 livros melhorar de forma
@@ -86,39 +96,44 @@ Start-Sleep -Seconds 2
 
 ## Aceite
 
-- [ ] `windowSize` em 3 (ou 4, com o motivo registrado) e `React.memo` no card,
-      sem card em branco e sem animação reiniciando ao rolar.
-- [ ] 5 livros sem regressão (referência: 4,4% / 20 ms).
-- [ ] Medição de 200 livros feita antes e depois, com os números registrados.
-- [ ] A lombada continua animada na grade, como no 0.2.0.
+- [ ] Com 200 livros, só os cards visíveis animam; os de fora ficam parados.
+- [ ] Durante o fling as animações pausam e voltam ao parar; nada de lombada
+      “congelada” depois da rolagem.
+- [ ] 5 livros sem regressão (referência: 4,4% / 20 ms) e sem animação piscando
+      fora de hora.
+- [ ] Medição de 200 livros antes e depois, com frames/janky/mediana/p95
+      registrados.
 - [ ] `lebot-200.zip` abre com acentos corretos e o gerador está em `scripts/`.
 - [ ] Se publicar: APK instala por cima do 0.2.0 (mesma assinatura) e o asset do
       `v0.2.0` fica com o build corrigido.
 - [ ] lint, typecheck, test, doctor e `expo export` verdes.
 
-> Nota: com só essas duas mudanças, a meta de ≤ 5% janky provavelmente **não**
-> será atingida (a linha de base é 77%). O compromisso da sessão é medir com
-> honestidade e registrar o ganho real, não forçar o número.
+> Meta de referência: ≤ 5% janky com 200 livros. Se não bater, registrar o ganho
+> real e decidir na hora se vale somar `windowSize` 3 + `React.memo` no mesmo
+> release.
 
 ## Contexto necessário
 
 `AGENTS.md`, `docs/state/CURRENT.md`, `docs/sessions/S12-release-interno.md`,
-`src/features/library/EstanteScreen.tsx`, `src/features/library/use-books.ts`.
+`docs/sessions/S11c-estante-performance.md`, `src/features/library/EstanteScreen.tsx`,
+`src/components/ui/spine.tsx`, `src/components/ui/SpineArtwork.tsx`.
 
 ## Arquivos prováveis
 
-- `src/features/library/EstanteScreen.tsx` (ou `BookCard.tsx` novo)
+- `src/features/library/EstanteScreen.tsx`
+- `src/components/ui/spine.tsx`, `src/components/ui/SpineArtwork.tsx`
 - `scripts/build-200-books.mjs`
 - `docs/sessions/S12b-otimizacao-estante.md`, `docs/state/CURRENT.md`
 
 ## Riscos
 
-- **`windowSize` baixo demais:** aparece área branca antes do card montar.
-  Conferir rolagem longa, não só uma tela.
-- **`memo` que não memoiza:** se as props do card mudarem a cada render (objeto
-  de gênero, review, callbacks inline), o `memo` não faz nada. Medir o número de
-  renders antes de comemorar.
-- **Animação reiniciando:** mover o card para um componente pode remontar a
-  lombada (piscada/tassel voltam do zero a cada rolagem). Conferir visualmente.
+- **`onViewableItemsChanged` instável:** a `FlatList` reclama em dev e o custo
+  de JS pode anular o ganho. Usar `useRef` e atualizar o `Set` só quando muda.
+- **Re-render por scroll:** `setState` a cada evento de visibilidade derruba a
+  performance. Comparar antes de atualizar (e, se preciso, throttle).
+- **Animação “piscando” ao entrar/sair da tela:** ajustar a margem do
+  `viewabilityConfig`; a lombada deve nascer parada e começar suave.
+- **Pausa sem retomada:** se o evento de fim não vier, as lombadas ficam
+  congeladas; o timer de segurança cobre isso.
 - **Ruído do `adb input swipe`:** repetir e comparar mediana, não um número só.
 - **Custo do build:** ~11 min por iteração; agrupar as duas mudanças em um build.
