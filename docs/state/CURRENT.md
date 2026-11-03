@@ -40,13 +40,12 @@
 
 1. Gerar `lebot-200.zip` em UTF-8 com `scripts/build-200-books.mjs` (o fixture
    da S11 tem `Breve RelÃ³gio`) e medir a linha de base com 200 livros.
-2. Lombada estática na grade (`lively={false}`) + `windowSize` 3 + `memo` no
-   card; depois sombra/gesto por card e debounce na busca.
-3. Um lote por build (~11 min), medindo com `dumpsys gfxinfo` (protocolo na
-   spec). Meta: ≤ 5% janky com 200 livros e sem regressão com 5.
-4. Reinstalar por cima e trocar o asset do `v0.2.0`
-   (`gh release upload v0.2.0 ... --clobber`), conferindo o `apksigner`; fechar
-   docs e commitar. A S12a (CI) vem depois.
+2. `windowSize` 5→3 e `React.memo` no card (extrair `BookCard`, props estáveis),
+   **sem tocar nas animações** — a lombada anima na grade.
+3. Um build (~11 min) e medição antes/depois com `dumpsys gfxinfo` (protocolo na
+   spec). ≤ 5% janky é meta registrada, não bloqueio: vale o ganho real.
+4. Publicar só se compensar (instalar por cima + `gh release upload --clobber`,
+   `apksigner` conferido); fechar docs e commitar. A S12a (CI) vem depois.
 
 ## Depois (S12a)
 
