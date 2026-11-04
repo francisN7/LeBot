@@ -11,6 +11,15 @@ const config: ExpoConfig = {
   android: {
     package: 'com.francisN7.lebot',
     versionCode: 1,
+    // O LêBot não grava áudio nem desenha sobre outros apps. As duas permissões
+    // vinham de bibliotecas (image-picker/dev) e apareciam no APK da S12.
+    blockedPermissions: [
+      'android.permission.RECORD_AUDIO',
+      'android.permission.SYSTEM_ALERT_WINDOW',
+    ],
+    // Dados pessoais vivem só no SQLite do aparelho: backup automático do
+    // Android fica desligado de propósito (ADR 0026).
+    allowBackup: false,
     adaptiveIcon: {
       backgroundColor: '#FFF6E8',
       foregroundImage: './assets/images/android-icon-foreground.png',

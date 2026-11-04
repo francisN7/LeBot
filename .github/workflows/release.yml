@@ -1,0 +1,192 @@
+name: Release
+
+# Build do APK de release fora da máquina do dono (ADR 0026).
+# - Push de tag `v*`: compila, confere assinatura/permissões e anexa ao Release.
+# - `workflow_dispatch`: compila e sobe o APK como artefato (teste e medição).
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag do Release que recebe o APK (vazio = só artefato)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CI: '1'
+  # Impede o husky de tentar instalar ganchos no runner.
+  HUSKY: '0'
+
+jobs:
+  apk:
+    name: APK assinado
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      # O runner do GitHub tem ~14 GB livres; RN + NDK estouram isso. Remover o
+      # SDK pré-instalado e os toolchains que não usamos libera ~15 GB, e o SDK
+      # é reinstalado logo abaixo com as versões exatas do projeto.
+      - name: Liberar espaço em disco
+        run: |
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY/CodeQL" || true
+          df -h /
+
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+
+      - name: Instalar SDK, NDK e CMake
+        run: |
+          yes | sdkmanager --licenses > /dev/null
+          sdkmanager --install \
+            "platforms;android-37.0" \
+            "build-tools;37.0.0" \
+            "ndk;27.1.12297006" \
+            "cmake;3.22.1"
+
+      - name: Cache do Gradle
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      # O plugin `with-release-signing` lê ~/.lebot/release.properties em tempo
+      # de Gradle. Sem esse arquivo o release sairia com a chave de debug — e o
+      # passo "Conferir assinatura" reprova o build.
+      - name: Preparar keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "::add-mask::$KEYSTORE_BASE64"
+          echo "::add-mask::$STORE_PASSWORD"
+          echo "::add-mask::$KEY_PASSWORD"
+          if [ -z "$KEYSTORE_BASE64" ] || [ -z "$STORE_PASSWORD" ] || [ -z "$KEY_PASSWORD" ]; then
+            echo "::error::secrets KEYSTORE_BASE64/STORE_PASSWORD/KEY_PASSWORD ausentes"
+            exit 1
+          fi
+          mkdir -p "$HOME/.lebot"
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$HOME/.lebot/lebot-release.keystore"
+          chmod 600 "$HOME/.lebot/lebot-release.keystore"
+          {
+            echo "storeFile=$HOME/.lebot/lebot-release.keystore"
+            echo "storePassword=$STORE_PASSWORD"
+            echo "keyAlias=lebot"
+            echo "keyPassword=$KEY_PASSWORD"
+          } > "$HOME/.lebot/release.properties"
+          chmod 600 "$HOME/.lebot/release.properties"
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Gerar projeto Android
+        run: npx expo prebuild --platform android --clean --no-install
+
+      - name: Conferir assinatura injetada
+        run: |
+          test -f "$HOME/.lebot/release.properties" \
+            || { echo "::error::release.properties não foi criado"; exit 1; }
+          if ! grep -q "signingConfig signingConfigs.release" android/app/build.gradle; then
+            echo "::error::release não usa signingConfigs.release; o plugin de assinatura não rodou"
+            exit 1
+          fi
+
+      - name: Compilar APK
+        run: |
+          ./gradlew assembleRelease \
+            -PreactNativeArchitectures=arm64-v8a,armeabi-v7a \
+            --no-daemon --max-workers=2 --no-parallel
+
+      - name: Conferir assinatura do APK
+        run: |
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          APKSIGNER="$ANDROID_SDK_ROOT/build-tools/37.0.0/apksigner"
+          "$APKSIGNER" verify --print-certs "$APK" | tee /tmp/certs.txt
+          # Impressão digital pública do certificado de release (docs/release.md).
+          ESPERADO="43592A0DF3BD6921BD58DBC5EEC3BB7CBCC86E9371F1AA9337D697B9E75002BD"
+          OBTIDO=$(grep -m1 'SHA-256 digest' /tmp/certs.txt | awk '{print $NF}' | tr -d ':' | tr 'a-f' 'A-F')
+          if [ "$OBTIDO" != "$ESPERADO" ]; then
+            echo "::error::assinatura divergente: esperado $ESPERADO, obtido $OBTIDO"
+            exit 1
+          fi
+
+      - name: Conferir manifesto
+        run: |
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          AAPT2="$ANDROID_SDK_ROOT/build-tools/37.0.0/aapt2"
+          "$AAPT2" dump permissions "$APK" | tee /tmp/perms.txt
+          if grep -qE 'RECORD_AUDIO|SYSTEM_ALERT_WINDOW' /tmp/perms.txt; then
+            echo "::error::APK ainda declara RECORD_AUDIO ou SYSTEM_ALERT_WINDOW"
+            exit 1
+          fi
+          "$AAPT2" dump xmltree --file AndroidManifest.xml "$APK" > /tmp/manifest.txt
+          if ! grep -q 'allowBackup' /tmp/manifest.txt; then
+            echo "::error::allowBackup não está explícito no manifesto"
+            exit 1
+          fi
+          if ! grep -A2 'allowBackup' /tmp/manifest.txt | grep -q '0x0'; then
+            echo "::error::allowBackup não está desligado"
+            exit 1
+          fi
+
+      - name: Nomear APK
+        id: versao
+        run: |
+          VERSAO=$(node -p "require('./package.json').version")
+          cp android/app/build/outputs/apk/release/app-release.apk "lebot-$VERSAO.apk"
+          echo "arquivo=lebot-$VERSAO.apk" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: lebot-apk
+          path: lebot-*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+  publicar:
+    name: Publicar no Release
+    needs: apk
+    if: github.ref_type == 'tag' || (github.event_name == 'workflow_dispatch' && inputs.tag != '')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: lebot-apk
+
+      - name: Anexar APK ao Release
+        run: gh release upload "$TAG" lebot-*.apk --clobber --repo "$GITHUB_REPOSITORY"
