@@ -1,6 +1,6 @@
 /**
  * Tokens de cor da marca LêBot.
- * Fonte da verdade: `docs/brand.md`.
+ * Fonte da verdade: `docs/reference/brand.md`.
  */
 export const colors = {
   cream: '#FFF6E8',

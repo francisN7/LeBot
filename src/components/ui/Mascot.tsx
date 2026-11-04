@@ -16,7 +16,7 @@ import { colors } from '@/theme';
 
 const AnimatedG = Animated.createAnimatedComponent(G);
 
-/** Estados do LêBot definidos em `docs/brand.md`. */
+/** Estados do LêBot definidos em `docs/reference/brand.md`. */
 export type MascotState =
   | 'neutral'
   | 'reading'

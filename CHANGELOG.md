@@ -3,6 +3,28 @@
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Cada sessão é uma entrada; a mais recente vem primeiro.
 
+## S13b — Mapa e poda dos docs vivos
+
+### Added
+
+- `docs/README.md`: mapa por pergunta e por seção, com orçamento de leitura.
+- `scripts/check-docs.mjs` e `npm run docs:check` no CI: links relativos,
+  orçamento (`AGENTS` ≤100, `CURRENT` ≤60, spec ≤90) e veto a histórico em
+  documento de referência.
+
+### Changed
+
+- Docs separados por tipo: `guide/` (setup, testing, release) e `reference/`
+  (architecture, data-model, design-system, brand, planner, security-privacy).
+- `brand.md` absorveu a arte 3D e `assets-3d.md` deixou de existir.
+- Docs vivos: **2.732 → 1.300 linhas**; `AGENTS.md` 113 → 83; `CURRENT.md`
+  81 → 46. Nenhum doc de referência conta em que sessão a coisa foi feita.
+- Notas de release movidas para `docs/releases/`.
+
+### Removed
+
+- As 14 seções "Cobertura da SXX" e o histórico de sessão dos docs vivos.
+
 ## S13a — Higiene e auditoria do repositório
 
 ### Changed

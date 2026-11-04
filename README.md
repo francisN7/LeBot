@@ -92,7 +92,7 @@ docs/               documentação do projeto
 Seus dados ficam **só no aparelho**, no SQLite local. Não há conta, telemetria
 nem servidor. O plano de leitura é calculado offline.
 
-Detalhes em [`docs/security-privacy.md`](docs/security-privacy.md).
+Detalhes em [`docs/reference/security-privacy.md`](docs/reference/security-privacy.md).
 
 ## Documentação
 
@@ -102,11 +102,13 @@ Detalhes em [`docs/security-privacy.md`](docs/security-privacy.md).
 | [`docs/README.md`](docs/README.md) | mapa da documentação (por pergunta e por seção) |
 | [`docs/state/CURRENT.md`](docs/state/CURRENT.md) | onde paramos e o próximo passo |
 | [`docs/roadmap.md`](docs/roadmap.md) | sessões e critérios de aceite |
-| [`docs/brand.md`](docs/brand.md) | identidade visual |
-| [`docs/design/design-system.md`](docs/design/design-system.md) | tokens e componentes |
-| [`docs/architecture.md`](docs/architecture.md) | camadas e fluxo de dados |
-| [`docs/data-model.md`](docs/data-model.md) | tabelas, migrações e seed |
-| [`docs/testing.md`](docs/testing.md) | como testar |
+| [`docs/reference/brand.md`](docs/reference/brand.md) | identidade visual e arte |
+| [`docs/reference/design-system.md`](docs/reference/design-system.md) | tokens e componentes |
+| [`docs/reference/architecture.md`](docs/reference/architecture.md) | camadas e fluxo de dados |
+| [`docs/reference/data-model.md`](docs/reference/data-model.md) | tabelas, migrações e seed |
+| [`docs/reference/planner.md`](docs/reference/planner.md) | regras do plano diário |
+| [`docs/guide/testing.md`](docs/guide/testing.md) | como testar |
+| [`docs/guide/release.md`](docs/guide/release.md) | gerar e publicar o APK |
 | [`docs/adr/`](docs/adr/) | decisões registradas |
 
 ## Licença

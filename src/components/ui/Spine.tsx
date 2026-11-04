@@ -49,7 +49,7 @@ type SpineProps = {
 const PRESS_SPRING = { damping: 16, stiffness: 260 };
 
 /**
- * Lombada do livro. A arte é vetorial e paramétrica (`docs/design/assets-3d.md`):
+ * Lombada do livro. A arte é vetorial e paramétrica (`docs/reference/brand.md`):
  * a **cor** vem do gênero e a **expressão** do status (`resolveSpineArt`). Sem
  * status — ou com hex inválido — fica o bloco 2D chapado, que é o fallback.
  *

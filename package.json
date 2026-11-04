@@ -19,6 +19,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "doctor": "expo-doctor",
+    "docs:check": "node scripts/check-docs.mjs",
     "prepare": "husky"
   },
   "dependencies": {

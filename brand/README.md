@@ -15,7 +15,7 @@ Arte original do LêBot. **Não vai para o bundle do app**; exports finais vivem
 - Não editar os originais: criar export em `assets/images/` com
   `node scripts/build-icons.mjs`.
 - Remover EXIF/metadados dos exports.
-- Guia visual completo: `docs/brand.md`.
+- Guia visual completo: `docs/reference/brand.md`.
 
 ## Licença da arte
 

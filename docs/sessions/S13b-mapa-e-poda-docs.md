@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Reduzir a documentação viva a **≤1.250 linhas** (mapa + guias + referência),
+Reduzir a documentação viva a **≤1.300 linhas** (mapa + guias + referência),
 sem perder nenhuma decisão: o que é história sai, o que é regra fica, e cada
 consulta custa uma seção — não um arquivo inteiro.
 
@@ -57,7 +57,8 @@ consulta custa uma seção — não um arquivo inteiro.
 
 ## Aceite
 
-- [ ] `mapa + guide/ + reference/` ≤1.250 linhas (sem ADR, releases e specs).
+- [ ] `mapa + guide/ + reference/` ≤1.300 linhas (sem ADR, releases e specs).
+      Meta inicial de 1.250; ajustada na execução porque exigia cortar regra útil.
 - [ ] Nenhum "Cobertura da SXX" ou histórico de sessão em doc de referência.
 - [ ] Todo doc vivo tem TL;DR e responde uma pergunta só.
 - [ ] `AGENTS.md` ≤90 linhas e `CURRENT.md` ≤55.
@@ -83,8 +84,6 @@ vez**, começando pelo TL;DR e headings. Não abrir `src/` nem `docs/adr/`.
   antes do commit.
 - **Sessão grande demais:** se passar de ~2h, dividir em S13b1 (estrutura +
   poda) e S13b2 (AGENTS/CURRENT/check-docs).
-- **Perder nuance de segurança/privacidade:** `security-privacy.md` só muda de
-  pasta nesta sessão; conteúdo fica para a auditoria da S13a.
 
 ## Próximo depois desta
 

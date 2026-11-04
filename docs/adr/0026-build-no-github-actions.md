@@ -71,7 +71,7 @@ indesejada ou `allowBackup` ausente/ligado reprovam o build.
   A cópia no gerenciador de senhas e no secret são as duas únicas cópias.
 - O `versionCode` segue crescendo a cada release e é definido no `app.config.ts`;
   a tag não substitui essa regra.
-- A máquina do dono recupera ~22,6 GB. `docs/release.md` foi reescrito para o
+- A máquina do dono recupera ~22,6 GB. `docs/guide/release.md` foi reescrito para o
   caminho CI; o WSL deixou de ser pré-requisito e foi removido.
 - Instalar o APK do CI no aparelho e trocar o asset do `v0.2.0` foram **adiados
   para a S12b** por decisão do dono: o release segue com o build da S12 até a

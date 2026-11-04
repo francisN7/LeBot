@@ -60,7 +60,7 @@ que não fecha a meta porque os livros acabaram é parcial, não erro.
   em `queueBookIds`.
 - Os testes de motor não abrem banco nem React Native; 75 casos cobrem dia,
   arredondamento, seleção e o plano completo.
-- `docs/planner-algorithm.md` é a referência de produto; se uma regra mudar,
+- `docs/reference/planner.md` é a referência de produto; se uma regra mudar,
   muda lá, no motor e nos testes juntos.
 - Persistência e edição manual do plano continuam para a S7.
 

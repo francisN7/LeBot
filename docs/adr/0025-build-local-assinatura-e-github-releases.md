@@ -77,13 +77,13 @@ Versão do primeiro release: **0.2.0**, `versionCode` **1**.
   `~/lebot`; o `node_modules` do Windows (`C:\nm` + junction) deixou de ser
   necessário. O fluxo de sincronização (`rsync` + `npm ci`), a memória do WSL
   (`.wslconfig`) e o `release.properties` com `storeFile=/mnt/c/...` estão em
-  `docs/release.md`.
+  `docs/guide/release.md`.
 - O APK é arm-only (`arm64-v8a` + `armeabi-v7a`) para cortar build e download;
-  emulador x86 exige o build universal documentado em `docs/release.md`.
+  emulador x86 exige o build universal documentado em `docs/guide/release.md`.
 - Publicar uma nova versão é manual (`gh release create`); automatizar em CI
   exigiria keystore em secrets, o que foi descartado por ora.
 - O `versionCode` precisa crescer a cada release; a regra está em
-  `docs/release.md`.
+  `docs/guide/release.md`.
 
 ## Adendo (S12, durante o build)
 
