@@ -33,8 +33,9 @@
 
 - Sem build local (ADR 0026). **Expo Go serve para bug funcional, não para
   medir** (dev exagera; `gfxinfo` não vale).
-- `backups/` tem 2 backups **reais**: nunca commitar, nunca apagar. O aparelho
-  ficou com o fixture de 200 livros; o acervo real volta por Ajustes → Backup.
+- Os 2 backups **reais** ficam em `%USERPROFILE%\Apps\Codes\lebot-backups\`
+  (fora do repo). O aparelho ficou com o fixture de 200 livros; o acervo real
+  volta por Ajustes → Backup.
 - `lebot-demo.zip` é regenerável (`node scripts/build-demo-backup.mjs`) e fica
   fora do Git.
 - Nunca editar Markdown com PowerShell (`Get-Content -Raw` + `Set-Content`
