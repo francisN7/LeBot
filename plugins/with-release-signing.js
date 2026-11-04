@@ -8,7 +8,7 @@
  * O keystore e as senhas ficam fora do repositório, em
  * `~/.lebot/release.properties` (formato `chave=valor`):
  *
- *   storeFile=C:/Users/francis/.lebot/lebot-release.keystore
+ *   storeFile=C:/Users/<usuario>/.lebot/lebot-release.keystore
  *   storePassword=...
  *   keyAlias=lebot
  *   keyPassword=...

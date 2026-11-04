@@ -3,6 +3,7 @@ node_modules/
 
 # Expo
 .expo/
+.expo-shared/
 dist/
 dist-web/
 web-build/
@@ -51,11 +52,17 @@ coverage/
 Thumbs.db
 .idea/
 
+# Ferramentas locais
+.fleet/
+.history/
+docs/.obsidian/
+*.hprof
+*.heapsnapshot
+
 # Bancos e backups locais do app
 backups/
 *.sqlite
-lebot-backup-*.zip
-lebot-200.zip
+lebot-*.zip
 *.sqlite3
 *.db
 *.db-wal

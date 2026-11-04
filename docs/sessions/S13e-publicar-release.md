@@ -8,8 +8,8 @@ MVP.
 
 ## Estado de partida
 
-- APK durável em `C:\Users\francis\Apps\Codes\lebot-artifacts\lebot-0.2.1.apk`
-  (cópia da S13a) e artefato `lebot-apk` do run `41766015381`.
+- APK durável em `%USERPROFILE%\Apps\Codes\lebot-artifacts\lebot-0.2.1.apk`
+  (cópia temporária da S13a) e artefato `lebot-apk` do run `41766015381`.
 - SHA-256 medido: `1D4AE065C6C76497FABCDAE2595347EF1A8F1492E0CC627948E89183FEADD838`.
 - Código congelado em `7da3c88` (S12b). Os commits da S13 são só documentação.
 
@@ -39,13 +39,18 @@ MVP.
 6. **Fechar docs:** entrada `0.2.1` no `CHANGELOG.md`, `CURRENT.md`, `mvp` com a
    S13e marcada e o SHA-256 em `guide/release.md`. Conferir que o badge do README
    já aponta para o novo Release (é dinâmico; não editar).
-7. Commitar `S13e: ...` e encerrar o MVP.
+7. **Uma cópia só:** apagar a pasta local `lebot-artifacts\`, o
+   `%TEMP%\lebot-apk\` e o artefato `lebot-apk` do Actions (o Release passa a ser
+   a única fonte do APK). Não guardar o APK em dois lugares.
+8. Commitar `S13e: ...` e encerrar o MVP.
 
 ## Aceite
 
 - [ ] Release `v0.2.1` publicado, sem título duplicado no corpo.
 - [ ] Asset `lebot-0.2.1.apk` presente e com o SHA-256 do APK medido.
 - [ ] APK baixado do Release instala por cima do 0.2.0 com os dados intactos.
+- [ ] Cópia local, `%TEMP%` e artefato do Actions removidos: o asset do Release
+      é a única cópia do APK.
 - [ ] `CHANGELOG`, `CURRENT`, `mvp` e `release.md` fechados.
 - [ ] `lint`, `typecheck`, `test` e `docs:check` verdes.
 

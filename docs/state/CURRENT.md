@@ -2,15 +2,29 @@
 
 ## Sessão
 
-- **Última concluída:** S12b — estante animada só no visível + Ordem paginada
+- **Última concluída:** S13a — higiene e auditoria do repositório
   (2026-11-04).
 - **Fase aberta:** S13 — documentação e vitrine, em cinco sub-sessões, **com o
   release no fim** (decisão do dono em 04/11/2026).
-- **Próxima:** S13a — higiene e auditoria do repositório
-  (`docs/sessions/S13a-higiene-repositorio.md`).
-- **Depois:** S13b (mapa e poda), S13c (arquivo/roadmap/backlog), S13d
-  (README/screenshots) e S13e (publicar o `v0.2.1`).
+- **Próxima:** S13b — mapa e poda dos docs vivos
+  (`docs/sessions/S13b-mapa-e-poda-docs.md`).
+- **Depois:** S13c (arquivo/roadmap/backlog), S13d (README/screenshots) e S13e
+  (publicar o `v0.2.1`).
 - **Retorno:** tag `pre-s13` em `7da3c88`.
+
+## Auditoria da S13a (2026-11-04)
+
+- Sem segredo no HEAD nem no histórico (gitleaks do CI + varredura manual);
+  nenhum `.env`, keystore, banco ou backup já versionado. Segredos só nos
+  Secrets do Actions, `GITHUB_TOKEN` read-only e actions pinadas por SHA.
+- GitHub: secret scanning e push protection ligados; Dependabot security
+  updates ligado; topics definidos; Issues e Wiki desligados.
+- Caminhos pessoais removidos de `scripts/measure-gfx.ps1` e do comentário do
+  plugin de assinatura; `package.json` ganhou licença e repositório.
+- `.gitignore`: `lebot-*.zip` cobre fixture/demo/backup e ferramentas locais
+  estão cobertas. 12,4 MB de gerados removidos; `backups/` intacto.
+- Release `v0.2.0`: nome do asset corrigido no corpo (`lebot-0.2.0.apk`).
+- Pendente: nota de marca no README (S13d).
 
 ## Resultado medido (Realme C67, Android 15, `dumpsys gfxinfo`, 6 flings)
 
@@ -40,18 +54,18 @@ Abertura a frio: 1,7–2,1 s. Sem tirar a animação; mediana ~10x menor.
 ## Onde está o APK
 
 - Artefato `lebot-apk` do run `41766015381` (expira em 30 dias) e cópia
-  durável em `C:\Users\francis\Apps\Codes\lebot-artifacts\lebot-0.2.1.apk`.
+  durável em `%USERPROFILE%\Apps\Codes\lebot-artifacts\lebot-0.2.1.apk`.
+  A cópia local sai depois do Release (S13e); o asset publicado é a única.
 - SHA-256 `1D4AE065C6C76497FABCDAE2595347EF1A8F1492E0CC627948E89183FEADD838`.
 - Instalado por cima do 0.2.0 (`versionCode` 2), dados preservados. **O Release
   não foi publicado**: sai na S13e, com as docs fechadas.
 
-## Próximo passo (S13a → S13e)
+## Próximo passo (S13b → S13e)
 
-1. **S13a:** higiene e auditoria do repositório.
-2. **S13b:** mapa e poda dos docs vivos; `docs:check` no CI.
-3. **S13c:** arquivo das specs, roadmap por fases e backlog priorizado.
-4. **S13d:** README, screenshots com acervo fictício e logo.
-5. **S13e:** publicar o `v0.2.1` com o APK medido, sem rebuild.
+1. **S13b:** mapa e poda dos docs vivos; `docs:check` no CI.
+2. **S13c:** arquivo das specs, roadmap por fases e backlog priorizado.
+3. **S13d:** README, screenshots com acervo fictício e logo.
+4. **S13e:** publicar o `v0.2.1` com o APK medido, sem rebuild.
 
 ## Armadilhas
 

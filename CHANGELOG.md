@@ -3,6 +3,24 @@
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Cada sessão é uma entrada; a mais recente vem primeiro.
 
+## S13a — Higiene e auditoria do repositório
+
+### Changed
+
+- `.gitignore`: `lebot-*.zip` cobre fixture, demo e backup; `.expo-shared/`,
+  `.fleet/`, `.history/`, `docs/.obsidian/`, `*.hprof` e `*.heapsnapshot`
+  passam a ser ignorados.
+- `scripts/measure-gfx.ps1` usa `$env:USERPROFILE` no caminho padrão do `adb`;
+  `package.json` declara licença MIT e repositório.
+- GitHub: topics definidos, Issues e Wiki desligados e Dependabot security
+  updates ligado (alinhado à ADR 0005).
+- Corpo do Release `v0.2.0` corrigido para o asset real (`lebot-0.2.0.apk`).
+
+### Removed
+
+- 12,4 MB de artefatos regeneráveis (`dist/`, `dist-web/`, `.expo/`, `tmp/`,
+  `.temp/` e `lebot-200.zip`), com `backups/` preservado.
+
 ## S13 — Fase de documentação e vitrine (planejamento)
 
 ### Changed

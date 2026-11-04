@@ -2,6 +2,11 @@
   "name": "lebot",
   "version": "0.2.1",
   "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/francisN7/LeBot.git"
+  },
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",

@@ -13,7 +13,7 @@
 # mesmo brilho e mesma orientação entre as comparações.
 
 param(
-  [string]$Adb = 'C:\Users\francis\android-sdk\platform-tools\adb.exe',
+  [string]$Adb = "$env:USERPROFILE\android-sdk\platform-tools\adb.exe",
   [string]$Package = 'com.francisN7.lebot',
   [string]$Label = 'medicao',
   [int]$Rounds = 3,

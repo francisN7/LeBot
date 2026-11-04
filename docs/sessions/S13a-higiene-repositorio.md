@@ -9,8 +9,9 @@ local sem artefatos regeneráveis — **sem** tocar no acervo real do dono.
 ## Estado de partida
 
 - Tag de retorno: `pre-s13` (`7da3c88`).
-- APK medido na S12b copiado para `C:\Users\francis\Apps\Codes\lebot-artifacts\`
-  com SHA-256 `1D4AE065…FEADD838` (conferido em 04/11/2026).
+- APK medido na S12b copiado para `%USERPROFILE%\Apps\Codes\lebot-artifacts\`
+  com SHA-256 `1D4AE065…FEADD838` (conferido em 04/11/2026). A cópia local é
+  temporária: sai depois do Release (S13e), que passa a ser a única fonte.
 - `backups/` tem 2 backups reais (2,4 MB): **não apagar, não commitar**.
 
 ## Fora de escopo
