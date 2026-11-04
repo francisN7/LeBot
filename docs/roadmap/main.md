@@ -4,13 +4,8 @@ Fases e backlog pós-MVP. A ordem segue **valor para o leitor × custo × risco*
 primeiro o que deixa as próximas sessões mais baratas, depois o que mais dói no
 uso diário. Um item só vira sessão quando a fase é escolhida.
 
-## Fase 13 — Documentação e vitrine (em andamento)
-
-- [x] **S13a — Higiene e auditoria do repositório.**
-- [x] **S13b — Mapa e poda dos docs vivos.**
-- [x] **S13c — Arquivo, roadmap e backlog.**
-- [x] **S13d — README, screenshots e logo.**
-- [ ] **S13e — Publicar o `v0.2.1` e fechar o MVP.**
+O MVP e a fase de documentação/vitrine estão fechados em
+[`0001-mvp.md`](0001-mvp.md). O roadmap abaixo começa no pós-MVP.
 
 ## Fase 14 — Código que abre caminho
 

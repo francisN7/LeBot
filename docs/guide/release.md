@@ -111,3 +111,13 @@ gh api repos/francisN7/LeBot/actions/artifacts --paginate |
   ForEach-Object { gh api -X DELETE "repos/francisN7/LeBot/actions/artifacts/$_" }
 gh cache list --repo francisN7/LeBot   # apague os hashes velhos com `gh cache delete`
 ```
+
+## Versões publicadas
+
+| Versão | Data | Build | SHA-256 do APK |
+|---|---|---|---|
+| `v0.2.0` | 02/11/2026 | local (S12) | `f09271…3671` |
+| `v0.2.1` | 04/11/2026 | `e6738dd` | `1D4AE0…D838` |
+
+O SHA-256 é o do `.apk` anexado ao Release. O CI confere assinatura, permissões e
+`allowBackup` antes de publicar; rebuild pela tag exige nova medição.

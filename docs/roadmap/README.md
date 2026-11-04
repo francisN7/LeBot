@@ -15,7 +15,7 @@ Status: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 | Arquivo | Estado | O que é |
 |---|---|---|
 | [`main.md`](main.md) | **ativo** | fases e backlog em andamento |
-| [`0001-mvp.md`](0001-mvp.md) | fechado | o que o MVP entregou (S0–S12b) |
+| [`0001-mvp.md`](0001-mvp.md) | fechado | o que o MVP entregou (S0–S13e) |
 | [`../sessions/`](../sessions/) | vivo | specs das sessões |
 | [`../state/CURRENT.md`](../state/CURRENT.md) | vivo | onde paramos agora |
 

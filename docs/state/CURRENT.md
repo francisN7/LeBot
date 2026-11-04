@@ -2,10 +2,11 @@
 
 ## Sessão
 
-- **Última concluída:** S13d — README, screenshots e logo (2026-11-04).
-- **Fase aberta:** S13 — documentação e vitrine, com o release no fim.
-- **Próxima:** S13e — publicar o `v0.2.1`
-  (`docs/sessions/S13e-publicar-release.md`).
+- **Última concluída:** S13e — `v0.2.1` publicado (2026-11-04).
+- **Fase 13 concluída; MVP fechado.** Histórico em `docs/roadmap/0001-mvp.md`.
+- **Próxima:** S14a — code tour, convenções e code report
+  (`docs/sessions/S14a-code-tour.md`).
+- **Depois:** Fase 15 — busca por ISBN.
 - **Retorno:** tag `pre-s13` em `7da3c88`.
 
 ## Documentação
@@ -21,13 +22,15 @@
 - Backlog auditado e priorizado em `docs/roadmap/main.md` (ordem fechada com o
   dono; ideias descartadas registradas).
 
-## APK 0.2.1
+## Release
 
-- Cópia única local: `%USERPROFILE%\Apps\Codes\lebot-artifacts\lebot-0.2.1.apk`.
-- SHA-256 `1D4AE065C6C76497FABCDAE2595347EF1A8F1492E0CC627948E89183FEADD838`.
-- Instalado por cima do 0.2.0, dados preservados. O Release não foi publicado.
-- Depois da S13e sobra só o asset do GitHub; a cópia local e o artefato do
-  Actions são apagados.
+- `v0.2.1` publicado em 04/11/2026, asset `lebot-0.2.1.apk` (56,6 MB).
+- SHA-256 do asset `1D4AE065C6C76497FABCDAE2595347EF1A8F1492E0CC627948E89183FEADD838`;
+  build `e6738dd`.
+- Cópia local, `%TEMP%` e artefato do Actions apagados: o Release é a única
+  fonte do APK.
+- A tag `v0.2.1` aponta para o `main` da documentação; rebuild pela tag exige
+  nova medição antes de publicar.
 
 ## Armadilhas
 

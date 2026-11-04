@@ -29,7 +29,7 @@ Uma entrada por **versão**; o detalhe por sessão está em
   security updates) e caminhos pessoais fora dos scripts.
 - Notas de release movidas para `docs/releases/`.
 
-## v0.2.1 — Estante animada e Ordem paginada (a publicar)
+## v0.2.1 — Estante animada e Ordem paginada (publicada em 04/11/2026)
 
 ### Added
 
