@@ -14,6 +14,13 @@
   </p>
 </div>
 
+## Dedicatória
+
+> **Para a minha amada esposa.** O LêBot nasceu de uma ideia sua: uma estante que
+> respeita o ritmo de quem lê, uma ordem que não pesa e um plano diário que evita
+> a ressaca literária. Você idealizou tudo isso; eu só escrevi o código. Este app
+> é, antes de tudo, para você. Te amo.
+
 | Estante | Hoje | Ordem |
 |---|---|---|
 | <img src="docs/assets/screenshots/estante.png" width="230" alt="Estante com lombadas por gênero e status" /> | <img src="docs/assets/screenshots/hoje.png" width="230" alt="Plano do dia com meta e blocos" /> | <img src="docs/assets/screenshots/ordem.png" width="230" alt="Ordem de leitura com principal e setas" /> |
@@ -109,13 +116,6 @@ Documentação: comece pelo mapa em [`docs/README.md`](docs/README.md). As regra
 para agentes e contribuições estão em [`AGENTS.md`](AGENTS.md), as decisões em
 [`docs/adr/`](docs/adr/) e o futuro em
 [`docs/roadmap/main.md`](docs/roadmap/main.md).
-
-## Sobre
-
-> **Para a minha amada esposa.** O LêBot nasceu de uma ideia sua: uma estante que
-> respeita o ritmo de quem lê, uma ordem que não pesa e um plano diário que evita
-> a ressaca literária. Você idealizou tudo isso; eu só escrevi o código. Este app
-> é, antes de tudo, para você. Te amo.
 
 ## Marca e licença
 
