@@ -233,4 +233,10 @@ jobs:
             gh release create "$TAG" --repo "$GITHUB_REPOSITORY" \
               --title "LêBot $TAG" --generate-notes
           fi
+          # Nunca sobrescrever um APK já anexado: ele pode ser o build medido.
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets \
+              --jq '.assets[].name' | grep -q '^lebot-.*\.apk$'; then
+            echo "Release já tem APK; não sobrescrever."
+            exit 0
+          fi
           gh release upload "$TAG" lebot-*.apk --clobber --repo "$GITHUB_REPOSITORY"

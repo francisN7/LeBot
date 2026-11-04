@@ -93,9 +93,13 @@ gh release create vX.Y.Z --target main --title "LêBot vX.Y.Z" `
 gh release upload vX.Y.Z "$env:TEMP\lebot-apk\lebot-X.Y.Z.apk"
 ```
 
-A tag criada pela API não dispara `on: push: tags`: não há segundo build e o
-asset é o mesmo que foi medido. As notas em `docs/releases/vX.Y.Z.md` **começam
-no texto**, sem `#` — o título do Release já aparece acima do corpo.
+A tag criada pela API **dispara** o `on: push: tags`: o workflow rebuilda em
+segundo plano. O job de publicação tem uma guarda e **não sobrescreve** um APK
+já anexado, então o asset medido fica. Ainda assim o build consome CI — para
+evitá-lo, a decisão pendente é remover o gatilho de tag e publicar só manual.
+
+As notas em `docs/releases/vX.Y.Z.md` **começam no texto**, sem `#` — o título do
+Release já aparece acima do corpo.
 
 ## Subir a versão e limpar
 
@@ -117,7 +121,10 @@ gh cache list --repo francisN7/LeBot   # apague os hashes velhos com `gh cache d
 | Versão | Data | Build | SHA-256 do APK |
 |---|---|---|---|
 | `v0.2.0` | 02/11/2026 | local (S12) | `f09271…3671` |
-| `v0.2.1` | 04/11/2026 | `e6738dd` | `1D4AE0…D838` |
+| `v0.2.1` | 04/11/2026 | `2d66d62` | `e44b2c…3ab6` |
+
+O build de referência medido foi `e6738dd` (SHA `1D4AE0…D838`); a tag rebuildou
+o asset como `e44b2c…`. A medição do asset atual será refeita.
 
 O SHA-256 é o do `.apk` anexado ao Release. O CI confere assinatura, permissões e
 `allowBackup` antes de publicar; rebuild pela tag exige nova medição.

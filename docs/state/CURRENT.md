@@ -26,13 +26,13 @@
 
 ## Release
 
-- `v0.2.1` publicado em 04/11/2026, asset `lebot-0.2.1.apk` (56,6 MB).
-- SHA-256 do asset `1D4AE065C6C76497FABCDAE2595347EF1A8F1492E0CC627948E89183FEADD838`;
-  build `e6738dd`.
-- Cópia local, `%TEMP%` e artefato do Actions apagados: o Release é a única
-  fonte do APK.
-- A tag `v0.2.1` aponta para o `main` da documentação; rebuild pela tag exige
-  nova medição antes de publicar.
+- `v0.2.1` publicado em 04/11/2026; asset atual `e44b2c…3ab6` (build `2d66d62`).
+- **Incidente:** a tag criada pelo `gh release create` disparou o workflow e o
+  rebuild sobrescreveu o APK medido (`1D4AE0…D838`, build `e6738dd`). O código é
+  o mesmo; falta remedir o asset atual (aparelho desconectado).
+- Guarda no `release.yml` impede novo clobber; a decisão de remover o gatilho de
+  tag fica para a próxima sessão.
+- Cópia local, `%TEMP%` e artefatos do Actions apagados.
 
 ## Armadilhas
 
