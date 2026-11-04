@@ -10,7 +10,8 @@ App mobile pessoal para catalogar livros, organizar a fila de leitura e gerar um
    - este arquivo;
    - `docs/state/CURRENT.md`;
    - a spec da sessão atual em `docs/sessions/`.
-2. Use `docs/INDEX.md` para localizar um documento específico. Não leia o repositório inteiro.
+2. Use `docs/README.md` para localizar um documento ou uma seção específica.
+   Não leia o repositório inteiro.
 3. Prefira `grep`/`glob` e leituras parciais. Nunca despeje arquivos grandes no contexto.
 4. No fim da sessão, obrigatoriamente:
    - rodar `npm run lint`, `npm run typecheck` e `npm run test`;
@@ -37,7 +38,8 @@ App mobile pessoal para catalogar livros, organizar a fila de leitura e gerar um
 
 - `src/app/` — rotas (Expo Router), sem lógica de negócio.
 - `src/features/<nome>/` — UI, hooks e serviços da feature; expõe `index.ts`
-  (`library`, `genres`, `planner`, `queue`, `reading`, `settings`, `today`).
+  (`library`, `genres`, `planner`, `queue`, `reading`, `reviews`, `settings`,
+  `stats`, `today`).
 - `src/features/planner/engine/` — algoritmo puro do plano diário, sem React
   Native, banco ou relógio global (S6).
 - `src/db/` — schema, client, migrações, seed e repositórios.

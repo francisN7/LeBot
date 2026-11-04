@@ -4,10 +4,13 @@
 
 - **Última concluída:** S12b — estante animada só no visível + Ordem paginada
   (2026-11-04).
-- **Próxima:** S13a — documentação final e limpeza do backlog
-  (`docs/sessions/S13a-documentacao-final.md`).
-- **Depois:** S13b — publicar o `v0.2.1` com o APK medido aqui
-  (`docs/sessions/S13b-publicacao-release.md`).
+- **Fase aberta:** S13 — documentação e vitrine, em cinco sub-sessões, **com o
+  release no fim** (decisão do dono em 04/11/2026).
+- **Próxima:** S13a — higiene e auditoria do repositório
+  (`docs/sessions/S13a-higiene-repositorio.md`).
+- **Depois:** S13b (mapa e poda), S13c (arquivo/roadmap/backlog), S13d
+  (README/screenshots) e S13e (publicar o `v0.2.1`).
+- **Retorno:** tag `pre-s13` em `7da3c88`.
 
 ## Resultado medido (Realme C67, Android 15, `dumpsys gfxinfo`, 6 flings)
 
@@ -36,18 +39,19 @@ Abertura a frio: 1,7–2,1 s. Sem tirar a animação; mediana ~10x menor.
 
 ## Onde está o APK
 
-- Artefato `lebot-apk` do run `41766015381` (30 dias) e cópia em
-  `%TEMP%\lebot-apk\lebot-0.2.1.apk`.
+- Artefato `lebot-apk` do run `41766015381` (expira em 30 dias) e cópia
+  durável em `C:\Users\francis\Apps\Codes\lebot-artifacts\lebot-0.2.1.apk`.
 - SHA-256 `1D4AE065C6C76497FABCDAE2595347EF1A8F1492E0CC627948E89183FEADD838`.
 - Instalado por cima do 0.2.0 (`versionCode` 2), dados preservados. **O Release
-  não foi publicado**: sai na S13b.
+  não foi publicado**: sai na S13e, com as docs fechadas.
 
-## Próximo passo (S13a → S13b)
+## Próximo passo (S13a → S13e)
 
-1. **S13a:** nomenclatura Xa/Xb, backlog pela prioridade do dono, varredura e
-   revisão dos docs vivos.
-2. **S13b:** `gh release create v0.2.1 --target main --title "LêBot v0.2.1"
-   --notes-file docs/release-notes-v0.2.1.md` + upload do mesmo APK.
+1. **S13a:** higiene e auditoria do repositório.
+2. **S13b:** mapa e poda dos docs vivos; `docs:check` no CI.
+3. **S13c:** arquivo das specs, roadmap por fases e backlog priorizado.
+4. **S13d:** README, screenshots com acervo fictício e logo.
+5. **S13e:** publicar o `v0.2.1` com o APK medido, sem rebuild.
 
 ## Armadilhas
 
@@ -57,8 +61,11 @@ Abertura a frio: 1,7–2,1 s. Sem tirar a animação; mediana ~10x menor.
 - Custo da Ordem era montar ~172 `QueueRow`; `sync()` custa ~70 ms.
 - Fixture em `/sdcard/Download/lebot-200.zip`; o acervo real fica na pasta
   `LêBot/` do aparelho (Ajustes → Backup restaura).
-- Artefato do Actions expira em 30 dias; se a S13b demorar, rebuildar no mesmo
-  commit antes de publicar.
+- Artefato do Actions expira em 30 dias; a cópia durável em
+  `lebot-artifacts\` é a fonte. Se o build tiver de ser refeito, que seja no
+  commit `7da3c88` e com medição curta antes de publicar.
+- `backups/` tem 2 backups **reais** (2,4 MB): nunca commitar, nunca apagar.
+- Sessões usam dados fictícios em screenshots (S13d); o acervo real volta depois.
 - Nunca editar Markdown com PowerShell (`Get-Content -Raw` + `Set-Content`
   corrompe acento); usar o editor.
 

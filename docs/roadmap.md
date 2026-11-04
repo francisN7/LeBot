@@ -16,6 +16,11 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 > A **S12b** (otimização da Estante) **roda depois da S12a**: com o build só em
 > CI, a medição usa o artefato do `workflow_dispatch` em vez de um build local.
 >
+> A **S13** deixou de ser uma sessão única: virou a fase de documentação e
+> vitrine em cinco sub-sessões (S13a–S13e), **com o release no fim**, por decisão
+> do dono em 04/11/2026. As specs antigas (`S13a-documentacao-final`,
+> `S13b-publicacao-release`) foram substituídas.
+>
 > Antes da S6, uma auditoria de documentação conferiu README, AGENTS e docs
 > vivos contra o código da S5 (sem antecipar o motor do plano).
 
@@ -43,13 +48,16 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 | S11c | [x] | Estante fluida | Lombada em camadas (corpo estático + brilho/piscada/zzz/tassel isolados) e grade `FlatList` virtualizada para milhares de livros; UI/JS **11/56 → 84/84 fps** em dev com 5 livros; número final e estante cheia no APK da S12 | `sessions/S11c-estante-performance.md` |
 | S12 | [x] | Release interno | APK assinado (`com.francisN7.lebot` 0.2.0, arm64+armv7) instalado e aberto fora do Expo Go; ícone, splash e launcher conferidos; backup exportar/restaurar ok; build movido para WSL2. Estante com 201 livros ficou em 77% janky e foi para a S12b | `sessions/S12-release-interno.md` |
 | S12a | [x] | Build no GitHub Actions + limpeza do PC | Workflow por tag/`workflow_dispatch` compila e confere o APK (assinatura pelo SHA-256, sem `RECORD_AUDIO`/`SYSTEM_ALERT_WINDOW`, `allowBackup=false`); CI verde; ~22,6 GB devolvidos (WSL, JDK, Gradle, `node_modules`). Instalar no aparelho e trocar o asset do `v0.2.0` passaram para a S12b (decisão do dono) | `sessions/S12a-ci-github-e-estante-cheia.md` |
-| S12b | [x] | Estante animada só no visível + Ordem paginada (0.2.1) | Com 200 livros: 71,5% → ~5% janky e mediana 53 → 18–19 ms sem tirar a animação; 3 livros em 2,5–3,0% (referência 4,4%); Ordem em páginas de 10 acaba com o ANR e a seta sobe da página 2 para a 1; fixture UTF-8 + `measure-gfx.ps1`; APK 0.2.1 instalado por cima do 0.2.0 **sem publicar** — o Release nasce na S13b, com as docs fechadas | `sessions/S12b-otimizacao-estante.md` |
-| S13a | [ ] | Documentação final + limpeza do backlog | Sub-sessões no padrão Xa/Xb; backlog reordenado pela prioridade do dono; itens descartados removidos dos docs; docs revisados e changelog fechado | `sessions/S13a-documentacao-final.md` |
-| S13b | [ ] | Publicar o v0.2.1 (fim do MVP) | Release `v0.2.1` com o APK medido na S12b (mesmo SHA-256) e notas sem H1; o APK do Release instala por cima do 0.2.0 com os dados intactos | `sessions/S13b-publicacao-release.md` |
+| S12b | [x] | Estante animada só no visível + Ordem paginada (0.2.1) | Com 200 livros: 71,5% → ~5% janky e mediana 53 → 18–19 ms sem tirar a animação; 3 livros em 2,5–3,0% (referência 4,4%); Ordem em páginas de 10 acaba com o ANR e a seta sobe da página 2 para a 1; fixture UTF-8 + `measure-gfx.ps1`; APK 0.2.1 instalado por cima do 0.2.0 **sem publicar** — o Release nasce na S13e, com as docs fechadas | `sessions/S12b-otimizacao-estante.md` |
+| S13a | [ ] | Higiene e auditoria do repositório | Nada sensível ou gerado versionado; `.gitignore` conferido com `check-ignore`; GitHub com topics e Issues/Wiki desligados; `backups/` intacto e APK durável com SHA-256 conferido | `sessions/S13a-higiene-repositorio.md` |
+| S13b | [ ] | Mapa e poda dos docs vivos | Mapa + `guide/` + `reference/` ≤1.250 linhas; TL;DR em todo doc vivo; `AGENTS` ≤90 e `CURRENT` ≤55; `docs:check` (links + orçamento) no CI | `sessions/S13b-mapa-e-poda-docs.md` |
+| S13c | [ ] | Arquivo, roadmap e backlog | Specs de S00–S12b fora do repo; `roadmap/mvp.md` de 1 página; `CHANGELOG` por versão ≤150 linhas; `adr/README` com 27; `next.md` por fases com a prioridade do dono | `sessions/S13c-arquivo-roadmap-backlog.md` |
+| S13d | [ ] | README, screenshots e logo | Vitrine PT-BR + resumo em inglês com logo, badges e 6 telas de acervo fictício; social preview; todo comando do README conferido | `sessions/S13d-readme-screenshots.md` |
+| S13e | [ ] | Publicar o v0.2.1 (fim do MVP) | Release `v0.2.1` com o APK medido na S12b (mesmo SHA-256), notas sem H1 e docs fechadas; instala por cima do 0.2.0 com os dados intactos | `sessions/S13e-publicar-release.md` |
 
 ## Backlog pós-MVP
 
-> A ordem abaixo é provisória: a S13a reordena pela prioridade do dono e remove
+> A ordem abaixo é provisória: a S13c reordena pela prioridade do dono e remove
 > o que não entra mais.
 
 - **Estante em blocos (só se o acervo crescer):** carregar 200 livros por vez

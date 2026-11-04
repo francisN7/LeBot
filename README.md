@@ -99,7 +99,7 @@ Detalhes em [`docs/security-privacy.md`](docs/security-privacy.md).
 | Documento | Para quê |
 |---|---|
 | [`AGENTS.md`](AGENTS.md) | regras de contribuição e protocolo de contexto |
-| [`docs/INDEX.md`](docs/INDEX.md) | índice completo da documentação |
+| [`docs/README.md`](docs/README.md) | mapa da documentação (por pergunta e por seção) |
 | [`docs/state/CURRENT.md`](docs/state/CURRENT.md) | onde paramos e o próximo passo |
 | [`docs/roadmap.md`](docs/roadmap.md) | sessões e critérios de aceite |
 | [`docs/brand.md`](docs/brand.md) | identidade visual |

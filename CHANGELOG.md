@@ -3,6 +3,22 @@
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Cada sessão é uma entrada; a mais recente vem primeiro.
 
+## S13 — Fase de documentação e vitrine (planejamento)
+
+### Changed
+
+- A S13 virou cinco sub-sessões com o **release no fim** (decisão do dono em
+  04/11/2026): S13a higiene e auditoria, S13b mapa e poda, S13c arquivo/roadmap/
+  backlog, S13d README/screenshots e S13e publicar o `v0.2.1`.
+- `docs/INDEX.md` deu lugar a `docs/README.md`, com atalho por pergunta e por
+  seção e orçamento de leitura.
+- `AGENTS.md` corrigido: a lista de features agora inclui `reviews` e `stats`.
+
+### Removed
+
+- As specs `S13a-documentacao-final` e `S13b-publicacao-release`, substituídas
+  pelas cinco novas.
+
 ## S12b — Estante animada só no visível + Ordem paginada (v0.2.1)
 
 ### Added
