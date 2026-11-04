@@ -18,6 +18,9 @@ Uma entrada por **versão**; o detalhe por sessão está em
 
 - Docs vivos separados em `guide/` e `reference/`, com mapa por seção e
   `npm run docs:check` no CI (links + orçamento).
+- Modelo registrado na [ADR 0028](docs/adr/0028-documentacao-por-tipo-e-roadmap-numerado.md);
+  as specs da fase saíram do working tree e o resumo está em
+  [`docs/roadmap/0001-mvp.md`](docs/roadmap/0001-mvp.md).
 - As 23 specs antigas saíram do working tree; o MVP virou
   [`docs/roadmap/0001-mvp.md`](docs/roadmap/0001-mvp.md) e o `CHANGELOG`, uma
   entrada por versão.

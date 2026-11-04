@@ -13,6 +13,8 @@
 
 - Mapa em `docs/README.md`. Guias em `docs/guide/`, referência em
   `docs/reference/`, decisões em `docs/adr/`, notas em `docs/releases/`.
+- Modelo e orçamento registrados na ADR 0028; as specs da fase saíram do working
+  tree e só a S14a (mais o `_TEMPLATE`) fica em `docs/sessions/`.
 - Orçamento: mapa + guide + reference ≤1.300 linhas; `AGENTS` ≤100;
   `CURRENT` ≤60; spec ≤90. `npm run docs:check` (links + orçamento) roda no CI.
 - README com logo, badges, seis telas em `docs/assets/screenshots/` e resumo em
