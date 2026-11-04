@@ -116,4 +116,22 @@ describe('Spine', () => {
     expect(screen.queryByText('Sapiens')).not.toBeOnTheScreen();
     expect(screen.getByLabelText('Lombada de Sapiens')).toBeOnTheScreen();
   });
+
+  it('mantém a arte montada quando a animação está pausada', async () => {
+    await renderWithProviders(
+      <Spine
+        animating={false}
+        color={colors.teal}
+        status="finished"
+        testID="lombada"
+        title="Sapiens"
+      />,
+    );
+
+    // Parar os loops não pode desmontar corpo, rosto nem tassel (S12b).
+    expect(screen.getByTestId('lombada-art')).toBeOnTheScreen();
+    expect(
+      screen.getByTestId('lombada-tassel', { includeHiddenElements: true }),
+    ).toBeOnTheScreen();
+  });
 });

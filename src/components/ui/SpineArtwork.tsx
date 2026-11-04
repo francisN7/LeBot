@@ -61,8 +61,17 @@ type SpineArtworkProps = {
   /** Origem do giro do tassel em px: a arte escala com a lombada. */
   width?: number;
   height?: number;
+  /**
+   * Liga os quatro loops (brilho, piscada, “zzz” e tassel). Falso deixa a arte
+   * no repouso: brilho fora, olhos abertos, tassel reto. A grade usa isso para
+   * animar só os cards visíveis e pausar durante a rolagem (S12b).
+   */
+  animating?: boolean;
   testID?: string;
 };
+
+/** Tempo para o tassel voltar ao repouso sem salto quando a animação pausa. */
+const SETTLE_MS = 160;
 
 function percent(value: number, total: number): `${number}%` {
   return `${(value / total) * 100}%` as `${number}%`;
@@ -312,6 +321,7 @@ function SpineArtworkBase({
   palette,
   width = VIEW.width,
   height = VIEW.height,
+  animating = true,
   testID,
 }: SpineArtworkProps) {
   const sheen = useSharedValue(-20);
@@ -319,7 +329,7 @@ function SpineArtworkBase({
   const body = useSharedValue(0);
   const fringe = useSharedValue(0);
   const shadow = useSharedValue(0);
-  const { blink, canBlink } = useBlink(expression);
+  const { blink, canBlink } = useBlink(expression, animating);
   const rawId = useId();
   const baseId = `spine-cyl-${rawId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const clipId = `${baseId}-clip`;
@@ -328,6 +338,11 @@ function SpineArtworkBase({
   const shadowId = `${baseId}-tassel-shadow`;
 
   useEffect(() => {
+    if (!animating) {
+      sheen.value = withTiming(-20, { duration: SETTLE_MS });
+      return;
+    }
+
     sheen.value = -20;
     sheen.value = withRepeat(
       withSequence(
@@ -342,10 +357,10 @@ function SpineArtworkBase({
       ),
       -1,
     );
-  }, [sheen]);
+  }, [animating, sheen]);
 
   useEffect(() => {
-    if (expression !== 'sleepy') {
+    if (!animating || expression !== 'sleepy') {
       asleep.value = 1;
       return;
     }
@@ -355,13 +370,21 @@ function SpineArtworkBase({
       -1,
       true,
     );
-  }, [asleep, expression]);
+  }, [animating, asleep, expression]);
 
   useEffect(() => {
+    if (!animating) {
+      // Volta ao repouso em vez de congelar no meio do balanço.
+      body.value = withTiming(0, { duration: SETTLE_MS });
+      fringe.value = withTiming(0, { duration: SETTLE_MS });
+      shadow.value = withTiming(0, { duration: SETTLE_MS });
+      return;
+    }
+
     body.value = bodySwing();
     fringe.value = fringeSwing();
     shadow.value = shadowSwing();
-  }, [body, fringe, shadow]);
+  }, [animating, body, fringe, shadow]);
 
   const sheenMotion = useAnimatedStyle(() => ({
     transform: [{ translateX: (sheen.value / VIEW.width) * width }],

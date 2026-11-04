@@ -55,6 +55,7 @@ Thumbs.db
 backups/
 *.sqlite
 lebot-backup-*.zip
+lebot-200.zip
 *.sqlite3
 *.db
 *.db-wal

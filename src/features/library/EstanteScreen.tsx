@@ -35,6 +35,7 @@ import { StatusWheelOverlay } from './status-wheel-overlay';
 import { StatusWheelTrigger } from './status-wheel-trigger';
 import type { Book, ReadingStatus } from './types';
 import { useBooks } from './use-books';
+import { useShelfAnimations } from './use-shelf-animations';
 
 type ShelfFilter = 'all' | ReadingStatus;
 
@@ -102,6 +103,8 @@ export function EstanteScreen({
   const { books, update } = useBooks();
   const { genreById } = useGenres();
   const { byBook: reviewsByBook } = useReviews();
+  // S12b: a grade só anima o que está à vista e pausa tudo na rolagem.
+  const shelfAnimations = useShelfAnimations();
 
   function measureWheelArea(event: LayoutChangeEvent) {
     const { width, height } = event.nativeEvent.layout;
@@ -231,6 +234,10 @@ export function EstanteScreen({
             />
           ) : (
             <Spine
+              animating={
+                !shelfAnimations.scrolling &&
+                shelfAnimations.animatingIds.has(book.id)
+              }
               color={genreColor}
               onPress={() => onOpenBook?.(book.id)}
               status={displayStatus}
@@ -375,12 +382,18 @@ export function EstanteScreen({
             ListHeaderComponent={header}
             maxToRenderPerBatch={BATCH}
             numColumns={2}
+            onMomentumScrollBegin={shelfAnimations.onMomentumScrollBegin}
+            onMomentumScrollEnd={shelfAnimations.onMomentumScrollEnd}
+            onScrollBeginDrag={shelfAnimations.onScrollBeginDrag}
+            onScrollEndDrag={shelfAnimations.onScrollEndDrag}
+            onViewableItemsChanged={shelfAnimations.onViewableItemsChanged}
             removeClippedSubviews
             renderItem={renderBook}
             showsVerticalScrollIndicator={false}
             style={styles.list}
             testID="estante-grade"
             updateCellsBatchingPeriod={50}
+            viewabilityConfig={shelfAnimations.viewabilityConfig}
             windowSize={5}
           />
         </Screen>

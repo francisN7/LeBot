@@ -3,14 +3,16 @@ import type { ExpoConfig } from 'expo/config';
 const config: ExpoConfig = {
   name: 'LêBot',
   slug: 'lebot',
-  version: '0.2.0',
+  version: '0.2.1',
   orientation: 'portrait',
   scheme: 'lebot',
   userInterfaceStyle: 'light',
   icon: './assets/images/icon.png',
   android: {
     package: 'com.francisN7.lebot',
-    versionCode: 1,
+    // Cada release sobe 1: o Android recusa `versionCode` menor que o instalado
+    // e só enxerga atualização com número maior (0.2.0 = 1, 0.2.1 = 2).
+    versionCode: 2,
     // O LêBot não grava áudio nem desenha sobre outros apps. As duas permissões
     // vinham de bibliotecas (image-picker/dev) e apareciam no APK da S12.
     blockedPermissions: [

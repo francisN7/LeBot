@@ -29,6 +29,11 @@ type SpineProps = {
   status?: ReadingStatus;
   /** Flutua devagar: reservado para telas com um livro só (detalhe). */
   animated?: boolean;
+  /**
+   * Liga os loops da arte (brilho, piscada, “zzz” e tassel). A grade passa
+   * `false` para cards fora da tela ou durante a rolagem (S12b).
+   */
+  animating?: boolean;
   width?: number;
   height?: number;
   onPress?: () => void;
@@ -61,6 +66,7 @@ export function Spine({
   color,
   status,
   animated = false,
+  animating = true,
   width = sizes.spine.width,
   height = sizes.spine.height,
   onPress,
@@ -177,6 +183,7 @@ export function Spine({
               testID={testID ? `${testID}-art` : undefined}
             >
               <SpineArtwork
+                animating={animating}
                 expression={art.expression}
                 height={height}
                 palette={art.palette}

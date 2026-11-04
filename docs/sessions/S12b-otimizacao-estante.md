@@ -43,10 +43,11 @@ O que existe hoje (`EstanteScreen.tsx`, `spine.tsx`, `SpineArtwork.tsx`):
 1. **Fixture UTF-8 + linha de base.** Criar `scripts/build-200-books.mjs`
    (versionado) gerando `lebot-200.zip` com o schema atual e acentos corretos (o
    `lebot-backup-cheio.zip` da S11 tem texto duplicado: `Breve RelÃ³gio`).
-   Antes de medir, instalar por cima o APK do CI da S12a (`adb install -r`,
-   mesma assinatura) e confirmar que os dados continuam lá — é o aceite que
-   ficou pendente. Restaurar a fixture e medir a linha de base antes de mexer no
-   código.
+   A linha de base sai do **0.2.0 que já está no aparelho** — o APK da S12a tem o
+   mesmo código de animação, então não vale um build só para reconferir números.
+   O aceite de instalar por cima (mesma assinatura, dados intactos) migra para o
+   APK da v0.2.1. Antes de restaurar a fixture, exportar o backup do acervo real
+   do dono e restaurá-lo no fim.
 2. **Animar só o visível.**
    - `onViewableItemsChanged` + `viewabilityConfig` (ex.:
      `itemVisiblePercentThreshold: 20`) guardando só os IDs visíveis num `Set`.
@@ -71,11 +72,18 @@ O que existe hoje (`EstanteScreen.tsx`, `spine.tsx`, `SpineArtwork.tsx`):
    - Combinação final: `animating = visível && !rolando`.
 4. **Medir e comparar.** Mesmo protocolo para 200 e 5 livros, duas rodadas cada.
    Registrar frames, janky, mediana e p95 na spec e no `CURRENT.md`.
-5. **Publicar só se compensar.** Se a rolagem com 200 livros melhorar de forma
-   perceptível, gerar o APK (`workflow_dispatch`), instalar por cima e trocar o
-   asset do `v0.2.0` (`gh release upload v0.2.0 ... --clobber`), com
-   `apksigner` conferido. Se não houver ganho real, não publicar: registrar a
-   medição e deixar a mudança seguir no próximo build.
+5. **Publicar como v0.2.1.** A release leva também as mudanças da S12a
+   (permissões e `allowBackup`), então o corte de janky deixa de decidir **se**
+   publica — decide só o que as notas afirmam.
+   - `package.json` e `app.config.ts` em `0.2.1`, `versionCode: 2` (sem isso o
+     Android não vê atualização).
+   - `docs/release-notes-v0.2.1.md` **sem H1**: o título vai no Release, não no
+     corpo (no 0.2.0 ele aparecia duas vezes).
+   - Fluxo: `workflow_dispatch` → medir o artefato → publicar **o mesmo APK**
+     medido com `gh release create v0.2.1 --notes-file ...` +
+     `gh release upload`. Assim o asset é exatamente o que passou no aparelho e
+     um único build (~15–17 min) basta; a tag criada pela API não dispara o
+     workflow de novo.
 6. **Fechar.** `CURRENT.md`, `roadmap.md`, `CHANGELOG.md` (entrada `S12b`) e
    commit `S12b: ...`.
 
@@ -111,8 +119,9 @@ Start-Sleep -Seconds 2
 - [ ] Medição de 200 livros antes e depois, com frames/janky/mediana/p95
       registrados.
 - [ ] `lebot-200.zip` abre com acentos corretos e o gerador está em `scripts/`.
-- [ ] Se publicar: APK instala por cima do 0.2.0 (mesma assinatura) e o asset do
-      `v0.2.0` fica com o build corrigido.
+- [ ] Publicado como **v0.2.1** (título sem H1 duplicado, notas com as diferenças
+      em relação ao 0.2.0): APK instala por cima do 0.2.0 com os dados intactos
+      e o asset é o mesmo APK medido.
 - [ ] lint, typecheck, test, doctor e `expo export` verdes.
 
 > Meta de referência: ≤ 5% janky com 200 livros. Se não bater, registrar o ganho

@@ -166,13 +166,17 @@ export function blinks(expression: SpineExpression): boolean {
  * A lombada usa a opacidade do overlay de olhos; o selo da capa anima o grupo
  * dentro do SVG. Só `happy`/`neutral` piscam — `sleepy` e `shine` já têm olhos
  * fechados/estrela.
+ *
+ * `active` (S12b) desliga o loop e deixa os olhos abertos: a grade pausa os
+ * cards fora da tela e durante a rolagem. Atribuir `1` já cancela a animação em
+ * curso — não é preciso desmontar a camada.
  */
-export function useBlink(expression: SpineExpression) {
+export function useBlink(expression: SpineExpression, active = true) {
   const blink = useSharedValue(1);
   const canBlink = blinks(expression);
 
   useEffect(() => {
-    if (!canBlink) {
+    if (!canBlink || !active) {
       blink.value = 1;
       return;
     }
@@ -186,7 +190,7 @@ export function useBlink(expression: SpineExpression) {
       ),
       -1,
     );
-  }, [blink, canBlink]);
+  }, [active, blink, canBlink]);
 
   return { blink, canBlink };
 }
