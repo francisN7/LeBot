@@ -34,7 +34,7 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
   tela acompanha o livro (o primeiro da página 2 sobe para a página 1).
 - `docs/release-notes-v0.2.1.md` começando no texto, sem H1 — o título do
   Release não se repete no corpo. A **publicação do `v0.2.1` foi adiada para o
-  fim da S13** (decisão do dono): a tag nasce junto com a documentação fechada,
+  fim da S13b** (decisão do dono): a tag nasce junto com a documentação fechada,
   usando o mesmo APK medido aqui.
 - `docs/release.md`: publicar o **mesmo APK medido** (`gh release create` +
   `upload`) em vez de recompilar pela tag.

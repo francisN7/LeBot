@@ -72,13 +72,13 @@ O que existe hoje (`EstanteScreen.tsx`, `spine.tsx`, `SpineArtwork.tsx`):
    - Combinação final: `animating = visível && !rolando`.
 4. **Medir e comparar.** Mesmo protocolo para 200 e 5 livros, duas rodadas cada.
    Registrar frames, janky, mediana e p95 na spec e no `CURRENT.md`.
-5. **Instalar, testar e só publicar na S13.** Decisão do dono em 04/11: este
+5. **Instalar, testar e só publicar na S13b.** Decisão do dono em 04/11: este
    build **não** vira release agora. O APK é instalado por cima do 0.2.0
    (`adb install -r`) e testado no aparelho; a publicação do `v0.2.1` fica para o
-   fim da S13, para a tag nascer junto com a documentação fechada.
+   fim da S13b, para a tag nascer junto com a documentação fechada.
    - `package.json` e `app.config.ts` já em `0.2.1`, `versionCode: 2` (sem isso o
      Android não vê atualização).
-   - `docs/release-notes-v0.2.1.md` fica pronto, **sem H1**: na S13,
+   - `docs/release-notes-v0.2.1.md` fica pronto, **sem H1**: na S13b,
      `gh release create v0.2.1 --notes-file ...` + upload do **mesmo APK medido**.
      A tag criada pela API não dispara um segundo build.
 6. **Ordem paginada (10 por página).** A Ordem montava todas as `QueueRow` de
@@ -124,7 +124,7 @@ Start-Sleep -Seconds 2
       registrados.
 - [ ] `lebot-200.zip` abre com acentos corretos e o gerador está em `scripts/`.
 - [ ] APK da v0.2.1 instalado por cima do 0.2.0 (mesma assinatura) com os dados
-      intactos; a publicação do Release fica para a S13 (decisão do dono), com
+      intactos; a publicação do Release fica para a S13b (decisão do dono), com
       `docs/release-notes-v0.2.1.md` já pronto.
 - [ ] Ordem com 200 livros abre sem ANR, mostra 10 por página e o primeiro da
       página 2 sobe para a página 1 pela seta.
