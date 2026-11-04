@@ -62,6 +62,11 @@ jobs:
           cache: npm
 
       - uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
+        with:
+          # O padrão da action instala o pacote `tools`, que saiu do repositório
+          # do SDK e faz o passo falhar.
+          cmdline-tools-version: '13114758'
+          packages: 'platform-tools'
 
       - name: Instalar SDK, NDK e CMake
         run: |
