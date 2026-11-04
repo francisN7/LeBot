@@ -131,6 +131,8 @@ jobs:
 
       - name: Compilar APK
         run: |
+          cd android
+          chmod +x gradlew
           ./gradlew assembleRelease \
             -PreactNativeArchitectures=arm64-v8a,armeabi-v7a \
             --no-daemon --max-workers=2 --no-parallel
@@ -162,7 +164,9 @@ jobs:
             echo "::error::allowBackup não está explícito no manifesto"
             exit 1
           fi
-          if ! grep -A2 'allowBackup' /tmp/manifest.txt | grep -q '0x0'; then
+          # `0x0` sozinho casaria com o id do atributo (0x01010280) e daria
+          # falso positivo; o valor precisa vir no formato do xmltree.
+          if ! grep -qE 'allowBackup.*=\(type 0x12\)0x0' /tmp/manifest.txt; then
             echo "::error::allowBackup não está desligado"
             exit 1
           fi
