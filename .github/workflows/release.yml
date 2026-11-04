@@ -5,11 +5,11 @@ name: Release
 # - `workflow_dispatch`: compila e sobe o APK como artefato (teste e medição).
 on:
   push:
-    tags: ['v*']
+    tags: ["v*"]
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag do Release que recebe o APK (vazio = só artefato)'
+        description: "Tag do Release que recebe o APK (vazio = só artefato)"
         required: false
         type: string
 
@@ -21,9 +21,9 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  CI: '1'
+  CI: "1"
   # Impede o husky de tentar instalar ganchos no runner.
-  HUSKY: '0'
+  HUSKY: "0"
 
 jobs:
   apk:
@@ -54,7 +54,7 @@ jobs:
       - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
 
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
@@ -65,8 +65,8 @@ jobs:
         with:
           # O padrão da action instala o pacote `tools`, que saiu do repositório
           # do SDK e faz o passo falhar.
-          cmdline-tools-version: '13114758'
-          packages: 'platform-tools'
+          cmdline-tools-version: "13114758"
+          packages: "platform-tools"
 
       - name: Instalar SDK, NDK e CMake
         run: |

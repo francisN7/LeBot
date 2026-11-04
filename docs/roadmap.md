@@ -12,9 +12,9 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 > (~10 fps) antes do release.
 >
 > A **S12a** entrou depois da S12 para tirar o build da máquina local (GitHub
-> Actions) e corrigir permissões/`allowBackup` do APK. A **S12b** (otimização da
-> Estante) **roda antes da S12a**: o dono pediu correções rápidas ainda no 0.2.0,
-> e medir performance com build local é mais barato que com o runner.
+> Actions), corrigir permissões/`allowBackup` do APK e devolver ~22 GB de disco.
+> A **S12b** (otimização da Estante) **roda depois da S12a**: com o build só em
+> CI, a medição usa o artefato do `workflow_dispatch` em vez de um build local.
 >
 > Antes da S6, uma auditoria de documentação conferiu README, AGENTS e docs
 > vivos contra o código da S5 (sem antecipar o motor do plano).

@@ -6,8 +6,10 @@ Atacar o custo real da grade sem tirar a animação: **animar só os cards visí
 e **pausar as animações durante a rolagem**. Medir antes e depois com 200 livros
 e registrar os números.
 
-> Roda antes da S12a. A lombada continua animada na grade (decisão do dono): o
-> que muda é **quantas** animam por vez e **quando**.
+> Roda **depois** da S12a: o build local saiu de cena (ADR 0026), então o APK de
+> medição vem de um `workflow_dispatch` do `release.yml` (artefato, sem
+> publicar). A lombada continua animada na grade (decisão do dono): o que muda é
+> **quantas** animam por vez e **quando**.
 
 ## Fora de escopo
 
@@ -67,10 +69,10 @@ O que existe hoje (`EstanteScreen.tsx`, `spine.tsx`, `SpineArtwork.tsx`):
 4. **Medir e comparar.** Mesmo protocolo para 200 e 5 livros, duas rodadas cada.
    Registrar frames, janky, mediana e p95 na spec e no `CURRENT.md`.
 5. **Publicar só se compensar.** Se a rolagem com 200 livros melhorar de forma
-   perceptível, gerar o APK (mesma assinatura), instalar por cima e trocar o
+   perceptível, gerar o APK (`workflow_dispatch`), instalar por cima e trocar o
    asset do `v0.2.0` (`gh release upload v0.2.0 ... --clobber`), com
    `apksigner` conferido. Se não houver ganho real, não publicar: registrar a
-   medição e deixar a mudança seguir no próximo build da S12a.
+   medição e deixar a mudança seguir no próximo build.
 6. **Fechar.** `CURRENT.md`, `roadmap.md`, `CHANGELOG.md` (entrada `S12b`) e
    commit `S12b: ...`.
 
@@ -136,4 +138,6 @@ Start-Sleep -Seconds 2
 - **Pausa sem retomada:** se o evento de fim não vier, as lombadas ficam
   congeladas; o timer de segurança cobre isso.
 - **Ruído do `adb input swipe`:** repetir e comparar mediana, não um número só.
-- **Custo do build:** ~11 min por iteração; agrupar as duas mudanças em um build.
+- **Custo do build:** cada iteração custa um run de CI (~15 min com cache) mais
+  o download do APK. Agrupar as duas mudanças em um build e usar
+  `workflow_dispatch` (artefato) em vez de tag.
