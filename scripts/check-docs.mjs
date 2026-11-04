@@ -6,9 +6,9 @@
  * 2. orçamento de linhas de AGENTS, CURRENT e specs de sessão;
  * 3. histórico disfarçado de referência ("## Cobertura da SXX").
  *
- * Histórico: specs antigas (antes da S13) não são reescritas; o orçamento de
- * spec vale para as sessões novas. CHANGELOG, `docs/releases/` e ADRs não entram
- * na checagem de link.
+ * Histórico: CHANGELOG, `docs/releases/` e ADRs não entram na checagem de link.
+ * Specs de fases fechadas saem do working tree; o orçamento vale para as que
+ * ficam (a próxima e as em andamento).
  *
  * Uso: node scripts/check-docs.mjs
  */
@@ -109,9 +109,6 @@ function checkBudget(file) {
 function checkSessionBudget(file) {
   const rel = relative(file);
   if (!rel.startsWith('docs/sessions/') || rel.endsWith('_TEMPLATE.md')) return;
-  // Specs antes da S13 são histórico; o orçamento vale para as novas.
-  const session = rel.match(/\/S(\d+)/);
-  if (!session || Number(session[1]) < 13) return;
   const lines = lineCount(file);
   if (lines > 90) {
     errors.push(`${rel}: ${lines} linhas (spec máx. 90)`);
