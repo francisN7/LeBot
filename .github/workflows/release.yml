@@ -78,6 +78,7 @@ jobs:
             "cmake;3.22.1"
 
       - name: Cache do Gradle
+        id: gradle-cache
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
@@ -137,6 +138,17 @@ jobs:
             -PreactNativeArchitectures=arm64-v8a,armeabi-v7a \
             --no-daemon --max-workers=2 --no-parallel
 
+      # Salva o cache logo após compilar: uma reprovação na verificação não deve
+      # custar 20 min de build na próxima tentativa.
+      - name: Salvar cache do Gradle
+        if: always() && steps.gradle-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          key: gradle-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+
       - name: Conferir assinatura do APK
         run: |
           APK=android/app/build/outputs/apk/release/app-release.apk
@@ -154,22 +166,35 @@ jobs:
         run: |
           APK=android/app/build/outputs/apk/release/app-release.apk
           AAPT2="$ANDROID_SDK_ROOT/build-tools/37.0.0/aapt2"
-          "$AAPT2" dump permissions "$APK" | tee /tmp/perms.txt
-          if grep -qE 'RECORD_AUDIO|SYSTEM_ALERT_WINDOW' /tmp/perms.txt; then
+          mkdir -p verificacao
+          "$AAPT2" dump permissions "$APK" | tee verificacao/permissoes.txt
+          if grep -qE 'RECORD_AUDIO|SYSTEM_ALERT_WINDOW' verificacao/permissoes.txt; then
             echo "::error::APK ainda declara RECORD_AUDIO ou SYSTEM_ALERT_WINDOW"
             exit 1
           fi
-          "$AAPT2" dump xmltree --file AndroidManifest.xml "$APK" > /tmp/manifest.txt
-          if ! grep -q 'allowBackup' /tmp/manifest.txt; then
-            echo "::error::allowBackup não está explícito no manifesto"
-            exit 1
+
+          "$AAPT2" dump xmltree --file AndroidManifest.xml "$APK" > verificacao/manifest-tree.txt
+          APKANALYZER=$(command -v apkanalyzer || true)
+          if [ -z "$APKANALYZER" ]; then
+            APKANALYZER=$(ls "$ANDROID_SDK_ROOT"/cmdline-tools/*/bin/apkanalyzer | head -n1)
           fi
-          # `0x0` sozinho casaria com o id do atributo (0x01010280) e daria
-          # falso positivo; o valor precisa vir no formato do xmltree.
-          if ! grep -qE 'allowBackup.*=\(type 0x12\)0x0' /tmp/manifest.txt; then
+          "$APKANALYZER" manifest print "$APK" > verificacao/manifest.xml
+          # Imprime as linhas para o log: é o que explica a reprovação.
+          grep -i 'allowBackup' verificacao/manifest-tree.txt || true
+          grep -i 'allowBackup' verificacao/manifest.xml || true
+          if ! grep -qiE 'allowBackup="false"' verificacao/manifest.xml; then
             echo "::error::allowBackup não está desligado"
             exit 1
           fi
+
+      - name: Anexar dumps de verificação
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: apk-verificacao
+          path: verificacao/
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Nomear APK
         id: versao
