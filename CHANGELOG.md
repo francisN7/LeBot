@@ -14,8 +14,10 @@ Uma entrada por **versão**; o detalhe por sessão está em
 - As 23 specs antigas saíram do working tree; o MVP virou
   [`docs/roadmap/0001-mvp.md`](docs/roadmap/0001-mvp.md) e o `CHANGELOG`, uma
   entrada por versão.
-- Backlog em [`docs/roadmap/main.md`](docs/roadmap/main.md) e índice em
-  [`docs/adr/README.md`](docs/adr/README.md).
+- **Backlog auditado com o dono em `docs/roadmap/main.md`:** sync, Goodreads,
+  IA, audiobook, OCR, widget e compartilhar resenhas saíram; a busca por ISBN
+  entrou no lugar do OCR.
+- Índice dos 27 ADRs em [`docs/adr/README.md`](docs/adr/README.md).
 - Repositório auditado: `.gitignore`, GitHub (topics, Issues/Wiki, Dependabot
   security updates) e caminhos pessoais fora dos scripts.
 - Notas de release movidas para `docs/releases/`.

@@ -33,9 +33,9 @@ importação, o app valida tudo antes de apagar o banco atual.
 
 ## Permissões Android
 
-Alvo: **nenhuma permissão perigosa**. A capa vem do seletor do sistema, sem acesso
-amplo à biblioteca de arquivos. O app **não consulta ISBN online**; se isso
-entrar, será só a pedido do usuário, com `INTERNET` e enviando apenas o ISBN.
+Alvo: **nenhuma permissão perigosa**. O app ainda não consulta ISBN online: a
+busca está em [`../roadmap/main.md`](../roadmap/main.md) e, quando entrar, será
+a pedido do usuário, com `INTERNET` e enviando apenas o ISBN.
 
 ## Repositório público
 

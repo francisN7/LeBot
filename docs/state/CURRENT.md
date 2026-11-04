@@ -16,8 +16,8 @@
 - Orçamento: mapa + guide + reference ≤1.300 linhas; `AGENTS` ≤100;
   `CURRENT` ≤60; spec ≤90. `npm run docs:check` (links + orçamento) roda no CI.
 - Pendente na S13d: README com logo, screenshots fictícios e social preview.
-- Backlog em `docs/roadmap/main.md`; a ordem é uma proposta e depende da
-  confirmação do dono.
+- Backlog auditado e priorizado em `docs/roadmap/main.md` (ordem fechada com o
+  dono; ideias descartadas registradas).
 
 ## APK 0.2.1
 
