@@ -72,18 +72,25 @@ function checkLinks(file) {
   const text = readFileSync(file, 'utf8');
   const lines = text.split(/\r?\n/);
   const linkPattern = /\]\(([^)\s]+)\)/g;
+  const imagePattern = /<img[^>]+src="([^"]+)"/gi;
+
+  const checkTarget = (target, lineNumber) => {
+    if (/^(https?:|mailto:|#|<)/.test(target)) return;
+    checkedLinks += 1;
+    const clean = decodeURI(target.split('#')[0].split('?')[0]);
+    if (!clean) return;
+    const resolved = path.resolve(path.dirname(file), clean);
+    if (!existsSync(resolved)) {
+      errors.push(`${rel}:${lineNumber} link quebrado -> ${target}`);
+    }
+  };
 
   lines.forEach((line, index) => {
     for (const match of line.matchAll(linkPattern)) {
-      const target = match[1];
-      if (/^(https?:|mailto:|#|<)/.test(target)) continue;
-      checkedLinks += 1;
-      const clean = decodeURI(target.split('#')[0].split('?')[0]);
-      if (!clean) continue;
-      const resolved = path.resolve(path.dirname(file), clean);
-      if (!existsSync(resolved)) {
-        errors.push(`${rel}:${index + 1} link quebrado -> ${target}`);
-      }
+      checkTarget(match[1], index + 1);
+    }
+    for (const match of line.matchAll(imagePattern)) {
+      checkTarget(match[1], index + 1);
     }
   });
 }

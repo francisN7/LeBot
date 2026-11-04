@@ -1,117 +1,133 @@
-# LêBot
+<div align="center">
+  <img src="docs/assets/logo.png" width="120" alt="LêBot" />
+  <h1>LêBot</h1>
+  <p><strong>Sua estante respeita o seu ritmo.</strong></p>
+  <p>Catálogo, ordem de leitura e um plano diário que evita ressaca literária —<br/>
+  offline, sem conta e sem telemetria.</p>
 
-App mobile pessoal para catalogar livros, organizar a ordem de leitura e receber
-um plano diário que evita ressaca literária.
+  <p>
+    <a href="https://github.com/francisN7/LeBot/actions/workflows/ci.yml"><img src="https://github.com/francisN7/LeBot/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+    <a href="https://github.com/francisN7/LeBot/releases"><img src="https://img.shields.io/github/v/release/francisN7/LeBot?label=release" alt="Release" /></a>
+    <img src="https://img.shields.io/badge/license-MIT-2A2340" alt="MIT" />
+    <img src="https://img.shields.io/badge/Expo-SDK%2058-000000?logo=expo&logoColor=white" alt="Expo SDK 58" />
+    <img src="https://img.shields.io/badge/Android-7.0%2B-3DDC84?logo=android&logoColor=white" alt="Android 7.0+" />
+  </p>
+</div>
 
-> **Para a minha amada esposa.** O LêBot nasceu de uma ideia sua: uma estante
-> que respeita o ritmo de quem lê, uma ordem que não pesa e um plano diário que
-> evita a ressaca literária. Você idealizou tudo isso; eu só escrevi o código.
-> Este app é, antes de tudo, para você. Te amo.
-
-> **Status:** v0.2.0 — primeiro APK instalável (release interno). Estante com
-> gêneros e capas, plano diário, Ordem, resenha, estatísticas e backup manual em
-> `.zip`. Publicação na Play Store e iOS ainda fora de escopo.
+| Estante | Hoje | Ordem |
+|---|---|---|
+| <img src="docs/assets/screenshots/estante.png" width="230" alt="Estante com lombadas por gênero e status" /> | <img src="docs/assets/screenshots/hoje.png" width="230" alt="Plano do dia com meta e blocos" /> | <img src="docs/assets/screenshots/ordem.png" width="230" alt="Ordem de leitura com principal e setas" /> |
+| **Detalhe** | **Meu ritmo** | **Ajustes** |
+| <img src="docs/assets/screenshots/detalhe.png" width="230" alt="Detalhe do livro com progresso e últimas leituras" /> | <img src="docs/assets/screenshots/ritmo.png" width="230" alt="Estatísticas por período" /> | <img src="docs/assets/screenshots/ajustes.png" width="230" alt="Ajustes com meta e backup" /> |
 
 ## O que é
 
-- **Estante:** catálogo dos seus livros, com capa, gênero e status.
-- **Hoje:** plano do dia com poucas páginas por vez, registro da leitura e o
-  que já foi lido hoje.
-- **Ordem:** a sequência é sua: o que ler depois do livro atual, sem registrar
-  leitura aqui.
-- **Sem culpa:** livro abandonado é escolha válida, não falha.
+- **Estante:** seus livros com capa ou lombada 3D por gênero e status, busca sem
+  acento e filtros.
+- **Hoje:** um plano pequeno e possível, calculado no aparelho. Meta editável,
+  volta leve depois de dias sem ler e sugestão sem cobrança.
+- **Ordem:** a sequência é sua. O primeiro "Lendo" é o principal; os outros vêm
+  depois, com arrastar ou setas.
+- **Sem culpa:** livro pausado ou abandonado é escolha válida. O app não insiste.
 
-O plano é calculado por um motor determinístico e testado (S6) e exibido na tela
-Hoje desde a S7. Nada de IA no MVP.
+O plano é deterministicamente calculado e testado — sem IA, sem nuvem e sem
+surpresa. A estante, a ordem e o histórico ficam no SQLite do aparelho.
 
-## Stack
+## Baixar
 
-- [Expo](https://expo.dev) (SDK 58) + React Native + TypeScript strict
-- [Expo Router](https://docs.expo.dev/router/introduction/) (rotas em `src/app/`)
-- SQLite + [Drizzle ORM](https://orm.drizzle.team/) no aparelho, com migrações
-  versionadas
-- [NativeWind](https://www.nativewind.dev/) 4 + Tailwind CSS 3, com tokens em
-  `src/theme/`
-- [Zod](https://zod.dev/) para validar a borda dos dados
-- [Reanimated](https://docs.swmansion.com/react-native-reanimated/) e
-  `react-native-svg` para movimento e arte vetorial
-- [Biome](https://biomejs.dev/) para lint e formatação
-- Jest + Testing Library para testes
+O APK fica na página de [**Releases**](https://github.com/francisN7/LeBot/releases).
 
-## Como rodar
+- Android 7.0+ (arm64 e armv7), ~54 MB.
+- Instale por cima para atualizar: a assinatura é a mesma e seus dados ficam.
+- Ainda não há Play Store nem iOS.
 
-Requisitos: Node 22 LTS (veja `.nvmrc`), npm e o app **Expo Go** no celular.
+## Como funciona
 
-```bash
-npm install
-npm start
-```
+**Estante.** Cada livro vira uma lombada: a cor é o gênero, o rosto é o status.
+Com capa, a foto ganha profundidade de livro. Toque longo no chip abre a roda de
+status.
 
-Leia o QR code com o Expo Go (Android). Para mirar um emulador já aberto:
+**Hoje.** O motor recebe a meta, os livros, as sessões e a sua ordem. Ele respeita
+o primeiro "Lendo", alterna gêneros, limita cada livro a 60% da meta e reduz o dia
+para 70% se você ficou 3 dias sem ler. O plano não é salvo: é recalculado a cada
+abertura.
 
-```bash
-npm run android
-```
+**Ordem.** Todo livro não concluído entra automaticamente, em dois blocos:
+"Lendo agora" e o resto. O primeiro "Lendo" é o principal. Reordenar não muda o
+status.
 
-Outros comandos:
+**Resenha e ritmo.** Ao concluir, você pode dar nota, escrever e guardar uma
+citação. "Meu ritmo" mostra páginas, dias ativos, sequência, gêneros e notas por
+semana, mês, 3 meses ou ano.
 
-```bash
-npm run lint        # Biome
-npm run lint:fix    # Biome com correção automática
-npm run typecheck   # tsc --noEmit
-npm run test        # Jest
-npm run test:watch
-npm run doctor      # expo-doctor
-npx expo export --platform android --output-dir dist   # bundle de verificação
-
-npx drizzle-kit generate           # migração depois de mudar src/db/schema.ts
-node scripts/build-icons.mjs       # ícone/splash a partir de brand/source/mark.svg
-node scripts/build-isbn-ranges.mjs # tabela de faixas do ISBN
-```
-
-## Estrutura
-
-```
-src/app/            rotas (Expo Router), sem lógica de negócio
-src/features/       UI, hooks e serviços por feature
-src/components/ui/  componentes genéricos e arte vetorial
-src/db/             schema, client, seed, migrações e repositórios
-src/theme/          tokens de design
-src/lib/            utilitários puros
-src/test-utils/     banco sql.js e repositórios em memória para testes
-drizzle/            migrações SQL geradas (não editar à mão)
-scripts/            geradores de ícone/splash e de faixas do ISBN
-types/              declarações globais versionadas
-brand/              arte-fonte (fora do bundle)
-assets/             ícone, splash e camada adaptativa
-docs/               documentação do projeto
-```
+**Backup.** Exporte um `.zip` com livros, histórico, resenhas e capas para a
+pasta que quiser. Restaurar substitui tudo; o arquivo é seu e não sai do
+aparelho por conta própria.
 
 ## Privacidade
 
-Seus dados ficam **só no aparelho**, no SQLite local. Não há conta, telemetria
-nem servidor. O plano de leitura é calculado offline.
+Seus dados ficam **só no aparelho**. Não há conta, servidor, analytics ou
+crash reporting. O plano é calculado offline. O único arquivo que sai é o backup
+que você exportar.
 
-Detalhes em [`docs/reference/security-privacy.md`](docs/reference/security-privacy.md).
+Leia [`docs/reference/security-privacy.md`](docs/reference/security-privacy.md).
 
-## Documentação
+## Para devs
 
-| Documento | Para quê |
+**Requisitos:** Node 22 (`.nvmrc`), npm e Expo Go no Android (ou o APK de
+release para medir desempenho).
+
+```bash
+npm install
+npm start          # Metro + QR code
+npm run android    # emulador/aparelho conectado
+```
+
+| Comando | Para quê |
 |---|---|
-| [`AGENTS.md`](AGENTS.md) | regras de contribuição e protocolo de contexto |
-| [`docs/README.md`](docs/README.md) | mapa da documentação (por pergunta e por seção) |
-| [`docs/state/CURRENT.md`](docs/state/CURRENT.md) | onde paramos e o próximo passo |
-| [`docs/roadmap/main.md`](docs/roadmap/main.md) | roadmap ativo: fases e backlog |
-| [`docs/reference/brand.md`](docs/reference/brand.md) | identidade visual e arte |
-| [`docs/reference/design-system.md`](docs/reference/design-system.md) | tokens e componentes |
-| [`docs/reference/architecture.md`](docs/reference/architecture.md) | camadas e fluxo de dados |
-| [`docs/reference/data-model.md`](docs/reference/data-model.md) | tabelas, migrações e seed |
-| [`docs/reference/planner.md`](docs/reference/planner.md) | regras do plano diário |
-| [`docs/guide/testing.md`](docs/guide/testing.md) | como testar |
-| [`docs/guide/release.md`](docs/guide/release.md) | gerar e publicar o APK |
-| [`docs/adr/`](docs/adr/) | decisões registradas |
+| `npm run lint` · `npm run typecheck` | Biome e TypeScript |
+| `npm run test` · `npm run test:watch` | Jest (517 testes) |
+| `npm run docs:check` | links e orçamento da documentação |
+| `npm run doctor` | `expo-doctor` |
+| `gh workflow run release.yml` | APK de release no GitHub Actions |
 
-## Licença
+```text
+src/app/            rotas (Expo Router), sem lógica de negócio
+src/features/       UI, hooks e serviços por feature
+src/db/             schema Drizzle, client, migrações, seed e repositórios
+src/components/ui/  componentes genéricos e arte vetorial
+src/theme/          tokens de design
+src/lib/            funções puras
+docs/               guias, referência, ADRs e roadmap
+```
 
-[MIT](LICENSE) — código e arte inclusos. A marca e o mascote LêBot são
-identidade do projeto; forks devem trocar nome e identidade visual.
+O build de release **nunca** roda na máquina local: o workflow compila, confere a
+assinatura e as permissões e publica no GitHub. Instruções em
+[`docs/guide/release.md`](docs/guide/release.md).
+
+Documentação: comece pelo mapa em [`docs/README.md`](docs/README.md). As regras
+para agentes e contribuições estão em [`AGENTS.md`](AGENTS.md), as decisões em
+[`docs/adr/`](docs/adr/) e o futuro em
+[`docs/roadmap/main.md`](docs/roadmap/main.md).
+
+## Sobre
+
+> **Para a minha amada esposa.** O LêBot nasceu de uma ideia sua: uma estante que
+> respeita o ritmo de quem lê, uma ordem que não pesa e um plano diário que evita
+> a ressaca literária. Você idealizou tudo isso; eu só escrevi o código. Este app
+> é, antes de tudo, para você. Te amo.
+
+## Marca e licença
+
+O código e a arte estão sob [MIT](LICENSE). A identidade do LêBot — nome, mascote
+e logo — é marca do projeto: forks são bem-vindos, mas devem trocar nome e
+identidade visual.
+
+## English
+
+LêBot is a personal, offline-first Android reading app. Catalog your books, keep
+a reading order, and get a small daily plan that avoids reading burnout.
+Everything stays on the device (SQLite) — no account, no telemetry, no server.
+Built with Expo, React Native, TypeScript, Drizzle and NativeWind. Download the
+APK in [Releases](https://github.com/francisN7/LeBot/releases); docs start at
+[`docs/README.md`](docs/README.md).

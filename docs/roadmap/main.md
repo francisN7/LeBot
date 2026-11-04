@@ -9,7 +9,7 @@ uso diário. Um item só vira sessão quando a fase é escolhida.
 - [x] **S13a — Higiene e auditoria do repositório.**
 - [x] **S13b — Mapa e poda dos docs vivos.**
 - [x] **S13c — Arquivo, roadmap e backlog.**
-- [ ] **S13d — README, screenshots e logo.**
+- [x] **S13d — README, screenshots e logo.**
 - [ ] **S13e — Publicar o `v0.2.1` e fechar o MVP.**
 
 ## Fase 14 — Código que abre caminho

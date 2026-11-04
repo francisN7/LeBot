@@ -7,6 +7,13 @@ Uma entrada por **versão**; o detalhe por sessão está em
 
 ## Não publicado — S13 (documentação e vitrine)
 
+### Added
+
+- README com logo, badges, seis telas de acervo fictício e resumo em inglês.
+- `scripts/build-demo-backup.mjs` gera o fixture de demonstração
+  (`lebot-demo.zip`, fora do Git).
+- `docs/assets/` com logo, screenshots e social preview.
+
 ### Changed
 
 - Docs vivos separados em `guide/` e `reference/`, com mapa por seção e
