@@ -29,8 +29,10 @@
   JDK 17 (0,30 GB), `.gradle` (0,85 GB), `.wslconfig`, `C:\nm`.
 - `node_modules` sem artefatos C++: 5,73 GB → 0,86 GB. Total ~22,6 GB.
 - Mantidos: `C:\Users\francis\android-sdk` (adb) e `~/.lebot` (keystore).
-- **Pendente:** reiniciar o Windows para concluir a remoção do WSL e da
-  VirtualMachinePlatform (ambas já desabilitadas).
+- Windows reiniciado: WSL e VirtualMachinePlatform desabilitadas, sem distro,
+  sem `ext4.vhdx`, sem `wsl.exe` funcional. Entrada "Linux" do Explorer
+  (`HKLM\...\Desktop\NameSpace\{B2B4A4D1-…}`) removida — é chave de máquina que
+  o Windows não limpa sozinho.
 
 ## Adiado por decisão do dono
 

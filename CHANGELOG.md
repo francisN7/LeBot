@@ -36,6 +36,9 @@ Cada sessão é uma entrada; a mais recente vem primeiro.
   JDK 17 (0,30 GB), cache do Gradle (0,85 GB), `.wslconfig` e `C:\nm`.
   `node_modules` sem artefatos C++ caiu de 5,73 GB para 0,86 GB. Total
   devolvido: ~22,6 GB. Ficaram só o `adb` (`platform-tools`) e o keystore.
+- Atalho **Linux** do Explorer (chave `Desktop\NameSpace` que o Windows não
+  limpa ao desabilitar o WSL) e recursos `Microsoft-Windows-Subsystem-Linux` e
+  `VirtualMachinePlatform`.
 
 ## S12 — Release interno (v0.2.0)
 
