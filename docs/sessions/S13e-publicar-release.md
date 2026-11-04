@@ -61,7 +61,7 @@ MVP.
 
 ## Arquivos prováveis
 
-`docs/state/CURRENT.md`, `docs/roadmap/mvp.md`, `CHANGELOG.md`,
+`docs/state/CURRENT.md`, `docs/roadmap/0001-mvp.md`, `CHANGELOG.md`,
 `guide/release.md`, `docs/releases/v0.2.1.md`.
 
 ## Riscos
@@ -78,4 +78,4 @@ MVP.
 ## Depois do MVP
 
 Fase 14 — Código: S14a (code tour + convenções) e as sessões de refactor por
-feature, na ordem definida em `roadmap/next.md`.
+feature, na ordem definida em `roadmap/main.md`.

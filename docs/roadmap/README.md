@@ -12,12 +12,21 @@ Status: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 
 ## Artefatos
 
-| Arquivo | O que é |
-|---|---|
-| [`mvp.md`](mvp.md) | o que foi entregue até o `v0.2.1` (fechado) |
-| [`next.md`](next.md) | fases e backlog pós-MVP (vivo) |
-| [`../sessions/`](../sessions/) | specs das sessões vivas |
-| [`../state/CURRENT.md`](../state/CURRENT.md) | onde paramos agora |
+| Arquivo | Estado | O que é |
+|---|---|---|
+| [`main.md`](main.md) | **ativo** | fases e backlog em andamento |
+| [`0001-mvp.md`](0001-mvp.md) | fechado | o que o MVP entregou (S0–S12b) |
+| [`../sessions/`](../sessions/) | vivo | specs das sessões |
+| [`../state/CURRENT.md`](../state/CURRENT.md) | vivo | onde paramos agora |
+
+## Convenção de nomes
+
+- **`main.md`** é sempre o roadmap ativo; é o único que muda no dia a dia.
+- Quando um ciclo fecha, `main.md` é renomeado para **`NNNN-titulo.md`** (quatro
+  dígitos, ordem cronológica) e vira histórico. Um novo `main.md` começa.
+- O `README.md` é o índice; não guarda fases.
+- O caminho `docs/roadmap/main.md` desambigua do branch `main`; o nome não tem
+  espaço nem acento.
 
 ## Definition of Ready (de uma spec)
 

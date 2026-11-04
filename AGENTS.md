@@ -23,7 +23,7 @@ NativeWind.
    - commitar com `SXX: resumo curto`.
 5. Se o contexto encher no meio, salve o estado em `CURRENT.md` e recomece.
 
-Estado: `docs/state/CURRENT.md` · futuro: `docs/roadmap/next.md` ·
+Estado: `docs/state/CURRENT.md` · futuro: `docs/roadmap/main.md` ·
 decisões: `docs/adr/`.
 
 Skills: `session-start` (abrir/encerrar), `project-context-init` (criar a

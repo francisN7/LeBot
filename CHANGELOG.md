@@ -2,7 +2,8 @@
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Uma entrada por **versão**; o detalhe por sessão está em
-[`docs/roadmap/mvp.md`](docs/roadmap/mvp.md) e as decisões em `docs/adr/`.
+[`docs/roadmap/0001-mvp.md`](docs/roadmap/0001-mvp.md) e as decisões em
+`docs/adr/`.
 
 ## Não publicado — S13 (documentação e vitrine)
 
@@ -11,9 +12,9 @@ Uma entrada por **versão**; o detalhe por sessão está em
 - Docs vivos separados em `guide/` e `reference/`, com mapa por seção e
   `npm run docs:check` no CI (links + orçamento).
 - As 23 specs antigas saíram do working tree; o MVP virou
-  [`docs/roadmap/mvp.md`](docs/roadmap/mvp.md) e o `CHANGELOG`, uma entrada por
-  versão.
-- Backlog em [`docs/roadmap/next.md`](docs/roadmap/next.md) e índice em
+  [`docs/roadmap/0001-mvp.md`](docs/roadmap/0001-mvp.md) e o `CHANGELOG`, uma
+  entrada por versão.
+- Backlog em [`docs/roadmap/main.md`](docs/roadmap/main.md) e índice em
   [`docs/adr/README.md`](docs/adr/README.md).
 - Repositório auditado: `.gitignore`, GitHub (topics, Issues/Wiki, Dependabot
   security updates) e caminhos pessoais fora dos scripts.

@@ -1,4 +1,4 @@
-# Próximo
+# Roadmap atual
 
 Fases e backlog pós-MVP. **A ordem é do dono**; a proposta abaixo está aberta
 para confirmação e ajuste. Um item só vira sessão quando a fase é escolhida.
