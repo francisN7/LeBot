@@ -41,6 +41,10 @@ jobs:
       - name: Liberar espaço em disco
         run: |
           sudo rm -rf /usr/local/lib/android
+          # O setup-android recria o SDK aqui; sem a pasta com o dono certo ele
+          # falha com EACCES.
+          sudo mkdir -p /usr/local/lib/android
+          sudo chown -R "$USER":"$USER" /usr/local/lib/android
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
           sudo rm -rf /usr/local/share/boost
@@ -189,4 +193,10 @@ jobs:
           name: lebot-apk
 
       - name: Anexar APK ao Release
-        run: gh release upload "$TAG" lebot-*.apk --clobber --repo "$GITHUB_REPOSITORY"
+        run: |
+          # Tag nova ainda não tem Release: cria (notas automáticas) antes de anexar.
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" \
+              --title "LêBot $TAG" --generate-notes
+          fi
+          gh release upload "$TAG" lebot-*.apk --clobber --repo "$GITHUB_REPOSITORY"
