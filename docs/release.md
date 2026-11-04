@@ -144,19 +144,34 @@ adb shell dumpsys gfxinfo com.francisN7.lebot
 ```
 
 Olhar `Janky frames` (quanto menor, melhor) e o percentil 90/95. Para a estante
-cheia, restaurar um backup fictício com 200 livros. Cada medição custa um build
-de CI: use `workflow_dispatch` e baixe o artefato.
+cheia, restaurar a fixture de 200 livros: `node scripts/build-200-books.mjs`
+gera `lebot-200.zip` (UTF-8, sem capas, acentos corretos), que se restaura pelo
+próprio Ajustes → Backup. **Exporte o acervo real antes** — restaurar troca o
+banco inteiro. Cada medição custa um build de CI: use `workflow_dispatch` e baixe
+o artefato.
 
 ## Publicar manualmente
 
-O caminho normal é a tag. Para reaproveitar um APK já compilado:
+O caminho normal é a tag. Quando o APK já foi medido no aparelho, publique
+**esse mesmo arquivo** em vez de compilar de novo (S12b):
 
 ```powershell
-gh release upload v0.3.0 .\lebot-0.3.0.apk --clobber
+# 1. o artefato do workflow_dispatch vira o APK do Release
+gh run download <run-id> --name lebot-apk --dir $env:TEMP
+# 2. cria a tag e o Release com as notas do projeto (sem H1 no corpo)
+gh release create vX.Y.Z --target main --title "LêBot vX.Y.Z" `
+  --notes-file docs/release-notes-vX.Y.Z.md
+# 3. anexa exatamente o APK que passou no aparelho
+gh release upload vX.Y.Z "$env:TEMP\lebot-apk\lebot-X.Y.Z.apk"
 ```
 
-Notas ficam em `docs/release-notes-vX.Y.Z.md`. Tag nova sem Release é criada
-pelo workflow com notas automáticas; edite depois se quiser o texto do projeto.
+A tag criada pela API não dispara o `on: push: tags`, então não há um segundo
+build de 15 min e o asset publicado é o mesmo que foi medido.
+
+Notas ficam em `docs/release-notes-vX.Y.Z.md` e **começam no texto**, sem `#`:
+o título do Release já aparece acima do corpo (no 0.2.0 ele saiu duas vezes).
+Tag nova sem Release é criada pelo workflow com notas automáticas; edite depois
+se quiser o texto do projeto.
 
 ## Subir a versão
 

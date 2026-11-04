@@ -51,6 +51,11 @@ Uma sessão = uma entrega vertical + testes + documentação + commit. A spec da
 > A ordem abaixo é provisória: a S13 reordena pela prioridade do dono e remove
 > o que não entra mais.
 
+- **Estante em blocos (só se o acervo crescer):** carregar 200 livros por vez
+  (`listPage(offset, limit)`) e mostrar o LêBot "esperando" enquanto o próximo
+  bloco chega; busca e filtros passariam a consultar o SQL. Hoje a estante lê a
+  base inteira de forma síncrona no mount e rola sem I/O — decisão e gatilho na
+  ADR 0027. Não entra enquanto o acervo real couber em memória.
 - **Ordem — drop via alça:** ao soltar, as linhas ainda piscam/animam antes de
   se alocar; as setas estão ok. Reavaliar com uma lista de drag dedicada ou
   posições absolutas. Não bloqueia a S8.

@@ -195,6 +195,52 @@ describe('QueueScreen', () => {
     ).toBeOnTheScreen();
   });
 
+  it('pagina de 10 em 10 e sobe o primeiro da página 2 pelas setas', async () => {
+    const base = testBookRows[0];
+
+    if (!base) {
+      throw new Error('Seed de teste sem livro base');
+    }
+
+    const books = Array.from({ length: 12 }, (_, index) => ({
+      ...base,
+      id: `book-${index + 1}`,
+      status: 'queued' as const,
+      title: `Livro ${index + 1}`,
+    }));
+    const booksRepository = createInMemoryBooksRepository(books);
+    const queueRepository = createInMemoryQueueRepository(
+      booksRepository,
+      queueRows(...books.map((book) => book.id)),
+    );
+
+    await renderWithProviders(<QueueScreen />, {
+      booksRepository,
+      queueRepository,
+    });
+
+    // 172 livros travavam a thread de JS; a tela monta 10 por vez.
+    expect(screen.getByText('1–10 de 12')).toBeOnTheScreen();
+    expect(screen.getByTestId('queue-item-book-10')).toBeOnTheScreen();
+    expect(screen.queryByTestId('queue-item-book-11')).not.toBeOnTheScreen();
+
+    await fireEvent.press(screen.getByText('Próxima'));
+
+    expect(screen.getByText('11–12 de 12')).toBeOnTheScreen();
+    expect(screen.queryByTestId('queue-item-book-10')).not.toBeOnTheScreen();
+    expect(screen.getByTestId('queue-item-book-11')).toBeOnTheScreen();
+
+    // O arrasto não cruza páginas: a seta é o caminho para subir de página.
+    await fireEvent.press(screen.getByLabelText('Subir Livro 11'));
+
+    expect(screen.getByText('1–10 de 12')).toBeOnTheScreen();
+    expect(
+      within(screen.getByTestId('queue-item-book-11')).getByText(
+        '10º na ordem',
+      ),
+    ).toBeOnTheScreen();
+  });
+
   it('aplica a sugestão dentro de cada bloco', async () => {
     const base = testBookRows[0];
 

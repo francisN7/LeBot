@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 
 import {
@@ -21,6 +21,15 @@ import { useQueue } from './use-queue';
 /** Legenda escolhida na abertura da S7.1 (opção A). */
 export const QUEUE_LEGEND =
   'A sequência é sua: o que ler depois do livro atual.';
+
+/**
+ * Linhas por página. A Ordem não é virtualizada: com a estante cheia, montar
+ * todas as `QueueRow` de uma vez (SVG, gesto e `LinearTransition` por linha)
+ * travava a thread de JS até o Android abrir o diálogo de "não está
+ * respondendo" (S12b). Dez por vez mantém a tela instantânea e o arrasto
+ * previsível.
+ */
+export const QUEUE_PAGE_SIZE = 10;
 
 function countLabel(count: number, hasPrincipal: boolean): string {
   if (!hasPrincipal) {
@@ -59,6 +68,7 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
   const { items, move, replaceAll } = useQueue();
   const [dragPreview, setDragPreview] = useState<DragPreview | null>(null);
   const [commitDrop, setCommitDrop] = useState(false);
+  const [page, setPage] = useState(1);
   const dragPreviewRef = useRef<DragPreview | null>(null);
   const heights = useRef(new Map<string, number>());
   const scrollRef = useRef<ScreenScrollViewRef['current']>(null);
@@ -117,6 +127,12 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
     suggestion.length === entries.length &&
     suggestion.every((item, index) => item.id === entries[index]?.bookId);
 
+  const pageCount = Math.max(1, Math.ceil(entries.length / QUEUE_PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageStart = (currentPage - 1) * QUEUE_PAGE_SIZE;
+  const pageEnd = Math.min(pageStart + QUEUE_PAGE_SIZE, entries.length);
+  const pageEntries = entries.slice(pageStart, pageEnd);
+
   function targetFor(
     bookId: string,
     translationY: number,
@@ -171,11 +187,52 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
     }
 
     const reading = entries[from]?.book.status === 'reading';
-    target = reading
-      ? Math.min(target, readingCount - 1)
-      : Math.max(target, readingCount);
+    const blockMin = reading ? 0 : readingCount;
+    const blockMax = reading ? readingCount - 1 : entries.length - 1;
+
+    // O arrasto não cruza páginas: o alvo fica dentro do bloco e da página.
+    target = Math.min(
+      Math.max(target, Math.max(blockMin, pageStart)),
+      Math.min(blockMax, pageEnd - 1),
+    );
 
     return { from, target };
+  }
+
+  /**
+   * As setas andam na ordem inteira, inclusive entre páginas — é o único jeito
+   * de o primeiro livro da página 2 chegar à página 1, já que o arrasto fica
+   * preso à página. A tela acompanha o livro para a página de destino e rola
+   * até onde ele caiu (fim ao subir, começo ao descer).
+   */
+  function moveAndFollow(bookId: string, target: number) {
+    const next = move(bookId, target);
+    const position = next.findIndex((row) => row.bookId === bookId);
+
+    if (position < 0) {
+      return;
+    }
+
+    const nextPage = Math.floor(position / QUEUE_PAGE_SIZE) + 1;
+
+    if (nextPage === currentPage) {
+      return;
+    }
+
+    const goingDown = nextPage > currentPage;
+    setPage(nextPage);
+    requestAnimationFrame(() => {
+      if (goingDown) {
+        scrollRef.current?.scrollTo({ y: 0, animated: false });
+      } else {
+        scrollRef.current?.scrollToEnd({ animated: false });
+      }
+    });
+  }
+
+  function goToPage(nextPage: number) {
+    setPage(Math.min(Math.max(nextPage, 1), pageCount));
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
   }
 
   function clearDragPreview() {
@@ -247,6 +304,7 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
 
   function applySuggestion() {
     replaceAll(suggestion.map((item) => item.id));
+    setPage(1);
   }
 
   function renderEntry(entry: QueueEntry, index: number) {
@@ -267,7 +325,7 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
         isPrincipal={entry.bookId === principalId}
         key={entry.bookId}
         note={entry.note}
-        onDown={() => move(entry.bookId, index + 1)}
+        onDown={() => moveAndFollow(entry.bookId, index + 1)}
         onDragEnd={() => {
           clearDragPreview();
         }}
@@ -279,7 +337,7 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
         onDrop={(offset) => handleDrop(entry.bookId, offset)}
         onHeight={(height) => heights.current.set(entry.bookId, height)}
         onOpen={() => onOpenBook?.(entry.bookId)}
-        onUp={() => move(entry.bookId, index - 1)}
+        onUp={() => moveAndFollow(entry.bookId, index - 1)}
         position={index}
         previewShift={previewShiftFor(index)}
         scrollRef={scrollRef}
@@ -325,22 +383,46 @@ export function QueueScreen({ onOpenBook }: QueueScreenProps = {}) {
       ) : (
         <View className="gap-sm">
           <AppText variant="subtitle">Na ordem</AppText>
-          {readingCount > 0 ? (
-            <AppText tone="muted" variant="label">
-              Lendo agora
-            </AppText>
+          {pageEntries.map((entry, index) => {
+            const position = pageStart + index;
+
+            return (
+              <Fragment key={entry.bookId}>
+                {position === 0 && readingCount > 0 ? (
+                  <AppText tone="muted" variant="label">
+                    Lendo agora
+                  </AppText>
+                ) : null}
+                {position === readingCount && entries.length > readingCount ? (
+                  <AppText tone="muted" variant="label">
+                    Depois
+                  </AppText>
+                ) : null}
+                {renderEntry(entry, position)}
+              </Fragment>
+            );
+          })}
+          {pageCount > 1 ? (
+            <View className="flex-row items-center justify-between gap-sm">
+              <Button
+                disabled={currentPage === 1}
+                label="Anterior"
+                onPress={() => goToPage(currentPage - 1)}
+                size="sm"
+                variant="secondary"
+              />
+              <AppText tone="muted" variant="caption">
+                {`${pageStart + 1}–${pageEnd} de ${entries.length}`}
+              </AppText>
+              <Button
+                disabled={currentPage === pageCount}
+                label="Próxima"
+                onPress={() => goToPage(currentPage + 1)}
+                size="sm"
+                variant="secondary"
+              />
+            </View>
           ) : null}
-          {entries
-            .slice(0, readingCount)
-            .map((entry, index) => renderEntry(entry, index))}
-          {entries.length > readingCount ? (
-            <AppText tone="muted" variant="label">
-              Depois
-            </AppText>
-          ) : null}
-          {entries
-            .slice(readingCount)
-            .map((entry, index) => renderEntry(entry, readingCount + index))}
         </View>
       )}
 
