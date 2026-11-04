@@ -3,6 +3,40 @@
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Cada sessão é uma entrada; a mais recente vem primeiro.
 
+## S12a — Build no GitHub Actions
+
+### Added
+
+- `.github/workflows/release.yml`: compila o APK de release em `ubuntu-latest`
+  (JDK 17, Node 22, SDK/NDK/CMake nas versões do projeto). Tag `v*` publica no
+  Release; `workflow_dispatch` gera artefato de 30 dias. Cache de npm e Gradle,
+  `--max-workers=2`, e liberação de ~15 GB no runner antes do build.
+- Conferência obrigatória no workflow: `apksigner` compara o SHA-256 do
+  certificado (`43:59:2A:…:50:02:BD`), `aapt2` garante que `RECORD_AUDIO` e
+  `SYSTEM_ALERT_WINDOW` saíram e `apkanalyzer` exige `allowBackup="false"`.
+  Divergência reprova o build antes de publicar.
+- `docs/adr/0026-build-no-github-actions.md`.
+
+### Changed
+
+- `app.config.ts`: `blockedPermissions` para `RECORD_AUDIO` e
+  `SYSTEM_ALERT_WINDOW` e `android.allowBackup: false`.
+- `docs/release.md` reescrito para o caminho CI: secrets, tag, artefato,
+  instalação e medição. WSL deixou de ser pré-requisito.
+- Patches do SDK alinhados com o Expo Doctor (`expo` 58.0.23, `expo-router`
+  58.0.30, `expo-linking` 58.0.16, `expo-splash-screen` 58.0.13,
+  `expo-constants` 58.0.15, `jest-expo` 58.0.14,
+  `react-native-safe-area-context` 5.11.1).
+- S12b passa a rodar **depois** da S12a e mede com o artefato do
+  `workflow_dispatch`.
+
+### Removed
+
+- Build local: distro WSL2, `ext4.vhdx` (13,68 GB), runtime do WSL (1,14 GB),
+  JDK 17 (0,30 GB), cache do Gradle (0,85 GB), `.wslconfig` e `C:\nm`.
+  `node_modules` sem artefatos C++ caiu de 5,73 GB para 0,86 GB. Total
+  devolvido: ~22,6 GB. Ficaram só o `adb` (`platform-tools`) e o keystore.
+
 ## S12 — Release interno (v0.2.0)
 
 ### Added

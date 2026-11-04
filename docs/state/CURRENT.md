@@ -2,75 +2,75 @@
 
 ## Sessão
 
-- **Atual:** S12b — otimização rápida da estante no 0.2.0 (sem nova versão).
-  Spec em `docs/sessions/S12b-otimizacao-estante.md`. Depois dela vem a S12a
-  (build no GitHub Actions), cuja spec já está pronta.
-- **Última concluída:** S12 — release interno v0.2.0 (2026-11-02), em
-  <https://github.com/francisN7/LeBot/releases/tag/v0.2.0> (`lebot-0.2.0.apk`,
-  54 MB, SHA-256 `f09271eb…4203671`).
+- **Última concluída:** S12a — build no GitHub Actions e limpeza do PC
+  (2026-11-03).
+- **Próxima:** S12b — otimização da estante, medida com o APK do CI.
+  Spec em `docs/sessions/S12b-otimizacao-estante.md` (já ajustada).
 
-## Entrega da S12
+## Entrega da S12a
 
-- APK `com.francisN7.lebot` 0.2.0 (`versionCode 1`), arm64 + armv7, minSdk 24 /
-  targetSdk 36, keystore de release (SHA-256 `43:59:2A:…:02:BD`), instalado no
-  Realme C67 (Android 15) fora do Expo Go: abre frio em 1,8 s.
-- Launcher **LêBot** (ícone adaptativo e splash) e fumaça conferidos: livro
-  novo, troca de status pela roda, leitura, exportar e restaurar backup.
-- Medições no release: **5 livros** 4,4% janky/20 ms; **201 livros** 36%
-  (stress) e **77%**/53 ms (normal). Não atendeu o aceite: foi para a S12b.
-- `plugins/with-release-signing.js` corrigido: assinava o `debug` com a chave de
-  release; agora troca antes de injetar e falha se o `release` não usar a config.
-- `docs/release.md` reescrito para WSL2; README e notas com a dedicatória à
-  esposa do dono, idealizadora do app; ADR 0025 com adendo.
+- `.github/workflows/release.yml`: tag `v*` publica no Release;
+  `workflow_dispatch` gera artefato. JDK 17, Node 22, SDK/NDK/CMake fixos,
+  cache de npm e Gradle, ~15 GB liberados no runner.
+- Build validado no run `41755444978` (17 min, ~13 min compilando; artefato de
+  54 MB). `apksigner` conferiu o SHA-256, `aapt2` não achou `RECORD_AUDIO` nem
+  `SYSTEM_ALERT_WINDOW` e `apkanalyzer` confirmou `allowBackup="false"`.
+- `app.config.ts`: `blockedPermissions` das duas permissões e
+  `allowBackup: false`.
+- Keystore em secrets (`KEYSTORE_BASE64`, `STORE_PASSWORD`, `KEY_PASSWORD`),
+  mascarados no log. Impressão do certificado documentada em `docs/release.md`.
+- Patches do Expo alinhados (58.0.23 etc.) para o Doctor passar; CI verde nos
+  3 jobs.
+- `docs/release.md` reescrito para o caminho CI; ADR 0026 criada.
 
-## Build atual (WSL2)
+## Limpeza do PC (feita)
 
-- Ubuntu 26.04, 4 GB de RAM + 6 GB de swap (`.wslconfig`); JDK 17, Node 22 e
-  Android SDK Linux em `~/android-sdk` (`platforms;android-37.0`,
-  `build-tools;37.0.0`, `ndk;27.1.12297006`, `cmake;3.22.1`).
-- Código em `~/lebot` (nunca em `/mnt/c`); `HUSKY=0 npm ci`;
-  `~/.lebot/release.properties` com `storeFile=/mnt/c/Users/francis/.lebot/lebot-release.keystore`.
-- `npx expo prebuild --platform android --clean --no-install` +
-  `./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
-  --no-daemon --max-workers=2 --no-parallel`: ~11 min com cache. APK em
-  `~/lebot/android/app/build/outputs/apk/release/app-release.apk`; `adb` é o do
-  Windows. `gh` autenticado como `francisN7`.
+- Removidos: distro WSL e `ext4.vhdx` (13,68 GB), runtime do WSL (1,14 GB),
+  JDK 17 (0,30 GB), `.gradle` (0,85 GB), `.wslconfig`, `C:\nm`.
+- `node_modules` sem artefatos C++: 5,73 GB → 0,86 GB. Total ~22,6 GB.
+- Mantidos: `C:\Users\francis\android-sdk` (adb) e `~/.lebot` (keystore).
+- **Pendente:** reiniciar o Windows para concluir a remoção do WSL e da
+  VirtualMachinePlatform (ambas já desabilitadas).
+
+## Adiado por decisão do dono
+
+- **Não instalar no aparelho e não publicar agora.** O asset do `v0.2.0`
+  continua o da S12. Instalar o APK do CI por cima e, se a S12b compensar,
+  trocar o asset ficam para a S12b.
 
 ## Próximo passo (S12b)
 
 1. Gerar `lebot-200.zip` em UTF-8 com `scripts/build-200-books.mjs` (o fixture
-   da S11 tem `Breve RelÃ³gio`) e medir a linha de base com 200 livros.
-2. Animar só os cards visíveis (`onViewableItemsChanged`/`viewabilityConfig`
-   estáveis) e pausar os loops durante a rolagem (`onScrollBeginDrag` retoma no
-   `onMomentumScrollEnd`), sem tirar a animação da grade.
-3. Um build (~11 min) e medição antes/depois com `dumpsys gfxinfo` (protocolo na
-   spec). ≤ 5% janky é a referência; se não bater, somar `windowSize` 3 e
-   `React.memo` e medir de novo.
-4. Publicar só se compensar (instalar por cima + `gh release upload --clobber`,
-   `apksigner` conferido); fechar docs e commitar. A S12a (CI) vem depois.
-
-## Depois (S12a)
-
-- CI por tag, permissões/`allowBackup` e limpeza do WSL. Spec pronta em
-  `docs/sessions/S12a-ci-github-e-estante-cheia.md`.
+   da S11 tem `Breve RelÃ³gio`).
+2. Instalar o APK do CI por cima do 0.2.0 (`adb install -r`) e confirmar dados
+   intactos — é o aceite pendente da S12a.
+3. Medir a linha de base com 200 livros; animar só os cards visíveis
+   (`onViewableItemsChanged`/`viewabilityConfig` estáveis) e pausar os loops na
+   rolagem (`onScrollBeginDrag` → `onMomentumScrollEnd`), sem tirar a animação.
+4. Build de medição via `gh workflow run release.yml` (~17 min) e comparar com
+   `dumpsys gfxinfo` (protocolo na spec). ≤ 5% janky é a referência.
+5. Publicar só se compensar (`gh release upload v0.2.0 ... --clobber`) e fechar
+   docs.
 
 ## Armadilhas
 
-- Assinatura: o template do Expo assina release com debug; conferir com
-  `apksigner` (DN `CN=LeBot`, SHA-256 acima), nunca só pela existência do APK.
-  Keystore perdido impede atualizar quem já instalou: backup no gerenciador.
-- Memória: 4 GB no WSL não aguentam Gradle + Kotlin + C++ em paralelo
-  (`--max-workers=2 --no-parallel`, heap 1,5 GB, um build por vez). Sob carga,
-  `wsl -d Ubuntu -- ...` para de responder: use `\\wsl.localhost\Ubuntu\...`.
-- `prebuild` reescreve `npm run android` no clone Linux (não copiar de volta);
-  `--clean` apaga `android/`, mas os objetos C++ ficam em `node_modules`.
+- **Build local não existe mais**: sem JDK, Gradle ou NDK na máquina. Não rodar
+  `prebuild` para "testar" — ele reescreve `npm run android` para
+  `expo run:android` (reverter e apagar `android/`).
+- O hook local (`lint-staged`) só cobre `*.ts/tsx/js/json`: YAML e Markdown só
+  são verificados pelo CI. Rodar `npm run lint` antes de push.
+- `expo-doctor` quebra sozinho quando o Expo publica patch; `npx expo install
+  --fix` resolve.
+- Assinatura: conferir o SHA-256, nunca só a existência do APK. Keystore perdido
+  impede atualizar quem já instalou.
+- Sem `android/` no repo e sem `dist/` commitado.
 
 ## Arquivos-chave
 
-- `app.config.ts`, `plugins/with-release-signing.js`, `package.json`
-- `docs/release.md`, `docs/release-notes-v0.2.0.md`, `docs/adr/0025-*`
-- `docs/sessions/S12-release-interno.md`,
-  `docs/sessions/S12a-ci-github-e-estante-cheia.md`,
+- `.github/workflows/release.yml`, `app.config.ts`,
+  `plugins/with-release-signing.js`
+- `docs/release.md`, `docs/adr/0026-build-no-github-actions.md`
+- `docs/sessions/S12a-ci-github-e-estante-cheia.md`,
   `docs/sessions/S12b-otimizacao-estante.md`
 
 ## Como rodar
@@ -79,5 +79,5 @@
 npm run lint && npm run typecheck && npm run test
 npm run doctor
 npx expo export --platform android --output-dir dist
+gh workflow run release.yml   # APK de release (CI)
 ```
-

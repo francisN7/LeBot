@@ -49,15 +49,34 @@ revelou no pacote: permissões desnecessárias e `allowBackup` ligado.
 
 ## Aceite
 
-- [ ] Push de uma tag gera o APK assinado no Actions e o anexa ao Release sem
-      intervenção manual.
-- [ ] `apksigner` do workflow confere o SHA-256 do keystore de release.
+- [x] Push de uma tag gera o APK assinado no Actions e o anexa ao Release sem
+      intervenção manual. (Fluxo implementado; `workflow_dispatch` validado com
+      artefato. Publicação por tag será exercitada na próxima release.)
+- [x] `apksigner` do workflow confere o SHA-256 do keystore de release.
 - [ ] APK do CI instala por cima do v0.2.0 (mesma assinatura) e abre com os
-      mesmos dados.
-- [ ] Manifesto final sem `RECORD_AUDIO`/`SYSTEM_ALERT_WINDOW` e com
+      mesmos dados. **Adiado para a S12b por decisão do dono** (não instalar nem
+      publicar agora).
+- [x] Manifesto final sem `RECORD_AUDIO`/`SYSTEM_ALERT_WINDOW` e com
       `allowBackup=false`.
-- [ ] lint, typecheck, test, doctor e `expo export` verdes; nenhum segredo no
+- [x] lint, typecheck, test, doctor e `expo export` verdes; nenhum segredo no
       Git, no log ou no artefato.
+
+## Resultado (2026-11-03)
+
+- Build verde no run `41751795698` (primeiro com todas as conferências):
+  `Compilar APK` ~16 min em runner frio; APK `lebot-0.2.0.apk` com 54 MB.
+- Rebuild do commit final (`4114f93`) no run `41755444978`: 17 min no total
+  (~13 min compilando, com cache do Gradle restaurado), mesmas conferências
+  aprovadas. O artefato ficou no Actions; **nada foi publicado nem instalado**.
+- `apksigner`: `SHA-256` igual ao do keystore; `aapt2`: sem `RECORD_AUDIO` e
+  `SYSTEM_ALERT_WINDOW`; `apkanalyzer`: `allowBackup="false"`.
+- CI (`ci.yml`) verde nos 3 jobs depois de alinhar o Biome do YAML e os patches
+  do SDK exigidos pelo Expo Doctor.
+- Limpeza: 13,68 GB (WSL), 1,14 GB (runtime), 0,30 GB (JDK), 0,85 GB (Gradle),
+  4,87 GB (`node_modules`) + caches. ~22,6 GB devolvidos; `adb` e keystore
+  mantidos.
+- Instalar no aparelho e trocar o asset do `v0.2.0` ficaram para a S12b, junto
+  com a medição de performance.
 
 ## Contexto necessário
 

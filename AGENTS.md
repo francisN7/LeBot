@@ -76,6 +76,7 @@ npm run test
 npm run test:watch
 npm run doctor       # expo-doctor
 npx expo export --platform android --output-dir dist   # bundle de verificação
+gh workflow run release.yml         # APK de release no CI (nunca buildar local)
 npx drizzle-kit generate   # nova migração depois de mudar src/db/schema.ts
 node scripts/build-icons.mjs        # regera ícone/splash de brand/source/mark.svg
 node scripts/build-isbn-ranges.mjs  # regera src/lib/isbn-ranges.ts do XML oficial

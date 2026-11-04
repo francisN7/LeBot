@@ -43,7 +43,10 @@ O que existe hoje (`EstanteScreen.tsx`, `spine.tsx`, `SpineArtwork.tsx`):
 1. **Fixture UTF-8 + linha de base.** Criar `scripts/build-200-books.mjs`
    (versionado) gerando `lebot-200.zip` com o schema atual e acentos corretos (o
    `lebot-backup-cheio.zip` da S11 tem texto duplicado: `Breve RelÃ³gio`).
-   Restaurar no aparelho e medir a linha de base antes de mexer no código.
+   Antes de medir, instalar por cima o APK do CI da S12a (`adb install -r`,
+   mesma assinatura) e confirmar que os dados continuam lá — é o aceite que
+   ficou pendente. Restaurar a fixture e medir a linha de base antes de mexer no
+   código.
 2. **Animar só o visível.**
    - `onViewableItemsChanged` + `viewabilityConfig` (ex.:
      `itemVisiblePercentThreshold: 20`) guardando só os IDs visíveis num `Set`.
@@ -99,6 +102,8 @@ Start-Sleep -Seconds 2
 ## Aceite
 
 - [ ] Com 200 livros, só os cards visíveis animam; os de fora ficam parados.
+- [ ] APK do CI da S12a instalado por cima do 0.2.0 (mesma assinatura) com os
+      dados intactos.
 - [ ] Durante o fling as animações pausam e voltam ao parar; nada de lombada
       “congelada” depois da rolagem.
 - [ ] 5 livros sem regressão (referência: 4,4% / 20 ms) e sem animação piscando
