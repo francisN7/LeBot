@@ -11,7 +11,7 @@ Este arquivo é o índice. A regra é **abrir a seção, não o arquivo inteiro*
 | Você quer… | Leia |
 |---|---|
 | saber onde paramos | [`state/CURRENT.md`](state/CURRENT.md) |
-| saber o que vem agora | [`roadmap.md`](roadmap.md) |
+| saber o que vem agora | [`roadmap/next.md`](roadmap/next.md) |
 | entender as regras do agente | [`../AGENTS.md`](../AGENTS.md) |
 | instalar, rodar e resolver problemas | [`guide/setup.md`](guide/setup.md) |
 | testar | [`guide/testing.md`](guide/testing.md) |

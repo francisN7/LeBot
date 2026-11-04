@@ -2,11 +2,11 @@
 
 ## Sessão
 
-- **Última concluída:** S13b — mapa e poda dos docs vivos (2026-11-04).
+- **Última concluída:** S13c — arquivo, roadmap e backlog (2026-11-04).
 - **Fase aberta:** S13 — documentação e vitrine, com o release no fim.
-- **Próxima:** S13c — arquivo, roadmap e backlog
-  (`docs/sessions/S13c-arquivo-roadmap-backlog.md`).
-- **Depois:** S13d (README/screenshots) e S13e (publicar o `v0.2.1`).
+- **Próxima:** S13d — README, screenshots e logo
+  (`docs/sessions/S13d-readme-screenshots.md`).
+- **Depois:** S13e — publicar o `v0.2.1`.
 - **Retorno:** tag `pre-s13` em `7da3c88`.
 
 ## Documentação
@@ -15,9 +15,9 @@
   `docs/reference/`, decisões em `docs/adr/`, notas em `docs/releases/`.
 - Orçamento: mapa + guide + reference ≤1.300 linhas; `AGENTS` ≤100;
   `CURRENT` ≤60; spec ≤90. `npm run docs:check` (links + orçamento) roda no CI.
-- Pendente na S13c: arquivar as 25 specs antigas, comprimir o `CHANGELOG`,
-  criar `roadmap/mvp.md` + `next.md` e o índice de ADRs.
 - Pendente na S13d: README com logo, screenshots fictícios e social preview.
+- Backlog em `docs/roadmap/next.md`; a ordem é uma proposta e depende da
+  confirmação do dono.
 
 ## APK 0.2.1
 

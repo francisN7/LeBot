@@ -101,7 +101,7 @@ Detalhes em [`docs/reference/security-privacy.md`](docs/reference/security-priva
 | [`AGENTS.md`](AGENTS.md) | regras de contribuição e protocolo de contexto |
 | [`docs/README.md`](docs/README.md) | mapa da documentação (por pergunta e por seção) |
 | [`docs/state/CURRENT.md`](docs/state/CURRENT.md) | onde paramos e o próximo passo |
-| [`docs/roadmap.md`](docs/roadmap.md) | sessões e critérios de aceite |
+| [`docs/roadmap/next.md`](docs/roadmap/next.md) | fases e backlog pós-MVP |
 | [`docs/reference/brand.md`](docs/reference/brand.md) | identidade visual e arte |
 | [`docs/reference/design-system.md`](docs/reference/design-system.md) | tokens e componentes |
 | [`docs/reference/architecture.md`](docs/reference/architecture.md) | camadas e fluxo de dados |

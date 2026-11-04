@@ -23,8 +23,8 @@ NativeWind.
    - commitar com `SXX: resumo curto`.
 5. Se o contexto encher no meio, salve o estado em `CURRENT.md` e recomece.
 
-Estado: `docs/state/CURRENT.md` · futuro: `docs/roadmap.md` · decisões:
-`docs/adr/`.
+Estado: `docs/state/CURRENT.md` · futuro: `docs/roadmap/next.md` ·
+decisões: `docs/adr/`.
 
 Skills: `session-start` (abrir/encerrar), `project-context-init` (criar a
 estrutura) e `public-repo-audit` (segredos, dados e licença).
@@ -39,7 +39,7 @@ estrutura) e `public-repo-audit` (segredos, dados e licença).
 - `src/components/ui/` — componentes e arte vetorial; `src/theme/` — tokens;
   `src/lib/` — utilitários puros; `src/test-utils/` — banco e repositórios fake.
 - `docs/` — `guide/` (como fazer), `reference/` (como é), `adr/` (por quê),
-  `sessions/` (escopo atual), `state/` e `roadmap.md`.
+  `sessions/` (escopo atual), `state/` e `roadmap/`.
 - `drizzle/` — SQL gerado (não editar); `scripts/` — geradores e medição;
   `brand/` — arte-fonte; `assets/images/` — ícone, splash e camada adaptativa.
 
@@ -72,7 +72,7 @@ security updates*. Em sessão de release: `npx expo install --check`,
 - [ ] lint, typecheck, testes e `docs:check` verdes
 - [ ] funciona no Android (Expo Go ou APK)
 - [ ] docs afetados atualizados
-- [ ] `CURRENT.md`, `roadmap.md` e `CHANGELOG.md` atualizados
+- [ ] `CURRENT.md`, roadmap e `CHANGELOG.md` atualizados
 - [ ] commit feito e enviado
 
 ## Segurança (repo público)
