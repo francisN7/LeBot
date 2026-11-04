@@ -15,6 +15,10 @@ e sem conta na nuvem — o APK assinado fica no GitHub Releases.
 - **Estante mais leve.** Só as lombadas visíveis animam (brilho, piscada, “zzz” e
   tassel); as de fora da tela ficam paradas e as animações pausam durante a
   rolagem, voltando suavemente quando você solta.
+- **Ordem paginada.** A Ordem mostra **10 livros por página**, com "Anterior" e
+  "Próxima" — montar a lista inteira travava o app com a estante cheia. As setas
+  continuam movendo (inclusive para a página anterior/seguinte) e o arrasto fica
+  dentro da página.
 - **Menos permissões.** O APK não declara mais `RECORD_AUDIO` nem
   `SYSTEM_ALERT_WINDOW` — as duas vinham de bibliotecas e não eram usadas.
 - **Backup automático do Android desligado.** Seus dados continuam só no

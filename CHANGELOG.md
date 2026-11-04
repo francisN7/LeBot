@@ -3,6 +3,48 @@
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Cada sessão é uma entrada; a mais recente vem primeiro.
 
+## S12b — Estante animada só no visível + Ordem paginada (v0.2.1)
+
+### Added
+
+- `useShelfAnimations` (`src/features/library/use-shelf-animations.ts`): guarda
+  o conjunto de ids visíveis (`onViewableItemsChanged` + `viewabilityConfig`
+  estáveis por `useRef`), só troca o estado quando o conjunto muda de fato e
+  pausa tudo entre `onScrollBeginDrag` e `onMomentumScrollEnd`, com timer de
+  segurança de 300 ms e rede de 2,5 s para inércia que não termina.
+- `Spine`/`SpineArtwork`/`useBlink` ganharam `animating`: falso não monta os
+  quatro loops e devolve a arte ao repouso (brilho fora, olhos abertos, tassel
+  reto) sem desmontar corpo, rosto ou tassel.
+- `scripts/build-200-books.mjs`: gera `lebot-200.zip` em UTF-8, determinístico,
+  validado pelo próprio `parseBackup`/`validateBackup` do app.
+- `scripts/measure-gfx.ps1`: repete o protocolo de medição (reinício, aquecimento,
+  `gfxinfo reset`, N flings, percentis) e opcionalmente salva `framestats`.
+- `docs/adr/0027-estante-em-memoria-e-blocos.md`: a estante lê a base inteira no
+  mount (sem I/O na rolagem) e o plano B de blocos de 200 fica definido.
+
+### Changed
+
+- **Estante cheia:** com 200 livros, a rolagem caiu de **71,5% para ~5%** de
+  frames janky e a mediana de **53 ms para 18–19 ms** (Realme C67, Android 15,
+  `dumpsys gfxinfo`, 6 flings, 3 rodadas). A animação continua na grade.
+- **Cenário pequeno:** 3 livros em **2,5–3,0% janky / 14–16 ms**, melhor que a
+  referência do 0.2.0 (4,4% / 20 ms) — sem animação piscando fora de hora.
+- **Ordem paginada:** 10 livros por página, com "Anterior"/"Próxima" e intervalo
+  visível. O arrasto fica dentro da página; as setas andam na ordem inteira e a
+  tela acompanha o livro (o primeiro da página 2 sobe para a página 1).
+- `docs/release-notes-v0.2.1.md` começando no texto, sem H1 — o título do
+  Release não se repete no corpo. A **publicação do `v0.2.1` foi adiada para o
+  fim da S13** (decisão do dono): a tag nasce junto com a documentação fechada,
+  usando o mesmo APK medido aqui.
+- `docs/release.md`: publicar o **mesmo APK medido** (`gh release create` +
+  `upload`) em vez de recompilar pela tag.
+
+### Fixed
+
+- Abrir a Ordem com 200 livros travava a thread de JS e o Android mostrava
+  "LêBot não está respondendo"; era montar as ~172 `QueueRow` de uma vez.
+- O corpo do Release 0.2.0 repetia o título como `#`.
+
 ## S12a — Build no GitHub Actions
 
 ### Added

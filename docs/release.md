@@ -181,6 +181,35 @@ se quiser o texto do projeto.
 3. Commit, `git tag vX.Y.Z` e `git push origin vX.Y.Z`. O `versionCode` entra no
    APK pelo `prebuild` no runner.
 
+## Limpeza de artefatos e caches
+
+Cada `workflow_dispatch` deixa um `lebot-apk` (~25 MB, 30 dias) e um
+`apk-verificacao` (~5 KB, 7 dias); o CI também sobe um `gitleaks-results.sarif`
+por execução (~7 KB). O cache de Gradle é o que pesa: **~1,6 GB por hash de
+`package-lock.json`** (Gradle ~1,34 GB + npm ~0,29 GB), e o limite do repositório
+é **10 GB** (o mais antigo é descartado sozinho quando estoura, o que derruba a
+velocidade do build).
+
+```powershell
+# ver o que existe
+gh api repos/francisN7/LeBot/actions/artifacts --paginate |
+  ConvertFrom-Json | Select-Object -ExpandProperty artifacts |
+  Select-Object name,size_in_bytes,created_at
+gh api repos/francisN7/LeBot/actions/caches | ConvertFrom-Json |
+  Select-Object -ExpandProperty actions_caches | Select-Object key,size_in_bytes
+
+# apagar tudo que é de execuções antigas (guardar o artefato que vai ser medido)
+gh api repos/francisN7/LeBot/actions/artifacts --paginate |
+  ConvertFrom-Json | ForEach-Object { $_.artifacts.id } |
+  ForEach-Object { gh api -X DELETE "repos/francisN7/LeBot/actions/artifacts/$_" }
+
+# apagar caches de hashes antigos do lockfile (manter o atual)
+gh cache list --repo francisN7/LeBot
+gh cache delete <id> --repo francisN7/LeBot
+```
+
+Feito na S12b: 82 artefatos removidos (71,7 MB) e caches de 5,36 GB → 1,59 GB.
+
 ## O que nunca entra no Git
 
 - `android/`, `ios/` e `dist/` (gerados)

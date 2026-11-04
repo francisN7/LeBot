@@ -43,6 +43,14 @@ inclusive nas citações espalhadas fora do backlog.
    do que ainda promete entrega.
 5. Revisar os docs vivos contra o código, fechar o `CHANGELOG.md` e atualizar o
    `CURRENT.md`.
+6. **Publicar o v0.2.1** com o APK já medido na S12b (decisão do dono: a tag
+   nasce junto com as docs fechadas):
+   - o artefato `lebot-apk` do run `41766015381` fica por 30 dias; se expirar,
+     `gh workflow run release.yml` antes de publicar;
+   - `gh release create v0.2.1 --target main --title "LêBot v0.2.1" --notes-file docs/release-notes-v0.2.1.md`
+     e `gh release upload` do **mesmo** APK instalado no aparelho (a tag criada
+     pela API não dispara um build novo);
+   - conferir o asset no Release e registrar o SHA-256 em `docs/release.md`.
 
 ## Aceite
 
@@ -51,6 +59,8 @@ inclusive nas citações espalhadas fora do backlog.
 - [ ] Backlog na ordem de prioridade definida pelo dono.
 - [ ] Nenhum item descartado aparece como pendência em doc vivo.
 - [ ] Links das specs continuam válidos e o INDEX está atualizado.
+- [ ] `v0.2.1` publicado com o APK medido na S12b e as notas de
+      `docs/release-notes-v0.2.1.md` (sem H1).
 - [ ] `lint`, `typecheck` e `test` verdes; commit `S13: ...`.
 
 ## Contexto necessário
@@ -79,4 +89,4 @@ tarefas.
 
 ## Próximo depois desta
 
-Encerramento do MVP e publicação do release interno (S12 já entregue).
+Publicação do `v0.2.1` no Release (mesmo APK medido na S12b) e encerramento do MVP.

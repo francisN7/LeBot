@@ -72,19 +72,23 @@ O que existe hoje (`EstanteScreen.tsx`, `spine.tsx`, `SpineArtwork.tsx`):
    - Combinação final: `animating = visível && !rolando`.
 4. **Medir e comparar.** Mesmo protocolo para 200 e 5 livros, duas rodadas cada.
    Registrar frames, janky, mediana e p95 na spec e no `CURRENT.md`.
-5. **Publicar como v0.2.1.** A release leva também as mudanças da S12a
-   (permissões e `allowBackup`), então o corte de janky deixa de decidir **se**
-   publica — decide só o que as notas afirmam.
-   - `package.json` e `app.config.ts` em `0.2.1`, `versionCode: 2` (sem isso o
+5. **Instalar, testar e só publicar na S13.** Decisão do dono em 04/11: este
+   build **não** vira release agora. O APK é instalado por cima do 0.2.0
+   (`adb install -r`) e testado no aparelho; a publicação do `v0.2.1` fica para o
+   fim da S13, para a tag nascer junto com a documentação fechada.
+   - `package.json` e `app.config.ts` já em `0.2.1`, `versionCode: 2` (sem isso o
      Android não vê atualização).
-   - `docs/release-notes-v0.2.1.md` **sem H1**: o título vai no Release, não no
-     corpo (no 0.2.0 ele aparecia duas vezes).
-   - Fluxo: `workflow_dispatch` → medir o artefato → publicar **o mesmo APK**
-     medido com `gh release create v0.2.1 --notes-file ...` +
-     `gh release upload`. Assim o asset é exatamente o que passou no aparelho e
-     um único build (~15–17 min) basta; a tag criada pela API não dispara o
-     workflow de novo.
-6. **Fechar.** `CURRENT.md`, `roadmap.md`, `CHANGELOG.md` (entrada `S12b`) e
+   - `docs/release-notes-v0.2.1.md` fica pronto, **sem H1**: na S13,
+     `gh release create v0.2.1 --notes-file ...` + upload do **mesmo APK medido**.
+     A tag criada pela API não dispara um segundo build.
+6. **Ordem paginada (10 por página).** A Ordem montava todas as `QueueRow` de
+   uma vez num `ScrollView`; com 200 livros o Android abria o diálogo de "LêBot
+   não está respondendo" (a S12b reproduziu em dev e no APK). Paginar em **10 por
+   página** resolve com o menor risco: o arrasto fica dentro da página e as
+   **setas andam na ordem inteira**, então o primeiro livro da página 2 sobe para
+   a página 1 pela seta (a tela acompanha o livro). Virtualizar com drag seria
+   uma reescrita maior e ficou fora.
+7. **Fechar.** `CURRENT.md`, `roadmap.md`, `CHANGELOG.md` (entrada `S12b`) e
    commit `S12b: ...`.
 
 ## Protocolo de medição
@@ -119,9 +123,11 @@ Start-Sleep -Seconds 2
 - [ ] Medição de 200 livros antes e depois, com frames/janky/mediana/p95
       registrados.
 - [ ] `lebot-200.zip` abre com acentos corretos e o gerador está em `scripts/`.
-- [ ] Publicado como **v0.2.1** (título sem H1 duplicado, notas com as diferenças
-      em relação ao 0.2.0): APK instala por cima do 0.2.0 com os dados intactos
-      e o asset é o mesmo APK medido.
+- [ ] APK da v0.2.1 instalado por cima do 0.2.0 (mesma assinatura) com os dados
+      intactos; a publicação do Release fica para a S13 (decisão do dono), com
+      `docs/release-notes-v0.2.1.md` já pronto.
+- [ ] Ordem com 200 livros abre sem ANR, mostra 10 por página e o primeiro da
+      página 2 sobe para a página 1 pela seta.
 - [ ] lint, typecheck, test, doctor e `expo export` verdes.
 
 > Meta de referência: ≤ 5% janky com 200 livros. Se não bater, registrar o ganho

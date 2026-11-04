@@ -79,6 +79,31 @@ otimização de animação.
   Ordem é o caso conhecido) tem o mesmo tipo de limite e precisa da própria
   medição antes de decidir entre virtualizar e paginar.
 
+## Adendo S12b — a Ordem paginada
+
+A Ordem confirmou o limite na prática: com 200 livros, abrir a aba travava a
+thread de JS e o Android mostrava "LêBot não está respondendo". Medido em dev,
+o `sync()` do repositório custa ~70 ms; o resto era montar ~172 `QueueRow` de
+uma vez (cada uma com `BookArt`, gesto de arrasto, `LinearTransition` e o loop
+do brilho).
+
+Decisão: **10 livros por página**, sem virtualizar a lista.
+
+- `QUEUE_PAGE_SIZE = 10`, com "Anterior"/"Próxima" e o intervalo visível
+  (`1–10 de 172`).
+- O arrasto continua preso à página: os alvos são recortados pelo bloco e pela
+  página, então a prévia nunca abre espaço fora do que está na tela.
+- As **setas andam na ordem inteira**: o primeiro livro da página 2 sobe para a
+  página 1 pela seta, e a tela acompanha o livro (rola ao fim ao subir, ao topo
+  ao descer).
+- Ao trocar de página, a rolagem volta ao topo.
+- Virtualizar com drag (FlatList + posições absolutas) resolveria o mesmo
+  problema, mas é uma reescrita do gesto e do cálculo de alvo; a paginação
+  entrega o comportamento pedido com um décimo do risco.
+
+Consequência para o plano B do topo: a Estante pode seguir com a base inteira em
+memória; a paginação da Ordem é de **render**, não de dados.
+
 ## Alternativas descartadas
 
 - **Paginar já:** muda busca, filtros, contagem, ordem e backup; o ganho com
