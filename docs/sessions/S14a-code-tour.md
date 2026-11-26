@@ -61,5 +61,6 @@ do relatório. Não abrir as 22 mil linhas de `src/`.
 
 ## Próximo depois desta
 
-S14b — refactor piloto de `src/features/settings/backup/format.ts` (~660 linhas),
-separando parse/validate/serialize sem mudar o formato do backup.
+S15a — análise de desempenho (só análise; ver "Leveza e vida" em
+`docs/roadmap/main.md`). O `code-report` desta sessão vira insumo dela. A S14b
+(refactor piloto de `backup/format.ts`) espera a S15a e a S15b.

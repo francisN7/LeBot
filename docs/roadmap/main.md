@@ -10,11 +10,16 @@ Estado: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 ## Sessões
 
 Fase 14 — Código que abre caminho: medir o labirinto antes de refatorar.
+Fase 15 — Leveza e vida (análise), entre a S14a e a S14b por decisão do dono
+(2026-11-26): se a S15a mudar a arquitetura, os refactors da S14b em diante
+são revistos antes de começar.
 
 | Sessão | Entrega | Aceite | Estado |
 |---|---|---|---|
 | S13f | Manutenção: SDK 58 alinhado (`expo` 58.1.0 + plugins `expo-image`/`expo-status-bar`), release só por `workflow_dispatch` (adendo na ADR 0026), `measure-gfx.sh` no lugar do `.ps1` e hooks do Husky executáveis | `npm run doctor` 20/20 local (CI após o push); YAML só com `workflow_dispatch` (lido, sem run real); `measure-gfx.sh --help` ok, sem `shellcheck` e sem aparelho | [x] |
 | S14a | Code tour (`docs/code-tour.md`, ~7 paradas), convenções de tamanho/imports/comentário e `scripts/code-report.mjs` | `npm run code:report` lista top 10 e imports cruzados; tour linkado; sem mudar comportamento | [ ] |
+| S15a | Análise de desempenho (A1): medir o APK de release, achar por que pesa e decidir o caminho — linguagem, framework e arquitetura podem mudar | Relatório com medições em `docs/`, ADR se mudar a direção, itens novos no backlog; nenhuma mudança no app | [ ] |
+| S15b | Análise de vida (A2): onde dar mais movimento e personalidade dentro do orçamento da S15a | Relatório em `docs/`, itens novos no backlog; nenhuma mudança no app | [ ] |
 | S14b | Refactor piloto de `settings/backup/format.ts` (~660 linhas): separar parse/validate/serialize | Testes verdes; formato do backup inalterado | [ ] |
 | S14c+ | Refactors restantes, um por sessão, na ordem do `code-report`: `SpineArtwork` (~710), `QueueScreen` (~440), `EstanteScreen` (~410) | Testes verdes; sem mudar comportamento | [ ] |
 
@@ -31,16 +36,16 @@ verificado, e o estado vira `[x]`. Ao fechar o ciclo, este arquivo vira
 
 | Fase | Item | Custo | Pré-requisito |
 |---|---|---|---|
-| 15 — Cadastro sem digitação | **P1** — Busca por ISBN (detalhe abaixo) | M | escolher a API; ADR da exceção ao offline-first |
-| 16 — Conforto visual | Temas: escuro + paletas (papel amarelado, alto contraste, sazonais), tokens de superfície e contraste revisado nas quatro abas e nas lombadas | M | gêneros já guardam `color_dark` |
-| 16 — Conforto visual | Acessibilidade: leitor de tela (rótulos e ações), contraste, alvo de toque mínimo e "reduzir movimento"; teste automatizado nos componentes principais | M | — |
-| 17 — Estante em escala | Grid ajustável 2/3/4 por linha, escolha em `settings`, capas e lombadas redimensionadas | P | definir se o botão mora no cabeçalho |
-| 17 — Estante em escala | Multisseleção: status, gênero, remover capa ou excluir; excluir e remover capa pedem confirmação dupla com contagem de 5 s | M | o toque longo no chip continua sendo a roda de status |
-| 18 — Ajuda e mascote | Botão (i) por aba: 2–3 frases para **quem chega agora**, com o LêBot "confuso" (reaproveitar `thinking`) | P | — |
-| 18 — Ajuda e mascote | Vida do mascote: frases por contexto (plano pronto, meta batida, volta leve, estante vazia, busca sem resultado, backup, erro) com escolha determinística e animações por estado/tela | M | — |
-| 19 — Memória de leitura | Galeria de citações com busca e filtro por livro/gênero | P | `reviews.quote` já existe |
-| 19 — Memória de leitura | `finished_at` em `books`, com backfill e uso nas estatísticas (acaba com a data aproximada via `updated_at`) | P | — |
-| 20 — Código II | Refactors restantes por feature, um por sessão, com testes como rede | M cada | Fase 14 |
+| 16 — Cadastro sem digitação | **P1** — Busca por ISBN (detalhe abaixo) | M | escolher a API; ADR da exceção ao offline-first |
+| 17 — Conforto visual | Temas: escuro + paletas (papel amarelado, alto contraste, sazonais), tokens de superfície e contraste revisado nas quatro abas e nas lombadas | M | gêneros já guardam `color_dark` |
+| 17 — Conforto visual | Acessibilidade: leitor de tela (rótulos e ações), contraste, alvo de toque mínimo e "reduzir movimento"; teste automatizado nos componentes principais | M | — |
+| 18 — Estante em escala | Grid ajustável 2/3/4 por linha, escolha em `settings`, capas e lombadas redimensionadas | P | definir se o botão mora no cabeçalho |
+| 18 — Estante em escala | Multisseleção: status, gênero, remover capa ou excluir; excluir e remover capa pedem confirmação dupla com contagem de 5 s | M | o toque longo no chip continua sendo a roda de status |
+| 19 — Ajuda e mascote | Botão (i) por aba: 2–3 frases para **quem chega agora**, com o LêBot "confuso" (reaproveitar `thinking`) | P | — |
+| 19 — Ajuda e mascote | Vida do mascote: frases por contexto (plano pronto, meta batida, volta leve, estante vazia, busca sem resultado, backup, erro) com escolha determinística e animações por estado/tela | M | — |
+| 20 — Memória de leitura | Galeria de citações com busca e filtro por livro/gênero | P | `reviews.quote` já existe |
+| 20 — Memória de leitura | `finished_at` em `books`, com backfill e uso nas estatísticas (acaba com a data aproximada via `updated_at`) | P | — |
+| 21 — Código II | Refactors restantes por feature, um por sessão, com testes como rede | M cada | Fase 14 |
 
 **Busca por ISBN.** Quando o **primeiro campo preenchido** do formulário é o
 ISBN, buscar título, autor, páginas e capa e preencher o formulário.
@@ -56,6 +61,24 @@ ISBN, buscar título, autor, páginas e capa e preencher o formulário.
   com API mockada e nenhum segredo no app.
 - **Não faz:** OCR de capa nem áudio.
 
+**Leveza e vida (S15a → S15b).** Duas sessões **só de análise, decisão e
+planejamento**: nenhuma muda código do app. Cada uma termina acrescentando itens
+a este backlog (com custo e aceite); depois das duas, esses itens viram sessões
+e a S14b em diante é revista à luz delas.
+
+- **S15a (A1) — Desempenho.** O app parece pesado mesmo sendo simples, enquanto há
+  apps com muito mais animação que são leves. Medir no APK de release (boot,
+  troca de abas, Estante, memória e tamanho), achar as causas e comparar
+  caminhos. **Nada é intocável:** linguagem, framework, arquitetura e decisões
+  anteriores podem mudar se o ganho justificar; mudança de direção vira ADR.
+- **S15b (A2) — Vida.** Com o orçamento de desempenho da S15a, revisar telas, transições,
+  estados vazios, feedback de toque e o mascote para dar mais vida a tudo, sem
+  comprometer funcionamento nem leveza. Absorve ou reordena a Fase 19 se fizer
+  sentido.
+- **Aceite (de cada uma):** relatório em `docs/` com medições e evidências,
+  decisões (ADR quando relevante) e itens novos no backlog; zero mudança de
+  comportamento no app.
+
 ## Manutenção
 
 - **Advisories do npm/Dependabot.** 4 alertas abertos, todos no toolchain Node
@@ -64,8 +87,7 @@ ISBN, buscar título, autor, páginas e capa e preencher o formulário.
   `npm audit` sem média/alta ou cada exceção justificada.
 - **Dependabot.** Só alertas e security updates (ADR 0005).
 - **SDK/React Native.** Sessão de release quando o Expo pedir; rodar
-  `npx expo install --check` e a tríade de validação. Os patches pendentes do
-  SDK 58, o gatilho de tag e a medição em bash estão na S13f.
+  `npx expo install --check` e a tríade de validação (a S13f alinhou o SDK 58).
 
 ## Gatilhos (não são backlog)
 
