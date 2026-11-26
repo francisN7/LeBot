@@ -34,6 +34,7 @@ Humanos podem ler tudo; a tabela só diz o que o agente carrega por iniciativa.
 | ver a identidade e a arte | [`reference/brand.md`](reference/brand.md) |
 | entender camadas e fluxo | [`reference/architecture.md`](reference/architecture.md) |
 | saber o que o app faz com seus dados | [`reference/security-privacy.md`](reference/security-privacy.md) |
+| saber por que o app pesa e o orçamento de desempenho | [`reference/performance.md`](reference/performance.md) |
 | saber **por que** algo é assim | [`adr/`](adr/README.md) |
 | ver o que mudou | [`../CHANGELOG.md`](../CHANGELOG.md) e [`releases/`](releases/) |
 | ler a spec da sessão atual | [`sessions/`](sessions/) |
@@ -52,6 +53,7 @@ Humanos podem ler tudo; a tabela só diz o que o agente carrega por iniciativa.
 | tokens | `reference/design-system.md` → **Tokens** | 55 |
 | componentes | `reference/design-system.md` → **Componentes** | 60 |
 | lombada e mascote | `reference/brand.md` → **Lombada** / **Mascote** | 70 |
+| orçamento de desempenho | `reference/performance.md` → **Orçamento** | 20 |
 | assinatura e CI | `guide/release.md` → **Assinatura** / **Gerar o APK** | 45 |
 | publicar um Release | `guide/release.md` → **Publicar manualmente** | 25 |
 | camadas de teste | `guide/testing.md` → **Três camadas** | 25 |

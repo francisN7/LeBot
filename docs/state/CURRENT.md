@@ -5,10 +5,10 @@
 
 ## Sessão
 
-- **Última concluída:** S14a — code tour e `code:report` (2026-11-26).
-- **Próxima:** S14b — desempenho (`docs/sessions/S14b-desempenho.md`).
+- **Última concluída:** S14b — análise de desempenho (2026-11-26).
+- **Próxima:** S14c — leveza I (`docs/sessions/S14c-leveza-animacao.md`).
 - **Ciclo:** pós-MVP em `docs/roadmap/main.md` (Fase 14); MVP em `0001-mvp.md`.
-- **Retorno:** `00107c1` — docs: renumera a analise para S14b/S14c (...).
+- **Retorno:** `d0394cd` — S14a: code tour, convencoes e npm run code:report.
 
 ## Pronto
 
@@ -19,10 +19,11 @@
 - Release só por `workflow_dispatch` (campo `tag` publica); tag não rebuilda
   (adendo na ADR 0026). Medição: `bash scripts/measure-gfx.sh --help`.
 - Tour, convenções e linha de base do `code:report`: `docs/guide/code-tour.md`.
+- Desempenho e orçamento: `docs/reference/performance.md` + ADR 0029 (stack fica).
 
 ## Próximo passo
 
-Abrir a S14b: fixar o protocolo (aparelho com `adb`, hash do APK, fixture).
+Abrir a S14c: medidores em `scripts/`, depois pausa fora de foco e loops com fim.
 
 ## Decisões abertas
 
@@ -38,13 +39,12 @@ Abrir a S14b: fixar o protocolo (aparelho com `adb`, hash do APK, fixture).
 
 - Sem build local (ADR 0026). **Expo Go serve para bug funcional, não para
   medir** (dev exagera; `gfxinfo` não vale).
-- Asset do `v0.2.1` (`e44b2c…3ab6`, build `2d66d62`) foi recompilado pela tag;
-  o APK medido era `1D4AE0…D838` (build `e6738dd`, mesmo código). Falta remedir.
+- `v0.2.1` medido na S14b é o asset `e44b2c…3ab6` (build `2d66d62`).
 - `expo install` com `app.config.ts` dinâmico não grava plugins e pode pôr
   `jest-expo` em `dependencies`: conferir à mão (ocorreu na S13f).
-- `expo` 58.1.0 + plugins novos e `measure-gfx.sh` ainda não rodaram em aparelho.
-- Backups **reais** só no celular/nuvem, nunca aqui nem no repo. O aparelho
-  está com o fixture de 200 livros; o acervo volta por Ajustes → Backup.
+- `expo` 58.1.0 + plugins novos ainda não rodaram em aparelho.
+- Backups **reais** só no celular/nuvem, nunca aqui. Restaurar fixture apaga o
+  acervo real: pedir backup ao dono. Fixture não tem capa (só lombadas).
 - Husky só dá `+x` ao criar: hook sem permissão → `rm -rf .husky/_ && npx husky`.
 - Node 26 / npm 12: o npm bloqueia scripts de instalação (`allowScripts`); a
   suíte passa assim. Timeout de 5 s no Jest = RAM curta (5,6 GB aqui): rodar

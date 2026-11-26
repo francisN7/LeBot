@@ -33,6 +33,7 @@ consequências; ele não muda depois de aceito (adendos entram no próprio ADR).
 | [0026](0026-build-no-github-actions.md) | Build no GitHub Actions e pacote mínimo | Aceita |
 | [0027](0027-estante-em-memoria-e-blocos.md) | Estante em memória e plano de blocos | Aceita (gatilho no backlog) |
 | [0028](0028-documentacao-por-tipo-e-roadmap-numerado.md) | Documentação por tipo, roadmap numerado e orçamento | Aceita |
+| [0029](0029-orcamento-de-desempenho-e-animacao-com-fim.md) | Orçamento de desempenho e animação com hora para acabar | Aceita |
 
 ## Como ler
 

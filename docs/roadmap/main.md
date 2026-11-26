@@ -10,18 +10,21 @@ Estado: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 ## Sessões
 
 Fase 14 — Código que abre caminho: medir o labirinto antes de refatorar.
-Por decisão do dono (2026-11-26), a análise de leveza e vida (S14b, S14c) entra
-antes dos refactors, que foram renumerados de S14b/S14c+ para S14d/S14e+; se a
-S14b mudar a arquitetura, eles são revistos antes de começar.
+Por decisão do dono (2026-11-26), a análise de leveza e vida entra antes dos
+refactors. Depois da S14b, as duas sessões de leveza (S14c, S14d) entram antes da
+vida, e vida e refactors andam duas letras (S14e, S14f, S14g+). O stack fica
+(ADR 0029).
 
 | Sessão | Entrega | Aceite | Estado |
 |---|---|---|---|
 | S13f | Manutenção: SDK 58 alinhado (`expo` 58.1.0 + plugins `expo-image`/`expo-status-bar`), release só por `workflow_dispatch` (adendo na ADR 0026), `measure-gfx.sh` no lugar do `.ps1` e hooks do Husky executáveis | `npm run doctor` 20/20 local (CI após o push); YAML só com `workflow_dispatch` (lido, sem run real); `measure-gfx.sh --help` ok, sem `shellcheck` e sem aparelho | [x] |
 | S14a | Code tour em `docs/guide/code-tour.md` (7 paradas + convenções de tamanho, imports e comentário) e `npm run code:report` com linha de base: 150 arquivos/16.095 linhas, 12 acima de 250, 26 imports profundos entre features | `code:report` lista top 10, pastas e imports cruzados; tour linkado no mapa e no AGENTS; só docs e script novo; lint, typecheck, 517 testes e docs verdes | [x] |
-| S14b | Análise de desempenho (A1): medir o APK de release, achar por que pesa e decidir o caminho — linguagem, framework e arquitetura podem mudar | Relatório com medições em `docs/`, ADR se mudar a direção, itens novos no backlog; nenhuma mudança no app | [ ] |
-| S14c | Análise de vida (A2): onde dar mais movimento e personalidade dentro do orçamento da S14b | Relatório em `docs/`, itens novos no backlog; nenhuma mudança no app | [ ] |
-| S14d | Refactor piloto de `settings/backup/format.ts` (~660 linhas): separar parse/validate/serialize | Testes verdes; formato do backup inalterado | [ ] |
-| S14e+ | Refactors restantes, um por sessão, na ordem do `code-report`: `SpineArtwork` (~710), `QueueScreen` (~440), `EstanteScreen` (~410) | Testes verdes; sem mudar comportamento | [ ] |
+| S14b | Análise de desempenho em `docs/reference/performance.md`: APK `v0.2.1` (`e44b2c…3ab6`) no edge 50 ultra com 3 reais, 3/200/1.000 fictícios; causas: loops `withRepeat(-1)` sem pausa (aba escondida 90% de um núcleo), lombada SVG animada, Ordem O(n) (2,3 s com 1.000) e fade de 400 ms da splash; caminho A (ajustar no stack) e orçamento na ADR 0029 | Medições com hash do APK; decisão do dono registrada; S14c/S14d novas; nenhuma mudança no app; `docs:check` verde | [x] |
+| S14c | Leveza I: animação com hora para acabar — pausar fora de foco, tirar os loops perpétuos de `Mascot`, `SpineArtwork`, `SpineFace`, `BookCover` e `QueueRow`, respeitar "reduzir movimento"; medidores da S14b em `scripts/` | Orçamento de **parado** e **aba escondida** da ADR 0029 no APK de release (f200); testes verdes | [ ] |
+| S14d | Leveza II: Ordem sem trabalho O(n) na montagem (profiler antes), fade da splash ~150 ms, custo da célula de lombada na rolagem e APK por ABI | Orçamento de boot, 1ª visita, rolagem e PSS da ADR 0029; se a rolagem não fechar, decidir o caminho B | [ ] |
+| S14e | Análise de vida (A2): onde dar mais movimento e personalidade dentro do orçamento da ADR 0029 | Relatório em `docs/`, itens novos no backlog; nenhuma mudança no app | [ ] |
+| S14f | Refactor piloto de `settings/backup/format.ts` (~660 linhas): separar parse/validate/serialize | Testes verdes; formato do backup inalterado | [ ] |
+| S14g+ | Refactors restantes, um por sessão, na ordem do `code-report`: `SpineArtwork` (~710), `QueueScreen` (~440), `EstanteScreen` (~410) | Testes verdes; sem mudar comportamento | [ ] |
 
 Ordem: a tabela, depois as fases do backlog na ordem abaixo. A ordem segue
 **valor para o leitor × custo × risco**: primeiro o que deixa as próximas sessões
@@ -61,17 +64,17 @@ ISBN, buscar título, autor, páginas e capa e preencher o formulário.
   com API mockada e nenhum segredo no app.
 - **Não faz:** OCR de capa nem áudio.
 
-**Leveza e vida (S14b → S14c).** Duas sessões **só de análise, decisão e
-planejamento**: nenhuma muda código do app. Cada uma termina acrescentando itens
-a este backlog (com custo e aceite); depois das duas, esses itens viram sessões
-e a S14d em diante é revista à luz delas.
+**Leveza e vida (S14b → S14e).** S14b e S14e são **só de análise, decisão e
+planejamento**: nenhuma muda código do app. A S14b virou as sessões de leveza
+S14c e S14d (relatório em `reference/performance.md`, ADR 0029); a S14e planeja
+a vida já sobre o app leve.
 
 - **S14b (A1) — Desempenho.** O app parece pesado mesmo sendo simples, enquanto há
   apps com muito mais animação que são leves. Medir no APK de release (boot,
   troca de abas, Estante, memória e tamanho), achar as causas e comparar
   caminhos. **Nada é intocável:** linguagem, framework, arquitetura e decisões
   anteriores podem mudar se o ganho justificar; mudança de direção vira ADR.
-- **S14c (A2) — Vida.** Com o orçamento de desempenho da S14b, revisar telas, transições,
+- **S14e (A2) — Vida.** Com o orçamento de desempenho da ADR 0029, revisar telas, transições,
   estados vazios, feedback de toque e o mascote para dar mais vida a tudo, sem
   comprometer funcionamento nem leveza. Absorve ou reordena a Fase 18 se fizer
   sentido.
