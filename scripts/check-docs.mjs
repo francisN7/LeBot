@@ -35,11 +35,7 @@ const SKIP_DIRS = new Set([
   'output',
   'tmp',
 ]);
-const SKIP_LINKS = [
-  'CHANGELOG.md',
-  'docs/releases/',
-  'docs/sessions/',
-];
+const SKIP_LINKS = ['CHANGELOG.md', 'docs/releases/', 'docs/sessions/'];
 const NO_PLACEHOLDER_CHECK = ['docs/sessions/_TEMPLATE.md'];
 const BUDGETS = [
   { file: 'AGENTS.md', max: 100 },
