@@ -1,36 +1,23 @@
 # Changelog
 
 Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
-Uma entrada por **versão**; o detalhe por sessão está em
-[`docs/roadmap/0001-mvp.md`](docs/roadmap/0001-mvp.md) e as decisões em
+Uma entrada por **versão**, só mudança visível ao usuário; o detalhe por sessão
+está em [`docs/roadmap/0001-mvp.md`](docs/roadmap/0001-mvp.md) e as decisões em
 `docs/adr/`.
 
-## Não publicado — S13 (documentação e vitrine)
+## [Unreleased]
 
 ### Added
 
 - README com logo, badges, seis telas de acervo fictício e resumo em inglês.
-- `scripts/build-demo-backup.mjs` gera o fixture de demonstração
-  (`lebot-demo.zip`, fora do Git).
-- `docs/assets/` com logo, screenshots e social preview.
 
 ### Changed
 
-- Docs vivos separados em `guide/` e `reference/`, com mapa por seção e
-  `npm run docs:check` no CI (links + orçamento).
-- Modelo registrado na [ADR 0028](docs/adr/0028-documentacao-por-tipo-e-roadmap-numerado.md);
-  as specs da fase saíram do working tree e o resumo está em
-  [`docs/roadmap/0001-mvp.md`](docs/roadmap/0001-mvp.md).
-- As 23 specs antigas saíram do working tree; o MVP virou
-  [`docs/roadmap/0001-mvp.md`](docs/roadmap/0001-mvp.md) e o `CHANGELOG`, uma
-  entrada por versão.
-- **Backlog auditado com o dono em `docs/roadmap/main.md`:** sync, Goodreads,
-  IA, audiobook, OCR, widget e compartilhar resenhas saíram; a busca por ISBN
-  entrou no lugar do OCR.
-- Índice dos 27 ADRs em [`docs/adr/README.md`](docs/adr/README.md).
-- Repositório auditado: `.gitignore`, GitHub (topics, Issues/Wiki, Dependabot
-  security updates) e caminhos pessoais fora dos scripts.
-- Notas de release movidas para `docs/releases/`.
+- Documentação reorganizada por tipo (guias, referência, ADRs e roadmap
+  numerado), com check de links e orçamento no CI
+  ([ADR 0028](docs/adr/0028-documentacao-por-tipo-e-roadmap-numerado.md)).
+- Backlog revisto: sync, Goodreads, IA, audiobook, OCR, widget e compartilhar
+  resenhas saíram; a busca por ISBN entrou no lugar do OCR.
 
 ## v0.2.1 — Estante animada e Ordem paginada (publicada em 04/11/2026)
 

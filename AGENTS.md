@@ -8,26 +8,34 @@ NativeWind.
 
 ## Protocolo de contexto
 
-1. No início da sessão, leia **só**: este arquivo, `docs/state/CURRENT.md` e a
-   spec da sessão em `docs/sessions/`.
-2. Para qualquer outro assunto, ache a **seção** em `docs/README.md` e leia só
-   ela. Nunca despeje um arquivo grande no contexto.
-3. Prefira `grep`/`glob` e leituras parciais (`offset`/`limit`).
-4. No fim da sessão, obrigatoriamente:
-   - rodar `npm run lint`, `npm run typecheck`, `npm run test` e
-     `npm run docs:check`;
-   - atualizar `CURRENT.md`, marcar a sessão no roadmap e escrever uma linha no
-     `CHANGELOG.md`;
+1. Abertura (skill `session-start`): leia **só** este arquivo,
+   `docs/state/CURRENT.md` e a spec em `docs/sessions/`.
+2. Outro assunto: ache a **seção** em `docs/README.md` e leia só ela. Nunca
+   despeje arquivo grande no contexto; prefira `grep`/`glob` e leituras parciais.
+3. Docs 👤 (`README`, `CHANGELOG`, `docs/releases/`) são para humanos: não
+   carregue por iniciativa (matriz em `docs/README.md`).
+4. Fim da sessão (skill `session-start`, encerramento):
+   - rodar lint, typecheck, testes e docs (tabela abaixo);
+   - atualizar `CURRENT.md`; marcar a sessão em `docs/roadmap/main.md` com
+     entrega e aceite; tirar a spec concluída (`git rm`);
+   - `CHANGELOG.md`: só mudança visível ao usuário, em `Unreleased`;
    - criar/atualizar um ADR se a decisão for relevante;
    - escrever a spec da próxima sessão;
-   - commitar com `SXX: resumo curto`.
-5. Se o contexto encher no meio, salve o estado em `CURRENT.md` e recomece.
+   - commitar com `SNN: resumo curto`, numeração conforme
+     `docs/roadmap/README.md` (push só com OK do dono).
+5. Contexto cheio no meio da sessão: salve o estado em `CURRENT.md` e recomece.
+6. Revisão profunda de todos os `.md` é a skill `docs-review`: só sob pedido
+   explícito. Criar ou migrar a estrutura é a `project-context-init`.
 
-Estado: `docs/state/CURRENT.md` · futuro: `docs/roadmap/main.md` ·
-decisões: `docs/adr/`.
+Estado: `docs/state/CURRENT.md` · futuro: `docs/roadmap/main.md` · decisões:
+`docs/adr/` · mapa: `docs/README.md`.
 
-Skills: `session-start` (abrir/encerrar), `project-context-init` (criar a
-estrutura) e `public-repo-audit` (segredos, dados e licença).
+## Entrega final
+
+Toda resposta que conclui trabalho termina com um selo: **Sessão fechada**
+(encerramento aplicado), **Sessão aberta** (peça "encerrar sessão") ou **Sem
+sessão** (ajuste que não mexe em `CURRENT` nem no roadmap). Nunca esconder
+validação vermelha atrás do selo.
 
 ## Estrutura
 
@@ -49,17 +57,24 @@ estrutura) e `public-repo-audit` (segredos, dados e licença).
 - Sem `any`. Validação de borda com Zod.
 - Telas não falam SQL: sempre via repositório.
 - Lógica do plano é determinística e testada; nada de IA no MVP.
-- Arquivos gerados (`src/lib/isbn-ranges.ts`, `drizzle/*.sql`,
-  `drizzle/migrations.js`) não são editados à mão.
+- Arquivos gerados não são editados à mão: `src/lib/isbn-ranges.ts`,
+  `drizzle/*.sql` e `drizzle/migrations.js`.
 - Commits pequenos, um por sessão.
 
 ## Comandos
 
-Sessão: `npm run lint`, `npm run typecheck`, `npm run test`, `npm run
-docs:check` e `npm run doctor`.
+| Ação | Comando |
+|---|---|
+| dev | `npm start` |
+| lint | `npm run lint` |
+| typecheck | `npm run typecheck` |
+| test | `npm run test` |
+| docs | `npm run docs:check` |
+| doctor | `npm run doctor` |
+| build | `gh workflow run release.yml` (o APK nunca é gerado na máquina local) |
 
-Build: `gh workflow run release.yml` (o APK nunca é gerado na máquina local).
-A lista completa de scripts está em [`docs/guide/setup.md`](docs/guide/setup.md).
+Requer Node 22 (`.nvmrc`) e `npm ci`. Lista completa em
+[`docs/guide/setup.md`](docs/guide/setup.md).
 
 ## Dependências
 
@@ -69,11 +84,11 @@ security updates*. Em sessão de release: `npx expo install --check`,
 
 ## Definition of Done
 
-- [ ] lint, typecheck, testes e `docs:check` verdes
+- [ ] lint, typecheck, testes e docs verdes
 - [ ] funciona no Android (Expo Go ou APK)
 - [ ] docs afetados atualizados
-- [ ] `CURRENT.md`, roadmap e `CHANGELOG.md` atualizados
-- [ ] commit feito e enviado
+- [ ] `CURRENT.md` e roadmap atualizados; `CHANGELOG.md` se houve mudança visível
+- [ ] commit feito (push só com OK do dono)
 
 ## Segurança (repo público)
 

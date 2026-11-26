@@ -10,7 +10,7 @@ Play Store e iOS estão fora de escopo.
 
 ## Requisitos e secrets
 
-- **`adb`** (SDK enxuto em `%USERPROFILE%\android-sdk`, só `platform-tools`) e
+- **`adb`** (só `platform-tools`: pacote `android-tools` da distro ou o SDK) e
   **`gh`** autenticado (`gh auth login`); Node 22+. **Nada de JDK, Gradle, NDK ou
   WSL** — um `android/` na raiz é resto de `prebuild` e deve ser apagado.
 - Três secrets alimentam a assinatura (`Settings → Secrets and variables →
@@ -41,7 +41,7 @@ Dois caminhos, ambos pelo Actions (`.github/workflows/release.yml`): **tag `v*`*
 compila, confere e anexa ao Release; **`workflow_dispatch`** compila e deixa o
 APK como artefato por 30 dias (o campo `tag` publica no Release informado).
 
-```powershell
+```bash
 gh workflow run release.yml
 gh run watch
 gh run download --name lebot-apk
@@ -57,9 +57,9 @@ certificado; `aapt2 dump permissions` garante que `RECORD_AUDIO` e
 `SYSTEM_ALERT_WINDOW` não estão no APK; `aapt2 dump xmltree` exige
 `allowBackup="false"`. Se aparecer `CN=Android Debug`, **não publique**.
 
-```powershell
-gh release download v0.3.0 --pattern "lebot-*.apk" --dir $env:TEMP
-adb install -r (Get-ChildItem $env:TEMP\lebot-*.apk | Select-Object -Last 1).FullName
+```bash
+gh release download v0.3.0 --pattern "lebot-*.apk" --dir /tmp/lebot
+adb install -r "$(ls /tmp/lebot/lebot-*.apk | tail -1)"
 adb shell am start -n com.francisN7.lebot/.MainActivity
 ```
 
@@ -67,8 +67,8 @@ adb shell am start -n com.francisN7.lebot/.MainActivity
 Sem cabo: baixe do Release no celular e permita "instalar apps de fontes
 desconhecidas". Permissões no aparelho (não deve devolver nada):
 
-```powershell
-adb shell dumpsys package com.francisN7.lebot | Select-String "RECORD_AUDIO|SYSTEM_ALERT_WINDOW"
+```bash
+adb shell dumpsys package com.francisN7.lebot | grep -E "RECORD_AUDIO|SYSTEM_ALERT_WINDOW"
 ```
 
 ## Fumaça e medição
@@ -86,11 +86,11 @@ adb shell dumpsys package com.francisN7.lebot | Select-String "RECORD_AUDIO|SYST
 
 Quando o APK já foi medido, publique **esse mesmo arquivo**:
 
-```powershell
-gh run download <run-id> --name lebot-apk --dir $env:TEMP
-gh release create vX.Y.Z --target main --title "LêBot vX.Y.Z" `
+```bash
+gh run download <run-id> --name lebot-apk --dir /tmp/lebot-apk
+gh release create vX.Y.Z --target main --title "LêBot vX.Y.Z" \
   --notes-file docs/releases/vX.Y.Z.md
-gh release upload vX.Y.Z "$env:TEMP\lebot-apk\lebot-X.Y.Z.apk"
+gh release upload vX.Y.Z /tmp/lebot-apk/lebot-X.Y.Z.apk
 ```
 
 A tag criada pela API **dispara** o `on: push: tags`: o workflow rebuilda em
@@ -109,10 +109,9 @@ Release já aparece acima do corpo.
 3. Cada execução deixa um artefato de ~25 MB (30 dias) e caches de Gradle de
    ~1,6 GB por hash do lockfile. Apague os velhos:
 
-```powershell
-gh api repos/francisN7/LeBot/actions/artifacts --paginate |
-  ConvertFrom-Json | ForEach-Object { $_.artifacts.id } |
-  ForEach-Object { gh api -X DELETE "repos/francisN7/LeBot/actions/artifacts/$_" }
+```bash
+gh api repos/francisN7/LeBot/actions/artifacts --paginate --jq '.artifacts[].id' |
+  xargs -I{} gh api -X DELETE "repos/francisN7/LeBot/actions/artifacts/{}"
 gh cache list --repo francisN7/LeBot   # apague os hashes velhos com `gh cache delete`
 ```
 

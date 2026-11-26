@@ -72,7 +72,8 @@ await renderWithProviders(<EstanteScreen />, {
   aparece duas vezes (título do livro e rótulo da lombada).
 - Teste comportamento, não implementação: nada de snapshot de árvore.
 - Dados de teste são fictícios.
-- Node local 26 vs CI 22: rode `npm run test` antes de culpar o CI.
+- Use o Node 22 do `.nvmrc`, o mesmo do CI; rode `npm run test` antes de
+  culpar o CI.
 - Reanimated roda pelo resolver oficial
   (`jest.resolver = react-native-reanimated/jest/resolver` no `package.json`).
   Se um teste falhar com `loadUnpackersWithCode`, o resolver saiu do lugar.

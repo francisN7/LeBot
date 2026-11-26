@@ -1,84 +1,61 @@
 # Roadmap atual
 
-Fases e backlog pós-MVP. A ordem segue **valor para o leitor × custo × risco**:
-primeiro o que deixa as próximas sessões mais baratas, depois o que mais dói no
-uso diário. Um item só vira sessão quando a fase é escolhida.
+Ciclo ativo: **0002 — Pós-MVP**. Objetivo: tornar o código navegável e atacar o
+que mais dói no uso diário, sem perder o offline-first.
+Ciclos fechados: [`README.md`](README.md) (o MVP está em
+[`0001-mvp.md`](0001-mvp.md)).
 
-O MVP e a fase de documentação/vitrine estão fechados em
-[`0001-mvp.md`](0001-mvp.md). O roadmap abaixo começa no pós-MVP.
+Estado: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 
-## Fase 14 — Código que abre caminho
+## Sessões
 
-Objetivo: tornar o código navegável e medir o labirinto antes de refatorar.
+Fase 14 — Código que abre caminho: medir o labirinto antes de refatorar.
 
-- **S14a — Code tour + convenções + code report.** `docs/code-tour.md` com ~7
-  paradas (boot → tema → banco → feature → testes), regras de tamanho de arquivo,
-  imports e comentário ("por quê", não "o quê"), e `scripts/code-report.mjs`
-  listando arquivos >250 linhas e imports cruzados. Custo M; sem mudar
-  comportamento.
-- **S14b — Refactor piloto: `settings/backup/format.ts`.** ~660 linhas puras com
-  testes; separar parse/validate/serialize e provar a convenção. Custo M; testes
-  verdes, sem mudar o formato do backup.
-- **S14c+ — Refactors restantes, intercalados.** `SpineArtwork` (~710),
-  `QueueScreen` (~440), `EstanteScreen` (~410); um por ciclo, na ordem do
-  `code-report`. Custo M cada.
+| Sessão | Entrega | Aceite | Estado |
+|---|---|---|---|
+| S14a | Code tour (`docs/code-tour.md`, ~7 paradas), convenções de tamanho/imports/comentário e `scripts/code-report.mjs` | `npm run code:report` lista top 10 e imports cruzados; tour linkado; sem mudar comportamento | [ ] |
+| S14b | Refactor piloto de `settings/backup/format.ts` (~660 linhas): separar parse/validate/serialize | Testes verdes; formato do backup inalterado | [ ] |
+| S14c+ | Refactors restantes, um por sessão, na ordem do `code-report`: `SpineArtwork` (~710), `QueueScreen` (~440), `EstanteScreen` (~410) | Testes verdes; sem mudar comportamento | [ ] |
 
-## Fase 15 — Cadastro sem digitação
+Ordem: a tabela, depois as fases do backlog na ordem abaixo. A ordem segue
+**valor para o leitor × custo × risco**: primeiro o que deixa as próximas sessões
+mais baratas, depois o que mais dói no uso diário. Um item só vira sessão quando
+a fase é escolhida.
 
-- **Busca por ISBN (P1).** Quando o **primeiro campo preenchido** do formulário é
-  o ISBN, buscar título, autor, páginas e capa e preencher o formulário. Custo M.
-  - **Pré-requisitos:** escolher a API (Open Library ou Google Books), permissão
-    `INTERNET` só nessa tela, timeout de ~5 s, erro discreto e fallback para o
-    cadastro manual.
-  - **Privacidade:** envia **apenas o ISBN**; nada de e-mail, nome ou acervo. A
-    política em `reference/security-privacy.md` é atualizada na sessão, junto de
-    um ADR sobre a exceção ao offline-first.
-  - **Aceite:** ISBN válido preenche os campos e baixa a capa; livro já
-    cadastrado é avisado sem duplicar; offline/sem resposta mantém o formulário
-    manual; teste com API mockada e nenhum segredo no app.
-  - **Não faz:** OCR de capa nem áudio.
+Ao concluir uma sessão, a linha recebe a entrega observável e o aceite
+verificado, e o estado vira `[x]`. Ao fechar o ciclo, este arquivo vira
+`NNNN-titulo.md` sem reescrever a tabela.
 
-## Fase 16 — Conforto visual
+## Backlog
 
-- **Temas.** Escuro + paletas alternativas (papel amarelado, alto contraste,
-  sazonais), com tokens de superfície e contraste revisado nas quatro abas e nas
-  lombadas. Custo M; os gêneros já guardam `color_dark`.
-- **Acessibilidade.** Leitor de tela (rótulos e ações), contraste, alvo de toque
-  mínimo e respeito a "reduzir movimento". Custo M; inclui teste automatizado de
-  acessibilidade nos componentes principais.
+| Fase | Item | Custo | Pré-requisito |
+|---|---|---|---|
+| 15 — Cadastro sem digitação | **P1** — Busca por ISBN (detalhe abaixo) | M | escolher a API; ADR da exceção ao offline-first |
+| 16 — Conforto visual | Temas: escuro + paletas (papel amarelado, alto contraste, sazonais), tokens de superfície e contraste revisado nas quatro abas e nas lombadas | M | gêneros já guardam `color_dark` |
+| 16 — Conforto visual | Acessibilidade: leitor de tela (rótulos e ações), contraste, alvo de toque mínimo e "reduzir movimento"; teste automatizado nos componentes principais | M | — |
+| 17 — Estante em escala | Grid ajustável 2/3/4 por linha, escolha em `settings`, capas e lombadas redimensionadas | P | definir se o botão mora no cabeçalho |
+| 17 — Estante em escala | Multisseleção: status, gênero, remover capa ou excluir; excluir e remover capa pedem confirmação dupla com contagem de 5 s | M | o toque longo no chip continua sendo a roda de status |
+| 18 — Ajuda e mascote | Botão (i) por aba: 2–3 frases para **quem chega agora**, com o LêBot "confuso" (reaproveitar `thinking`) | P | — |
+| 18 — Ajuda e mascote | Vida do mascote: frases por contexto (plano pronto, meta batida, volta leve, estante vazia, busca sem resultado, backup, erro) com escolha determinística e animações por estado/tela | M | — |
+| 19 — Memória de leitura | Galeria de citações com busca e filtro por livro/gênero | P | `reviews.quote` já existe |
+| 19 — Memória de leitura | `finished_at` em `books`, com backfill e uso nas estatísticas (acaba com a data aproximada via `updated_at`) | P | — |
+| 20 — Código II | Refactors restantes por feature, um por sessão, com testes como rede | M cada | Fase 14 |
 
-## Fase 17 — Estante em escala
+**Busca por ISBN.** Quando o **primeiro campo preenchido** do formulário é o
+ISBN, buscar título, autor, páginas e capa e preencher o formulário.
 
-- **Grid ajustável.** Seletor 2/3/4 por linha, escolha em `settings`, capas e
-  lombadas redimensionadas. Custo P; definir se o botão mora no cabeçalho.
-- **Multisseleção.** Selecionar vários livros e aplicar status, gênero, remover
-  capa ou excluir. Excluir e remover capa pedem confirmação dupla com contagem de
-  5 s. Custo M; o toque longo no chip continua sendo a roda de status.
+- **Pré-requisitos:** escolher a API (Open Library ou Google Books), permissão
+  `INTERNET` só nessa tela, timeout de ~5 s, erro discreto e fallback para o
+  cadastro manual.
+- **Privacidade:** envia **apenas o ISBN**; nada de e-mail, nome ou acervo. A
+  política em `reference/security-privacy.md` é atualizada na sessão, junto de
+  um ADR sobre a exceção ao offline-first.
+- **Aceite:** ISBN válido preenche os campos e baixa a capa; livro já cadastrado
+  é avisado sem duplicar; offline/sem resposta mantém o formulário manual; teste
+  com API mockada e nenhum segredo no app.
+- **Não faz:** OCR de capa nem áudio.
 
-## Fase 18 — Ajuda e mascote
-
-- **Botão (i) de ajuda por aba.** Explicação curta para **quem chega agora**, em
-  linguagem de usuário (2–3 frases por aba), com o LêBot "confuso" atrás do i.
-  Reaproveitar o estado `thinking`; criar um novo só se não couber. Custo P.
-- **Vida do mascote.** Repertório de frases por contexto (plano pronto, meta
-  batida, volta leve, estante vazia, busca sem resultado, backup, erro) com
-  escolha determinística, e animações com variação por estado/tela. Custo M;
-  frases e animações deixam de ser dois itens vagos.
-
-## Fase 19 — Memória de leitura
-
-- **Galeria de citações.** Reler os trechos salvos nas resenhas, com busca e
-  filtro por livro/gênero. Custo P; `reviews.quote` já existe.
-- **`finished_at`.** Data exata de conclusão em `books`, com backfill do que já
-  existe e uso nas estatísticas. Custo P; acaba com a data aproximada via
-  `updated_at`.
-
-## Fase 20 — Código II
-
-- Refactors restantes por feature, um por sessão, com testes como rede. Custo M
-  cada; sem mudar comportamento.
-
-## Manutenção (P1 quando aplicável)
+## Manutenção
 
 - **Advisories do npm/Dependabot.** 4 alertas abertos, todos no toolchain Node
   (`minimatch`, `glob`, `esbuild`, `deepmerge`); nenhum entra no APK. Fazer junto
