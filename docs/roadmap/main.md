@@ -9,10 +9,12 @@ Estado: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 
 ## Sessões
 
+Antes da Fase 14, a S13f (sessão extra de manutenção) deixa o CI verde.
 Fase 14 — Código que abre caminho: medir o labirinto antes de refatorar.
 
 | Sessão | Entrega | Aceite | Estado |
 |---|---|---|---|
+| S13f | Manutenção: patches do SDK 58, `release.yml` sem gatilho de tag e `measure-gfx` em bash | `npm run doctor` verde no CI; tag não dispara build; script roda no Linux | [ ] |
 | S14a | Code tour (`docs/code-tour.md`, ~7 paradas), convenções de tamanho/imports/comentário e `scripts/code-report.mjs` | `npm run code:report` lista top 10 e imports cruzados; tour linkado; sem mudar comportamento | [ ] |
 | S14b | Refactor piloto de `settings/backup/format.ts` (~660 linhas): separar parse/validate/serialize | Testes verdes; formato do backup inalterado | [ ] |
 | S14c+ | Refactors restantes, um por sessão, na ordem do `code-report`: `SpineArtwork` (~710), `QueueScreen` (~440), `EstanteScreen` (~410) | Testes verdes; sem mudar comportamento | [ ] |
@@ -63,14 +65,8 @@ ISBN, buscar título, autor, páginas e capa e preencher o formulário.
   `npm audit` sem média/alta ou cada exceção justificada.
 - **Dependabot.** Só alertas e security updates (ADR 0005).
 - **SDK/React Native.** Sessão de release quando o Expo pedir; rodar
-  `npx expo install --check` e a tríade de validação. **Agora:** o Expo Doctor
-  reprova o CI com 10 patches do SDK 58; aceite: `npm run doctor` verde.
-- **Release só manual.** Tirar o gatilho `on: push: tags` do `release.yml` (o
-  publish passa a depender só de `workflow_dispatch` com `tag`), atualizar
-  `guide/release.md` e um adendo na ADR 0026. Aceite: criar tag não dispara build.
-- **Medição em bash.** Portar `scripts/measure-gfx.ps1` para
-  `scripts/measure-gfx.sh` com os mesmos parâmetros e saída; o `.ps1` sai.
-  Aceite: roda no Linux com `adb` do PATH.
+  `npx expo install --check` e a tríade de validação. Os patches pendentes do
+  SDK 58, o gatilho de tag e a medição em bash estão na S13f.
 
 ## Gatilhos (não são backlog)
 

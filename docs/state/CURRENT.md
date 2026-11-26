@@ -6,8 +6,8 @@
 ## Sessão
 
 - **Última concluída:** S13e — `v0.2.1` publicado (2026-11-04).
-- **Próxima:** S14a — code tour, convenções e code report
-  (`docs/sessions/S14a-code-tour.md`).
+- **Próxima:** S13f — manutenção: CI verde, release só manual e medição em bash
+  (`docs/sessions/S13f-manutencao.md`); depois a S14a.
 - **Ciclo:** pós-MVP ativo em `docs/roadmap/main.md` (Fase 14); MVP fechado
   em `docs/roadmap/0001-mvp.md`.
 - **Retorno:** `c83b4c0` — S13e: protege o APK medido contra o rebuild da tag.
@@ -22,12 +22,11 @@
 
 ## Próximo passo
 
-Deixar o CI verde (`npx expo install --fix`, item de Manutenção do roadmap) e
-abrir a S14a.
+Abrir a S13f e começar pelo `npx expo install --fix` (CI vermelho no Doctor).
 
 ## Decisões abertas
 
-- A manutenção (CI, `release.yml`, `measure-gfx`) entra antes da S14a ou depois?
+- Nenhuma.
 
 ## Arquivos-chave
 
@@ -46,7 +45,7 @@ abrir a S14a.
 - Os backups **reais** ficam só no celular/nuvem, nunca nesta máquina nem no
   repo. O aparelho ficou com o fixture de 200 livros; o acervo volta por Ajustes
   → Backup.
-- Hooks do Husky (`.husky/_/*`) sem permissão de execução: rode `npx husky`.
+- Hooks do Husky (`.husky/_/*`) sem permissão de execução (resolve na S13f).
 - Node 26 / npm 12: o npm bloqueia scripts de instalação (`allowScripts`); a
   suíte passa assim. A primeira rodada do Jest sem cache pode estourar timeout.
 - Social preview (`docs/assets/social-preview.png`) ainda não subiu: é manual em
