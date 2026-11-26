@@ -8,7 +8,7 @@ mudar comportamento**.
 
 ## Fora de escopo
 
-- Refatorar qualquer módulo (isso é a S14b, com o piloto em `backup/format.ts`).
+- Refatorar qualquer módulo (isso é a S14d, com o piloto em `backup/format.ts`).
 - Mudar telas, regras do plano ou schema.
 - Reescrever os docs de referência.
 
@@ -30,7 +30,7 @@ mudar comportamento**.
    de 250 linhas, imports entre features e contagem por pasta; ignora testes,
    gerados e `node_modules`.
 4. Rodar o relatório e registrar a **linha de base** (top 10) no tour, para a
-   S14b comparar depois.
+   S14d comparar depois.
 5. Linkar o tour em `docs/README.md` ("entender o código") e no `AGENTS.md`.
 6. `lint`, `typecheck`, `test` e `docs:check` verdes.
 
@@ -57,10 +57,10 @@ do relatório. Não abrir as 22 mil linhas de `src/`.
 - **Tour que envelhece:** citar arquivo e símbolo, nunca número de linha.
 - **Refatorar sem querer:** esta sessão só lê e documenta.
 - **Relatório barulhento:** excluir `*.test.*`, `drizzle/`, `scripts/` e gerados.
-- **Métrica virar meta:** 250 linhas é aviso, não bloqueio; o refactor é a S14b.
+- **Métrica virar meta:** 250 linhas é aviso, não bloqueio; o refactor é a S14d.
 
 ## Próximo depois desta
 
-S15a — análise de desempenho (só análise; ver "Leveza e vida" em
-`docs/roadmap/main.md`). O `code-report` desta sessão vira insumo dela. A S14b
-(refactor piloto de `backup/format.ts`) espera a S15a e a S15b.
+S14b — análise de desempenho (só análise; ver "Leveza e vida" em
+`docs/roadmap/main.md`). O `code-report` desta sessão vira insumo dela. A S14d
+(refactor piloto de `backup/format.ts`) espera a S14b e a S14c.
