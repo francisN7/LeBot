@@ -1,11 +1,11 @@
 name: Release
 
 # Build do APK de release fora da máquina do dono (ADR 0026).
-# - Push de tag `v*`: compila, confere assinatura/permissões e anexa ao Release.
-# - `workflow_dispatch`: compila e sobe o APK como artefato (teste e medição).
+# Só manual (`workflow_dispatch`): criar uma tag não dispara build, para não
+# trocar o APK medido por outro recompilado (incidente do v0.2.1).
+# - Sem `tag`: compila e sobe o APK só como artefato (teste e medição).
+# - Com `tag`: também anexa ao Release, sem sobrescrever APK já anexado.
 on:
-  push:
-    tags: ["v*"]
   workflow_dispatch:
     inputs:
       tag:
@@ -213,14 +213,14 @@ jobs:
   publicar:
     name: Publicar no Release
     needs: apk
-    if: github.ref_type == 'tag' || (github.event_name == 'workflow_dispatch' && inputs.tag != '')
+    if: inputs.tag != ''
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: write
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      TAG: ${{ inputs.tag || github.ref_name }}
+      TAG: ${{ inputs.tag }}
     steps:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:

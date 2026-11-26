@@ -40,6 +40,8 @@ const config: ExpoConfig = {
   plugins: [
     'expo-router',
     'expo-sqlite',
+    'expo-image',
+    'expo-status-bar',
     [
       'expo-image-picker',
       {

@@ -37,9 +37,10 @@ O `/android` é gerado no runner, então `plugins/with-release-signing.js` injet
 
 ## Gerar o APK
 
-Dois caminhos, ambos pelo Actions (`.github/workflows/release.yml`): **tag `v*`**
-compila, confere e anexa ao Release; **`workflow_dispatch`** compila e deixa o
-APK como artefato por 30 dias (o campo `tag` publica no Release informado).
+O build é só manual, pelo Actions (`.github/workflows/release.yml`, ADR 0026):
+**`workflow_dispatch`** compila, confere e deixa o APK como artefato por 30 dias.
+Com o campo `tag`, também anexa ao Release informado (criando-o se preciso), sem
+sobrescrever APK já anexado. Criar uma tag **não** dispara build.
 
 ```bash
 gh workflow run release.yml
@@ -93,10 +94,9 @@ gh release create vX.Y.Z --target main --title "LêBot vX.Y.Z" \
 gh release upload vX.Y.Z /tmp/lebot-apk/lebot-X.Y.Z.apk
 ```
 
-A tag criada pela API **dispara** o `on: push: tags`: o workflow rebuilda em
-segundo plano. O job de publicação tem uma guarda e **não sobrescreve** um APK
-já anexado, então o asset medido fica. Ainda assim o build consome CI — para
-evitá-lo, a decisão pendente é remover o gatilho de tag e publicar só manual.
+A tag criada pela API não dispara build: o asset anexado é exatamente o APK
+medido. Para publicar sem medição prévia, use
+`gh workflow run release.yml -f tag=vX.Y.Z`, que compila e anexa.
 
 As notas em `docs/releases/vX.Y.Z.md` **começam no texto**, sem `#` — o título do
 Release já aparece acima do corpo.
@@ -105,7 +105,8 @@ Release já aparece acima do corpo.
 
 1. `app.config.ts`: `version` e `android.versionCode` (só cresce); `package.json`
    com a mesma `version`.
-2. Commit, `git tag vX.Y.Z` e `git push origin vX.Y.Z`.
+2. Commit e push; a tag nasce na publicação (`gh release create`, acima) e não
+   dispara build.
 3. Cada execução deixa um artefato de ~25 MB (30 dias) e caches de Gradle de
    ~1,6 GB por hash do lockfile. Apague os velhos:
 
@@ -126,4 +127,4 @@ O build de referência medido foi `e6738dd` (SHA `1D4AE0…D838`); a tag rebuild
 o asset como `e44b2c…`. A medição do asset atual será refeita.
 
 O SHA-256 é o do `.apk` anexado ao Release. O CI confere assinatura, permissões e
-`allowBackup` antes de publicar; rebuild pela tag exige nova medição.
+`allowBackup` antes de publicar; desde a S13f a tag não rebuilda o asset.

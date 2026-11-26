@@ -34,7 +34,7 @@ Leia o QR com o Expo Go. Com um emulador/aparelho já aberto: `npm run android`.
 | `node scripts/build-icons.mjs` | ícone/splash de `brand/source/*.svg` |
 | `node scripts/build-isbn-ranges.mjs` | tabela oficial de faixas do ISBN |
 | `node scripts/build-200-books.mjs` | fixture de 200 livros para medir |
-| `pwsh -File scripts/measure-gfx.ps1` | protocolo de medição da Estante (PowerShell; porte para bash em aberto) |
+| `bash scripts/measure-gfx.sh --label <nome>` | protocolo de medição da Estante (`adb` no PATH; `--help` lista as opções) |
 | `gh workflow run release.yml` | APK no GitHub Actions |
 
 ## Mapa mental Expo

@@ -76,3 +76,15 @@ indesejada ou `allowBackup` ausente/ligado reprovam o build.
 - Instalar o APK do CI no aparelho e trocar o asset do `v0.2.0` foram **adiados
   para a S12b** por decisão do dono: o release segue com o build da S12 até a
   medição de performance fechar.
+
+## Adendo — S13f (2026-11-26): build só manual
+
+- **Decisão:** o gatilho `on: push: tags` saiu do `release.yml`. O build roda só
+  por `workflow_dispatch`; o campo `tag` anexa o APK ao Release, e a guarda que
+  não sobrescreve APK já anexado continua.
+- **Por quê:** no `v0.2.1`, a tag criada ao publicar disparou um rebuild e o
+  asset virou outro binário (`e44b2c…`), diferente do APK medido (`1D4AE0…`).
+  A guarda evita isso só se o upload manual chegar antes, e o rebuild ainda
+  gasta ~15–40 min de CI à toa.
+- **Consequência:** publicar exige um passo explícito (subir o APK medido ou
+  rodar o workflow com `tag`); a tag passa a ser só um marco no Git.

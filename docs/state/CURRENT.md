@@ -5,24 +5,26 @@
 
 ## Sessão
 
-- **Última concluída:** S13e — `v0.2.1` publicado (2026-11-04).
-- **Próxima:** S13f — manutenção: CI verde, release só manual e medição em bash
-  (`docs/sessions/S13f-manutencao.md`); depois a S14a.
+- **Última concluída:** S13f — manutenção: SDK 58 alinhado, release só manual,
+  medição em bash (2026-11-26).
+- **Próxima:** S14a — code tour, convenções e code report
+  (`docs/sessions/S14a-code-tour.md`).
 - **Ciclo:** pós-MVP ativo em `docs/roadmap/main.md` (Fase 14); MVP fechado
   em `docs/roadmap/0001-mvp.md`.
-- **Retorno:** `c83b4c0` — S13e: protege o APK medido contra o rebuild da tag.
+- **Retorno:** `241c45e` — docs: coloca a S13f (manutencao) antes da S14a.
 
 ## Pronto
 
 - MVP completo e `v0.2.1` no GitHub Releases (APK assinado, arm64 + armv7).
-- Docs por tipo (ADR 0028): mapa, `guide/`, `reference/`, ADRs, notas em
-  `docs/releases/`; `npm run docs:check` no CI.
-- README com logo, badges e seis telas fictícias (`docs/assets/screenshots/`).
+- Docs por tipo (ADR 0028) com `npm run docs:check` no CI; README com telas
+  fictícias (`docs/assets/screenshots/`).
 - Backlog auditado e priorizado com o dono em `docs/roadmap/main.md`.
+- Release só por `workflow_dispatch` (campo `tag` publica); tag não rebuilda
+  (adendo na ADR 0026). Medição: `bash scripts/measure-gfx.sh --help`.
 
 ## Próximo passo
 
-Abrir a S13f e começar pelo `npx expo install --fix` (CI vermelho no Doctor).
+Conferir o job **Expo Doctor** verde no CI após o push; depois abrir a S14a.
 
 ## Decisões abertas
 
@@ -32,7 +34,6 @@ Abrir a S13f e começar pelo `npx expo install --fix` (CI vermelho no Doctor).
 
 - `.github/workflows/release.yml` — build, conferência e publicação do APK.
 - `docs/guide/release.md` — passo a passo e versões publicadas.
-- `scripts/build-demo-backup.mjs` — gera o `lebot-demo.zip` fictício (fora do Git).
 
 ## Armadilhas
 
@@ -40,16 +41,16 @@ Abrir a S13f e começar pelo `npx expo install --fix` (CI vermelho no Doctor).
   medir** (dev exagera; `gfxinfo` não vale).
 - Asset do `v0.2.1` (`e44b2c…3ab6`, build `2d66d62`) foi recompilado pela tag;
   o APK medido era `1D4AE0…D838` (build `e6738dd`, mesmo código). Falta remedir.
-- **CI vermelho no Expo Doctor:** 10 pacotes do SDK 58 com patch novo (lint,
-  tipos, testes e docs passam).
+- `expo install` com `app.config.ts` dinâmico não grava plugins e pode pôr
+  `jest-expo` em `dependencies`: conferir à mão (ocorreu na S13f).
+- `expo` 58.1.0 + plugins novos e `measure-gfx.sh` ainda não rodaram em aparelho.
 - Os backups **reais** ficam só no celular/nuvem, nunca nesta máquina nem no
   repo. O aparelho ficou com o fixture de 200 livros; o acervo volta por Ajustes
   → Backup.
-- Hooks do Husky (`.husky/_/*`) sem permissão de execução (resolve na S13f).
+- Husky só dá `+x` ao criar: hook sem permissão → `rm -rf .husky/_ && npx husky`.
 - Node 26 / npm 12: o npm bloqueia scripts de instalação (`allowScripts`); a
   suíte passa assim. A primeira rodada do Jest sem cache pode estourar timeout.
-- Social preview (`docs/assets/social-preview.png`) ainda não subiu: é manual em
-  Settings → Social preview.
+- Social preview (`docs/assets/social-preview.png`): subir à mão em Settings.
 
 ## Como rodar
 

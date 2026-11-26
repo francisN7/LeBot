@@ -9,12 +9,11 @@ Estado: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 
 ## Sessões
 
-Antes da Fase 14, a S13f (sessão extra de manutenção) deixa o CI verde.
 Fase 14 — Código que abre caminho: medir o labirinto antes de refatorar.
 
 | Sessão | Entrega | Aceite | Estado |
 |---|---|---|---|
-| S13f | Manutenção: patches do SDK 58, `release.yml` sem gatilho de tag e `measure-gfx` em bash | `npm run doctor` verde no CI; tag não dispara build; script roda no Linux | [ ] |
+| S13f | Manutenção: SDK 58 alinhado (`expo` 58.1.0 + plugins `expo-image`/`expo-status-bar`), release só por `workflow_dispatch` (adendo na ADR 0026), `measure-gfx.sh` no lugar do `.ps1` e hooks do Husky executáveis | `npm run doctor` 20/20 local (CI após o push); YAML só com `workflow_dispatch` (lido, sem run real); `measure-gfx.sh --help` ok, sem `shellcheck` e sem aparelho | [x] |
 | S14a | Code tour (`docs/code-tour.md`, ~7 paradas), convenções de tamanho/imports/comentário e `scripts/code-report.mjs` | `npm run code:report` lista top 10 e imports cruzados; tour linkado; sem mudar comportamento | [ ] |
 | S14b | Refactor piloto de `settings/backup/format.ts` (~660 linhas): separar parse/validate/serialize | Testes verdes; formato do backup inalterado | [ ] |
 | S14c+ | Refactors restantes, um por sessão, na ordem do `code-report`: `SpineArtwork` (~710), `QueueScreen` (~440), `EstanteScreen` (~410) | Testes verdes; sem mudar comportamento | [ ] |
