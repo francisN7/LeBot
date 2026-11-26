@@ -10,6 +10,8 @@ import { Circle, G, Path, Rect } from 'react-native-svg';
 
 import type { SpineExpression } from '@/features/library/spine-art';
 
+import { useAmbientMotion } from './use-ambient-motion';
+
 const AnimatedG = Animated.createAnimatedComponent(G);
 
 /** Rosto no sistema de coordenadas da lombada B (64×128). */
@@ -167,30 +169,32 @@ export function blinks(expression: SpineExpression): boolean {
  * dentro do SVG. Só `happy`/`neutral` piscam — `sleepy` e `shine` já têm olhos
  * fechados/estrela.
  *
- * `active` (S12b) desliga o loop e deixa os olhos abertos: a grade pausa os
- * cards fora da tela e durante a rolagem. Atribuir `1` já cancela a animação em
+ * `active` (S12b) desliga a piscada e deixa os olhos abertos: a grade pausa os
+ * cards fora da tela e durante a rolagem. Tela fora de foco e "reduzir
+ * movimento" também desligam (ADR 0029). Atribuir `1` já cancela a animação em
  * curso — não é preciso desmontar a camada.
  */
 export function useBlink(expression: SpineExpression, active = true) {
   const blink = useSharedValue(1);
   const canBlink = blinks(expression);
+  const moving = useAmbientMotion(active);
 
+  // Duas piscadas e para (ADR 0029); toca de novo quando `moving` volta.
   useEffect(() => {
-    if (!canBlink || !active) {
+    if (!canBlink || !moving) {
       blink.value = 1;
       return;
     }
 
     blink.value = withRepeat(
       withSequence(
-        withTiming(1, { duration: 2600 }),
+        withTiming(1, { duration: 1100 }),
         withTiming(0, { duration: 70 }),
         withTiming(1, { duration: 90 }),
-        withTiming(1, { duration: 180 }),
       ),
-      -1,
+      2,
     );
-  }, [active, blink, canBlink]);
+  }, [blink, canBlink, moving]);
 
   return { blink, canBlink };
 }

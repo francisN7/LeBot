@@ -115,8 +115,8 @@ fallback; com `onPress` vira botão acessível. Quando o livro tem capa, o card 
   (Fredoka 600, 7→5 px, até duas linhas, ellipsis) e tassel T1 no canto superior
   esquerdo balançando para a esquerda (ADR 0023). O corpo é estático; brilho,
   piscada, "zzz" e tassel são camadas separadas (`SpineArtwork`/`SpineFace`).
-- `animated` liga a flutuação contínua: use em tela com um livro só (detalhe),
-  nunca na grade. `showLabel` controla a etiqueta; a mini-lombada (30×60) desliga.
+- `animated` liga uma flutuação ao entrar (ADR 0029): use em tela com um livro
+  só (detalhe), nunca na grade. `showLabel` controla a etiqueta; a mini-lombada (30×60) desliga.
 
 ### `Mascot`
 

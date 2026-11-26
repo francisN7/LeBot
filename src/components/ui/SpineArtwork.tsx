@@ -28,6 +28,7 @@ import type {
 import { colors } from '@/theme';
 
 import { SpineEyes, SpineMouth, useBlink } from './SpineFace';
+import { useAmbientMotion } from './use-ambient-motion';
 
 /** Sistema de coordenadas da lombada B (64×128, 1:2). */
 const VIEW = { height: 128, width: 64 };
@@ -62,9 +63,10 @@ type SpineArtworkProps = {
   width?: number;
   height?: number;
   /**
-   * Liga os quatro loops (brilho, piscada, “zzz” e tassel). Falso deixa a arte
-   * no repouso: brilho fora, olhos abertos, tassel reto. A grade usa isso para
-   * animar só os cards visíveis e pausar durante a rolagem (S12b).
+   * Libera a rodada de brilho, piscada, “zzz” e tassel, que toca uma vez e para
+   * (ADR 0029). Falso deixa a arte no repouso: brilho fora, olhos abertos,
+   * tassel reto. A grade usa isso para animar só os cards visíveis e pausar
+   * durante a rolagem (S12b); foco e "reduzir movimento" também pesam.
    */
   animating?: boolean;
   testID?: string;
@@ -206,100 +208,85 @@ function TasselFringe() {
   );
 }
 
-/** Ciclo do corpo: ataque, hesitação curta, retorno com overshoot e pausa. */
+/** Um balanço do corpo: ataque, hesitação curta e retorno com overshoot. */
 function bodySwing() {
-  return withRepeat(
-    withSequence(
-      withTiming(TASSEL.body, {
-        duration: 400,
-        easing: Easing.out(Easing.cubic),
-      }),
-      withTiming(TASSEL.bodyHesitation, {
-        duration: 560,
-        easing: Easing.inOut(Easing.quad),
-      }),
-      withTiming(TASSEL.body, {
-        duration: 340,
-        easing: Easing.inOut(Easing.quad),
-      }),
-      withTiming(TASSEL.bodyRelease, {
-        duration: 340,
-        easing: Easing.inOut(Easing.quad),
-      }),
-      withTiming(TASSEL.bodyOvershoot, {
-        duration: 880,
-        easing: Easing.inOut(Easing.quad),
-      }),
-      withTiming(TASSEL.bodySettle, {
-        duration: 440,
-        easing: Easing.inOut(Easing.quad),
-      }),
-      withTiming(0, { duration: 520, easing: Easing.inOut(Easing.quad) }),
-      withDelay(920, withTiming(0, { duration: 0 })),
-    ),
-    -1,
-    false,
+  return withSequence(
+    withTiming(TASSEL.body, {
+      duration: 400,
+      easing: Easing.out(Easing.cubic),
+    }),
+    withTiming(TASSEL.bodyHesitation, {
+      duration: 560,
+      easing: Easing.inOut(Easing.quad),
+    }),
+    withTiming(TASSEL.body, {
+      duration: 340,
+      easing: Easing.inOut(Easing.quad),
+    }),
+    withTiming(TASSEL.bodyRelease, {
+      duration: 340,
+      easing: Easing.inOut(Easing.quad),
+    }),
+    withTiming(TASSEL.bodyOvershoot, {
+      duration: 880,
+      easing: Easing.inOut(Easing.quad),
+    }),
+    withTiming(TASSEL.bodySettle, {
+      duration: 440,
+      easing: Easing.inOut(Easing.quad),
+    }),
+    withTiming(0, { duration: 520, easing: Easing.inOut(Easing.quad) }),
   );
 }
 
 /** A franja chega ~90 ms depois do corpo e passa um pouco do ângulo. */
 function fringeSwing() {
-  return withRepeat(
-    withSequence(
-      withDelay(
-        90,
-        withTiming(TASSEL.fringe, {
-          duration: 400,
-          easing: Easing.out(Easing.cubic),
-        }),
-      ),
-      withTiming(TASSEL.fringeHesitation, {
-        duration: 570,
-        easing: Easing.inOut(Easing.quad),
+  return withSequence(
+    withDelay(
+      90,
+      withTiming(TASSEL.fringe, {
+        duration: 400,
+        easing: Easing.out(Easing.cubic),
       }),
-      withTiming(TASSEL.fringeRelease, {
-        duration: 700,
-        easing: Easing.inOut(Easing.quad),
-      }),
-      withTiming(TASSEL.fringeOvershoot, {
-        duration: 880,
-        easing: Easing.inOut(Easing.quad),
-      }),
-      withTiming(TASSEL.fringeSettle, {
-        duration: 440,
-        easing: Easing.inOut(Easing.quad),
-      }),
-      withTiming(0, { duration: 530, easing: Easing.inOut(Easing.quad) }),
-      withDelay(790, withTiming(0, { duration: 0 })),
     ),
-    -1,
-    false,
+    withTiming(TASSEL.fringeHesitation, {
+      duration: 570,
+      easing: Easing.inOut(Easing.quad),
+    }),
+    withTiming(TASSEL.fringeRelease, {
+      duration: 700,
+      easing: Easing.inOut(Easing.quad),
+    }),
+    withTiming(TASSEL.fringeOvershoot, {
+      duration: 880,
+      easing: Easing.inOut(Easing.quad),
+    }),
+    withTiming(TASSEL.fringeSettle, {
+      duration: 440,
+      easing: Easing.inOut(Easing.quad),
+    }),
+    withTiming(0, { duration: 530, easing: Easing.inOut(Easing.quad) }),
   );
 }
 
 /** A sombra acompanha o corpo com 55% do ângulo, atrasada ~40 ms. */
 function shadowSwing() {
-  return withRepeat(
-    withSequence(
-      withDelay(
-        40,
-        withTiming(TASSEL.shadow, {
-          duration: 440,
-          easing: Easing.out(Easing.cubic),
-        }),
-      ),
-      withDelay(
-        660,
-        withTiming(TASSEL.shadowOvershoot, {
-          duration: 1540,
-          easing: Easing.inOut(Easing.quad),
-        }),
-      ),
-      withTiming(0, { duration: 528, easing: Easing.inOut(Easing.quad) }),
-      withDelay(1192, withTiming(0, { duration: 0 })),
+  return withSequence(
+    withDelay(
+      40,
+      withTiming(TASSEL.shadow, {
+        duration: 440,
+        easing: Easing.out(Easing.cubic),
+      }),
     ),
-    -1,
-    false,
+    withDelay(
+      660,
+      withTiming(TASSEL.shadowOvershoot, {
+        duration: 1540,
+        easing: Easing.inOut(Easing.quad),
+      }),
+    ),
+    withTiming(0, { duration: 528, easing: Easing.inOut(Easing.quad) }),
   );
 }
 
@@ -329,7 +316,8 @@ function SpineArtworkBase({
   const body = useSharedValue(0);
   const fringe = useSharedValue(0);
   const shadow = useSharedValue(0);
-  const { blink, canBlink } = useBlink(expression, animating);
+  const moving = useAmbientMotion(animating);
+  const { blink, canBlink } = useBlink(expression, moving);
   const rawId = useId();
   const baseId = `spine-cyl-${rawId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const clipId = `${baseId}-clip`;
@@ -337,43 +325,39 @@ function SpineArtworkBase({
   const goldId = `${baseId}-gold`;
   const shadowId = `${baseId}-tassel-shadow`;
 
+  // Cada camada toca uma vez quando `moving` liga (entrar na tela, parar a
+  // rolagem, voltar ao foco) e para no repouso (ADR 0029).
   useEffect(() => {
-    if (!animating) {
+    if (!moving) {
       sheen.value = withTiming(-20, { duration: SETTLE_MS });
       return;
     }
 
     sheen.value = -20;
-    sheen.value = withRepeat(
-      withSequence(
-        withDelay(
-          1800,
-          withTiming(64, {
-            duration: 1500,
-            easing: Easing.inOut(Easing.quad),
-          }),
-        ),
-        withTiming(-20, { duration: 0 }),
+    sheen.value = withSequence(
+      withDelay(
+        600,
+        withTiming(64, { duration: 1500, easing: Easing.inOut(Easing.quad) }),
       ),
-      -1,
+      withTiming(-20, { duration: 0 }),
     );
-  }, [animating, sheen]);
+  }, [moving, sheen]);
 
   useEffect(() => {
-    if (!animating || expression !== 'sleepy') {
+    if (!moving || expression !== 'sleepy') {
       asleep.value = 1;
       return;
     }
 
     asleep.value = withRepeat(
       withTiming(0.3, { duration: 1200, easing: Easing.inOut(Easing.quad) }),
-      -1,
+      2,
       true,
     );
-  }, [animating, asleep, expression]);
+  }, [asleep, expression, moving]);
 
   useEffect(() => {
-    if (!animating) {
+    if (!moving) {
       // Volta ao repouso em vez de congelar no meio do balanço.
       body.value = withTiming(0, { duration: SETTLE_MS });
       fringe.value = withTiming(0, { duration: SETTLE_MS });
@@ -384,7 +368,7 @@ function SpineArtworkBase({
     body.value = bodySwing();
     fringe.value = fringeSwing();
     shadow.value = shadowSwing();
-  }, [animating, body, fringe, shadow]);
+  }, [body, fringe, moving, shadow]);
 
   const sheenMotion = useAnimatedStyle(() => ({
     transform: [{ translateX: (sheen.value / VIEW.width) * width }],

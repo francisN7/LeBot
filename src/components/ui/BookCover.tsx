@@ -5,7 +5,6 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withDelay,
-  withRepeat,
   withSequence,
   withSpring,
   withTiming,
@@ -15,6 +14,7 @@ import { twMerge } from 'tailwind-merge';
 
 import { Bookmark } from '@/components/ui/Bookmark';
 import { SpineFace } from '@/components/ui/SpineFace';
+import { useAmbientMotion } from '@/components/ui/use-ambient-motion';
 import { expressionByStatus } from '@/features/library/spine-art';
 import type { ReadingStatus } from '@/features/library/types';
 import { colors, contactShadow, radii, sizes, spacing } from '@/theme';
@@ -68,23 +68,23 @@ export function BookCover({
   const rawId = useId();
   const shadowId = `cover-depth-${rawId.replace(/[^a-zA-Z0-9_-]/g, '')}`;
 
+  const shining = useAmbientMotion(animated);
+
+  // Um brilho ao entrar ou voltar ao foco, e repouso (ADR 0029).
   useEffect(() => {
-    if (!animated) {
+    if (!shining) {
       sheen.value = 0;
       return;
     }
 
-    sheen.value = withRepeat(
-      withSequence(
-        withDelay(
-          700,
-          withTiming(1, { duration: 1700, easing: Easing.inOut(Easing.quad) }),
-        ),
-        withTiming(0, { duration: 0 }),
+    sheen.value = withSequence(
+      withDelay(
+        700,
+        withTiming(1, { duration: 1700, easing: Easing.inOut(Easing.quad) }),
       ),
-      -1,
+      withTiming(0, { duration: 0 }),
     );
-  }, [animated, sheen]);
+  }, [sheen, shining]);
 
   const press = useAnimatedStyle(() => ({
     transform: [

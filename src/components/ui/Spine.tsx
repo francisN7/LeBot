@@ -4,7 +4,6 @@ import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
-  withRepeat,
   withSequence,
   withSpring,
   withTiming,
@@ -13,6 +12,7 @@ import { twMerge } from 'tailwind-merge';
 
 import { AppText } from '@/components/ui/AppText';
 import { SpineArtwork } from '@/components/ui/SpineArtwork';
+import { useAmbientMotion } from '@/components/ui/use-ambient-motion';
 import { resolveSpineArt } from '@/features/library/spine-art';
 import { fitSpineTitle } from '@/features/library/spine-label';
 import type { ReadingStatus } from '@/features/library/types';
@@ -58,8 +58,9 @@ const PRESS_SPRING = { damping: 16, stiffness: 260 };
  * (texto real, centralizado), não texto no SVG. O contorno navy vem da própria
  * arte; o `Pressable` fica transparente para não duplicar a borda.
  *
- * Movimento: o toque inclina com mola e `animated` liga a flutuação contínua —
- * reserve para telas com um livro só (detalhe), não para a grade.
+ * Movimento: o toque inclina com mola e `animated` liga uma flutuação ao entrar
+ * (para depois, ADR 0029) — reserve para telas com um livro só (detalhe), não
+ * para a grade.
  */
 export function Spine({
   title,
@@ -81,20 +82,20 @@ export function Spine({
   const pressed = useSharedValue(0);
   const float = useSharedValue(1);
 
+  const floating = useAmbientMotion(animated);
+
+  // Uma flutuação ao entrar ou voltar ao foco, e repouso (ADR 0029).
   useEffect(() => {
-    if (!animated) {
+    if (!floating) {
       float.value = 1;
       return;
     }
 
-    float.value = withRepeat(
-      withSequence(
-        withTiming(1.03, { duration: 2200, easing: Easing.inOut(Easing.quad) }),
-        withTiming(1, { duration: 2200, easing: Easing.inOut(Easing.quad) }),
-      ),
-      -1,
+    float.value = withSequence(
+      withTiming(1.03, { duration: 1400, easing: Easing.inOut(Easing.quad) }),
+      withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.quad) }),
     );
-  }, [animated, float]);
+  }, [float, floating]);
 
   const motion = useAnimatedStyle(() => ({
     transform: [

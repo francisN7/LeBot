@@ -163,25 +163,28 @@ compressão 9 e não grava metadados.
 
 ## Movimento
 
-Regra: a **grade** reage (toque, status, entrada); o **detalhe** respira (loop
-contínuo, porque há um livro só).
+Regra (ADR 0029): animação ambiente tem **hora para acabar**. Ela toca uma
+rodada ao entrar na tela, ao voltar ao foco, ao parar a rolagem ou ao trocar de
+estado, e para no repouso. Fora de foco e com "reduzir movimento" ligado, nada
+toca. O gate é `useAmbientMotion` (`src/components/ui/use-ambient-motion.ts`).
 
 | Elemento | Gesto | Onde |
 |---|---|---|
 | Lombada | mola de escala 0,97 e inclinação −2° no toque | grade e detalhe |
-| Lombada | piscada: olhos somem 70 ms a cada ~2,9 s | `happy`, `neutral` |
-| Lombada | brilho varre o corpo a cada ~3,3 s; "zzz" pisca em `sleepy` | todas |
-| Lombada | tassel: 10° à esquerda, franja 12,5° ~90 ms depois, ciclo 4,4 s | todas |
-| Lombada | flutuação de 3% e −2,4 px, ida e volta em 4,4 s | só `animated` |
-| Capa | mola de escala 0,97 e inclinação −1,5°; brilho diagonal em 1,7 s | grade / detalhe |
+| Lombada | piscada: duas, olhos somem 70 ms, em ~2,5 s | `happy`, `neutral` |
+| Lombada | brilho varre o corpo uma vez (0,6 s + 1,5 s); "zzz" pisca uma vez em `sleepy` | visíveis |
+| Lombada | tassel: 10° à esquerda, franja 12,5° ~90 ms depois, um balanço de ~3,6 s | visíveis |
+| Lombada | flutuação de 3% e −2,4 px, uma ida e volta em 2,8 s | só `animated` |
+| Capa | mola de escala 0,97 e inclinação −1,5°; brilho diagonal uma vez em 1,7 s | grade / detalhe |
 | Capa | selo pisca como a lombada | `happy`, `neutral` |
 | Grade | `FadeInDown` com 45 ms por card (máx. 6), só a primeira leva | abrir/filtrar/buscar |
-| Mascote | respiração 1,04 e −2 px em 4 s; piscada de 90 ms a cada ~2,8 s | sempre |
-| Mascote | acessórios pulsam entre 1 e 0,35; fade de 200 ms ao trocar de estado | `sleepy`, `celebrating` |
+| Mascote | uma respiração 1,04 e −2 px em 2,8 s; duas piscadas de 90 ms | ao entrar ou trocar de estado |
+| Mascote | acessórios pulsam duas vezes entre 1 e 0,35; fade de 200 ms ao trocar de estado | `sleepy`, `celebrating` |
 
 Piscada da lombada e do selo vivem no mesmo `SpineFace`: não duplique os tempos.
 Tudo usa `transform`/`opacity` no UI thread, sem mexer em layout. Sem
-`useReducedMotion` por enquanto (backlog de acessibilidade).
+Com "reduzir movimento" (`useReducedMotion`), nenhuma animação ambiente toca;
+as reações ao toque continuam.
 
 ## Pipeline
 

@@ -58,8 +58,20 @@ carga. Comparações abaixo de ~15% não sustentam conclusão.
 - **Memória:** `dumpsys meminfo` 8 s após o boot e de novo após toda a
   bateria (pós-uso).
 
-Os scripts de boot, abas, parado, roda e threads ficaram fora do repo nesta
-sessão. O item **Medidores no repo** do backlog os promove a `scripts/`.
+Os scripts de boot, abas, parado, roda e threads ficaram fora do repo na
+S14b. Desde a S14c eles estão em `scripts/`, com `--help` e saída em
+`${TMPDIR:-/tmp}/lebot-measure/<label>/`:
+
+| Medida | Comando |
+|---|---|
+| Boot frio | `bash scripts/measure-boot.sh --label <nome>` |
+| Abas | `bash scripts/measure-tabs.sh --label <nome>` |
+| Parado por aba | `bash scripts/measure-idle.sh --label <nome>` |
+| CPU por thread | `bash scripts/measure-threads.sh --tab Ajustes --scenario parado` |
+| Roda de status | `bash scripts/measure-wheel.sh --chip X,Y` |
+
+Os de vídeo usam `scripts/video-frames.mjs` (Node lendo o `rawvideo` do
+`ffmpeg`). As abas são achadas pelo rótulo no `uiautomator dump`.
 
 ## Medições
 

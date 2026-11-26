@@ -8,7 +8,6 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withDelay,
-  withRepeat,
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
@@ -20,6 +19,7 @@ import {
   Card,
   Chip,
   type ScreenScrollViewRef,
+  useAmbientMotion,
 } from '@/components/ui';
 import { labelForStatus, UNKNOWN_GENRE_NAME } from '@/features/library/genre';
 import type { Book } from '@/features/library/types';
@@ -179,21 +179,23 @@ export function QueueRow({
     dragging.value = false;
   }, [dragging, instantPreview, translateY]);
 
+  const shining = useAmbientMotion();
+
+  // Um brilho ao entrar ou voltar ao foco, e repouso (ADR 0029).
   useEffect(() => {
-    sheen.value = withRepeat(
-      withSequence(
-        withDelay(
-          2200,
-          withTiming(22, {
-            duration: 700,
-            easing: Easing.inOut(Easing.quad),
-          }),
-        ),
-        withTiming(-22, { duration: 0 }),
+    if (!shining) {
+      sheen.value = -22;
+      return;
+    }
+
+    sheen.value = withSequence(
+      withDelay(
+        900,
+        withTiming(22, { duration: 700, easing: Easing.inOut(Easing.quad) }),
       ),
-      -1,
+      withTiming(-22, { duration: 0 }),
     );
-  }, [sheen]);
+  }, [sheen, shining]);
 
   const gesture = useMemo(
     () =>

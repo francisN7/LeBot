@@ -14,6 +14,8 @@ import Svg, { Circle, Ellipse, G, Path, Rect } from 'react-native-svg';
 
 import { colors } from '@/theme';
 
+import { useAmbientMotion } from './use-ambient-motion';
+
 const AnimatedG = Animated.createAnimatedComponent(G);
 
 /** Estados do LêBot definidos em `docs/reference/brand.md`. */
@@ -204,8 +206,9 @@ type MascotProps = {
 /**
  * Mascote LêBot em SVG, com os seis estados da marca.
  *
- * A animação é discreta: respiração contínua e piscada nos estados de olhos
- * redondos. Não é um rig 3D — o desenho é o mesmo, muda olho, boca e acessório.
+ * A animação é discreta e tem hora para acabar (ADR 0029): uma respiração,
+ * duas piscadas e o pulso do acessório ao entrar, ao trocar de estado ou ao
+ * voltar ao foco; nada com "reduzir movimento". Não é um rig 3D — o desenho é o mesmo, muda olho, boca e acessório.
  */
 export function Mascot({
   state = 'neutral',
@@ -217,29 +220,39 @@ export function Mascot({
   const eyeRadius = useSharedValue(EYE_RADIUS);
   const accessoryPulse = useSharedValue(1);
 
+  const moving = useAmbientMotion();
+
+  // Uma rodada curta ao entrar, ao trocar de estado ou ao voltar ao foco, e
+  // repouso depois (ADR 0029). Atribuir o valor de repouso cancela o que roda.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: state é o gatilho
   useEffect(() => {
+    if (!moving) {
+      breath.value = 1;
+      return;
+    }
+
     breath.value = withRepeat(
-      withTiming(1.04, { duration: 2000, easing: Easing.inOut(Easing.quad) }),
-      -1,
+      withTiming(1.04, { duration: 1400, easing: Easing.inOut(Easing.quad) }),
+      2,
       true,
     );
-  }, [breath]);
+  }, [breath, moving, state]);
 
   useEffect(() => {
-    if (!BLINKING_STATES.includes(state)) {
+    if (!moving || !BLINKING_STATES.includes(state)) {
       eyeRadius.value = EYE_RADIUS;
       return;
     }
 
     eyeRadius.value = withRepeat(
       withSequence(
-        withTiming(EYE_RADIUS, { duration: 2600 }),
+        withTiming(EYE_RADIUS, { duration: 1100 }),
         withTiming(1.4, { duration: 90 }),
         withTiming(EYE_RADIUS, { duration: 90 }),
       ),
-      -1,
+      2,
     );
-  }, [eyeRadius, state]);
+  }, [eyeRadius, moving, state]);
 
   const breathing = useAnimatedStyle(() => ({
     transform: [
@@ -249,17 +262,17 @@ export function Mascot({
   }));
 
   useEffect(() => {
-    if (state !== 'sleepy' && state !== 'celebrating') {
+    if (!moving || (state !== 'sleepy' && state !== 'celebrating')) {
       accessoryPulse.value = 1;
       return;
     }
 
     accessoryPulse.value = withRepeat(
-      withTiming(0.35, { duration: 1100, easing: Easing.inOut(Easing.quad) }),
-      -1,
+      withTiming(0.35, { duration: 700, easing: Easing.inOut(Easing.quad) }),
+      4,
       true,
     );
-  }, [accessoryPulse, state]);
+  }, [accessoryPulse, moving, state]);
 
   const accessories = useAnimatedProps(() => ({
     opacity: accessoryPulse.value,

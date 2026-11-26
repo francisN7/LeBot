@@ -13,3 +13,4 @@ export { Screen, type ScreenScrollViewRef } from './Screen';
 export { Spine } from './Spine';
 export { StatsIcon } from './StatsIcon';
 export { TextField } from './TextField';
+export { useAmbientMotion, useScreenFocused } from './use-ambient-motion';

@@ -6,9 +6,9 @@
 ## Sessão
 
 - **Última concluída:** S14b — análise de desempenho (2026-11-26).
-- **Próxima:** S14c — leveza I (`docs/sessions/S14c-leveza-animacao.md`).
+- **Em andamento:** S14c (`docs/sessions/S14c-leveza-animacao.md`); falta medir.
 - **Ciclo:** pós-MVP em `docs/roadmap/main.md` (Fase 14); MVP em `0001-mvp.md`.
-- **Retorno:** `d0394cd` — S14a: code tour, convencoes e npm run code:report.
+- **Retorno:** `e46c225` — S14b: analise de desempenho, orcamento (ADR 0029).
 
 ## Pronto
 
@@ -16,14 +16,14 @@
 - Docs por tipo (ADR 0028) com `npm run docs:check` no CI; README com telas
   fictícias (`docs/assets/screenshots/`).
 - Backlog auditado e priorizado com o dono em `docs/roadmap/main.md`.
-- Release só por `workflow_dispatch` (campo `tag` publica); tag não rebuilda
-  (adendo na ADR 0026). Medição: `bash scripts/measure-gfx.sh --help`.
+- Release manual (`tag` publica, ADR 0026); medidores em `scripts/measure-*.sh`.
 - Tour, convenções e linha de base do `code:report`: `docs/guide/code-tour.md`.
 - Desempenho e orçamento: `docs/reference/performance.md` + ADR 0029 (stack fica).
 
 ## Próximo passo
 
-Abrir a S14c: medidores em `scripts/`, depois pausa fora de foco e loops com fim.
+APK do `release.yml` sem `tag` (dono): f200 com backup, `measure-idle/gfx/wheel`,
+coluna "S14c" + hash em `performance.md`, conferir a vida e encerrar.
 
 ## Decisões abertas
 
