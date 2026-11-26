@@ -59,6 +59,8 @@ Status: `[ ]` pendente · `[~]` em andamento · `[x]` concluída.
 
 ## Regras de numeração
 
-- Sessão nova dentro da mesma fase usa letra: `S13a`, `S13b`, `S13c`.
+- Sessão é `SNN` sequencial. **Letra** (`S14a`, `S14b`…) só para sessão longa
+  dividida em partes ou sessão extra que surge no meio do ciclo (`S7a` depois
+  da `S7`); as seguintes não são renumeradas.
 - `S3.2` e `S7.1` eram exceções antigas; nos docs vivos valem `S3a` e `S7a`.
 - ADRs e o CHANGELOG antigo mantêm os nomes da época.

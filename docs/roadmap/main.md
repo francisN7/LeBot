@@ -63,7 +63,14 @@ ISBN, buscar título, autor, páginas e capa e preencher o formulário.
   `npm audit` sem média/alta ou cada exceção justificada.
 - **Dependabot.** Só alertas e security updates (ADR 0005).
 - **SDK/React Native.** Sessão de release quando o Expo pedir; rodar
-  `npx expo install --check` e a tríade de validação.
+  `npx expo install --check` e a tríade de validação. **Agora:** o Expo Doctor
+  reprova o CI com 10 patches do SDK 58; aceite: `npm run doctor` verde.
+- **Release só manual.** Tirar o gatilho `on: push: tags` do `release.yml` (o
+  publish passa a depender só de `workflow_dispatch` com `tag`), atualizar
+  `guide/release.md` e um adendo na ADR 0026. Aceite: criar tag não dispara build.
+- **Medição em bash.** Portar `scripts/measure-gfx.ps1` para
+  `scripts/measure-gfx.sh` com os mesmos parâmetros e saída; o `.ps1` sai.
+  Aceite: roda no Linux com `adb` do PATH.
 
 ## Gatilhos (não são backlog)
 

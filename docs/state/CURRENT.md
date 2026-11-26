@@ -22,20 +22,18 @@
 
 ## Próximo passo
 
-Instalar Node 22 e rodar `npm ci` nesta máquina (Linux) e depois abrir a S14a.
+Deixar o CI verde (`npx expo install --fix`, item de Manutenção do roadmap) e
+abrir a S14a.
 
 ## Decisões abertas
 
-- Remover o gatilho `on: push: tags` do `release.yml` e publicar só manual?
-- Numeração de sessão: manter letras (`S14a`) ou adotar `SNN` sequencial?
-- Onde ficam os 2 backups **reais** nesta máquina (fora do repo)?
-- `scripts/measure-gfx.ps1`: portar para bash ou manter só no Windows?
+- A manutenção (CI, `release.yml`, `measure-gfx`) entra antes da S14a ou depois?
 
 ## Arquivos-chave
 
 - `.github/workflows/release.yml` — build, conferência e publicação do APK.
 - `docs/guide/release.md` — passo a passo e versões publicadas.
-- `scripts/build-demo-backup.mjs` — gera o `lebot-demo.zip` fictício.
+- `scripts/build-demo-backup.mjs` — gera o `lebot-demo.zip` fictício (fora do Git).
 
 ## Armadilhas
 
@@ -43,11 +41,14 @@ Instalar Node 22 e rodar `npm ci` nesta máquina (Linux) e depois abrir a S14a.
   medir** (dev exagera; `gfxinfo` não vale).
 - Asset do `v0.2.1` (`e44b2c…3ab6`, build `2d66d62`) foi recompilado pela tag;
   o APK medido era `1D4AE0…D838` (build `e6738dd`, mesmo código). Falta remedir.
-- O aparelho ficou com o fixture de 200 livros; o acervo real volta por Ajustes
+- **CI vermelho no Expo Doctor:** 10 pacotes do SDK 58 com patch novo (lint,
+  tipos, testes e docs passam).
+- Os backups **reais** ficam só no celular/nuvem, nunca nesta máquina nem no
+  repo. O aparelho ficou com o fixture de 200 livros; o acervo volta por Ajustes
   → Backup.
-- `lebot-demo.zip` é regenerável (`node scripts/build-demo-backup.mjs`) e fica
-  fora do Git.
-- Hooks do Husky sem permissão de execução neste checkout: o `npm ci` os recria.
+- Hooks do Husky (`.husky/_/*`) sem permissão de execução: rode `npx husky`.
+- Node 26 / npm 12: o npm bloqueia scripts de instalação (`allowScripts`); a
+  suíte passa assim. A primeira rodada do Jest sem cache pode estourar timeout.
 - Social preview (`docs/assets/social-preview.png`) ainda não subiu: é manual em
   Settings → Social preview.
 
