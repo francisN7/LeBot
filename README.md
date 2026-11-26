@@ -81,7 +81,7 @@ Leia [`docs/reference/security-privacy.md`](docs/reference/security-privacy.md).
 
 ## Para devs
 
-**Requisitos:** Node 22 (`.nvmrc`), npm e Expo Go no Android (ou o APK de
+**Requisitos:** Node 26 (`.nvmrc`), npm e Expo Go no Android (ou o APK de
 release para medir desempenho).
 
 ```bash

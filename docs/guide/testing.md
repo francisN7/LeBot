@@ -72,8 +72,9 @@ await renderWithProviders(<EstanteScreen />, {
   aparece duas vezes (título do livro e rótulo da lombada).
 - Teste comportamento, não implementação: nada de snapshot de árvore.
 - Dados de teste são fictícios.
-- Use o Node 22 do `.nvmrc`, o mesmo do CI; rode `npm run test` antes de
-  culpar o CI.
+- Use o Node 26 do `.nvmrc`, o mesmo do CI; rode `npm run test` antes de
+  culpar o CI. A primeira rodada sem cache do Jest é lenta e pode estourar o
+  timeout de telas pesadas; rode de novo antes de investigar.
 - Reanimated roda pelo resolver oficial
   (`jest.resolver = react-native-reanimated/jest/resolver` no `package.json`).
   Se um teste falhar com `loadUnpackersWithCode`, o resolver saiu do lugar.

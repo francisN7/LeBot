@@ -73,7 +73,7 @@ validação vermelha atrás do selo.
 | doctor | `npm run doctor` |
 | build | `gh workflow run release.yml` (o APK nunca é gerado na máquina local) |
 
-Requer Node 22 (`.nvmrc`) e `npm ci`. Lista completa em
+Requer Node 26 (`.nvmrc`) e `npm ci`. Lista completa em
 [`docs/guide/setup.md`](docs/guide/setup.md).
 
 ## Dependências

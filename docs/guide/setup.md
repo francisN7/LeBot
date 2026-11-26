@@ -6,7 +6,7 @@ Expo/React Native. **O que não responde:** publicar o APK
 
 ## Requisitos
 
-- **Node 22 LTS** (veja `.nvmrc`) e npm.
+- **Node 26 LTS** (veja `.nvmrc`) e npm 12.
 - **Expo Go** no Android para desenvolvimento. Para medir desempenho use o APK de
   release — o Expo Go exagera e não serve para `gfxinfo`.
 - `adb` (platform-tools) só se for instalar ou medir no aparelho.
@@ -76,7 +76,7 @@ Leia o QR com o Expo Go. Com um emulador/aparelho já aberto: `npm run android`.
 ## Problemas comuns
 
 - **Ícone/splash não aparecem:** só em build nativo; o Expo Go não os exibe.
-- **Teste falhando só no CI:** confira a versão do Node (22) e rode a suíte inteira.
+- **Teste falhando só no CI:** confira a versão do Node (26) e rode a suíte inteira.
 - **Mudou o schema e o app abre vazio:** faltou `npx drizzle-kit generate` e o
   bundle das migrações (`drizzle/migrations.js`).
 

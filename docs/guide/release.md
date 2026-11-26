@@ -11,7 +11,7 @@ Play Store e iOS estão fora de escopo.
 ## Requisitos e secrets
 
 - **`adb`** (só `platform-tools`: pacote `android-tools` da distro ou o SDK) e
-  **`gh`** autenticado (`gh auth login`); Node 22+. **Nada de JDK, Gradle, NDK ou
+  **`gh`** autenticado (`gh auth login`); Node 26. **Nada de JDK, Gradle, NDK ou
   WSL** — um `android/` na raiz é resto de `prebuild` e deve ser apagado.
 - Três secrets alimentam a assinatura (`Settings → Secrets and variables →
   Actions`), criados com `gh secret set` lendo de arquivo, nunca com `echo`:
