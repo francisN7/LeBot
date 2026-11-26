@@ -5,13 +5,10 @@
 
 ## Sessão
 
-- **Última concluída:** S13f — manutenção: SDK 58 alinhado, release só manual,
-  medição em bash (2026-11-26).
-- **Próxima:** S14a — code tour, convenções e code report
-  (`docs/sessions/S14a-code-tour.md`).
-- **Ciclo:** pós-MVP ativo em `docs/roadmap/main.md` (Fase 14); MVP fechado
-  em `docs/roadmap/0001-mvp.md`.
-- **Retorno:** `241c45e` — docs: coloca a S13f (manutencao) antes da S14a.
+- **Última concluída:** S14a — code tour e `code:report` (2026-11-26).
+- **Próxima:** S14b — desempenho (`docs/sessions/S14b-desempenho.md`).
+- **Ciclo:** pós-MVP em `docs/roadmap/main.md` (Fase 14); MVP em `0001-mvp.md`.
+- **Retorno:** `00107c1` — docs: renumera a analise para S14b/S14c (...).
 
 ## Pronto
 
@@ -21,10 +18,11 @@
 - Backlog auditado e priorizado com o dono em `docs/roadmap/main.md`.
 - Release só por `workflow_dispatch` (campo `tag` publica); tag não rebuilda
   (adendo na ADR 0026). Medição: `bash scripts/measure-gfx.sh --help`.
+- Tour, convenções e linha de base do `code:report`: `docs/guide/code-tour.md`.
 
 ## Próximo passo
 
-Conferir o job **Expo Doctor** verde no CI após o push; depois abrir a S14a.
+Abrir a S14b: fixar o protocolo (aparelho com `adb`, hash do APK, fixture).
 
 ## Decisões abertas
 
@@ -34,6 +32,7 @@ Conferir o job **Expo Doctor** verde no CI após o push; depois abrir a S14a.
 
 - `.github/workflows/release.yml` — build, conferência e publicação do APK.
 - `docs/guide/release.md` — passo a passo e versões publicadas.
+- `docs/guide/code-tour.md` — tour, convenções e linha de base do código.
 
 ## Armadilhas
 
@@ -44,12 +43,13 @@ Conferir o job **Expo Doctor** verde no CI após o push; depois abrir a S14a.
 - `expo install` com `app.config.ts` dinâmico não grava plugins e pode pôr
   `jest-expo` em `dependencies`: conferir à mão (ocorreu na S13f).
 - `expo` 58.1.0 + plugins novos e `measure-gfx.sh` ainda não rodaram em aparelho.
-- Os backups **reais** ficam só no celular/nuvem, nunca nesta máquina nem no
-  repo. O aparelho ficou com o fixture de 200 livros; o acervo volta por Ajustes
-  → Backup.
+- Backups **reais** só no celular/nuvem, nunca aqui nem no repo. O aparelho
+  está com o fixture de 200 livros; o acervo volta por Ajustes → Backup.
 - Husky só dá `+x` ao criar: hook sem permissão → `rm -rf .husky/_ && npx husky`.
 - Node 26 / npm 12: o npm bloqueia scripts de instalação (`allowScripts`); a
-  suíte passa assim. A primeira rodada do Jest sem cache pode estourar timeout.
+  suíte passa assim. Timeout de 5 s no Jest = RAM curta (5,6 GB aqui): rodar
+  `npx jest --maxWorkers=4` antes de investigar (S14a: 517/517 assim).
+- Há 26 imports profundos entre features (ver tour): não criar novos.
 - Social preview (`docs/assets/social-preview.png`): subir à mão em Settings.
 
 ## Como rodar

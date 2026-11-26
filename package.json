@@ -20,7 +20,8 @@
     "test:watch": "jest --watch",
     "doctor": "expo-doctor",
     "docs:check": "node scripts/check-docs.mjs",
-    "prepare": "husky"
+    "prepare": "husky",
+    "code:report": "node scripts/code-report.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/fredoka": "^0.4.1",

@@ -28,7 +28,7 @@ NativeWind.
    explícito. Criar ou migrar a estrutura é a `project-context-init`.
 
 Estado: `docs/state/CURRENT.md` · futuro: `docs/roadmap/main.md` · decisões:
-`docs/adr/` · mapa: `docs/README.md`.
+`docs/adr/` · mapa: `docs/README.md` · código: `docs/guide/code-tour.md`.
 
 ## Entrega final
 
@@ -70,6 +70,7 @@ validação vermelha atrás do selo.
 | typecheck | `npm run typecheck` |
 | test | `npm run test` |
 | docs | `npm run docs:check` |
+| tamanho e imports | `npm run code:report` |
 | doctor | `npm run doctor` |
 | build | `gh workflow run release.yml` (o APK nunca é gerado na máquina local) |
 

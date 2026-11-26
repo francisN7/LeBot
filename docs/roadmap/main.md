@@ -17,7 +17,7 @@ S14b mudar a arquitetura, eles são revistos antes de começar.
 | Sessão | Entrega | Aceite | Estado |
 |---|---|---|---|
 | S13f | Manutenção: SDK 58 alinhado (`expo` 58.1.0 + plugins `expo-image`/`expo-status-bar`), release só por `workflow_dispatch` (adendo na ADR 0026), `measure-gfx.sh` no lugar do `.ps1` e hooks do Husky executáveis | `npm run doctor` 20/20 local (CI após o push); YAML só com `workflow_dispatch` (lido, sem run real); `measure-gfx.sh --help` ok, sem `shellcheck` e sem aparelho | [x] |
-| S14a | Code tour (`docs/code-tour.md`, ~7 paradas), convenções de tamanho/imports/comentário e `scripts/code-report.mjs` | `npm run code:report` lista top 10 e imports cruzados; tour linkado; sem mudar comportamento | [ ] |
+| S14a | Code tour em `docs/guide/code-tour.md` (7 paradas + convenções de tamanho, imports e comentário) e `npm run code:report` com linha de base: 150 arquivos/16.095 linhas, 12 acima de 250, 26 imports profundos entre features | `code:report` lista top 10, pastas e imports cruzados; tour linkado no mapa e no AGENTS; só docs e script novo; lint, typecheck, 517 testes e docs verdes | [x] |
 | S14b | Análise de desempenho (A1): medir o APK de release, achar por que pesa e decidir o caminho — linguagem, framework e arquitetura podem mudar | Relatório com medições em `docs/`, ADR se mudar a direção, itens novos no backlog; nenhuma mudança no app | [ ] |
 | S14c | Análise de vida (A2): onde dar mais movimento e personalidade dentro do orçamento da S14b | Relatório em `docs/`, itens novos no backlog; nenhuma mudança no app | [ ] |
 | S14d | Refactor piloto de `settings/backup/format.ts` (~660 linhas): separar parse/validate/serialize | Testes verdes; formato do backup inalterado | [ ] |

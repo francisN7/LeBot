@@ -25,6 +25,7 @@ Humanos podem ler tudo; a tabela só diz o que o agente carrega por iniciativa.
 | ver o que já foi entregue | [`roadmap/`](roadmap/README.md) (arquivos `NNNN-*.md`) |
 | entender as regras do agente | [`../AGENTS.md`](../AGENTS.md) |
 | instalar, rodar e resolver problemas | [`guide/setup.md`](guide/setup.md) |
+| entender o código (tour e convenções) | [`guide/code-tour.md`](guide/code-tour.md) |
 | testar | [`guide/testing.md`](guide/testing.md) |
 | gerar e publicar o APK | [`guide/release.md`](guide/release.md) |
 | entender o plano diário | [`reference/planner.md`](reference/planner.md) |
@@ -54,6 +55,7 @@ Humanos podem ler tudo; a tabela só diz o que o agente carrega por iniciativa.
 | assinatura e CI | `guide/release.md` → **Assinatura** / **Gerar o APK** | 45 |
 | publicar um Release | `guide/release.md` → **Publicar manualmente** | 25 |
 | camadas de teste | `guide/testing.md` → **Três camadas** | 25 |
+| convenções de código | `guide/code-tour.md` → **Convenções** | 15 |
 
 ## Regras do mapa
 
