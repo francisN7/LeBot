@@ -1,4 +1,8 @@
-# ADR 0028 - Documentação por tipo, roadmap numerado e orçamento de contexto
+# ADR 0028 — Documentação por tipo, roadmap numerado e orçamento de contexto
+
+- **Status:** aceito
+- **Data:** 2026-11-04
+- **Sessão:** S13e
 
 ## Contexto
 
