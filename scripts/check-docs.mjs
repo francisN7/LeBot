@@ -1,19 +1,23 @@
 #!/usr/bin/env node
 /**
- * Confere a saúde da documentação sem dependências:
+ * Confere a saúde da documentação, sem dependências (Node >= 18):
  *
- * 1. links relativos entre arquivos `.md` (ignora http(s), mailto e #âncora);
- * 2. orçamento de linhas de AGENTS, CURRENT e specs de sessão;
- * 3. histórico disfarçado de referência ("## Cobertura da SXX").
+ * 1. links relativos e <img src> entre `.md` (ignora http(s), mailto, #âncora
+ *    e blocos de código);
+ * 2. orçamento de linhas: AGENTS.md, CURRENT.md e specs de sessão;
+ * 3. {{PLACEHOLDER}} esquecido em qualquer .md (exceto docs/sessions/_TEMPLATE.md);
+ * 4. histórico disfarçado de referência ("## Cobertura da SXX") em docs/reference/.
  *
- * Histórico: CHANGELOG, `docs/releases/` e ADRs não entram na checagem de link.
- * Specs de fases fechadas saem do working tree; o orçamento vale para as que
- * ficam (a próxima e as em andamento).
+ * Escopo: *.md na raiz e em docs/. Sem checagem de link nos históricos:
+ * CHANGELOG.md, docs/releases/, o corpo dos ADRs e docs/sessions/ (a spec cita
+ * arquivos que ainda vão existir). O índice docs/adr/README.md é checado.
+ *
+ * Gêmeo em Python: scripts/check_docs.py (mesmas regras, mesma saída).
  *
  * Uso: node scripts/check-docs.mjs
  */
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -21,34 +25,39 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 const SKIP_DIRS = new Set([
   '.git',
-  '.expo',
-  'backups',
-  'dist',
-  'dist-web',
-  'node_modules',
-  'tmp',
+  '.venv',
+  '.pytest_cache',
   '.temp',
+  'backups',
+  'build',
+  'dist',
+  'node_modules',
+  'output',
+  'tmp',
 ]);
-
-/** Documentos históricos: não são reescritos nem têm links cobrados. */
-const SKIP_LINKS = ['CHANGELOG.md', 'docs/sessions/', 'docs/adr/'];
-
+const SKIP_LINKS = [
+  'CHANGELOG.md',
+  'docs/releases/',
+  'docs/sessions/',
+];
+const NO_PLACEHOLDER_CHECK = ['docs/sessions/_TEMPLATE.md'];
 const BUDGETS = [
   { file: 'AGENTS.md', max: 100 },
   { file: 'docs/state/CURRENT.md', max: 60 },
 ];
+const SESSION_MAX = 90;
+const PLACEHOLDER = /\{\{[A-Z][A-Z0-9_/]*\}\}/;
 
 const errors = [];
 let checkedFiles = 0;
 let checkedLinks = 0;
 
 function walk(dir) {
-  const entries = readdirSync(dir, { withFileTypes: true });
   const files = [];
-  for (const entry of entries) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (entry.isDirectory()) {
-      if (SKIP_DIRS.has(entry.name)) continue;
-      files.push(...walk(path.join(dir, entry.name)));
+      if (!SKIP_DIRS.has(entry.name))
+        files.push(...walk(path.join(dir, entry.name)));
     } else if (entry.name.endsWith('.md')) {
       files.push(path.join(dir, entry.name));
     }
@@ -56,43 +65,60 @@ function walk(dir) {
   return files;
 }
 
-function relative(file) {
-  return path.relative(root, file).replaceAll('\\', '/');
+function collect() {
+  const files = readdirSync(root, { withFileTypes: true })
+    .filter((e) => e.isFile() && e.name.endsWith('.md'))
+    .map((e) => path.join(root, e.name));
+  const docs = path.join(root, 'docs');
+  if (existsSync(docs)) files.push(...walk(docs));
+  return files;
 }
+
+const relative = (file) => path.relative(root, file).replaceAll('\\', '/');
 
 function lineCount(file) {
   const text = readFileSync(file, 'utf8').replace(/\r?\n$/, '');
   return text.split(/\r?\n/).length;
 }
 
+function safeDecode(target) {
+  try {
+    return decodeURI(target);
+  } catch {
+    return target;
+  }
+}
+
 function checkLinks(file) {
   const rel = relative(file);
   if (SKIP_LINKS.some((skip) => rel === skip || rel.startsWith(skip))) return;
+  if (rel.startsWith('docs/adr/') && rel !== 'docs/adr/README.md') return;
 
-  const text = readFileSync(file, 'utf8');
-  const lines = text.split(/\r?\n/);
   const linkPattern = /\]\(([^)\s]+)\)/g;
   const imagePattern = /<img[^>]+src="([^"]+)"/gi;
+  let inFence = false;
 
   const checkTarget = (target, lineNumber) => {
     if (/^(https?:|mailto:|#|<)/.test(target)) return;
     checkedLinks += 1;
-    const clean = decodeURI(target.split('#')[0].split('?')[0]);
+    const clean = safeDecode(target.split('#')[0].split('?')[0]);
     if (!clean) return;
-    const resolved = path.resolve(path.dirname(file), clean);
-    if (!existsSync(resolved)) {
+    if (!existsSync(path.resolve(path.dirname(file), clean))) {
       errors.push(`${rel}:${lineNumber} link quebrado -> ${target}`);
     }
   };
 
-  lines.forEach((line, index) => {
-    for (const match of line.matchAll(linkPattern)) {
-      checkTarget(match[1], index + 1);
-    }
-    for (const match of line.matchAll(imagePattern)) {
-      checkTarget(match[1], index + 1);
-    }
-  });
+  readFileSync(file, 'utf8')
+    .split(/\r?\n/)
+    .forEach((line, index) => {
+      if (/^\s*(```|~~~)/.test(line)) {
+        inFence = !inFence;
+        return;
+      }
+      if (inFence) return;
+      for (const m of line.matchAll(linkPattern)) checkTarget(m[1], index + 1);
+      for (const m of line.matchAll(imagePattern)) checkTarget(m[1], index + 1);
+    });
 }
 
 function checkBudget(file) {
@@ -100,39 +126,44 @@ function checkBudget(file) {
   const budget = BUDGETS.find((item) => item.file === rel);
   if (budget) {
     const lines = lineCount(file);
-    if (lines > budget.max) {
+    if (lines > budget.max)
       errors.push(`${rel}: ${lines} linhas (máx. ${budget.max})`);
-    }
+  }
+  if (rel.startsWith('docs/sessions/') && !rel.endsWith('_TEMPLATE.md')) {
+    const lines = lineCount(file);
+    if (lines > SESSION_MAX)
+      errors.push(`${rel}: ${lines} linhas (spec máx. ${SESSION_MAX})`);
   }
 }
 
-function checkSessionBudget(file) {
+function checkPlaceholders(file) {
   const rel = relative(file);
-  if (!rel.startsWith('docs/sessions/') || rel.endsWith('_TEMPLATE.md')) return;
-  const lines = lineCount(file);
-  if (lines > 90) {
-    errors.push(`${rel}: ${lines} linhas (spec máx. 90)`);
-  }
+  if (NO_PLACEHOLDER_CHECK.includes(rel)) return;
+  readFileSync(file, 'utf8')
+    .split(/\r?\n/)
+    .forEach((line, index) => {
+      const m = line.match(PLACEHOLDER);
+      if (m)
+        errors.push(`${rel}:${index + 1} placeholder esquecido -> ${m[0]}`);
+    });
 }
 
 function checkReferenceHistory(file) {
   const rel = relative(file);
   if (!rel.startsWith('docs/reference/')) return;
   const text = readFileSync(file, 'utf8');
-  for (const match of text.matchAll(
+  for (const m of text.matchAll(
     /^##+\s+(Cobertura da S.+|S\d+[a-z]?\b.*)$/gim,
   )) {
-    errors.push(`${rel}: heading de histórico -> "${match[0].trim()}"`);
+    errors.push(`${rel}: heading de histórico -> "${m[0].trim()}"`);
   }
 }
 
-const files = walk(root);
-
-for (const file of files) {
+for (const file of collect()) {
   checkedFiles += 1;
   checkLinks(file);
   checkBudget(file);
-  checkSessionBudget(file);
+  checkPlaceholders(file);
   checkReferenceHistory(file);
 }
 
@@ -144,6 +175,12 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
+const openingBytes = ['AGENTS.md', 'docs/state/CURRENT.md']
+  .map((f) => path.join(root, f))
+  .filter((f) => existsSync(f))
+  .reduce((sum, f) => sum + statSync(f).size, 0);
+
 console.log(
-  `docs ok: ${checkedFiles} arquivos, ${checkedLinks} links, orçamentos e referência limpos`,
+  `docs ok: ${checkedFiles} arquivos, ${checkedLinks} links; ` +
+    `abertura (AGENTS+CURRENT) ≈ ${Math.round(openingBytes / 4)} tokens`,
 );

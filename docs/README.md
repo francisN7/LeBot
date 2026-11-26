@@ -6,12 +6,23 @@ Este arquivo é o índice. A regra é **abrir a seção, não o arquivo inteiro*
 > (≤60) + a spec da sessão (≤90). Tudo além disso é consulta pontual. Se a
 > informação não está aqui, ela vive no Git (`git log`, `git show`) ou num ADR.
 
+## Quem lê o quê
+
+| Público | Arquivos | Regra |
+|---|---|---|
+| 🤖 agente | `AGENTS.md`, `docs/state/CURRENT.md`, `docs/sessions/` | carregado na abertura, dentro do orçamento |
+| 🤝 ambos | este mapa, `docs/roadmap/`, `docs/reference/`, `docs/guide/`, `docs/adr/` | o agente abre só a seção necessária |
+| 👤 dev | `README.md`, `CHANGELOG.md`, `docs/releases/`, `docs/assets/` | o agente não carrega; só edita quando a tarefa pedir |
+
+Humanos podem ler tudo; a tabela só diz o que o agente carrega por iniciativa.
+
 ## Por pergunta
 
 | Você quer… | Leia |
 |---|---|
 | saber onde paramos | [`state/CURRENT.md`](state/CURRENT.md) |
 | saber o que vem agora | [`roadmap/main.md`](roadmap/main.md) |
+| ver o que já foi entregue | [`roadmap/`](roadmap/README.md) (arquivos `NNNN-*.md`) |
 | entender as regras do agente | [`../AGENTS.md`](../AGENTS.md) |
 | instalar, rodar e resolver problemas | [`guide/setup.md`](guide/setup.md) |
 | testar | [`guide/testing.md`](guide/testing.md) |
@@ -22,7 +33,7 @@ Este arquivo é o índice. A regra é **abrir a seção, não o arquivo inteiro*
 | ver a identidade e a arte | [`reference/brand.md`](reference/brand.md) |
 | entender camadas e fluxo | [`reference/architecture.md`](reference/architecture.md) |
 | saber o que o app faz com seus dados | [`reference/security-privacy.md`](reference/security-privacy.md) |
-| saber **por que** algo é assim | [`adr/`](adr/) |
+| saber **por que** algo é assim | [`adr/`](adr/README.md) |
 | ver o que mudou | [`../CHANGELOG.md`](../CHANGELOG.md) e [`releases/`](releases/) |
 | ler a spec da sessão atual | [`sessions/`](sessions/) |
 
@@ -48,13 +59,16 @@ Este arquivo é o índice. A regra é **abrir a seção, não o arquivo inteiro*
 
 - **Guide** responde "como eu faço"; **reference**, "como X é".
 - **ADR** guarda o **por quê** e não muda depois de aceito.
-- **Spec de sessão** é escopo fechado e temporário: entregou, sai do caminho.
+- **Spec de sessão** é escopo fechado e temporário: no encerramento, entrega e
+  aceite viram linha em `roadmap/main.md` e a spec sai (`git rm`).
 - **CURRENT** é estado, não narrativa: sem medições, diffs ou tabelas antigas.
 - Referência não conta em que sessão a coisa foi feita; isso é histórico.
 - Documento novo só entra se responder uma pergunta que nenhum outro responde.
+- Só liste aqui arquivos que existem (o `docs:check` acusa link quebrado).
 
 ## O que é histórico
 
-`CHANGELOG.md`, `docs/releases/` e os ADRs registram o passado: nomes de
-documentos e sessões citados neles podem não existir mais. O `npm run docs:check`
-valida os documentos vivos e ignora esses três.
+`CHANGELOG.md`, `docs/releases/`, os ADRs e as specs de sessão registram o
+passado ou o futuro próximo: nomes citados neles podem não existir mais. O
+`npm run docs:check` ignora os links desses quatro, exceto o índice
+`adr/README.md`.

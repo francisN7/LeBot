@@ -16,11 +16,11 @@ Objetivo: tornar o código navegável e medir o labirinto antes de refatorar.
   imports e comentário ("por quê", não "o quê"), e `scripts/code-report.mjs`
   listando arquivos >250 linhas e imports cruzados. Custo M; sem mudar
   comportamento.
-- **S14b — Refactor piloto: `settings/backup/format.ts`.** 590 linhas puras com
+- **S14b — Refactor piloto: `settings/backup/format.ts`.** ~660 linhas puras com
   testes; separar parse/validate/serialize e provar a convenção. Custo M; testes
   verdes, sem mudar o formato do backup.
-- **S14c+ — Refactors restantes, intercalados.** `SpineArtwork` (663),
-  `EstanteScreen` (380), `QueueScreen` (374); um por ciclo, na ordem do
+- **S14c+ — Refactors restantes, intercalados.** `SpineArtwork` (~710),
+  `QueueScreen` (~440), `EstanteScreen` (~410); um por ciclo, na ordem do
   `code-report`. Custo M cada.
 
 ## Fase 15 — Cadastro sem digitação

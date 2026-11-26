@@ -61,5 +61,5 @@ do relatório. Não abrir as 22 mil linhas de `src/`.
 
 ## Próximo depois desta
 
-S14b — refactor piloto de `src/features/settings/backup/format.ts` (590 linhas),
+S14b — refactor piloto de `src/features/settings/backup/format.ts` (~660 linhas),
 separando parse/validate/serialize sem mudar o formato do backup.
