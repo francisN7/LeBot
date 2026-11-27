@@ -5,10 +5,10 @@
 
 ## Sessão
 
-- **Última concluída:** S14b — análise de desempenho (2026-11-26).
-- **Em andamento:** S14c (`docs/sessions/S14c-leveza-animacao.md`); falta medir.
+- **Última concluída:** S14c — leveza I, medida no APK (2026-11-26).
+- **Próxima:** S14d — prova Skia (`docs/sessions/S14d-prova-skia.md`).
 - **Ciclo:** pós-MVP em `docs/roadmap/main.md` (Fase 14); MVP em `0001-mvp.md`.
-- **Retorno:** `e46c225` — S14b: analise de desempenho, orcamento (ADR 0029).
+- **Retorno:** `6c05b5f` — S14c: animacao com fim, pausa fora de foco e medidores.
 
 ## Pronto
 
@@ -18,16 +18,16 @@
 - Backlog auditado e priorizado com o dono em `docs/roadmap/main.md`.
 - Release manual (`tag` publica, ADR 0026); medidores em `scripts/measure-*.sh`.
 - Tour, convenções e linha de base do `code:report`: `docs/guide/code-tour.md`.
-- Desempenho e orçamento: `docs/reference/performance.md` + ADR 0029 (stack fica).
+- Desempenho: `reference/performance.md` + ADR 0029 (adendo S14c); gate de
+  animação `useAmbientMotion` (foco + "reduzir movimento").
 
 ## Próximo passo
 
-APK do `release.yml` sem `tag` (dono): f200 com backup, `measure-idle/gfx/wheel`,
-coluna "S14c" + hash em `performance.md`, conferir a vida e encerrar.
+Abrir a S14d: instalar a Skia, protótipo `SpineCanvas` e interruptor A/B.
 
 ## Decisões abertas
 
-- Nenhuma.
+- Mascote (S14g): Rive (MCP só no editor Windows/macOS) ou Skia.
 
 ## Arquivos-chave
 
@@ -42,7 +42,7 @@ coluna "S14c" + hash em `performance.md`, conferir a vida e encerrar.
 - `v0.2.1` medido na S14b é o asset `e44b2c…3ab6` (build `2d66d62`).
 - `expo install` com `app.config.ts` dinâmico não grava plugins e pode pôr
   `jest-expo` em `dependencies`: conferir à mão (ocorreu na S13f).
-- `expo` 58.1.0 + plugins novos ainda não rodaram em aparelho.
+- CPU parada ≥ ~10% (custo fixo do RN 0.88); `measure-wheel` ainda não mede.
 - Backups **reais** só no celular/nuvem, nunca aqui. Restaurar fixture apaga o
   acervo real: pedir backup ao dono. Fixture não tem capa (só lombadas).
 - Husky só dá `+x` ao criar: hook sem permissão → `rm -rf .husky/_ && npx husky`.

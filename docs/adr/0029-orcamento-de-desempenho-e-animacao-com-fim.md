@@ -57,3 +57,34 @@ GPU, tamanho do acervo na Estante e framework não são o gargalo.
   saber se A basta.
 - **Flutter ou Kotlin/Compose:** custo XL, perda dos 517 testes e mesmo
   problema se o design continuar igual.
+
+## Adendo — S14c (2026-11-26): vida em intervalos e prova com Skia
+
+A S14c cumpriu a regra 2 ao pé da letra: toda animação toca uma vez e para.
+No APK, nenhuma aba parada desenha quadro e a rolagem da f200 caiu para 4% janky
+/ P95 de 20 ms ([`reference/performance.md`](../reference/performance.md),
+seção **Depois da animação com fim**). Mas o app perdeu a vida, e o dono quer **mais** animação, não
+menos. Duas medições também mudam o orçamento:
+
+- A CPU parada não desce de ~10%: é o `FabricEventDispatcher` do RN 0.88,
+  que agenda um callback a cada quadro enquanto o app está aberto. Nenhum app
+  RN fica em "≤ 5%" neste aparelho.
+- "≤ 30 quadros em 10 s" proíbe qualquer vida ambiente: um único brilho de
+  1,5 s a 120 Hz já passa disso.
+
+Revisão:
+
+1. **Regra 2:** animação ambiente vive **em intervalos**, uma por vez por
+   tela, só `transform`/`opacity` (ou Skia), só com a tela em foco e nunca com
+   "reduzir movimento". Loop contínuo segue proibido.
+2. **Parado:** CPU ≤ custo fixo do RN + 3 p.p. (~13% neste aparelho). O teto
+   de quadros sai para tela com vida ambiente. Aba escondida: nenhum custo além
+   do fixo.
+3. **Caminho B antecipado:** a S14d faz uma prova com Skia (lombada 3D
+   flutuante, A/B com a de SVG no mesmo APK). Se a CPU do pior caso cair a
+   ≤ metade, sem piora de rolagem nem PSS acima de 250 MiB, lombadas e capas
+   migram e o resultado vira a ADR 0030. ~6 MB por ABI no APK são aceitos.
+4. **Mascote:** Rive (MCP oficial só no editor desktop Windows/macOS; runtime
+   fora do Expo Go) ou Skia, decidido antes da sessão do mascote.
+
+Os demais tetos (boot, 1ª visita, rolagem, PSS) ficam como estão.

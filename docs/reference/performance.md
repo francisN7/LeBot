@@ -23,6 +23,10 @@ para deixá-lo leve. Medido na S14b (2026-11-26). Um resultado novo entra como
   percebido.
 - **Caminho recomendado:** ajustes dentro do stack atual (seção
   **Caminhos**). Trocar de framework não resolveria a causa.
+- **Depois da S14c:** nenhuma aba parada desenha quadro; a CPU cai para o
+  custo fixo do RN (~10%); a rolagem da f200 fica em 4% janky / P95 de 20 ms
+  e o PSS em 236 MiB (seção **Depois da animação com fim**). O preço foi o app sem vida; a vida
+  volta em intervalos, com a prova de Skia na S14d.
 
 ## Protocolo
 
@@ -152,6 +156,75 @@ Maiores `.so` arm64: `libreactnative` 7,0 MB, `libhermesvm` 2,7 MB,
 (`-PreactNativeArchitectures=arm64-v8a,armeabi-v7a`). Um APK por ABI teria
 ~38 MB.
 
+### Depois da animação com fim (S14c)
+
+APK de `workflow_dispatch` sem tag, build `6c05b5f`, SHA-256
+`06187f32f1b11bc99e55e20e5189d0d58f0a5eb0f8848b0afefba8534fdd8ef8` (lido do
+aparelho). Mesmo aparelho, na tomada, bateria 71–80%, 34–35 °C. Medido com os
+scripts de `scripts/`; parado = 4 s de espera e 10 s de contagem.
+
+| Aba parada (quadros / CPU) | real3 | f200 |
+|---|---|---|
+| Estante | 0 / 10% | 0 / 10% |
+| Hoje | 0 / 10% | 0 / 11% |
+| Ordem | 0 / 11% | 0 / 11% (2ª visita) |
+| Ajustes | 0 / 8% | 0 / 10% |
+
+- **Ordem, 1ª visita na f200:** 51–101 quadros / 15–17%. É a montagem O(n),
+  que fica para a Leveza II.
+- **CPU por thread, Ajustes parado:** só a thread principal (~10–11%); JS,
+  RenderThread e as demais em 0%. Isso é o custo fixo do RN (seção abaixo),
+  não animação: as abas escondidas não somam mais nada.
+- **Rolagem f200** (mediana das rodadas 2–4): 4,0% janky, P50 / P90 / P95 /
+  P99 = 9 / 14 / 20 / 97 ms. Na S14b: 11% e P95 de 109 ms.
+- **Memória f200 pós-uso:** PSS 236 MiB / Native Heap 75 MiB. Na S14b: 379 /
+  149.
+- **Roda de status: não comparável.** `measure-wheel.sh` abre a roda e move
+  a seleção, mas gera só ~41 quadros por rodada, com 2 ou 6 voltas. A amostra
+  é pequena demais para o P95 (deu 21–40 ms). Calibrar o script na S14d.
+
+### Custo fixo do React Native
+
+Com nada se mexendo, a thread principal do app acorda ~60 vezes por segundo e
+gasta ~10% de um núcleo, sem desenhar quadro. O `atrace` mostra, a cada
+quadro, a fase `animation` com `BatchEventDispatchedListeners`. É o
+`FabricEventDispatcher` do RN 0.88
+(`ReactAndroid/.../uimanager/events/FabricEventDispatcher.kt`): o callback
+de quadro se reagenda em todo `doFrame` enquanto o app está em primeiro
+plano e só para no `onHostPause`. Vale para qualquer app RN neste aparelho;
+tirar isso exigiria modificar o próprio React Native. Por isso o orçamento de
+"parado" passa a ser medido **acima** desse custo fixo (adendo da ADR 0029).
+
+## Animação rica e leve: o que o mercado faz
+
+Pesquisa da S14c (2026-11-26), para não dar tiro no escuro:
+
+- **Só `transform` e `opacity`.** Mexer em layout ou redesenhar SVG por
+  quadro (`animatedProps`) é o que pesa. O Reanimated aguenta algumas
+  dezenas de componentes animando juntos; o teto prático em Android fraco é de
+  uns 100. Acima disso, ou para vetor animado, a indicação é Skia.
+- **Uma coisa por vez, em intervalos.** O benchmark da Expo (Moto G8 Plus,
+  release, 50 views em loop) deu ~10–12 ms por quadro na thread de UI com o
+  Reanimated. Animação curta e pontual custa quase nada; loops longos e
+  simultâneos é que somam.
+- **Flags do Reanimated** (`ANDROID_SYNCHRONOUSLY_UPDATE_UI_PROPS`,
+  `USE_COMMIT_HOOK_ONLY_FOR_REACT_COMMITS`): pulam trabalho do RN quando só
+  `transform`/`opacity` mudam (−11% a −19% no benchmark). Efeito
+  colateral conhecido: o toque em componentes com `transform` animado.
+- **Skia** (`@shopify/react-native-skia` 2.14.0, já no Expo SDK 58 e no Expo
+  Go): desenha na GPU e recebe os valores do Reanimated sem passar pelo React.
+  É o caminho para muitas lombadas vivas e para o "3D flutuante".
+- **Personagem com muitos estados** (o caso do Duolingo): Rive, com máquina de
+  estados. A Rive tem um servidor MCP oficial que deixa o Claude Code comandar
+  o editor, mas só no editor desktop para Windows e macOS. O runtime é nativo,
+  não vem no SDK 58 e não roda no Expo Go.
+
+Fontes: [Reanimated — Performance](https://docs.swmansion.com/react-native-reanimated/docs/guides/performance),
+[Expo — The real cost of React Native animations](https://expo.dev/blog/the-real-cost-of-react-native-animations-benchmarking-every-approach),
+[Software Mansion — You might not need react-native-svg](https://swmansion.com/blog/you-might-not-need-react-native-svg-b5c65646d01f),
+[Rive — MCP](https://rive.app/docs/editor/ai/mcp),
+[Rive — Duolingo](https://rive.app/blog/duolingo-s-ai-powered-video-call-brings-lily-to-life).
+
 ## Causas
 
 Cada causa aponta para uma medição.
@@ -204,25 +277,26 @@ descartado.
 
 ## Orçamento
 
-Este é o teto que a S14c (vida) e as próximas sessões respeitam no APK de
-release, medido com f200 neste aparelho:
+Este é o teto que as próximas sessões respeitam no APK de release, medido com
+f200 neste aparelho. A linha de "parado" foi revista na S14c (adendo da ADR
+0029): o custo fixo do RN não sai, e o app precisa de vida.
 
-| Métrica | Hoje (f200) | Orçamento |
-|---|---|---|
-| Qualquer aba parada há 3 s | 533–750 quadros / 76–121% | ≤ 30 quadros em 10 s / ≤ 5% |
-| Aba escondida | 84% | 0% |
-| Boot até a Estante estável | 1.757 ms | ≤ 1.300 ms |
-| 1ª visita a qualquer aba (f1000) | 2.340 ms | ≤ 400 ms |
-| Rolagem: janky / P95 | 11% / 109 ms | ≤ 5% / ≤ 25 ms |
-| PSS pós-uso | 379 MiB | ≤ 250 MiB |
+| Métrica | S14b (f200) | S14c (f200) | Orçamento |
+|---|---|---|---|
+| Aba parada há 3 s (CPU) | 76–121% | 10–11% | custo fixo + 3 p.p. (~13%) |
+| Aba escondida | 84% | 0 a mais | sem custo além do fixo |
+| Boot até a Estante estável | 1.757 ms | — | ≤ 1.300 ms |
+| 1ª visita a qualquer aba (f1000) | 2.340 ms | — | ≤ 400 ms |
+| Rolagem: janky / P95 | 11% / 109 ms | 4,0% / 20 ms | ≤ 5% / ≤ 25 ms |
+| PSS pós-uso | 379 MiB | 236 MiB | ≤ 250 MiB |
 
-Vida e animação nova entram **com hora para acabar**: animam ao entrar, ao
-tocar ou num evento, e param. Loop infinito só com a aba em foco, num
-elemento por tela.
+Vida ambiente entra **em intervalos**, uma animação por vez por tela, só
+`transform`/`opacity` (ou Skia), só com a tela em foco e nada com "reduzir
+movimento".
 
 ## Decisão
 
-O dono escolheu, em 2026-11-26:
+O dono escolheu, em 2026-11-26 (S14b):
 
 - o **caminho A**;
 - as duas sessões de leveza (S14c e S14d) **antes** da análise de vida, que
@@ -232,3 +306,11 @@ O dono escolheu, em 2026-11-26:
 Regras e orçamento estão na
 [ADR 0029](../adr/0029-orcamento-de-desempenho-e-animacao-com-fim.md). O
 stack não muda.
+
+Na S14c (2026-11-26), depois de ver o APK sem vida, o dono decidiu:
+
+- vida ambiente em intervalos, com o orçamento de "parado" revisto;
+- antecipar a **prova com Skia** (S14d): uma lombada 3D flutuante, A/B com a
+  de SVG no mesmo APK, antes de migrar lombadas, capas e mascote;
+- aceitar ~6 MB por ABI no APK se a Skia ganhar;
+- mascote: Rive ou Skia, decidido antes da sessão do mascote.

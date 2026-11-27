@@ -13,6 +13,10 @@ está em [`docs/roadmap/0001-mvp.md`](docs/roadmap/0001-mvp.md) e as decisões e
 
 ### Changed
 
+- Animações pausam quando a tela sai de foco e não tocam com "reduzir
+  movimento" ligado no sistema; o app parado deixa de gastar bateria à toa.
+  Por enquanto cada animação toca uma vez e para; a vida em intervalos volta
+  nas próximas sessões.
 - Documentação reorganizada por tipo (guias, referência, ADRs e roadmap
   numerado), com check de links e orçamento no CI
   ([ADR 0028](docs/adr/0028-documentacao-por-tipo-e-roadmap-numerado.md)).
